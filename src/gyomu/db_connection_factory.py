@@ -15,8 +15,10 @@ class DbConnectionFactory:
 
     @classmethod
     def get_sqldb_type(cls) -> DbType:
+        env_value = os.environ[GYOMU_COMMON_MAINDB_TYPE]
+        if env_value == "":
+            raise ValueError("Environment Variable GYOMU_COMMON_MAINDB_TYPE not set")
         try:
-            env_value = os.environ[GYOMU_COMMON_MAINDB_TYPE]
             return DbType[env_value]
         except:
             return DbType.Other

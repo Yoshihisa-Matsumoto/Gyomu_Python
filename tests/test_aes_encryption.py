@@ -14,7 +14,7 @@ def test_aes_encrypt():
 
 def test_aes_decrypt_csharp_encryption():
     key ="abc"
-    encrypted_text ="vFJphp+ZhwbyAKIHFf1Br6vEOpM81B8PxT+qJcpm6Dkft26ye+HDrl5J"
-    decrypted_text = AesEncryption.aes_decrypt(encrypted_text,key)
+    csharp_encrypted_data ="vFJphp+ZhwbyAKIHFf1Br6vEOpM81B8PxT+qJcpm6Dkft26ye+HDrl5J"
+    decrypted_text = AesEncryption.aes_decrypt(csharp_encrypted_data,key)
     plain_text="Hello$Test"
     assert plain_text == decrypted_text
