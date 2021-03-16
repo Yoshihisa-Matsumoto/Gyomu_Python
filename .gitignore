@@ -1,3 +1,6 @@
 venv/
 .idea/
 
+/build/
+/dist/
+/src/gyomu.egg-info/
