@@ -1,4 +1,4 @@
-from src.gyomu import User
+from gyomu.user import User
 
 
 class _WindowsUser(User):

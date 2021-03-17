@@ -1,4 +1,4 @@
-from src.gyomu.base64 import Base64Encode
+from gyomu.base64 import Base64Encode
 import pytest
 import binascii
 

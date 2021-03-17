@@ -1,4 +1,4 @@
-from src.gyomu.aes_encryption import AesEncryption
+from gyomu.aes_encryption import AesEncryption
 import pytest
 
 

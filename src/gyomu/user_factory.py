@@ -1,7 +1,7 @@
 from sys import platform
 import getpass
 
-from src.gyomu import _WindowsUser
+from gyomu.user_windows import _WindowsUser
 
 
 class UserFactory:

@@ -1,5 +1,5 @@
 from Crypto.Cipher import AES
-from src.gyomu.base64 import Base64Encode
+from gyomu.base64 import Base64Encode
 
 
 class AesEncryption:

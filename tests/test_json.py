@@ -1,4 +1,4 @@
-from src.gyomu.json import Json
+from gyomu.json import Json
 from enum import Enum
 
 
