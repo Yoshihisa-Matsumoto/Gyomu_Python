@@ -42,12 +42,15 @@ class _ColorStr(Enum):
 
 def test_to_json():
     brian = _User("Brian")
-    assert Json.to_json(brian) == "{\"py/object\": \"tests.test_json._User\", \"name\": \"Brian\"}"
+    assert Json.to_json(brian) == "{\"py/object\": \"tests.test_json._User\", \"name\": \"Brian\"}" #'{"name": "Brian"}'
+
     diana = _Programmer("Dianna")
-    assert Json.to_json(diana) == "{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\"}"
+    assert Json.to_json(diana) == "{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\"}" #'{"name": "Dianna"}'
+
     diana.job = "Test"
     assert Json.to_json(
-        diana) == "{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\", \"job\": \"Test\"}"
+        diana) == "{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\", \"job\": \"Test\"}" #'{"name": "Dianna", "job": "Test"}'
+
     blue = _Color.BLUE
     bluestr = Json.to_json(blue)
     assert bluestr == "{\"py/reduce\": [{\"py/type\": \"tests.test_json._Color\"}, {\"py/tuple\": [3]}]}"

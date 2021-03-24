@@ -24,10 +24,16 @@ class User(metaclass=ABCMeta):
         pass
 
     def __eq__(self, other):
-        return other.get_userid() == self.get_userid()
+        if other is not None:
+            return other.get_userid() == self.get_userid()
+        return False
 
     @abstractmethod
     def is_in_member(self, group_user: 'User') -> bool:
         pass
+
+    @abstractmethod
+    def get_region(selfself) ->str:
+        return ""
 
 
