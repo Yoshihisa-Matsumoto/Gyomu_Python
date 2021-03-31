@@ -7,44 +7,36 @@ import os
 class Configurator(metaclass=ABCMeta):
     GYOMU_COMMON_MODE: str = "GYOMU_COMMON_MODE"
 
-    @property
     @abstractmethod
-    def machine_name(self) ->str:
+    def get_machine_name(self) ->str:
         pass
 
-    @property
     @abstractmethod
-    def address(self):
+    def get_address(self):
         pass
 
-    @property
     @abstractmethod
-    def username(self) ->str:
+    def get_username(self) ->str:
         pass
 
-    @property
     @abstractmethod
-    def unique_instance_id_per_machine(self) ->int:
+    def get_unique_instance_id_per_machine(self) ->int:
         pass
 
-    @property
     @abstractmethod
-    def region(self) ->str:
+    def get_region(self) ->str:
         pass
 
-    @property
     @abstractmethod
-    def user(self) -> User:
+    def get_user(self) -> User:
         pass
 
-    @property
     @abstractmethod
-    def mode(self) -> str:
+    def get_mode(self) -> str:
         pass
 
-    @property
     @abstractmethod
-    def application_id(self) -> int:
+    def get_application_id(self) -> int:
         pass
 
     @abstractmethod
@@ -71,38 +63,30 @@ class BaseConfigurator(Configurator):
     _ip_address:str
     _process_id: int
 
-    @property
-    def machine_name(self) ->str:
+    def get_machine_name(self) ->str:
         return self._machine_name
 
-    @property
-    def address(self):
+    def get_address(self):
         return self._ip_address
 
-    @property
-    def username(self) ->str:
+    def get_username(self) ->str:
         return self._user.get_userid()
 
-    @property
-    def unique_instance_id_per_machine(self) ->int:
+    def get_unique_instance_id_per_machine(self) ->int:
         return self._process_id
 
-    @property
-    def region(self) ->str:
+    def get_region(self) ->str:
         return self._user.get_region()
 
-    @property
-    def user(self) -> User:
+    def get_user(self) -> User:
         return self._user
 
-    @property
-    def mode(self) -> str:
+    def get_mode(self) -> str:
         return os.environ[Configurator.GYOMU_COMMON_MODE]
 
     _application_id:int = 0
 
-    @property
-    def application_id(self) -> int:
+    def get_application_id(self) -> int:
         return self._application_id
 
     def set_application_id(self, application_id: int) :

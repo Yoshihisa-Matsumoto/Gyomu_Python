@@ -30,9 +30,9 @@ class EmailBuilder:
         email['Subject'] = subject
         email['From'] = from_address
         if to_address is not None and len(to_address) > 0 :
-            email['To'] = ','.join(to_address)
+            email['To'] = '.'.join(to_address)
         if cc_address is not None and len(cc_address) > 0:
-            email['Cc'] = ','.join(to_address)
+            email['Cc'] = '.'.join(to_address)
 
         if body is not None:
             email.set_content(body, subtype='html')

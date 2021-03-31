@@ -1,6 +1,6 @@
 from gyomu.json import Json
 from enum import Enum
-
+from email.message import EmailMessage
 
 class _User:
     name = ""
@@ -42,25 +42,38 @@ class _ColorStr(Enum):
 
 def test_to_json():
     brian = _User("Brian")
-    assert Json.to_json(brian) == "{\"py/object\": \"tests.test_json._User\", \"name\": \"Brian\"}" #'{"name": "Brian"}'
+    brian_str = Json.to_json(brian)
 
+    brian2 = Json.deserialize(brian_str,_User)
+    assert brian.name == brian2.name
+    assert brian == brian2
+    #"{\"py/object\": \"tests.test_json._User\", \"name\": \"Brian\"}"  #
     diana = _Programmer("Dianna")
-    assert Json.to_json(diana) == "{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\"}" #'{"name": "Dianna"}'
-
+    diana_str= Json.to_json(diana)
+    diana2 = Json.deserialize(diana_str, _Programmer)
+    assert diana.job==diana2.job and diana.name == diana2.name
+    #"{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\"}" #
     diana.job = "Test"
-    assert Json.to_json(
-        diana) == "{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\", \"job\": \"Test\"}" #'{"name": "Dianna", "job": "Test"}'
-
+    diana_str = Json.to_json(diana)
+    diana2 = Json.deserialize(diana_str, _Programmer)
+    assert diana.job == diana2.job and diana.name == diana2.name
     blue = _Color.BLUE
     bluestr = Json.to_json(blue)
-    assert bluestr == "{\"py/reduce\": [{\"py/type\": \"tests.test_json._Color\"}, {\"py/tuple\": [3]}]}"
+    blue2 = Json.deserialize(bluestr, _Color)
+    assert blue == blue2
+    #assert bluestr == "{\"py/reduce\": [{\"py/type\": \"tests.test_json._Color\"}, {\"py/tuple\": [3]}]}"
     red = _ColorStr.RED
     redstr = Json.to_json(red)
-    assert Json.deserialize(redstr) == _ColorStr.RED
+    red2 = Json.deserialize(redstr, _ColorStr)
+    assert red == red2
 
-def test_deserialize():
-    brian = _User("Brian")
-    assert Json.deserialize("{\"py/object\": \"tests.test_json._User\", \"name\": \"Brian\"}") == brian
-    diana = _Programmer("Dianna")
-    assert Json.deserialize("{\"py/object\": \"tests.test_json._Programmer\", \"name\": \"Dianna\"}") == diana
-    assert _Color.BLUE == Json.deserialize("{\"py/reduce\": [{\"py/type\": \"tests.test_json._Color\"}, {\"py/tuple\": [3]}]}")
+# def test_email_json():
+#     email = EmailMessage()
+#     email['Subject'] = "test subject"
+#     email['From'] = 'test@test.com'
+#     email['To'] = 'recipient@tt.com, recipient2@tt.aa'
+#     email.set_content('body', subtype='html')
+#
+#     emailStr = Json.to_json(email, EmailMessage)
+#     email2 = Json.deserialize(emailStr, EmailMessage)
+#     assert email == email2
