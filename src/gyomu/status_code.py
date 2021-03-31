@@ -29,26 +29,32 @@ class StatusCode:
 
     _status_table: dict = dict()
 
-    def get_error_id(self):
+    @property
+    def error_id(self):
         return self._error_id
 
+    @property
     def is_success(self):
         return self == StatusCode.SUCCEED_STATUS
 
+    @property
     def is_not_failed(self):
-        return self.get_status_type() < StatusCode.ERROR_BUSINESS
+        return self.status_type < StatusCode.ERROR_BUSINESS
 
-    def get_application_id(self) -> int:
+    @property
+    def application_id_of_status(self) -> int:
         return (self._error_id >> 20) & 0xfff
 
-    def get_status_type(self) -> int:
+    @property
+    def status_type(self) -> int:
         return (self._error_id & 0xfffff) >> 16
 
-    def get_code(self) -> int:
+    @property
+    def code(self) -> int:
         return self._error_id & 0xffff
 
     def _get_status_info(self) -> StatusInfo:
-        return StatusCode._status_table[self.get_error_id()]
+        return StatusCode._status_table[self.error_id]
 
     def _get_title(self) -> str:
         status_info: StatusInfo = self._get_status_info()
@@ -75,7 +81,7 @@ class StatusCode:
             "User:" + self._config.username + "\tMachine:" + self._config.machine_name + "\tInstance:" + str(
                 self._config.unique_instance_id_per_machine))
         mail_bodylist.append(self._get_description())
-        if self.get_status_type() >= self.ERROR_DEVELOPER:
+        if self.status_type >= self.ERROR_DEVELOPER:
             mail_bodylist.append(self._get_developer_information())
         mail_bodylist.append("</pre></BODY></HTML>")
 
@@ -147,7 +153,7 @@ class StatusCode:
         if target_application_id != -1:
             self._application_id = target_application_id
         else:
-            self._application_id = self.get_application_id()
+            self._application_id = self.application_id_of_status
         self._custom_summary = summary
         self._custom_description = description
 
@@ -172,8 +178,8 @@ class StatusCode:
         status_record: GyomuStatusInfo = GyomuStatusInfo()
         status_record.application_id = self._application_id
         status_record.entry_author = self._config.username
-        status_record.status_type = self.get_status_type()
-        status_record.error_id = self.get_code()
+        status_record.status_type = self.status_type
+        status_record.error_id = self.code
         status_record.instance_id = self._config.unique_instance_id_per_machine
         status_record.hostname = self._config.machine_name
         status_record.summary = self._custom_summary if self._custom_summary != "" else self._get_title()
@@ -189,7 +195,7 @@ class StatusCode:
                 session.add(status_record)
                 mail_handler_list = session.query(GyomuStatusHandler).filter(
                     GyomuStatusHandler.application_id == self._application_id
-                    and GyomuStatusHandler.status_type == self.get_status_type()).all()
+                    and GyomuStatusHandler.status_type == self.status_type).all()
                 session.commit()
                 self._gyomu_status_info_id = status_record.id
 

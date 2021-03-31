@@ -6,21 +6,26 @@ class _WindowsUser(User):
     _is_group_initialized = False
     user_id: str
 
-    def get_groups(self):
+    @property
+    def groups(self):
         if not self._is_group_initialized:
             self._init_group()
         return self._groups
 
+    @property
     def is_group(self) -> bool:
         pass
 
+    @property
     def is_valid(self) -> bool:
         pass
 
-    def get_members(self):
+    @property
+    def members(self):
         pass
 
-    def get_userid(self):
+    @property
+    def userid(self):
         return self.user_id
 
     def is_in_member(self, group_user: User) -> bool:
@@ -32,5 +37,6 @@ class _WindowsUser(User):
     def __init__(self, user_id: str):
         self.user_id=user_id
 
-    def get_region(selfself) ->str:
+    @property
+    def region(self) ->str:
         pass

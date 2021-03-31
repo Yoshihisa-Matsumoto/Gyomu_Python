@@ -48,7 +48,7 @@ def application_info_setup(environment_setup):
     app.application_id = TEST_APPLICATION_ID
     app.description = "Test Application"
     user: User = UserFactory.get_current_user()
-    app.mail_from_name = user.get_userid()
+    app.mail_from_name = user.userid
     app.mail_from_address = "Test@test.com"
 
     with DbConnectionFactory.get_gyomu_db_session() as session:
