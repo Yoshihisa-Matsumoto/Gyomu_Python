@@ -1,6 +1,9 @@
 from gyomu.json import Json
 from enum import Enum
 from email.message import EmailMessage
+from collections import namedtuple
+
+SimpleTuple = namedtuple('SimpleTuple', ['arg1', 'arg2'])
 
 class _User:
     name = ""
@@ -67,13 +70,90 @@ def test_to_json():
     red2 = Json.deserialize(redstr, _ColorStr)
     assert red == red2
 
-# def test_email_json():
-#     email = EmailMessage()
-#     email['Subject'] = "test subject"
-#     email['From'] = 'test@test.com'
-#     email['To'] = 'recipient@tt.com, recipient2@tt.aa'
-#     email.set_content('body', subtype='html')
-#
-#     emailStr = Json.to_json(email, EmailMessage)
-#     email2 = Json.deserialize(emailStr, EmailMessage)
-#     assert email == email2
+def test_email_json():
+    email = EmailMessage()
+    email['Subject'] = "test subject"
+    email['From'] = 'test@test.com'
+    email['To'] = 'recipient@tt.com, recipient2@tt.aa'
+    email.set_content('body', subtype='html')
+
+    #emailStr = Json.to_json_pickle(email)
+    emailStr = Json.to_json(email)
+    print(emailStr)
+    #email2 = Json.deserialize_pickle(emailStr)
+    email2 = Json.deserialize(emailStr, EmailMessage)
+    assert email.as_string() == email2.as_string()
+
+def test_int_type():
+    value1: int = 234
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str,int)
+    print(value1_str)
+    assert value1 == value2
+
+def test_bool_type():
+    value1: bool = True
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str,bool)
+    print(value1_str)
+    assert value1 == value2
+
+def test_str_type():
+    value1: str = 'Hello World'
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str,str)
+    print(value1_str)
+    assert value1 == value2
+
+def test_array_type():
+    value1: list = [234,True,'Hello World']
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str,list)
+    print(value1_str)
+    assert value1 == value2
+
+def test_dict_type():
+    value1: dict = {"Key1":"Value1","Key2":"Value2","Abc":"Def"}
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str, dict)
+    print(value1_str)
+    assert value1 == value2
+
+def test_complicated_dict_type():
+    value1: dict = {234:234, True:True, "Hello":"Key", "array":[234,True,'Hello World'] }
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str,dict)
+    print(value1_str)
+
+def test_tuple():
+    value1: SimpleTuple = SimpleTuple(arg1=234, arg2=234)
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str, SimpleTuple)
+    print(value1_str)
+    assert value1 == value2
+
+    value1: SimpleTuple = SimpleTuple(arg1=True, arg2=True)
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str, SimpleTuple)
+    print(value1_str)
+    assert value1 == value2
+
+    value1: SimpleTuple = SimpleTuple(arg1="Hello", arg2="World")
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str, SimpleTuple)
+    print(value1_str)
+    assert value1 == value2
+
+    value1: SimpleTuple = SimpleTuple(arg1=[234,True,'Hello World'], arg2={"Key1":"Value1","Key2":"Value2","Abc":"Def"})
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str, SimpleTuple)
+    print(value1_str)
+    assert value1 == value2
+
+def test_complicated_tuple():
+    brian = _User("Brian")
+    value1: SimpleTuple = SimpleTuple(arg1=234, arg2=brian)
+    value1_str: str = Json.to_json(value1)
+    value2 = Json.deserialize(value1_str, SimpleTuple)
+    print(value1_str)
+    assert value1 == value2

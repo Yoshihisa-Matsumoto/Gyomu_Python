@@ -11,6 +11,13 @@ StatusInfo = namedtuple('StatusInfo', ['summary', 'description'])
 StatusInfo.__new__.__defaults__ = (None, None)
 
 
+def static_init(cls):
+    if getattr(cls, "static_initialize", None):
+        cls.static_initialize()
+    return cls
+
+
+@static_init
 class StatusCode:
     _error_id: int = 0
 
@@ -131,6 +138,7 @@ class StatusCode:
         cls.INVALID_ARGUMENT_ERROR = cls._code_gen(0, cls.ERROR_DEVELOPER, 4, "Invalid Argument", "")
         cls.FILE_NOT_FOUND = cls._code_gen(0, cls.ERROR_DEVELOPER, 5, "File Not Exist", "File: {0}")
 
+
     @classmethod
     def debug(cls, argument: str, config: Configurator, application_id=-1):
         return StatusCode(error_id=StatusCode.DEBUG_COMMENT, config=config, arguments=[argument],
@@ -207,7 +215,8 @@ class StatusCode:
                     subject: str = application_information.description + " " + self._get_title()
                     subject = subject.replace('\r', ' ').replace('\n', ' ')
                     body = self._get_mail_body()
-                    EmailBuilder.send_html_message(from_address=application_information.mail_from_address, to_address=to,
+                    EmailBuilder.send_html_message(from_address=application_information.mail_from_address,
+                                                   to_address=to,
                                                    cc_address=cc,
                                                    subject=subject, body=body)
 

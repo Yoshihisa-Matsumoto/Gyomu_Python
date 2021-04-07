@@ -1,3 +1,4 @@
+# coding: utf-8
 from sqlalchemy import BigInteger, Boolean, CHAR, Column, DateTime, Index, Integer, SmallInteger, String, Text, text
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -93,7 +94,7 @@ class GyomuStatusTypeCdtbl(Base):
     description = Column(String(15))
 
 
-class GyomuTaskDatum(Base):
+class GyomuTaskData(Base):
     __tablename__ = 'gyomu_task_data'
 
     id = Column(BigInteger, primary_key=True)
@@ -117,7 +118,7 @@ class GyomuTaskDataLog(Base):
     log = Column(Text, nullable=False)
 
 
-class GyomuTaskDataStatu(Base):
+class GyomuTaskDataStatus(Base):
     __tablename__ = 'gyomu_task_data_status'
 
     task_data_id = Column(BigInteger, primary_key=True)
@@ -163,3 +164,38 @@ class GyomuTaskInstance(Base):
     status_info_id = Column(BigInteger)
     parameter = Column(Text)
     comment = Column(Text)
+
+
+class GyomuTaskInstanceSubmitInformation(Base):
+    __tablename__ = 'gyomu_task_instance_submit_information'
+    __table_args__ = (
+        Index('cx_gyomu_task_instance_submit_information', 'task_instance_id', 'submit_to'),
+    )
+
+    id = Column(BigInteger, primary_key=True)
+    task_instance_id = Column(BigInteger, nullable=False)
+    submit_to = Column(String(30))
+
+
+class GyomuTaskSchedulerConfig(Base):
+    __tablename__ = 'gyomu_task_scheduler_config'
+    __table_args__ = (
+        Index('ix_gyomu_task_scheduler_config3', 'application_id', 'task_id'),
+    )
+
+    id = Column(BigInteger, primary_key=True)
+    service_id = Column(SmallInteger, nullable=False, index=True)
+    description = Column(String(200), nullable=False, index=True)
+    application_id = Column(SmallInteger, nullable=False)
+    task_id = Column(SmallInteger, nullable=False)
+    monitor_parameter = Column(Text, nullable=False)
+    next_trigger_time = Column(DateTime(True), nullable=False)
+    task_parameter = Column(Text)
+    is_enabled = Column(Boolean, nullable=False, index=True)
+
+
+class GyomuVariableParameter(Base):
+    __tablename__ = 'gyomu_variable_parameter'
+
+    variable_key = Column(String(20), primary_key=True)
+    description = Column(String(200), nullable=False)

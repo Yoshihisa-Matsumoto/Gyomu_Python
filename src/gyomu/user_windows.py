@@ -4,7 +4,6 @@ from gyomu.user import User
 class _WindowsUser(User):
     _groups = []
     _is_group_initialized = False
-    user_id: str
 
     @property
     def groups(self):
@@ -25,8 +24,9 @@ class _WindowsUser(User):
         pass
 
     @property
-    def userid(self):
-        return self.user_id
+    def user_id(self):
+        return super().userid
+
 
     def is_in_member(self, group_user: User) -> bool:
         pass
@@ -35,8 +35,12 @@ class _WindowsUser(User):
         pass
 
     def __init__(self, user_id: str):
-        self.user_id=user_id
+        super().__init__(user_id)
 
     @property
     def region(self) ->str:
+        pass
+
+    @property
+    def get_members(self):
         pass

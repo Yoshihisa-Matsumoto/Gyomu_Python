@@ -1,5 +1,5 @@
 import pytest
-from gyomu.archive.zip_archive import ZipArchive
+from gyomu.archive.zip import ZipArchive
 from gyomu.file_model import FileTransportInfo
 import os
 import shutil

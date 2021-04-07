@@ -11,3 +11,5 @@ def test_sqldb_setting_nonexist():
     os.environ[GYOMU_COMMON_MAINDB_TYPE] = ""
     with pytest.raises(ValueError):
         db_type= DbConnectionFactory.get_sqldb_type()
+
+

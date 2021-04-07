@@ -6,7 +6,7 @@ import re
 from gyomu.file_model import FileFilterInfo, FileInfo, FilterType, FileCompareType, FileTransportInfo, FileArchiveType
 from gyomu.configurator import Configurator
 from gyomu.status_code import StatusCode
-import gyomu.archive.zip_archive
+import gyomu.archive.zip
 
 
 class FileOperation:
@@ -170,8 +170,8 @@ class FileOperation:
             archive_name = archive_info.file_name
 
             if archive_type == FileArchiveType.ZIP:
-                gyomu.archive.zip_archive.ZipArchive.create(zip_filename=archive_name,
-                                                            transfer_information_list=source_file_list,
-                                                            password=password)
+                gyomu.archive.zip.ZipArchive.create(zip_filename=archive_name,
+                                                    transfer_information_list=source_file_list,
+                                                    password=password)
 
             return StatusCode.SUCCEED_STATUS

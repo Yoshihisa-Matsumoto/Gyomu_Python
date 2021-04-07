@@ -8,6 +8,9 @@ from gyomu.user_factory import UserFactory
 from gyomu.user import User
 from gyomu.configurator import Configurator, BaseConfigurator
 from gyomu.status_code import StatusCode
+from pytest_mock import mocker
+from gyomu.holidays import MarketDateAccess
+from datetime import date
 
 class FileEmailSender(EmailSender):
     _temp_directory: dir = None
@@ -91,3 +94,27 @@ def status_handler_setup(application_info_setup):
     with DbConnectionFactory.get_gyomu_db_session() as session:
         session.delete(handler)
         session.commit()
+
+@pytest.fixture()
+def dummy_holidays():
+    yield {"JP": [date(1984, 1, 1),
+                  date(1984, 1, 2),
+                  date(1984, 1, 15),
+                  date(1984, 1, 16),
+                  date(1984, 2, 11),
+                  date(1984, 3, 20),
+                  date(1984, 4, 29),
+                  date(1984, 4, 30),
+                  date(1984, 5, 3),
+                  date(1984, 5, 5),
+                  date(1984, 9, 15),
+                  date(1984, 9, 23),
+                  date(1984, 9, 24),
+                  date(1984, 10, 10),
+                  date(1984, 11, 3),
+                  date(1984, 11, 23)]}
+
+@pytest.fixture()
+def mock_holiday(mocker,dummy_holidays):
+    mocker.patch.object(MarketDateAccess, '_MarketDateAccess__load_market_holidays', return_value=dummy_holidays)
+    yield
