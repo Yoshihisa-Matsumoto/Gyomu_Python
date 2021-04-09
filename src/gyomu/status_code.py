@@ -6,6 +6,7 @@ from threading import Event, Thread
 import traceback
 from traceback import StackSummary
 from collections import namedtuple
+import os
 
 StatusInfo = namedtuple('StatusInfo', ['summary', 'description'])
 StatusInfo.__new__.__defaults__ = (None, None)
@@ -77,7 +78,8 @@ class StatusCode:
 
     def _get_developer_information(self) -> str:
         if self._exception is not None:
-            return str(self._exception)
+            return ''.join(traceback.format_exception(etype=type(self._exception), value=self._exception, tb= self._exception.__traceback__))
+            #return str(self._exception)
         else:
             return "\n".join(self._stack_summary)
 
@@ -149,6 +151,20 @@ class StatusCode:
         return StatusCode(error_id=StatusCode.INVALID_ARGUMENT_ERROR, config=config, arguments=[summary],
                           target_application_id=application_id)
 
+    def __str__(self):
+        if self == StatusCode.SUCCEED_STATUS:
+            return 'Success'
+
+        status_info: StatusInfo = self._get_status_info()
+        str_buf: list[str]=[]
+        str_buf.append(status_info.summary)
+        str_buf.append(status_info.description)
+        developer_information = self._get_developer_information()
+        if developer_information:
+            str_buf.append(developer_information)
+        message = os.linesep.join(str_buf).format(*self._arguments)
+        return message
+
     def __init__(self, error_id=0, config: Configurator = None,
                  arguments: list = None, exception: BaseException = None,
                  target_application_id: int = -1,
@@ -168,7 +184,7 @@ class StatusCode:
         if exception is not None:
             pass
         else:
-            self._stack_summary = traceback.format_stack()
+            self._stack_summary = traceback.format_stack(limit=5)
 
         if error_id != 0:
             self._registered_event = Event()

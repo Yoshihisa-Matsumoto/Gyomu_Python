@@ -1,3 +1,11 @@
+""" FileOperation class
+FileOperation support
+* Access check
+* File Lock ( logical lock )
+* Search
+* Archive / Unarchive
+"""
+
 import os
 import threading
 from datetime import datetime
@@ -10,6 +18,13 @@ import gyomu.archive.zip
 
 
 class FileOperation:
+    """ FileOperation class
+    FileOperation support
+    * Access check
+    * File Lock ( logical lock )
+    * Search
+    * Archive / Unarchive
+    """
     @staticmethod
     def can_access(filename: str, readonly: bool = False) -> bool:
         if not os.path.exists(filename):
@@ -172,6 +187,6 @@ class FileOperation:
             if archive_type == FileArchiveType.ZIP:
                 gyomu.archive.zip.ZipArchive.create(zip_filename=archive_name,
                                                     transfer_information_list=source_file_list,
-                                                    password=password)
+                                                    password=password, config=config)
 
             return StatusCode.SUCCEED_STATUS

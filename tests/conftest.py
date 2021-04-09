@@ -11,6 +11,9 @@ from gyomu.status_code import StatusCode
 from pytest_mock import mocker
 from gyomu.holidays import MarketDateAccess
 from datetime import date
+from pathlib import Path
+import sys
+
 
 class FileEmailSender(EmailSender):
     _temp_directory: dir = None
@@ -58,13 +61,15 @@ def application_info_setup(environment_setup):
         session.add(app)
         session.commit()
 
-    yield
+    yield TEST_APPLICATION_ID
 
     with DbConnectionFactory.get_gyomu_db_session() as session:
         session.delete(app)
         session.commit()
 
 TEST_APPLICATION_ID = 32650
+path = Path(__file__)
+sys.path.append(path.parent)
 
 @pytest.fixture()
 def status_handler_setup(application_info_setup):

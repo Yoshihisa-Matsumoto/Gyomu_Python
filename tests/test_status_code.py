@@ -9,3 +9,4 @@ def test_status_code(status_handler_setup, register_file_mail_sender):
     ret_val: StatusCode = StatusCode.debug("Debug Test", config, application_id=config.application_id)
     print(ret_val.get_status_id())
     print(str(StatusCode.SUCCEED_STATUS.code))
+    print(str(ret_val))

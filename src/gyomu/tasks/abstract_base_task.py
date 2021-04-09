@@ -13,22 +13,26 @@ from gyomu.common_status_code import CommonStatusCode
 
 
 class AbstractBaseTask(metaclass=ABCMeta):
-    _task_data_parameter: str
+    _task_data_parameter: str =''
 
-    _current_task: GyomuTaskData
-    _current_task_info: GyomuTaskInfoCdtbl
+    _current_task: GyomuTaskData = None
+    __current_task_info: GyomuTaskInfoCdtbl = None
 
     __lock = threading.Lock()
 
     __task_data_loaded: bool = False
-    _task_data_id: int
+    _task_data_id: int =-1
     __config: Configurator
+
+    _latest_instance: GyomuTaskInstance = None
+    _latest_instance_id: int = -1
+
 
     @property
     def task_data_id(self) -> int:
         return self._task_data_id
 
-    __instances: [GyomuTaskInstance]
+    __instances: [GyomuTaskInstance] =[]
 
     @property
     def _instance_list(self):
@@ -37,6 +41,15 @@ class AbstractBaseTask(metaclass=ABCMeta):
     @property
     def latest_instance(self) -> GyomuTaskInstance:
         return self._latest_instance
+
+    @property
+    def current_task_info(self) -> GyomuTaskInfoCdtbl:
+        if self.__current_task_info is None:
+            with DbConnectionFactory.get_gyomu_db_session() as session:
+                self.__current_task_info = session.query(GyomuTaskInfoCdtbl).filter(
+                    GyomuTaskInfoCdtbl.application_id == self.application_id
+                    and GyomuTaskInfoCdtbl.task_id == self.task_info_id).one()
+        return self.__current_task_info
 
     @property
     def latest_instance_id(self) -> int:
@@ -96,22 +109,28 @@ class AbstractBaseTask(metaclass=ABCMeta):
 
     _async_thread: threading.Thread
 
-    def __init__(self):
-        pass
+    def __init__(self, config: Configurator):
+        self.__config = config
+
+    # def __init_subclass__(cls, **kwargs):
+    #     super().__init_subclass__()
+    #     if cls.__config is None:
+    #         raise ValueError('task needs config in initialization')
 
     def start(self, parameter: str, comment: str) -> StatusCode:
         result: StatusCode = self.__init(parameter, comment)
         if not result.is_success:
             return result
+        return self.__run(parameter,comment)
 
     def abort(self, parameter: str, comment: str) -> StatusCode:
-        result: StatusCode = self.__create_new_instance(parameter=parameter, status= self.STATUS_CANCEL, comment=comment)
+        result: StatusCode = self.__create_new_instance(parameter=parameter, status=self.STATUS_CANCEL, comment=comment)
         if not result.is_success:
             return result
         return self.on_cancel(parameter, comment)
 
     def __init(self, parameter: str, comment: str) -> StatusCode:
-        result: StatusCode = StatusCode.SUCCEED_STATUS
+        result: StatusCode
         try:
             result = self.__check_status_and_owner(self.STATUS_INIT)
             if not result.is_success:
@@ -131,6 +150,7 @@ class AbstractBaseTask(metaclass=ABCMeta):
                     task_data.entry_author = self.config.username
                     task_data.parameter = parameter
                     session.add(task_data)
+                    session.flush()
                     task_instance = GyomuTaskInstance()
                     task_instance.task_data_id = task_data.id
                     task_instance.entry_date = task_data.entry_date
@@ -140,6 +160,7 @@ class AbstractBaseTask(metaclass=ABCMeta):
                     task_instance.parameter = parameter
                     task_instance.comment = comment
                     session.add(task_instance)
+                    session.flush()
                     task_status = GyomuTaskDataStatus()
                     task_status.task_data_id = task_data.id
                     task_status.latest_task_instance_id = task_instance.id
@@ -148,6 +169,7 @@ class AbstractBaseTask(metaclass=ABCMeta):
                     session.add(task_status)
                     session.commit()
                     self._current_task = task_data
+                    self._task_data_id = task_data.id
                     self._latest_instance = task_instance
                     self.__instances = [task_instance]
                     self._latest_instance_id = task_instance.id
@@ -169,7 +191,6 @@ class AbstractBaseTask(metaclass=ABCMeta):
                 self.__lock_instance_and_refresh_task_data()
                 return self.__execution_decision(parameter, comment)
 
-
         except Exception as ex:
             return StatusCode(CommonStatusCode.TASK_LIBRARY_INTERNAL_ERROR,
                               arguments=[self.application_id, self.task_info_id, parameter, self.task_data_id],
@@ -183,10 +204,9 @@ class AbstractBaseTask(metaclass=ABCMeta):
         else:
             delegate_information = self.delegate_information
             if self.is_async and (self.current_user in delegate_information.delegation_users):
-                with DbConnectionFactory.get_gyomu_db_session() as session:
-                    result = self.on_delegate(parameter, comment)
-                    if not result.is_success:
-                        return result
+                result = self.on_delegate(parameter, comment)
+                if not result.is_success:
+                    return result
                 return self.__create_new_instance(parameter, self.STATUS_DELEGATE,
                                                   delegate_information.delegation_users, None, comment)
 
@@ -203,8 +223,8 @@ class AbstractBaseTask(metaclass=ABCMeta):
                 else:
                     return self.do_exec(parameter)
 
-    def __create_new_instance(self, parameter: str, status: str, submit_to: list[User] = None, status_code: StatusCode = None,
-                              comment: str = ''):
+    def __create_new_instance(self, parameter: str, status: str, submit_to: list[User] = None,
+                              status_code: StatusCode = None, comment: str = '') -> StatusCode:
         try:
             new_instance = GyomuTaskInstance()
             with DbConnectionFactory.get_gyomu_db_session() as session:
@@ -218,6 +238,7 @@ class AbstractBaseTask(metaclass=ABCMeta):
                 new_instance.comment = comment
                 new_instance.status_info_id = None if status_code is None else status_code.get_status_id()
                 session.add(new_instance)
+                session.flush()
                 task_status = session.get(GyomuTaskDataStatus, self._current_task.id)
                 if task_status is None:
                     task_status = GyomuTaskDataStatus()
@@ -240,9 +261,10 @@ class AbstractBaseTask(metaclass=ABCMeta):
                             session.add(submit_information)
 
                 session.commit()
-            self._latest_instance = new_instance
-            self._latest_instance_id = new_instance.id
-            self.__instances.append(new_instance)
+                self._latest_instance = new_instance
+                self._latest_instance_id = new_instance.id
+                self.__instances.append(new_instance)
+
             return StatusCode.SUCCEED_STATUS
 
         except Exception as ex:
@@ -362,7 +384,7 @@ class AbstractBaseTask(metaclass=ABCMeta):
             if current_status in [self.STATUS_DELEGATE, self.STATUS_INIT, self.STATUS_APPROVAL]:
                 return True
             if current_status in [self.STATUS_COMPLETE or self.STATUS_FAIL] \
-                    and self._current_task_info.restartable:
+                    and self.current_task_info.restartable:
                 return True
         elif target_status_mnemonic == self.STATUS_REQUEST:
             if current_status in [self.STATUS_INIT, self.STATUS_APPROVAL, self.STATUS_CANCEL, self.STATUS_REJECT]:
@@ -431,8 +453,9 @@ class AbstractBaseTask(metaclass=ABCMeta):
                                     config=self.config, target_application_id=self.application_id)
 
             result = self.__create_new_instance(parameter,
-                                       status=self.STATUS_COMPLETE if result.is_success else self.STATUS_FAIL,
-                                       submit_to=None,status_code=None if result.is_success else result, comment='')
+                                                status=self.STATUS_COMPLETE if result.is_success else self.STATUS_FAIL,
+                                                submit_to=None, status_code=None if result.is_success else result,
+                                                comment='')
         except Exception as ex2:
             result = StatusCode(CommonStatusCode.TASK_LIBRARY_INTERNAL_ERROR,
                                 arguments=[self.application_id, self.task_info_id, self._task_data_parameter,
@@ -443,8 +466,8 @@ class AbstractBaseTask(metaclass=ABCMeta):
 
         return result
 
-    def __get_task_submission_information_list(self, latest_instance: GyomuTaskInstance) -> list[
-        GyomuTaskInstanceSubmitInformation]:
+    def __get_task_submission_information_list(self, latest_instance: GyomuTaskInstance) \
+            -> list[GyomuTaskInstanceSubmitInformation]:
         with DbConnectionFactory.get_gyomu_db_session() as session:
             return session.query(GyomuTaskInstanceSubmitInformation).filter(
                 GyomuTaskInstanceSubmitInformation.task_instance_id == latest_instance.id).all()
@@ -478,7 +501,8 @@ class AbstractBaseTask(metaclass=ABCMeta):
         self._latest_instance = self.__instances[0]
         self.__access_list = session.query(GyomuTaskInfoAccessList). \
             filter(
-            GyomuTaskInfoAccessList.application_id == self.application_id and GyomuTaskInfoAccessList.task_info_id == self.task_info_id).all()
+            GyomuTaskInfoAccessList.application_id == self.application_id
+            and GyomuTaskInfoAccessList.task_info_id == self.task_info_id).all()
 
         if upper_session is None:
             with session:
@@ -512,17 +536,20 @@ class AbstractBaseTask(metaclass=ABCMeta):
         result = self.__check_status_and_owner(self.STATUS_REQUEST)
         if not result.is_success:
             return result
-        result = self.__create_new_instance(parameter=parameter, comment=comment, status= self.STATUS_REQUEST,submit_to= apply_information.destination_persons)
+        result = self.__create_new_instance(parameter=parameter, comment=comment, status=self.STATUS_REQUEST,
+                                            submit_to=apply_information.destination_persons)
         if not result.is_success:
             return result
-        result = self.on_request(parameter,comment)
+        result = self.on_request(parameter, comment)
         if not result.is_success:
             return result
         if self.is_email_required(self.STATUS_REQUEST):
-            return self.__send_proposal_mail_from_requested_status(apply_information.destination_persons, comment, self.STATUS_REQUEST)
+            return self.__send_proposal_mail_from_requested_status(apply_information.destination_persons, comment,
+                                                                   self.STATUS_REQUEST)
         return result
 
-    def __send_proposal_mail_from_requested_status(self, recipients: list[User], comment: str, requested_status: str) -> StatusCode:
+    def __send_proposal_mail_from_requested_status(self, recipients: list[User], comment: str,
+                                                   requested_status: str) -> StatusCode:
         requested_action = ''
         if requested_status == self.STATUS_REQUEST:
             requested_action = "submitted"
@@ -533,16 +560,13 @@ class AbstractBaseTask(metaclass=ABCMeta):
         elif requested_status == self.STATUS_CANCEL:
             requested_action = "cancelled"
 
-        mail_subject=''
-        if self._current_task_info is not None:
-            mail_subject = self._current_task_info.description + ' approval request ' + requested_action + ' by ' + self.current_user.userid
-        mail_body =''
+        mail_subject = ''
+        if self.current_task_info is not None:
+            mail_subject = self.current_task_info.description + ' approval request ' + requested_action + ' by ' + self.current_user.userid
+        mail_body = ''
         if comment:
             mail_body = comment
 
-        #self.on_custom_mail_information(requested_status, recipients, comment,  )
+        # self.on_custom_mail_information(requested_status, recipients, comment,  )
         return StatusCode.SUCCEED_STATUS
         # pending till we find way to retrieve mailaddress from user account
-
-
-
