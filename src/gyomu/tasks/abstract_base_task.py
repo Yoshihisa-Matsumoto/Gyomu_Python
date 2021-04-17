@@ -452,10 +452,14 @@ class AbstractBaseTask(metaclass=ABCMeta):
                                     exception=ex,
                                     config=self.config, target_application_id=self.application_id)
 
-            result = self.__create_new_instance(parameter,
+            result2 = self.__create_new_instance(parameter,
                                                 status=self.STATUS_COMPLETE if result.is_success else self.STATUS_FAIL,
                                                 submit_to=None, status_code=None if result.is_success else result,
                                                 comment='')
+            if not result.is_success:
+                return result
+            else:
+                return result2
         except Exception as ex2:
             result = StatusCode(CommonStatusCode.TASK_LIBRARY_INTERNAL_ERROR,
                                 arguments=[self.application_id, self.task_info_id, self._task_data_parameter,

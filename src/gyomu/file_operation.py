@@ -7,12 +7,12 @@ FileOperation support
 """
 
 import os
-import threading
+import multiprocessing
 from datetime import datetime
-
+from sys import platform
 import re
 from gyomu.file_model import FileFilterInfo, FileInfo, FilterType, FileCompareType, FileTransportInfo, FileArchiveType
-from gyomu.configurator import Configurator
+from gyomu.configurator import Configurator, SharedObjectType
 from gyomu.status_code import StatusCode
 import gyomu.archive.zip
 
@@ -39,39 +39,73 @@ class FileOperation:
         if readonly:
             return True
 
-        try:
-            with open(filename, 'w'):
-                pass
-            return True
-        except OSError:
+        if platform == 'win32':
+            try:
+                os.rename(filename,filename)
+                return True
+            except OSError:
+                return False
+        else:
+            # TODO Not proper way to consider when we access file on different server
             return False
 
     lock_filename: str = None
-    lock_event: threading.Condition = None
+    lock_event: multiprocessing.Condition = None
 
-    lock_dictionary = dict()
-    _lock: threading.Lock = threading.Lock()
+    lock_dictionary: dict = None
+    _lock: multiprocessing.Lock = None
+
+    __config: Configurator
 
     @staticmethod
-    def lock_process(filename: str) -> gyomu.file_operation.FileOperation:
-        file_access: FileOperation = FileOperation()
+    def lock_process(filename: str, config: Configurator) :
+        """
+        Probably better to enhance for inter-process locking because of python threading limitation
+        :param filename:
+        :return:
+        """
+        file_access: FileOperation = FileOperation(config)
         file_access.lock_filename = filename.upper()
+        is_first = False
+
+        if FileOperation._lock is None:
+            FileOperation._lock = config.retrieve_shared_item_and_register_if_not_exist(
+                FileOperation.__name__ + ":lock", SharedObjectType.Lock)
+        if FileOperation.lock_dictionary is None:
+            FileOperation.lock_dictionary = config.retrieve_shared_item_and_register_if_not_exist(
+                FileOperation.__name__, SharedObjectType.Dictionary)
+
         with FileOperation._lock:
             if file_access.lock_filename in FileOperation.lock_dictionary:
+                #print('retrieve existing lock event for ' + file_access.lock_filename)
                 file_access.lock_event = FileOperation.lock_dictionary[file_access.lock_filename]
-                file_access.lock_event.wait()
             else:
-                file_access.lock_event = threading.Condition()
+                #print('create lock event for ' + file_access.lock_filename)
+                file_access.lock_event = config.get_proxy_object().create_condition()
                 FileOperation.lock_dictionary[file_access.lock_filename] = file_access.lock_event
+                is_first= True
+        #print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + str(FileOperation.lock_dictionary))
+        #StatusCode.debug(config.dump_shared_dictionary(), config)
+        #print('file operation lock unlock')
+
+        # if not is_first:
+        #     file_access.lock_event.wait()
 
         return file_access
 
+    def __init__(self, config: Configurator):
+        self.__config=config
+
     def __enter__(self):
-        pass
+        if self.lock_event is not None:
+            self.lock_event.__enter__()
+            #StatusCode.debug('FileOperation Lock, dump:' + self.__config.dump_shared_dictionary(),self.__config)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.lock_event is not None:
             self.lock_event.notify()
+            self.lock_event.__exit__(exc_type, exc_val, exc_tb)
+            #StatusCode.debug('FileOperation UnLock', self.__config)
 
     @staticmethod
     def search(parent_directory: str, filter_conditions: list[FileFilterInfo],

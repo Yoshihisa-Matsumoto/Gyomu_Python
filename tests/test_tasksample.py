@@ -27,7 +27,7 @@ class SimpleFailTask(AbstractSimpleTask):
         return 2
 
     def on_exec(self, parameter: str) -> StatusCode:
-        print('Task 1 Test')
+        print('Task 2 Fail Test')
         print('Parameter: ' + parameter)
         return StatusCode(StatusCode.INVALID_ARGUMENT_ERROR, config= self.config, description="Just a failure")
 
@@ -42,7 +42,7 @@ class SimpleExceptionTask(AbstractSimpleTask):
         return 3
 
     def on_exec(self, parameter: str) -> StatusCode:
-        print('Task 1 Test')
+        print('Task 3 Exception Test')
         print('Parameter: ' + parameter)
         raise ValueError('Simple Value Error')
 

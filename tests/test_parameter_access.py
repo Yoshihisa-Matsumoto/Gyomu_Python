@@ -59,5 +59,4 @@ def test_get_string_value(set_env):
     for i, (key, value) in enumerate(test_items):
         ParameterAccess.set_string_value(key,"")
 
-def test_set_string_value():
-    assert False
+

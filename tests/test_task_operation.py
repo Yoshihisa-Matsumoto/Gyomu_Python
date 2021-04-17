@@ -95,6 +95,8 @@ class TestTaskAccess:
         config: Configurator = status_handler_setup
 
         task, result = TaskAccess.create_new_task(application_id=config.application_id, task_id=2, config=config)
+        assert result.is_success
+        result = task.start("test Parameter", "comment test")
         print(str(result))
         assert not result.is_success
 
@@ -102,5 +104,7 @@ class TestTaskAccess:
         config: Configurator = status_handler_setup
 
         task, result = TaskAccess.create_new_task(application_id=config.application_id, task_id=3, config=config)
+        assert result.is_success
+        result = task.start("test Parameter", "comment test")
         print(str(result))
         assert not result.is_success

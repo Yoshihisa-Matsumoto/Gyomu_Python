@@ -2,20 +2,9 @@ import pytest
 from gyomu.archive.zip import ZipArchive
 from gyomu.file_model import FileTransportInfo
 import os
-import shutil
 import io
 from gyomu.status_code import StatusCode
 from gyomu.configurator import Configurator
-
-@pytest.fixture(autouse=True, scope='class')
-def setup_test_files(tmpdir_factory):
-    compress_dir = tmpdir_factory.getbasetemp()
-    source_directgory = os.path.dirname(__file__)
-    source_directory = os.path.join(source_directgory, 'resources')
-    destination_directory = os.path.join(compress_dir, 'compress')
-    shutil.copytree(source_directory, os.path.join(compress_dir, 'compress'))
-    yield destination_directory
-    shutil.rmtree(destination_directory)
 
 
 def compare_stream(src: io.BufferedIOBase, dest: io.BufferedIOBase) -> bool:
@@ -53,9 +42,11 @@ class TestZipArchive:
             with open(os.path.join(source_dir,'folder1\\folder 2\\フォルダ噂～３\\parameter_access.py')) as source_file:
                 assert compare_stream(source_file,dest_file)
 
+    @pytest.mark.skip('not implement  yet')
     def test_get_entry_from_transfer_information(self):
         assert False
 
+    @pytest.mark.skip('not implement  yet')
     def test_get_entry_file_list_from_directory(self):
         assert False
 
@@ -71,7 +62,7 @@ class TestZipArchive:
 
     def test_password_zip(self, setup_test_files):
         zip_filename = os.path.join(setup_test_files, 'compress\\README_password.zip')
-        src_filename = os.path.join(setup_test_files, 'README.md')
+        src_filename = os.path.join(setup_test_files, 'source\\README.md')
 
         with ZipArchive(zip_filename, encoding='cp437', password="password", is_aes_encrypted=False) as archive:
             with open(src_filename, 'rb') as source_file:
@@ -79,8 +70,8 @@ class TestZipArchive:
 
     def test_aes_password_zip(self, setup_test_files):
         zip_filename = os.path.join(setup_test_files, 'compress\\README_aes_password.zip')
-        src_filename = os.path.join(setup_test_files, 'README.md')
+        src_filename = os.path.join(setup_test_files, 'source\\README.md')
 
         with ZipArchive(zip_filename, encoding='cp437', password="password", is_aes_encrypted=True) as archive:
             with open(src_filename, 'rb') as source_file:
-                assert compare_stream(archive.get_entry_from_name('source\\README.md'), source_file)
+                assert compare_stream(archive.get_entry_from_name('README.md'), source_file)

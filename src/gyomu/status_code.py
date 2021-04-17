@@ -143,6 +143,8 @@ class StatusCode:
 
     @classmethod
     def debug(cls, argument: str, config: Configurator, application_id=-1):
+        if application_id == -1:
+            application_id = config.application_id
         return StatusCode(error_id=StatusCode.DEBUG_COMMENT, config=config, arguments=[argument],
                           target_application_id=application_id)
 
@@ -162,7 +164,9 @@ class StatusCode:
         developer_information = self._get_developer_information()
         if developer_information:
             str_buf.append(developer_information)
-        message = os.linesep.join(str_buf).format(*self._arguments)
+        message = os.linesep.join(str_buf)
+        if self._arguments is not None and len(self._arguments) > 0:
+            message = message.format(*self._arguments)
         return message
 
     def __init__(self, error_id=0, config: Configurator = None,

@@ -1,4 +1,5 @@
 import pytest
+from .context import gyomu
 from gyomu.email_sender import EmailSender, EmailBuilder, EmailMessage
 from gyomu.json import Json
 from gyomu.db_connection_factory import DbConnectionFactory, GYOMU_COMMON_MAINDB_CONNECTION
@@ -6,13 +7,14 @@ from gyomu.gyomu_db_model import *
 import os
 from gyomu.user_factory import UserFactory
 from gyomu.user import User
-from gyomu.configurator import Configurator, BaseConfigurator
+from gyomu.configurator import Configurator, ConfigurationFactory
 from gyomu.status_code import StatusCode
 from pytest_mock import mocker
 from gyomu.holidays import MarketDateAccess
 from datetime import date
 from pathlib import Path
 import sys
+import shutil
 
 
 class FileEmailSender(EmailSender):
@@ -24,6 +26,16 @@ class FileEmailSender(EmailSender):
     def send(self, msg: EmailMessage):
         a_file = self._temp_directory.join('mail_test.txt')
         a_file.write(msg.as_string())
+
+@pytest.fixture(scope='session')
+def setup_test_files(tmpdir_factory):
+    compress_dir = tmpdir_factory.getbasetemp()
+    source_directgory = os.path.dirname(__file__)
+    source_directory = os.path.join(source_directgory, 'resources')
+    destination_directory = os.path.join(compress_dir, 'compress')
+    shutil.copytree(source_directory, os.path.join(compress_dir, 'compress'))
+    yield destination_directory
+    shutil.rmtree(destination_directory)
 
 
 @pytest.fixture()
@@ -91,7 +103,7 @@ def status_handler_setup(application_info_setup):
         session.add(handler)
         session.commit()
 
-    config: Configurator = BaseConfigurator()
+    config: Configurator = ConfigurationFactory.get_instance()
     config.set_application_id(TEST_APPLICATION_ID)
 
     yield config
