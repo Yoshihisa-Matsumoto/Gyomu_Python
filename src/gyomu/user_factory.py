@@ -2,7 +2,8 @@ from sys import platform
 import getpass
 
 from gyomu.user_windows import _WindowsUser
-from gyomu.user import DummyUser
+from gyomu.user import DummyUser, User
+
 
 class UserFactory:
     _current_user: 'User' = None
@@ -19,7 +20,6 @@ class UserFactory:
         elif platform == "linux" or platform == "linux2":
             return None
         return UserFactory._current_user
-
 
     @staticmethod
     def get_user(user_id: str) -> 'User':

@@ -38,13 +38,14 @@ class User(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def region(selfself) -> str:
+    def region(self) -> str:
         return ""
 
     _user_id: str
 
     def __init__(self, user_id: str):
         self._user_id = user_id
+
 
 class DummyUser(User):
 
@@ -68,7 +69,6 @@ class DummyUser(User):
     def user_id(self):
         return super().userid
 
-
     def is_in_member(self, group_user: User) -> bool:
         pass
 
@@ -79,7 +79,7 @@ class DummyUser(User):
         super().__init__(user_id)
 
     @property
-    def region(self) ->str:
+    def region(self) -> str:
         pass
 
     @property

@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 import threading
 from dateutil.relativedelta import relativedelta
 
+
 class MarketDateAccess:
     __market_holidays: dict[str, list[date]] = dict()
     __lock = threading.Lock()
@@ -72,7 +73,7 @@ class MarketDateAccess:
             return False
         return not target_date in self.__get_holiday()
 
-    def get_business_day_of_beginning_month(self, target_date: date, day_offset: int=1) -> date:
+    def get_business_day_of_beginning_month(self, target_date: date, day_offset: int = 1) -> date:
         """
 
         :param target_date: target date as date
@@ -80,19 +81,19 @@ class MarketDateAccess:
         -1(-2) if 1st(2nd) business day of end of month
         :return: calculated business day as date
         """
-        bbom = date(target_date.year,target_date.month,1)
+        bbom = date(target_date.year, target_date.month, 1)
         if self.is_business_day(bbom):
-            if day_offset>1:
-                return self.get_business_day(bbom, day_offset-1)
-            elif day_offset==1 or day_offset ==0:
+            if day_offset > 1:
+                return self.get_business_day(bbom, day_offset - 1)
+            elif day_offset == 1 or day_offset == 0:
                 return bbom
             else:
-                return self.get_business_day(bbom,day_offset)
+                return self.get_business_day(bbom, day_offset)
         else:
-            if day_offset==0:
-                day_offset=1
+            if day_offset == 0:
+                day_offset = 1
             return self.get_business_day(bbom, day_offset)
 
-    def get_business_day_of_beginning_of_next_month(self, target_date: date, day_offset: int=1) -> date:
+    def get_business_day_of_beginning_of_next_month(self, target_date: date, day_offset: int = 1) -> date:
         next_month = target_date + relativedelta(months=1)
-        return self.get_business_day_of_beginning_month(next_month,day_offset)
+        return self.get_business_day_of_beginning_month(next_month, day_offset)

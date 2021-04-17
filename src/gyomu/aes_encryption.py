@@ -43,7 +43,7 @@ class AesEncryption:
     def __create_cypher(cls, key: str, encoding='UTF-8', nonce: bytes = None):
         key_bytes = cls.__get_key(key).encode(encoding)
         if nonce is None:
-            return AES.new(key_bytes, AES.MODE_GCM, mac_len= cls.MAC_BYTE_SIZE)
+            return AES.new(key_bytes, AES.MODE_GCM, mac_len=cls.MAC_BYTE_SIZE)
         return AES.new(key_bytes, AES.MODE_GCM, nonce, mac_len=cls.MAC_BYTE_SIZE)
 
     @classmethod

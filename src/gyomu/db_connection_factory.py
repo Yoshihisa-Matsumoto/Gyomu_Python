@@ -38,7 +38,7 @@ class DbConnectionFactory:
 
     @classmethod
     def get_gyomu_db_session(cls) -> Session:
-        _engine : engine = cls.__get_gyomu_db_engine()
+        _engine: engine = cls.__get_gyomu_db_engine()
         if _engine is None:
             raise ValueError("Connection String is not set")
         return Session(_engine, future=True)

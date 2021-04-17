@@ -10,11 +10,12 @@ import inspect
 import traceback
 from enum import Enum
 
+
 class SharedObjectType(Enum):
-    Dictionary =1,
-    List =2,
-    Lock =3,
-    Condition =4
+    Dictionary = 1,
+    List = 2,
+    Lock = 3,
+    Condition = 4
 
 
 class ManagedObjectFactory:
@@ -35,8 +36,10 @@ class ManagedObjectFactory:
             return self._manager.Condition()
         return ConfigurationFactory.get_instance()._get_manager().Condition()
 
+
 class ManagedObjectFactoryProxy(BaseProxy):
-    _exposed_ = ('__getattribute__', '__setattr__', '__delattr__','create_dictionary','create_lock','create_condition')
+    _exposed_ = (
+        '__getattribute__', '__setattr__', '__delattr__', 'create_dictionary', 'create_lock', 'create_condition')
 
     def __getattr__(self, key):
         if key[0] == '_':
@@ -124,16 +127,16 @@ class Configurator(metaclass=ABCMeta):
     def shared_dictionary(self) -> dict:
         pass
 
-    def retrieve_shared_item_and_register_if_not_exist(self, keyword:str, object_type: SharedObjectType):
+    def retrieve_shared_item_and_register_if_not_exist(self, keyword: str, object_type: SharedObjectType):
         frame = inspect.stack()[1]
         fileparts = frame.filename.split(os.path.sep)
         filename = fileparts[len(fileparts) - 1]
         # function = frame.function
         key = filename + '!' + keyword
         with self._retrieve_global_lock():
-            print('Before:' + str(self._shared_dictionary))
+            # print('Before:' + str(self.shared_dictionary))
             if self.shared_dictionary.get(key) is None:
-                print('create shared item :' + key)
+                # print('create shared item :' + key)
                 if object_type == SharedObjectType.Lock:
                     self.shared_dictionary[key] = self._get_manager().Lock()
                 elif object_type == SharedObjectType.List:
@@ -143,7 +146,7 @@ class Configurator(metaclass=ABCMeta):
                 elif object_type == SharedObjectType.Condition:
                     self.shared_dictionary[key] = self._get_manager().Condition()
 
-            print('After:' + str(self._shared_dictionary))
+            # print('After:' + str(self.shared_dictionary))
             return self.shared_dictionary.get(key)
 
     def _retrieve_global_lock(self):
@@ -151,7 +154,6 @@ class Configurator(metaclass=ABCMeta):
 
     def dump_shared_dictionary(self):
         return str(self.shared_dictionary)
-
 
     def get_proxy_object(self) -> ManagedObjectFactory:
         return self.shared_dictionary[self.GLOBAL_MANAGER_PROXY]
@@ -246,11 +248,10 @@ class ConfigurationFactory:
 
     @staticmethod
     def get_instance(shared_dictionary: dict = None) -> Configurator:
-        #print('PID:' + str(os.getpid()) + ' Config generated. __config Exist?' + str(ConfigurationFactory.__config is not None))
+        # print('PID:' + str(os.getpid()) + ' Config generated. __config Exist?' + str(ConfigurationFactory.__config is not None))
         if ConfigurationFactory.__config is None:
             SyncManager.register('ManagedObjectFactory', ManagedObjectFactory, ManagedObjectFactoryProxy)
         if ConfigurationFactory.__config is None or shared_dictionary is not None:
             ConfigurationFactory.__config = _BaseConfigurator(shared_dictionary=shared_dictionary)
 
         return ConfigurationFactory.__config
-

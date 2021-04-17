@@ -25,6 +25,7 @@ class FileOperation:
     * Search
     * Archive / Unarchive
     """
+
     @staticmethod
     def can_access(filename: str, readonly: bool = False) -> bool:
         if not os.path.exists(filename):
@@ -41,7 +42,7 @@ class FileOperation:
 
         if platform == 'win32':
             try:
-                os.rename(filename,filename)
+                os.rename(filename, filename)
                 return True
             except OSError:
                 return False
@@ -58,7 +59,7 @@ class FileOperation:
     __config: Configurator
 
     @staticmethod
-    def lock_process(filename: str, config: Configurator) :
+    def lock_process(filename: str, config: Configurator):
         """
         Probably better to enhance for inter-process locking because of python threading limitation
         :param filename:
@@ -66,7 +67,7 @@ class FileOperation:
         """
         file_access: FileOperation = FileOperation(config)
         file_access.lock_filename = filename.upper()
-        is_first = False
+        # is_first = False
 
         if FileOperation._lock is None:
             FileOperation._lock = config.retrieve_shared_item_and_register_if_not_exist(
@@ -77,16 +78,16 @@ class FileOperation:
 
         with FileOperation._lock:
             if file_access.lock_filename in FileOperation.lock_dictionary:
-                #print('retrieve existing lock event for ' + file_access.lock_filename)
+                # print('retrieve existing lock event for ' + file_access.lock_filename)
                 file_access.lock_event = FileOperation.lock_dictionary[file_access.lock_filename]
             else:
-                #print('create lock event for ' + file_access.lock_filename)
+                # print('create lock event for ' + file_access.lock_filename)
                 file_access.lock_event = config.get_proxy_object().create_condition()
                 FileOperation.lock_dictionary[file_access.lock_filename] = file_access.lock_event
-                is_first= True
-        #print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + str(FileOperation.lock_dictionary))
-        #StatusCode.debug(config.dump_shared_dictionary(), config)
-        #print('file operation lock unlock')
+                # is_first = True
+        # print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + str(FileOperation.lock_dictionary))
+        # StatusCode.debug(config.dump_shared_dictionary(), config)
+        # print('file operation lock unlock')
 
         # if not is_first:
         #     file_access.lock_event.wait()
@@ -94,35 +95,35 @@ class FileOperation:
         return file_access
 
     def __init__(self, config: Configurator):
-        self.__config=config
+        self.__config = config
 
     def __enter__(self):
         if self.lock_event is not None:
             self.lock_event.__enter__()
-            #StatusCode.debug('FileOperation Lock, dump:' + self.__config.dump_shared_dictionary(),self.__config)
+            # StatusCode.debug('FileOperation Lock, dump:' + self.__config.dump_shared_dictionary(),self.__config)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.lock_event is not None:
             self.lock_event.notify()
             self.lock_event.__exit__(exc_type, exc_val, exc_tb)
-            #StatusCode.debug('FileOperation UnLock', self.__config)
+            # StatusCode.debug('FileOperation UnLock', self.__config)
 
     @staticmethod
     def search(parent_directory: str, filter_conditions: list[FileFilterInfo],
                recursive: bool = False) -> list[FileInfo]:
-        file_infos: list[FileInfo] = []
+        file_info_list: list[FileInfo] = []
         if not os.path.exists(parent_directory):
-            return file_infos
+            return file_info_list
 
         for root, _, files in os.walk(parent_directory):
             for filename in files:
                 fullpath = os.path.join(root, filename)
                 if FileOperation._is_file_valid(fullpath, filter_conditions):
-                    file_infos.append(FileInfo(fullpath))
+                    file_info_list.append(FileInfo(fullpath))
             if not recursive:
                 break
 
-        return file_infos
+        return file_info_list
 
     @staticmethod
     def _is_file_valid(filename: str, filter_conditions: list[FileFilterInfo]) -> bool:

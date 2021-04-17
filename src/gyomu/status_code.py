@@ -78,8 +78,9 @@ class StatusCode:
 
     def _get_developer_information(self) -> str:
         if self._exception is not None:
-            return ''.join(traceback.format_exception(etype=type(self._exception), value=self._exception, tb= self._exception.__traceback__))
-            #return str(self._exception)
+            return ''.join(traceback.format_exception(etype=type(self._exception), value=self._exception,
+                                                      tb=self._exception.__traceback__))
+            # return str(self._exception)
         else:
             return "\n".join(self._stack_summary)
 
@@ -140,7 +141,6 @@ class StatusCode:
         cls.INVALID_ARGUMENT_ERROR = cls._code_gen(0, cls.ERROR_DEVELOPER, 4, "Invalid Argument", "")
         cls.FILE_NOT_FOUND = cls._code_gen(0, cls.ERROR_DEVELOPER, 5, "File Not Exist", "File: {0}")
 
-
     @classmethod
     def debug(cls, argument: str, config: Configurator, application_id=-1):
         if application_id == -1:
@@ -158,7 +158,7 @@ class StatusCode:
             return 'Success'
 
         status_info: StatusInfo = self._get_status_info()
-        str_buf: list[str]=[]
+        str_buf: list[str] = []
         str_buf.append(status_info.summary)
         str_buf.append(status_info.description)
         developer_information = self._get_developer_information()

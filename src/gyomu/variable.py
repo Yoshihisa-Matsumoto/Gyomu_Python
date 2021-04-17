@@ -76,8 +76,8 @@ class VariableTranslator:
             return translate_market_access.get_business_day_of_beginning_month(two_month_after, -factor_index)
         elif date_parameter == 'PREVBEOM':
             # Business Day of End of Previous Month
-            bom = date(target_date.year,target_date.month,1)
-            return translate_market_access.get_business_day(bom,-factor_index)
+            bom = date(target_date.year, target_date.month, 1)
+            return translate_market_access.get_business_day(bom, -factor_index)
         elif date_parameter == 'EOM':
             # End of Month
             next_month = target_date + relativedelta(months=1)
@@ -128,7 +128,6 @@ class VariableTranslator:
         str_list = []
         supported_market = VariableTranslator.__get_supported_market()
 
-
         for p in parts:
             if p.isdecimal():
                 factor_index = int(p)
@@ -140,7 +139,6 @@ class VariableTranslator:
                 date_parameter = self.__translate_date(translate_market_access=translate_market_access,
                                                        target_date=target_date, date_parameter=p,
                                                        factor_index=factor_index)
-
 
             elif p == 'PARAMMASTER':
                 # Retrieve from DB Parameter
@@ -154,10 +152,10 @@ class VariableTranslator:
                 variable_type == VariableTranslator.VariableType.ArgumentFile
             else:
                 if variable_type == VariableTranslator.VariableType.Date:
-                    format = p
-                    if format == 'yyyyMMdd' or format == 'yyyymmdd':
-                        format = '%Y%m%d'
-                    str_list.append(date_parameter.strftime(format))
+                    translate_format = p
+                    if translate_format == 'yyyyMMdd' or translate_format == 'yyyymmdd':
+                        translate_format = '%Y%m%d'
+                    str_list.append(date_parameter.strftime(translate_format))
                 elif variable_type == VariableTranslator.VariableType.ParamMaster:
                     str_list.append(ParameterAccess.get_string_value(p))
                 elif variable_type == VariableTranslator.VariableType.ParamMasterStringDictionary:

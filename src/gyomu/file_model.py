@@ -20,17 +20,17 @@ class FileInfo:
     update_time_utc: datetime
     last_access_time_utc: datetime
 
-    def __init__(self, path):
-        p = Path(path)
+    def __init__(self, file_path):
+        p = Path(file_path)
         self.file_name = p.name
         self.full_path = str(p.resolve())
         self.dir_name = p.parent.name
         self.dir_path = str(p.parent)
-        self.size = path.getsize(path)
+        self.size = file_path.getsize(file_path)
         self.extension = ''.join(p.suffix)
-        self.create_time_utc = FileInfo.epoch_to_datetime(path.getctime(p))
-        self.update_time_utc = FileInfo.epoch_to_datetime(path.getmtime(p))
-        self.last_access_time_utc = FileInfo.epoch_to_datetime(path.getatime(p))
+        self.create_time_utc = FileInfo.epoch_to_datetimeutc(file_path.getctime(p))
+        self.update_time_utc = FileInfo.epoch_to_datetimeutc(file_path.getmtime(p))
+        self.last_access_time_utc = FileInfo.epoch_to_datetimeutc(file_path.getatime(p))
 
 
 class FilterType(Enum):

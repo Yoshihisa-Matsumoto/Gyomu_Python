@@ -168,7 +168,7 @@ class ParameterAccess:
 
     @classmethod
     def set_bool_value(cls, key: str, bool_value: bool, user: User = None):
-        cls.__set_string_value(key, "True" if bool_value == True else "False", user)
+        cls.__set_string_value(key, "True" if bool_value is True else "False", user)
 
     @classmethod
     def set_int_value(cls, key: str, int_value: int, user: User = None):
@@ -179,10 +179,10 @@ class ParameterAccess:
         cls.__set_string_value(key, str(decimal_value), user)
 
     @classmethod
-    def set_json_serialized_value(cls, key: str, object, user: User = None):
+    def set_json_serialized_value(cls, key: str, target_object, user: User = None):
         json_value: str = ""
-        if object is not None:
-            json_value = Json.to_json(object)
+        if target_object is not None:
+            json_value = Json.to_json(target_object)
         cls.__set_string_value(key, json_value, user)
 
     @classmethod

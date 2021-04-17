@@ -11,13 +11,14 @@ from gyomu.common_status_code import CommonStatusCode
 from gyomu.holidays import MarketDateAccess
 import click
 import os
-from datetime import date,datetime
+from datetime import date, datetime
+
 
 class TaskAccess:
 
     @staticmethod
     def create_new_task(application_id: int, task_id: int, config: Configurator = None) -> (
-    AbstractBaseTask, StatusCode):
+            AbstractBaseTask, StatusCode):
         task_info: GyomuTaskInfoCdtbl
         try:
             if config is None:
@@ -81,15 +82,15 @@ def __cmd(application_id: int, task_id: int, parameter: str, register: bool, fil
             if file != '':
                 click.echo('Need to specify either parameter or file as both contains parameter to use')
                 return
-            result = __execute_task(application_id,task_id,parameter)
+            result = __execute_task(application_id, task_id, parameter)
             click.echo(str(result))
             return
         elif file != '':
             if not os.path.exists(file):
                 click.echo('You need to specify valid filename')
                 return
-            with open(file,'r') as f:
-                parameter=f.read()
+            with open(file, 'r') as f:
+                parameter = f.read()
             result = __execute_task(application_id, task_id, parameter)
             click.echo(str(result))
             return
@@ -107,15 +108,15 @@ def __cmd(application_id: int, task_id: int, parameter: str, register: bool, fil
                 return
             else:
                 market_access = MarketDateAccess(market=market)
-                target_date = datetime.strptime(start_date,'%Y%m%d')
-                end_date = datetime.strptime(end_date,'%Y%m%d')
-                while target_date <= end_date :
+                target_date = datetime.strptime(start_date, '%Y%m%d')
+                end_date = datetime.strptime(end_date, '%Y%m%d')
+                while target_date <= end_date:
                     click.echo("parameter: " + target_date.strftime('%Y%m%d'))
                     result = __execute_task(application_id, task_id, start_date)
                     if not result.is_success:
                         click.echo(str(result))
                         return
-                    target_date = market_access.get_business_day(target_date,1)
+                    target_date = market_access.get_business_day(target_date, 1)
 
 
 def __execute_task(application_id: int, task_id: int, parameter: str) -> StatusCode:

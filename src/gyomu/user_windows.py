@@ -27,7 +27,6 @@ class _WindowsUser(User):
     def user_id(self):
         return super().userid
 
-
     def is_in_member(self, group_user: User) -> bool:
         pass
 
@@ -38,7 +37,7 @@ class _WindowsUser(User):
         super().__init__(user_id)
 
     @property
-    def region(self) ->str:
+    def region(self) -> str:
         pass
 
     @property
