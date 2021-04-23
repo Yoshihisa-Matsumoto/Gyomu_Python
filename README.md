@@ -1,8 +1,10 @@
+*This package is originally developed in C#, and now try to migrate into Python version
+
 # Gyomu
 Gyomu, which means Enterprise or Operation in Japanese, is used in enterprise.
 The purpose of this library is 
 1. Shorten development time through framework
-2. Shorten trouble shooting in testing or in production 
+2. Shorten troubleshooting in testing or in production 
 
 This library won't be used by library itself. It's used with RDB ( Now Postgres & MSSQL is supported )
 

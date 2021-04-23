@@ -17,6 +17,18 @@ def file_open_as_readonly(setup_test_files):
     with source_file:
         pass
 
+def _other_process_lock(file_name):
+    config: Configurator = ConfigurationFactory.get_instance()
+    process1 = ManagedProcess(target=_other_lock, args=(file_name,))
+    process1.start_managed_process(config)
+    time.sleep(2)
+    with FileOperation.lock_process(file_name, config):
+        print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + 'Other Process File Lock' + str(
+            datetime.datetime.now()))
+        time.sleep(3)
+    print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + 'Other Process File Unlock' + str(
+        datetime.datetime.now()))
+    process1.join()
 
 def _other_lock(file_name):
     config: Configurator = ConfigurationFactory.get_instance()
@@ -69,6 +81,20 @@ class TestFileOperation:
         source_dir = os.path.join(setup_test_files, 'source')
         source_file = os.path.join(source_dir, 'README.md')
         thread1 = ManagedProcess(target=_other_lock, args=(source_file,))
+        thread1.start_managed_process(config)
+        time.sleep(2)
+        with FileOperation.lock_process(source_file,config):
+            print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + 'Main Thread File Lock' + str(datetime.datetime.now()))
+            time.sleep(3)
+        print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + 'Main Thread File Unlock' + str(datetime.datetime.now()))
+        thread1.join()
+
+    def test_file_lock4(self, status_handler_setup, setup_test_files):
+        config: Configurator = status_handler_setup
+        print('PID:' + str(config.unique_instance_id_per_machine) + '  ' + 'Main Thread Start' + str(datetime.datetime.now()))
+        source_dir = os.path.join(setup_test_files, 'source')
+        source_file = os.path.join(source_dir, 'README.md')
+        thread1 = ManagedProcess(target=_other_process_lock, args=(source_file,))
         thread1.start_managed_process(config)
         time.sleep(2)
         with FileOperation.lock_process(source_file,config):
