@@ -63,7 +63,7 @@ Using Json serialization, mostly any kind of data to be parameterized easily.
 Also this parameterization supports several kind of encoding/encryption
 * Base64 Encoding
 * AES Encryption
-* User specific encryption
+* User specific encryption ( This is not supported in Python version so far)
 
 Base64 encoding can be used for easy masking.
 It's easy to be decoded, but at a glance, we can't see raw value.
