@@ -1,6 +1,25 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
-build-backend = "setuptools.build_meta"
+#[build-system]
+#requires = [
+#    "setuptools>=42",
+#    "wheel"
+#]
+#build-backend = "setuptools.build_meta"
+
+[tool.poetry]
+name = "gyomu"
+version = "0.1.5-alpha.2"
+description = "Enterprise operational framework"
+authors = ["Yoshihisa Matsumoto <yoshmatsumoto@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "*"
+click = "7.1.2"
+jsonpickle = "2.0.0"
+jsons = "1.4.0"
+pycryptodome = "3.10.1"
+pyzipper= "^0.3.4"
+sqlalchemy = "1.4.00"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
