@@ -1,15 +1,18 @@
-from gyomu.db_connection_factory import DbConnectionFactory, GYOMU_COMMON_MAINDB_TYPE, DbType, GYOMU_COMMON_MAINDB_CONNECTION
+from gyomu.db_connection_factory import DbConnectionFactory, GYOMU_COMMON_MAINDB_CONNECTION
+from gyomu.exception import InvalidEnvironmentSetupError
 import pytest
 import os
 
+def test_invalid_environment():
+    with pytest.raises(InvalidEnvironmentSetupError) as ie:
+        session = DbConnectionFactory.get_gyomu_db_session()
+    print(ie.__str__())
 
-def test_get_sqldb_type():
-    os.environ[GYOMU_COMMON_MAINDB_TYPE] = DbType.POSTGRESQL.name
-    assert DbType.POSTGRESQL == DbConnectionFactory.get_sqldb_type()
 
-def test_sqldb_setting_nonexist():
-    os.environ[GYOMU_COMMON_MAINDB_TYPE] = ""
-    with pytest.raises(ValueError):
-        db_type= DbConnectionFactory.get_sqldb_type()
+def test_invalid_connection():
+    os.environ[GYOMU_COMMON_MAINDB_CONNECTION] = 'aaab'
+    with pytest.raises(InvalidEnvironmentSetupError) as ie:
+        session = DbConnectionFactory.get_gyomu_db_session()
+    print(ie.__str__())
 
 

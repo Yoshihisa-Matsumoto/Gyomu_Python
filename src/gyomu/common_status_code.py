@@ -57,9 +57,9 @@ class CommonStatusCode(StatusCode):
                                  "Invalid User Access Found",
                                  "ApplicationID:{0}\nTask Info ID:{1}\nTask Data ID:{2}\nInstance ID:{3}\n"
                                  "Target Action:{4}\nCurrent User:{5}")
-        cls.INVALID_USER_ACCESS_TASKBATCH = StatusCode._code_gen(cls.APP_ID, StatusCode.ERROR_DEVELOPER, 0x4c,
-                                                                 "Invalid User Access Found",
-                                                                 "Task Batch ID:{0}\nTask Batch Data ID:{1}\n")
+        # cls.INVALID_USER_ACCESS_TASKBATCH = StatusCode._code_gen(cls.APP_ID, StatusCode.ERROR_DEVELOPER, 0x4c,
+        #                                                          "Invalid User Access Found",
+        #                                                          "Task Batch ID:{0}\nTask Batch Data ID:{1}\n")
         cls.TASK_CANNOT_BE_INSTANCED = StatusCode._code_gen(cls.APP_ID, StatusCode.ERROR_DEVELOPER, 0x4d,
                                                             "Assembly can't be found", "Assembly:{0}\nClass:{1}")
         cls.TASK_NOT_REGISTERED = StatusCode._code_gen(cls.APP_ID, StatusCode.ERROR_DEVELOPER, 0x4e,

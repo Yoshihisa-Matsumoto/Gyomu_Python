@@ -70,19 +70,19 @@ def test_to_json():
     red2 = Json.deserialize(redstr, _ColorStr)
     assert red == red2
 
-def test_email_json():
-    email = EmailMessage()
-    email['Subject'] = "test subject"
-    email['From'] = 'test@test.com'
-    email['To'] = 'recipient@tt.com, recipient2@tt.aa'
-    email.set_content('body', subtype='html')
-
-    #emailStr = Json.to_json_pickle(email)
-    emailStr = Json.to_json(email)
-    print(emailStr)
-    #email2 = Json.deserialize_pickle(emailStr)
-    email2 = Json.deserialize(emailStr, EmailMessage)
-    assert email.as_string() == email2.as_string()
+# def test_email_json():
+#     email = EmailMessage()
+#     email['Subject'] = "test subject"
+#     email['From'] = 'test@test.com'
+#     email['To'] = 'recipient@tt.com, recipient2@tt.aa'
+#     email.set_content('body', subtype='html')
+#
+#     #emailStr = Json.to_json_pickle(email)
+#     emailStr = Json.to_json(email)
+#     print(emailStr)
+#     #email2 = Json.deserialize_pickle(emailStr)
+#     email2 = Json.deserialize(emailStr, EmailMessage)
+#     assert email.as_string() == email2.as_string()
 
 def test_int_type():
     value1: int = 234
@@ -150,10 +150,10 @@ def test_tuple():
     print(value1_str)
     assert value1 == value2
 
-def test_complicated_tuple():
-    brian = _User("Brian")
-    value1: SimpleTuple = SimpleTuple(arg1=234, arg2=brian)
-    value1_str: str = Json.to_json(value1)
-    value2 = Json.deserialize(value1_str, SimpleTuple)
-    print(value1_str)
-    assert value1 == value2
+# def test_complicated_tuple():
+#     brian = _User("Brian")
+#     value1: SimpleTuple = SimpleTuple(arg1=234, arg2=brian)
+#     value1_str: str = Json.to_json(value1)
+#     value2 = Json.deserialize(value1_str, SimpleTuple)
+#     print(value1_str)
+#     assert value1 == value2

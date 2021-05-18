@@ -6,7 +6,7 @@ from typing import Type
 
 import os
 from socket import gethostname
-from gyomu.db_connection_factory import DbConnectionFactory, GYOMU_COMMON_MAINDB_TYPE, DbType, GYOMU_COMMON_MAINDB_CONNECTION
+from gyomu.db_connection_factory import DbConnectionFactory
 from gyomu.gyomu_db_model import GyomuParamMaster
 import threading
 import sys

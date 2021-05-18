@@ -1,39 +1,41 @@
-import jsonpickle
+#import jsonpickle
 import jsons
 from typing import Type, TypeVar
+from marshmallow import Schema
 
 T = TypeVar('T')
 
 
 class Json:
     @staticmethod
-    def to_json(target_object) -> str:
-        try:
-            json_str = jsons.dumps(target_object)
-            target_object2 = Json.deserialize(json_str, type(target_object))
-            if str(target_object) == str(target_object2):
-                return json_str
+    def to_json(target_object, schema: Schema = None) -> str:
+        if schema is not None:
+            return schema.dumps(target_object)
+        return jsons.dumps(target_object)
+
+    @staticmethod
+    def deserialize(json_string: str, class_type: Type[T], schema: Schema = None) -> T:
+        if schema is not None:
+            dictionary = schema.loads(json_data=json_string)
+            if not isinstance(dictionary, list):
+                return class_type(**dictionary)
             else:
-                return jsonpickle.encode(target_object)
-        except Exception:
-            return jsonpickle.encode(target_object)
+                lstObject = list()
+                for item in dictionary:
+                    lstObject.append(class_type(**item))
+                return lstObject
+
+        return jsons.loads(json_string, class_type)
 
     @staticmethod
-    def deserialize(json_string: str, class_type: Type[T]) -> T:
-        if json_string.startswith('{\"py/'):
-            return jsonpickle.decode(json_string)
-        else:
-            return jsons.loads(json_string, class_type)
-
-    @staticmethod
-    def save_file(target_object, file_name: str):
+    def save_file(target_object, file_name: str, schema: Schema = None):
         with open(file_name, 'w') as myfile:
-            myfile.write(Json.to_json(target_object))
+            myfile.write(Json.to_json(target_object, schema))
 
     @staticmethod
-    def deserialize_file(file_name: str, class_type: Type[T]) -> T:
+    def deserialize_file(file_name: str, class_type: Type[T], schema: Schema = None) -> T:
         with open(file_name, 'r') as myfile:
-            return Json.deserialize(myfile.read(), class_type)
+            return Json.deserialize(myfile.read(), class_type, schema)
 
     # @staticmethod
     # def to_json_pickle(target_object)->str:

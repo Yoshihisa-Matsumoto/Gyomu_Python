@@ -1,7 +1,7 @@
 from gyomu.parameter_access import ParameterAccess
 import os
 import pytest
-from gyomu.db_connection_factory import DbConnectionFactory, GYOMU_COMMON_MAINDB_TYPE, DbType, GYOMU_COMMON_MAINDB_CONNECTION
+from gyomu.db_connection_factory import GYOMU_COMMON_MAINDB_CONNECTION
 
 
 @pytest.fixture(scope='module')
