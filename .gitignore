@@ -6,3 +6,5 @@ venv/
 /src/gyomu.egg-info/
 /.coverage
 /htmlcov/
+__pycache__/
+*.py[cod]
