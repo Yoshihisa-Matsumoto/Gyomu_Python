@@ -1,7 +1,7 @@
-from dotenv import load_dotenv
 import os
 
 import pytest
+from dotenv import load_dotenv
 from sqlalchemy import Engine, create_engine
 
 load_dotenv()

@@ -1,12 +1,16 @@
 from datetime import date
-from uuid import uuid4
 from unittest.mock import MagicMock
+from uuid import uuid4
 
+import pytest
 from gyomu_infra.db.model.market_holiday import GyomuMarketHoliday
-from gyomu_infra.repository.sqlalchemy_market_holiday import (
+from gyomu_infra.db.repository.sqlalchemy_market_holiday import (
     SqlAlchemyMarketHolidayRepository,
 )
+from gyomu_schema.error import DatabaseError
 from gyomu_schema.market_holiday import MarketHoliday
+from returns.result import Failure, Success
+from sqlalchemy.exc import SQLAlchemyError
 
 
 def test_find_by_market() -> None:
@@ -34,8 +38,8 @@ def test_find_by_market() -> None:
     repository = SqlAlchemyMarketHolidayRepository(session)
 
     result = repository.find_by_market("JP")
-
-    assert result == [
+    assert isinstance(result, Success)
+    assert result.unwrap() == [
         MarketHoliday(
             id=id_1,
             market="JP",
@@ -56,7 +60,7 @@ def test_find_by_market_returns_empty_list_when_no_data() -> None:
 
     result = repository.find_by_market("JP")
 
-    assert result == []
+    assert result == Success([])
 
 def test_find_by_market_uses_market_filter() -> None:
     session = MagicMock()
@@ -73,3 +77,23 @@ def test_find_by_market_uses_market_filter() -> None:
     compiled = str(statement)
 
     assert "gyomu_market_holiday.market" in compiled
+
+def test_find_by_market_uses_market_filtecheck_dberror() -> None:
+    session = MagicMock()
+    session.scalars.side_effect = SQLAlchemyError("database error")
+
+    repository = SqlAlchemyMarketHolidayRepository(session)
+
+    result = repository.find_by_market("#TEST")
+
+    assert isinstance(result, Failure)
+    assert isinstance(result.failure(), DatabaseError)
+
+def test_find_by_market_uses_market_filtecheck_othererror() -> None:
+    session = MagicMock()
+    session.scalars.side_effect = ValueError("unexpected error")
+
+    repository = SqlAlchemyMarketHolidayRepository(session)
+
+    with pytest.raises(ValueError, match="unexpected error"):
+        repository.find_by_market("#TEST")

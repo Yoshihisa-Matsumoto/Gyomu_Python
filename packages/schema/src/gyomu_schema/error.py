@@ -6,7 +6,7 @@ class GyomuIOError(GyomuError):
     """I/O related error."""
 
 
-class DatabaseError(IOError):
+class DatabaseError(GyomuIOError):
     """Database access error."""
 
 

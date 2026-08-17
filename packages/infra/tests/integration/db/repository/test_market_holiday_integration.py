@@ -1,17 +1,17 @@
-import os
 
-import pytest
 from datetime import date
 from uuid import uuid4
 
-from sqlalchemy import Engine, create_engine, delete
-from sqlalchemy.orm import Session
-
+import pytest
 from gyomu_infra.db.model.market_holiday import GyomuMarketHoliday
-from gyomu_infra.repository.sqlalchemy_market_holiday import (
+from gyomu_infra.db.repository.sqlalchemy_market_holiday import (
     SqlAlchemyMarketHolidayRepository,
 )
+from returns.result import Success
+from sqlalchemy import Engine, delete
+from sqlalchemy.orm import Session
 
+pytestmark = pytest.mark.integration
 
 TEST_MARKET = "#TEST"
 
@@ -53,6 +53,9 @@ def test_find_by_market(db_engine: Engine) -> None:
         repository = SqlAlchemyMarketHolidayRepository(session)
 
         result = repository.find_by_market(TEST_MARKET)
+
+        assert isinstance(result,Success)
+        result=result.unwrap()
 
         # Assert
         assert len(result) == 2
