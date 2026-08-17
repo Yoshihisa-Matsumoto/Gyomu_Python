@@ -7,6 +7,9 @@ authors = [
     { name = "Yoshihisa Matsumoto", email = "yoshmatsumoto@gmail.com" }
 ]
 readme = "README.md"
+dependencies = [
+    "returns>=0.29.0",
+]
 
 [tool.uv.workspace]
 members = [
@@ -14,7 +17,12 @@ members = [
     "packages/infra",
 ]
 
+[tool.mypy]
+python_version = "3.14"
+plugins = ["returns.contrib.mypy.returns_plugin"]
+
 [dependency-groups]
 dev = [
+    "mypy>=2.3.1",
     "pytest>=9,<10",
 ]

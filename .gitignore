@@ -8,3 +8,7 @@ venv/
 /htmlcov/
 __pycache__/
 *.py[cod]
+
+.env
+.env.*
+!.env.example

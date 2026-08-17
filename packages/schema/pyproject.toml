@@ -1,0 +1,17 @@
+[project]
+name = "gyomu-schema"
+version = "0.1.0"
+description = "Gyomu canonical schemas"
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic>=2,<3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9,<10",
+]

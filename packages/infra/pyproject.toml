@@ -1,0 +1,25 @@
+[project]
+name = "gyomu-infra"
+version = "0.1.0"
+description = "Gyomu infrastructure"
+requires-python = ">=3.14"
+dependencies = [
+    "gyomu-schema",
+    "sqlalchemy>=2,<3",
+    "pyodbc>=5,<6"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9,<10",
+    "sqlacodegen>=3,<4",
+    "python-dotenv>=1,<2"
+]
+
+[tool.uv.sources]
+gyomu-schema = { workspace = true }
+
