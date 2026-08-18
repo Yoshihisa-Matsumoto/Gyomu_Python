@@ -2,7 +2,7 @@ from datetime import date
 from uuid import uuid4
 
 from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
-from gyomu_infra.service.market_holiday import MarketHolidayService
+from gyomu_infra.gyomu.date.market_holiday import MarketHolidayService
 from gyomu_schema.error import GyomuIOError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Failure, Result, Success

@@ -25,21 +25,20 @@ gyomu_infra/
 ├── archive/
 ├── http/
 ├── filesystem/
-└── service/
 ```
 
 すべてを最初から作成する必要はなく、実際に必要になった段階で追加する。
 
 ### 第一階層の意味
 
-| ディレクトリ  | 責務                                                    |
-| ------------- | ------------------------------------------------------- |
-| `db/`         | Database / SQLAlchemy / SQL Server関連                  |
-| `csv/`        | CSV関連                                                 |
-| `archive/`    | Archive関連                                             |
-| `http/`       | HTTP / 外部API関連                                      |
-| `filesystem/` | File System関連                                         |
-| `service/`    | Infrastructureからデータを取得・利用して提供するService |
+| ディレクトリ  | 責務                                   |
+| ------------- | -------------------------------------- |
+| `db/`         | Database / SQLAlchemy / SQL Server関連 |
+| `csv/`        | CSV関連                                |
+| `archive/`    | Archive関連                            |
+| `http/`       | HTTP / 外部API関連                     |
+| `filesystem/` | File System関連                        |
+| `gyomu/`      | 業務領域                               |
 
 ---
 
@@ -220,10 +219,10 @@ DB固有Error
 
 # 8. Service
 
-業務上利用するInfrastructure Serviceは、
+業務上利用するInfrastructure Serviceは、各業務領域ごとに配置する
 
 ```text
-gyomu_infra/service/
+gyomu_infra/gyomu/<業務領域>
 ```
 
 に配置する。
@@ -232,8 +231,9 @@ gyomu_infra/service/
 
 ```text
 gyomu_infra/
-└── service/
-    └── business_calendar.py
+└── gyomu/
+    └── date
+        └── business_calendar.py
 ```
 
 BusinessCalendarはDBそのものではなく、
@@ -316,13 +316,13 @@ packages/infra/
 │       │   ├── mapper/
 │       │   ├── model/
 │       │   └── repository/
-│       └── service/
+│       └── gyomu/
 │
 └── tests/
     ├── db/
     │   ├── mapper/
     │   └── repository/
-    └── service/
+    └── gyomu/
 ```
 
 という構造にする。
@@ -607,7 +607,7 @@ gyomu_infra/
 ├── archive/
 ├── http/
 ├── filesystem/
-└── service/
+└── gyomu/
 ```
 
 という考え方を維持する。
@@ -641,8 +641,14 @@ Python版Gyomuでは、コードの分類について以下を基本原則とす
 外部リソース・技術境界
 
 第二階層以降
+
+Infrastructureの業務領域コード
     ↓
-その技術内部の責務
+Gyomuの業務領域
+
+その業務領域内部
+    ↓
+必要な責務
 ```
 
 例えばDBなら、
@@ -704,17 +710,20 @@ packages/
     │       │       ├── market_holiday.py
     │       │       └── sqlalchemy_market_holiday.py
     │       │
-    │       └── service/
+    │       └── gyomu/
     │           ├── __init__.py
-    │           ├── market_holiday.py
-    │           └── business_calendar.py
+    |           └── date/
+    │               ├── market_holiday.py
+    │               ├── business_calendar.py
+    |               └── business_calendar_factory.py
     │
     └── tests/
         ├── conftest.py
         ├── db/
         │   ├── mapper/
         │   └── repository/
-        └── service/
+        └── gyomu/
+            └── date/
 ```
 
 今後、実際のコード量や依存関係が増えた場合には、この原則を維持した上で必要に応じて細分化する。
@@ -735,7 +744,7 @@ Python版Gyomuでは、以下を基本ルールとする。
 8. Infrastructure第一階層は外部リソース・技術境界とする
 9. DB関連コードは`gyomu_infra/db/`配下にまとめる
 10. `model` / `mapper` / `repository` / `error`は各Infrastructure内部に配置する
-11. Business Serviceは`gyomu_infra/service/`に配置する
+11. Business Serviceは`gyomu_infra/gyomu/<業務領域コード>/`に配置する
 12. Testディレクトリはsrc構造に対応させる
 13. TS/C#/Pythonでドメイン名は可能な限り共通化する
 14. ただし、各言語の命名規則は各言語の慣習に従う

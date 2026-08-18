@@ -47,3 +47,6 @@ quote-style = "double"
 markers = [
     "integration: tests requiring external infrastructure",
 ]
+testpaths = [
+    "packages",
+]

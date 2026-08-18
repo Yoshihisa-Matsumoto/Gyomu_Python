@@ -2,23 +2,28 @@ from datetime import date
 from uuid import uuid4
 
 from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
-from gyomu_infra.service.business_calendar import BusinessCalendarImpl, BusinessCalendarService
+from gyomu_infra.gyomu.date.business_calendar import (
+    BusinessCalendarService,
+)
 from gyomu_schema.error import GyomuIOError
 from gyomu_schema.market_holiday import MarketHoliday
-from returns.result import Failure, Success
+from returns.result import Failure, Result, Success
 
 
 class DummyMarketHolidayRepository:
     def __init__(
         self,
-        result: Success | Failure,
+        result: Result[list[MarketHoliday], GyomuIOError],
     ) -> None:
-        self.result = result
+        self._result = result
         self.call_count = 0
 
-    def find_by_market(self, market: str):
+    def find_by_market(
+        self,
+        market: str,
+    ) -> Result[list[MarketHoliday], GyomuIOError]:
         self.call_count += 1
-        return self.result
+        return self._result
 
 
 class TestBusinessCalendarService:
@@ -47,7 +52,7 @@ class TestBusinessCalendarService:
 
 
   def test_get_propagates_repository_failure(self):
-      error = GyomuIOError()
+      error = GyomuIOError('invalid io')
 
       repository = DummyMarketHolidayRepository(
           Failure(error),
