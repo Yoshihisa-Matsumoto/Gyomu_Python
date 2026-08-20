@@ -1,11 +1,12 @@
 from datetime import date
 from uuid import uuid4
 
-from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
-from gyomu_infra.gyomu.date.market_holiday import MarketHolidayService
 from gyomu_schema.error import GyomuIOError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Failure, Result, Success
+
+from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
+from gyomu_infra.gyomu.date.market_holiday import MarketHolidayService
 
 
 class DummyMarketHolidayRepository:
@@ -16,20 +17,18 @@ class DummyMarketHolidayRepository:
         self,
         market: str,
     ) -> Result[list[MarketHoliday], GyomuIOError]:
-        return Success([
-            holiday
-            for holiday in self._holidays
-            if holiday.market == market
-        ])
+        return Success(
+            [holiday for holiday in self._holidays if holiday.market == market]
+        )
+
 
 class DummyFailureMarketHolidayRepository:
     def find_by_market(
         self,
         market: str,
     ) -> Result[list[MarketHoliday], GyomuIOError]:
-        return Failure(
-            GyomuIOError("failed to find market holidays")
-        )
+        return Failure(GyomuIOError("failed to find market holidays"))
+
 
 def test_find_by_market() -> None:
     holidays = [
@@ -50,15 +49,14 @@ def test_find_by_market() -> None:
         ),
     ]
 
-    repository: MarketHolidayRepository = DummyMarketHolidayRepository(
-        holidays
-    )
+    repository: MarketHolidayRepository = DummyMarketHolidayRepository(holidays)
 
     service = MarketHolidayService(repository)
 
     result = service.find_by_market("JP")
 
     assert result == Success(holidays[:2])
+
 
 def test_find_by_market_failure() -> None:
     error = GyomuIOError("failed to find market holidays")
@@ -70,9 +68,7 @@ def test_find_by_market_failure() -> None:
         ) -> Result[list[MarketHoliday], GyomuIOError]:
             return Failure(error)
 
-    repository: MarketHolidayRepository = (
-        DummyFailureMarketHolidayRepository()
-    )
+    repository: MarketHolidayRepository = DummyFailureMarketHolidayRepository()
 
     service = MarketHolidayService(repository)
 

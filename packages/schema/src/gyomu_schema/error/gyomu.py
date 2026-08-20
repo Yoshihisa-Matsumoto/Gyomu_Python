@@ -1,4 +1,3 @@
-
 from collections.abc import Mapping
 from typing import Literal
 
@@ -12,7 +11,6 @@ GyomuErrorReason = Literal[
     "concurrent_modification",
     "out_of_bounds",
 ]
-
 
 
 class GyomuError(BaseError):

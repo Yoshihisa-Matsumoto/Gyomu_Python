@@ -15,6 +15,7 @@ def test_gyomu_error_has_application_context() -> None:
     assert error.reason == "external_failure"
     assert error.retryable is False
 
+
 def test_gyomu_error_can_be_retryable() -> None:
     error = GyomuError(
         "request failed",
@@ -25,6 +26,7 @@ def test_gyomu_error_can_be_retryable() -> None:
     )
 
     assert error.retryable is True
+
 
 def test_gyomu_error_has_base_error_context() -> None:
     error = GyomuError(

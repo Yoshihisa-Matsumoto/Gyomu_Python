@@ -16,10 +16,17 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest>=9,<10",
-    "sqlacodegen>=3,<4",
-    "python-dotenv>=1,<2"
+    "sqlacodegen>=4,<5",
+    "python-dotenv>=1,<2",
 ]
 
 [tool.uv.sources]
 gyomu-schema = { workspace = true }
 
+[tool.uv.scripts]
+schema-gen = "python scripts/schema_gen.py"
+
+[tool.ruff]
+exclude = [
+    "src/gyomu_infra/db/model/generated",
+]

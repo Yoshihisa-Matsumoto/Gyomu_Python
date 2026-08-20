@@ -1,18 +1,16 @@
-import os
-
 import pytest
 from dotenv import load_dotenv
-from sqlalchemy import Engine, create_engine
+from gyomu_schema.error.config import ConfigError
+from sqlalchemy import Engine
+
+from gyomu_infra.db.connection.factory import DbConnectionFactory
 
 load_dotenv()
 
+
 @pytest.fixture
 def db_engine() -> Engine:
-    connection = os.getenv("GYOMU_COMMON_MAINDB_CONNECTION")
-
-    if connection is None:
-        pytest.skip(
-            "GYOMU_COMMON_MAINDB_CONNECTION is not configured"
-        )
-
-    return create_engine(connection)
+    try:
+        return DbConnectionFactory.create_engine()
+    except ConfigError:
+        pytest.skip("GYOMU_COMMON_MAINDB_CONNECTION is not configured")

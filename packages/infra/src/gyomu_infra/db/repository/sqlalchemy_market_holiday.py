@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from gyomu_infra.db.error.database import to_database_error
 from gyomu_infra.db.mapper.market_holiday import to_schema
-from gyomu_infra.db.model.market_holiday import GyomuMarketHoliday
+from gyomu_infra.db.model.generated.models import GyomuMarketHoliday
 
 
 class SqlAlchemyMarketHolidayRepository:
@@ -36,4 +36,3 @@ class SqlAlchemyMarketHolidayRepository:
         models = self._session.scalars(statement).all()
 
         return [to_schema(model) for model in models]
- 

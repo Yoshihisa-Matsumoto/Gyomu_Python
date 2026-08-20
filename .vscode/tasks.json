@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Gyomu: Test",
+      "type": "shell",
+      "command": "uv run pytest",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Test Unit",
+      "type": "shell",
+      "command": "uv run pytest -m 'not integration'",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Test Integration",
+      "type": "shell",
+      "command": "uv run pytest -m integration",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Lint",
+      "type": "shell",
+      "command": "uv run ruff check packages",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Format",
+      "type": "shell",
+      "command": "uv run ruff format packages",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Format Check",
+      "type": "shell",
+      "command": "uv run ruff format --check packages",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Type Check",
+      "type": "shell",
+      "command": "uv run mypy  packages/schema/src packages/infra/src",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Check",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Gyomu: Format Check",
+        "Gyomu: Lint",
+        "Gyomu: Type Check",
+        "Gyomu: Test"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

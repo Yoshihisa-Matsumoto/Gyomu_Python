@@ -2,7 +2,7 @@ from datetime import date
 
 from gyomu_schema.market_holiday import MarketHoliday
 
-from gyomu_infra.db.model.market_holiday import GyomuMarketHoliday
+from gyomu_infra.db.model.generated.models import GyomuMarketHoliday
 
 
 def to_schema(model: GyomuMarketHoliday) -> MarketHoliday:

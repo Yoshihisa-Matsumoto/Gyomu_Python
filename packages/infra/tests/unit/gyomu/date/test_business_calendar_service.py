@@ -1,13 +1,13 @@
 from datetime import date
 from uuid import uuid4
 
-from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
-from gyomu_infra.gyomu.date.business_calendar import (
-    BusinessCalendarService,
-)
 from gyomu_schema.error import GyomuIOError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Failure, Result, Success
+
+from gyomu_infra.gyomu.date.business_calendar import (
+    BusinessCalendarService,
+)
 
 
 class DummyMarketHolidayRepository:
@@ -27,57 +27,55 @@ class DummyMarketHolidayRepository:
 
 
 class TestBusinessCalendarService:
-  def test_get_returns_business_calendar(self):
-      holiday = MarketHoliday(
-          id=uuid4(),
-          market="JPX",
-          holiday=date(2026, 8, 18),
-      )
+    def test_get_returns_business_calendar(self):
+        holiday = MarketHoliday(
+            id=uuid4(),
+            market="JPX",
+            holiday=date(2026, 8, 18),
+        )
 
-      repository = DummyMarketHolidayRepository(
-          Success([holiday]),
-      )
+        repository = DummyMarketHolidayRepository(
+            Success([holiday]),
+        )
 
-      service = BusinessCalendarService(repository)
+        service = BusinessCalendarService(repository)
 
-      result = service.get("JPX")
+        result = service.get("JPX")
 
-      assert isinstance(result, Success)
+        assert isinstance(result, Success)
 
-      calendar = result.unwrap()
+        calendar = result.unwrap()
 
-      assert not calendar.is_business_day(
-          date(2026, 8, 18),
-      )
+        assert not calendar.is_business_day(
+            date(2026, 8, 18),
+        )
 
+    def test_get_propagates_repository_failure(self):
+        error = GyomuIOError("invalid io")
 
-  def test_get_propagates_repository_failure(self):
-      error = GyomuIOError('invalid io')
+        repository = DummyMarketHolidayRepository(
+            Failure(error),
+        )
 
-      repository = DummyMarketHolidayRepository(
-          Failure(error),
-      )
+        service = BusinessCalendarService(repository)
 
-      service = BusinessCalendarService(repository)
+        result = service.get("JPX")
 
-      result = service.get("JPX")
+        assert isinstance(result, Failure)
+        assert result.failure() is error
 
-      assert isinstance(result, Failure)
-      assert result.failure() is error
+    def test_get_uses_cache(self):
+        repository = DummyMarketHolidayRepository(
+            Success([]),
+        )
 
+        service = BusinessCalendarService(repository)
 
-  def test_get_uses_cache(self):
-      repository = DummyMarketHolidayRepository(
-          Success([]),
-      )
+        first = service.get("JPX")
+        second = service.get("JPX")
 
-      service = BusinessCalendarService(repository)
+        assert isinstance(first, Success)
+        assert isinstance(second, Success)
 
-      first = service.get("JPX")
-      second = service.get("JPX")
-
-      assert isinstance(first, Success)
-      assert isinstance(second, Success)
-
-      assert first.unwrap() is second.unwrap()
-      assert repository.call_count == 1
+        assert first.unwrap() is second.unwrap()
+        assert repository.call_count == 1

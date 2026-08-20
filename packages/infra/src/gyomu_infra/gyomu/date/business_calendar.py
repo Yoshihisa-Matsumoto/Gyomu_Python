@@ -1,11 +1,12 @@
 from datetime import date, timedelta
 from threading import Lock
 
-from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
 from gyomu_schema.error import GyomuIOError
 from gyomu_schema.gyomu.holiday.business_calendar import BusinessCalendar
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Result
+
+from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
 
 
 class BusinessCalendarImpl:
@@ -47,9 +48,7 @@ class BusinessCalendarImpl:
         end_date: date,
     ) -> list[date]:
         return [
-            holiday
-            for holiday in self._holidays
-            if start_date <= holiday <= end_date
+            holiday for holiday in self._holidays if start_date <= holiday <= end_date
         ]
 
     def _get_next_business_day(
@@ -72,72 +71,72 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
-      business_day = target_date
+        business_day = target_date
 
-      while day_offset > 0:
-          business_day -= timedelta(days=1)
+        while day_offset > 0:
+            business_day -= timedelta(days=1)
 
-          if self.is_business_day(business_day):
-              day_offset -= 1
+            if self.is_business_day(business_day):
+                day_offset -= 1
 
-      return business_day
+        return business_day
 
     def business_day_of_beginning_month_with_offset(
         self,
         target_date: date,
         day_offset: int = 1,
     ) -> date:
-      business_day = target_date.replace(day=1)
+        business_day = target_date.replace(day=1)
 
-      if self.is_business_day(business_day):
-          if day_offset > 1:
-              return self.business_day(
-                  business_day,
-                  day_offset - 1,
-              )
+        if self.is_business_day(business_day):
+            if day_offset > 1:
+                return self.business_day(
+                    business_day,
+                    day_offset - 1,
+                )
 
-          return business_day
+            return business_day
 
-      return self.business_day(
-          business_day,
-          day_offset,
-      )
-
+        return self.business_day(
+            business_day,
+            day_offset,
+        )
 
     def business_day_of_beginning_of_next_month_with_offset(
         self,
         target_date: date,
         day_offset: int = 1,
     ) -> date:
-      if target_date.month == 12:
-          business_day = date(
-              target_date.year + 1,
-              1,
-              1,
-          )
-      else:
-          business_day = date(
-              target_date.year,
-              target_date.month + 1,
-              1,
-          )
+        if target_date.month == 12:
+            business_day = date(
+                target_date.year + 1,
+                1,
+                1,
+            )
+        else:
+            business_day = date(
+                target_date.year,
+                target_date.month + 1,
+                1,
+            )
 
-      if day_offset == 0:
-          day_offset = 1
+        if day_offset == 0:
+            day_offset = 1
 
-      if self.is_business_day(business_day):
-          if day_offset > 1:
-              return self.business_day(
-                  business_day,
-                  day_offset - 1,
-              )
+        if self.is_business_day(business_day):
+            if day_offset > 1:
+                return self.business_day(
+                    business_day,
+                    day_offset - 1,
+                )
 
-          return business_day
+            return business_day
 
-      return self.business_day(
-          business_day,
-          day_offset,
-      )
+        return self.business_day(
+            business_day,
+            day_offset,
+        )
+
     def business_day_of_beginning_of_previous_month_with_offset(
         self,
         target_date: date,
@@ -305,6 +304,8 @@ class BusinessCalendarImpl:
             business_day,
             day_offset,
         )
+
+
 class BusinessCalendarService:
     def __init__(
         self,

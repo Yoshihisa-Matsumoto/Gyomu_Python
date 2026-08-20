@@ -1,15 +1,15 @@
-
 from datetime import date
 from uuid import uuid4
 
 import pytest
-from gyomu_infra.db.model.market_holiday import GyomuMarketHoliday
-from gyomu_infra.db.repository.sqlalchemy_market_holiday import (
-    SqlAlchemyMarketHolidayRepository,
-)
 from returns.result import Success
 from sqlalchemy import Engine, delete
 from sqlalchemy.orm import Session
+
+from gyomu_infra.db.model.generated.models import GyomuMarketHoliday
+from gyomu_infra.db.repository.sqlalchemy_market_holiday import (
+    SqlAlchemyMarketHolidayRepository,
+)
 
 pytestmark = pytest.mark.integration
 
@@ -17,14 +17,11 @@ TEST_MARKET = "#TEST"
 
 
 def test_find_by_market(db_engine: Engine) -> None:
-    
-   
+
     with Session(db_engine) as session:
         # Arrange
         session.execute(
-            delete(GyomuMarketHoliday).where(
-                GyomuMarketHoliday.market == TEST_MARKET
-            )
+            delete(GyomuMarketHoliday).where(GyomuMarketHoliday.market == TEST_MARKET)
         )
 
         id_1 = uuid4()
@@ -54,8 +51,8 @@ def test_find_by_market(db_engine: Engine) -> None:
 
         result = repository.find_by_market(TEST_MARKET)
 
-        assert isinstance(result,Success)
-        result=result.unwrap()
+        assert isinstance(result, Success)
+        result = result.unwrap()
 
         # Assert
         assert len(result) == 2
@@ -68,11 +65,8 @@ def test_find_by_market(db_engine: Engine) -> None:
         assert result[1].market == TEST_MARKET
         assert result[1].holiday == date(2099, 1, 2)
 
-
         # Cleanup
         session.execute(
-            delete(GyomuMarketHoliday).where(
-                GyomuMarketHoliday.market == TEST_MARKET
-            )
+            delete(GyomuMarketHoliday).where(GyomuMarketHoliday.market == TEST_MARKET)
         )
         session.commit()

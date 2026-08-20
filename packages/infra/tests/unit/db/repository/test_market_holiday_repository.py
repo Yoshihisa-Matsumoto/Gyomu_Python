@@ -1,21 +1,22 @@
 from datetime import date
 from unittest.mock import MagicMock
-from uuid import uuid4
+from uuid import uuid7
 
 import pytest
-from gyomu_infra.db.model.market_holiday import GyomuMarketHoliday
-from gyomu_infra.db.repository.sqlalchemy_market_holiday import (
-    SqlAlchemyMarketHolidayRepository,
-)
 from gyomu_schema.error import DatabaseError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Failure, Success
 from sqlalchemy.exc import SQLAlchemyError
 
+from gyomu_infra.db.model.generated.models import GyomuMarketHoliday
+from gyomu_infra.db.repository.sqlalchemy_market_holiday import (
+    SqlAlchemyMarketHolidayRepository,
+)
+
 
 def test_find_by_market() -> None:
-    id_1 = uuid4()
-    id_2 = uuid4()
+    id_1 = uuid7()
+    id_2 = uuid7()
 
     models = [
         GyomuMarketHoliday(
@@ -52,6 +53,7 @@ def test_find_by_market() -> None:
         ),
     ]
 
+
 def test_find_by_market_returns_empty_list_when_no_data() -> None:
     session = MagicMock()
     session.scalars.return_value.all.return_value = []
@@ -61,6 +63,7 @@ def test_find_by_market_returns_empty_list_when_no_data() -> None:
     result = repository.find_by_market("JP")
 
     assert result == Success([])
+
 
 def test_find_by_market_uses_market_filter() -> None:
     session = MagicMock()
@@ -78,6 +81,7 @@ def test_find_by_market_uses_market_filter() -> None:
 
     assert "gyomu_market_holiday.market" in compiled
 
+
 def test_find_by_market_uses_market_filtecheck_dberror() -> None:
     session = MagicMock()
     session.scalars.side_effect = SQLAlchemyError("database error")
@@ -88,6 +92,7 @@ def test_find_by_market_uses_market_filtecheck_dberror() -> None:
 
     assert isinstance(result, Failure)
     assert isinstance(result.failure(), DatabaseError)
+
 
 def test_find_by_market_uses_market_filtecheck_othererror() -> None:
     session = MagicMock()

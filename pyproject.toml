@@ -32,6 +32,9 @@ plugins = ["returns.contrib.mypy.returns_plugin"]
 [tool.ruff]
 target-version = "py314"
 line-length = 88
+exclude = [
+    "packages/infra/src/gyomu_infra/db/model/generated",
+]
 
 [tool.ruff.lint]
 select = [

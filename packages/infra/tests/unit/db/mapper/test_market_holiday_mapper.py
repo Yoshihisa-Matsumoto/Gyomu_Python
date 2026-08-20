@@ -1,9 +1,10 @@
 from datetime import date
 from uuid import UUID
 
-from gyomu_infra.db.mapper.market_holiday import to_model, to_schema
-from gyomu_infra.db.model.market_holiday import GyomuMarketHoliday
 from gyomu_schema.market_holiday import MarketHoliday
+
+from gyomu_infra.db.mapper.market_holiday import to_model, to_schema
+from gyomu_infra.db.model.generated.models import GyomuMarketHoliday
 
 
 def test_to_schema() -> None:

@@ -27,12 +27,14 @@ def test_config_error_is_base_error() -> None:
     assert isinstance(error, BaseError)
     assert isinstance(error, Exception)
 
+
 def test_database_error_is_gyomu_io_error() -> None:
     error = DatabaseError("database error")
 
     assert isinstance(error, GyomuIOError)
     assert isinstance(error, BaseError)
     assert isinstance(error, Exception)
+
 
 def test_validation_error_is_base_error() -> None:
     error = ValidationError("invalid value")
@@ -44,4 +46,3 @@ def test_gyomu_io_error_is_base_error() -> None:
     error = GyomuIOError("I/O error")
 
     assert isinstance(error, BaseError)
-
