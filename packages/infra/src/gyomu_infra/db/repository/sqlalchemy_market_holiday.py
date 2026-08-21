@@ -36,3 +36,16 @@ class SqlAlchemyMarketHolidayRepository:
         models = self._session.scalars(statement).all()
 
         return [to_schema(model) for model in models]
+
+    def get_supported_market(self) -> Result[list[str], GyomuIOError]:
+        return self._get_supported_market().alt(
+            to_database_error,
+        )
+
+    @safe(exceptions=(SQLAlchemyError,))
+    def _get_supported_market(
+        self,
+    ) -> list[str]:
+        statement = select(GyomuMarketHoliday.market).distinct()
+
+        return list(self._session.scalars(statement).all())

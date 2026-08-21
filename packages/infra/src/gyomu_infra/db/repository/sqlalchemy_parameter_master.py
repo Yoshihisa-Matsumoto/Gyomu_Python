@@ -19,11 +19,18 @@ from gyomu_infra.db.mapper.parameter_master import (
     to_schema,
 )
 from gyomu_infra.db.model.generated.models import GyomuParamMaster
+from gyomu_infra.db.transaction.sqlalchemy_transaction_manager import (
+    SqlAlchemyTransactionManager,
+)
+from gyomu_infra.db.transaction.transaction_manager import TransactionManager
 
 
 class SqlAlchemyParameterMasterRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
+
+    def transaction(self) -> TransactionManager:
+        return SqlAlchemyTransactionManager(self._session, None)
 
     def find_by_item_key(
         self,

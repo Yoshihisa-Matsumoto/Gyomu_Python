@@ -2,12 +2,15 @@ from typing import Protocol
 from uuid import UUID
 
 from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.parameter.parameter_master import (
     ParameterMaster,
     ParameterMasterCreate,
     ParameterMasterUpdate,
 )
 from returns.result import Result
+
+from gyomu_infra.db.transaction.transaction_manager import TransactionManager
 
 
 class ParameterMasterRepository(Protocol):
@@ -24,9 +27,11 @@ class ParameterMasterRepository(Protocol):
     def update(
         self,
         parameter: ParameterMasterUpdate,
-    ) -> Result[ParameterMaster, GyomuIOError]: ...
+    ) -> Result[ParameterMaster, GyomuIOError | ValidationError]: ...
 
     def delete(
         self,
         id: UUID,
-    ) -> Result[ParameterMaster, GyomuIOError]: ...
+    ) -> Result[None, GyomuIOError]: ...
+
+    def transaction(self) -> TransactionManager: ...

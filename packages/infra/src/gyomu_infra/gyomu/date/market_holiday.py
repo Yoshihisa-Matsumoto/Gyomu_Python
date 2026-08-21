@@ -17,3 +17,6 @@ class MarketHolidayService:
         market: str,
     ) -> Result[list[MarketHoliday], GyomuIOError]:
         return self._repository.find_by_market(market)
+
+    def get_supported_market(self) -> Result[list[str], GyomuIOError]:
+        return self._repository.get_supported_market()

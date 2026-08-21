@@ -6,7 +6,8 @@ requires-python = ">=3.14"
 dependencies = [
     "gyomu-schema",
     "sqlalchemy>=2,<3",
-    "pyodbc>=5,<6"
+    "pyodbc>=5,<6",
+    "python-dateutil>=2.9.0.post0",
 ]
 
 [build-system]

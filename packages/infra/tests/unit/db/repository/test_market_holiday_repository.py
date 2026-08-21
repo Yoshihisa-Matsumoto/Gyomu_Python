@@ -102,3 +102,14 @@ def test_find_by_market_uses_market_filtecheck_othererror() -> None:
 
     with pytest.raises(ValueError, match="unexpected error"):
         repository.find_by_market("#TEST")
+
+
+def test_get_supported_market_success() -> None:
+    session = MagicMock()
+    session.scalars.return_value.all.return_value = ["JP", "US"]
+
+    repository = SqlAlchemyMarketHolidayRepository(session)
+
+    result = repository.get_supported_market()
+    assert isinstance(result, Success)
+    assert result.unwrap() == ["JP", "US"]
