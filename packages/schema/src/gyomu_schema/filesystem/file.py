@@ -6,7 +6,7 @@ from pathlib import Path
 
 class FileInfo:
     @staticmethod
-    def epoch_to_datetimeutc(epoch):
+    def epoch_to_datetimeutc(epoch: float) -> datetime:
         return datetime.fromtimestamp(epoch, tz=timezone.utc)
 
     file_name: str
@@ -123,7 +123,7 @@ class FileTransportInfo:
         return False
 
     @property
-    def source_fullname(self):
+    def source_fullname(self) -> str:
         if not self.__source_folder_name:
             return self.__source_filename
         if not self.__source_filename:
@@ -131,7 +131,7 @@ class FileTransportInfo:
         return path.join(self.__source_folder_name, self.__source_filename)
 
     @property
-    def source_fullname_with_basepath(self):
+    def source_fullname_with_basepath(self) -> str:
         if not self.source_fullname:
             return self.__base_path
         return (
@@ -141,15 +141,15 @@ class FileTransportInfo:
         )
 
     @property
-    def source_path(self):
+    def source_path(self) -> str:
         return self.__source_folder_name
 
     @property
-    def source_filename(self):
+    def source_filename(self) -> str:
         return self.__source_filename
 
     @property
-    def destination_filename(self):
+    def destination_filename(self) -> str:
         return (
             self.__source_filename
             if not self.__destination_filename
@@ -157,7 +157,7 @@ class FileTransportInfo:
         )
 
     @property
-    def destination_path(self):
+    def destination_path(self) -> str:
         return (
             self.__source_folder_name
             if not self.__destination_folder_name
@@ -165,7 +165,7 @@ class FileTransportInfo:
         )
 
     @property
-    def destination_fullname(self):
+    def destination_fullname(self) -> str:
         if not self.destination_path:
             return self.destination_filename
         if not self.destination_filename:

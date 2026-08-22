@@ -27,7 +27,7 @@ class SqlAlchemyTransactionManager:
         )
 
     @safe(exceptions=(SQLAlchemyError,))
-    def _rollback(self):
+    def _rollback(self) -> None:
         self._transaction.rollback()
 
     def __enter__(self) -> Self:

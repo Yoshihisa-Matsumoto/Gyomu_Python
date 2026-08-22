@@ -9,7 +9,7 @@ from gyomu_schema.parameter.parameter_master import (
     ParameterMasterUpdate,
 )
 from returns.result import Failure, Success
-from sqlalchemy import Delete, Select
+from sqlalchemy import Delete, Select, Table
 from sqlalchemy.exc import SQLAlchemyError
 
 from gyomu_infra.db.mapper.parameter_master import to_schema
@@ -362,12 +362,12 @@ class TestUpdateParameterMaster:
             item_fromdate=None,
         )
 
-        current = make_model(
-            id=parameter_id,
-            item_key="test-key",
-            item_value="test-value",
-            item_fromdate="20260101",
-        )
+        # current = make_model(
+        #     id=parameter_id,
+        #     item_key="test-key",
+        #     item_value="test-value",
+        #     item_fromdate="20260101",
+        # )
 
         updated = make_model(
             id=parameter_id,
@@ -534,6 +534,7 @@ class TestDeleteParameterMaster:
         assert isinstance(statement, Delete)
 
         # 対象テーブルを確認
+        assert isinstance(statement.table, Table)
         assert statement.table.name == GyomuParamMaster.__tablename__
 
     def test_delete_returns_database_error(self) -> None:

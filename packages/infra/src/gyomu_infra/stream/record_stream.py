@@ -78,3 +78,6 @@ class RecordStream[T, E]:
                 yield result
 
         return RecordStream(iterator())
+
+    def collect(self) -> list[Result[T, E]]:
+        return list(self._iterator)

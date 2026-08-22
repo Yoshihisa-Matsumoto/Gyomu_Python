@@ -160,3 +160,41 @@ class TestRecordStream:
         ]
 
         assert list(stream) == []
+
+    def test_collect(self) -> None:
+        error = ValueError("invalid")
+
+        stream = RecordStream.from_iterator(
+            iter(
+                [
+                    Success(1),
+                    Failure(error),
+                    Success(3),
+                ]
+            )
+        )
+
+        result = stream.collect()
+
+        assert result == [
+            Success(1),
+            Failure(error),
+            Success(3),
+        ]
+
+    def test_collect_consumes_stream(self) -> None:
+        stream = RecordStream.from_iterator(
+            iter(
+                [
+                    Success(1),
+                    Success(2),
+                ]
+            )
+        )
+
+        assert stream.collect() == [
+            Success(1),
+            Success(2),
+        ]
+
+        assert stream.collect() == []

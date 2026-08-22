@@ -36,9 +36,12 @@ def make_parameter(
     )
 
 
+test_uuid = uuid7()
+
+
 def make_parameter_with_id(
     *,
-    id: UUID = uuid7(),
+    id: UUID = test_uuid,
     item_key: str = "test_key",
     item_value: str = "test_value",
     item_fromdate: str | None = None,
