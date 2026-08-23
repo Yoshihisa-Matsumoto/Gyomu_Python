@@ -107,6 +107,7 @@ class FileTransportInfo:
     __destination_folder_name: str
     delete_sourcefile_after_completion: bool = False
     overwrite_destination: bool = False
+    filter_conditions: list[FileFilterInfo] | None = None
 
     @property
     def is_source_directory(self) -> bool:
@@ -181,6 +182,7 @@ class FileTransportInfo:
         destination_foldername: str = "",
         delete_sourcefile_after_completion: bool = False,
         overwrite_destination: bool = False,
+        filter_conditions: list[FileFilterInfo] | None = None,
     ):
         self.__base_path = base_path
         self.__source_filename = source_filename
@@ -189,6 +191,7 @@ class FileTransportInfo:
         self.__destination_folder_name = destination_foldername
         self.delete_sourcefile_after_completion = delete_sourcefile_after_completion
         self.overwrite_destination = overwrite_destination
+        self.filter_conditions = filter_conditions
 
         if not self.__source_filename and self.__destination_filename:
             raise ValueError("Invalid Parameter")

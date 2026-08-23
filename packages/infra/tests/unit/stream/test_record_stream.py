@@ -1,4 +1,4 @@
-from returns.result import Failure, Success
+from returns.result import Failure, Result, Success
 
 from gyomu_infra.stream.record_stream import RecordStream
 
@@ -198,3 +198,100 @@ class TestRecordStream:
         ]
 
         assert stream.collect() == []
+
+    def test_map_result(self) -> None:
+        stream = RecordStream.from_iterator(
+            iter(
+                [
+                    Success(1),
+                    Success(2),
+                    Success(3),
+                ]
+            )
+        )
+
+        result = stream.map_result(lambda value: Success(value * 10)).collect()
+
+        assert result == [
+            Success(10),
+            Success(20),
+            Success(30),
+        ]
+
+    def test_map_result_can_produce_failure(self) -> None:
+        error = ValueError("invalid")
+
+        def convert(value: int) -> Result[int, ValueError]:
+            if value == 2:
+                return Failure(error)
+
+            return Success(value * 10)
+
+        stream = RecordStream.from_iterator(
+            iter(
+                [
+                    Success(1),
+                    Success(2),
+                    Success(3),
+                ]
+            )
+        )
+
+        result = stream.map_result(convert).collect()
+
+        assert result == [
+            Success(10),
+            Failure(error),
+            Success(30),
+        ]
+
+    def test_map_result_combines_failure_types(self) -> None:
+        source_error = ValueError("source error")
+        conversion_error = TypeError("conversion error")
+
+        def convert(value: int) -> Result[int, TypeError]:
+            if value == 2:
+                return Failure(conversion_error)
+
+            return Success(value * 10)
+
+        stream = RecordStream.from_iterator(
+            iter(
+                [
+                    Success(1),
+                    Failure(source_error),
+                    Success(2),
+                ]
+            )
+        )
+
+        result = stream.map_result(convert).collect()
+
+        assert result == [
+            Success(10),
+            Failure(source_error),
+            Failure(conversion_error),
+        ]
+
+    def test_map_error(self) -> None:
+        error = ValueError("invalid")
+
+        stream = RecordStream.from_iterator(
+            iter(
+                [
+                    Success(1),
+                    Failure(error),
+                    Success(3),
+                ]
+            )
+        )
+
+        result = stream.map_error(
+            lambda _: "converted",
+        ).collect()
+
+        assert result == [
+            Success(1),
+            Failure("converted"),
+            Success(3),
+        ]

@@ -4,8 +4,10 @@ from typing import TypeVar
 from returns.result import Failure, Result, Success
 
 T = TypeVar("T")
-U = TypeVar("U")
 E = TypeVar("E")
+
+Target = TypeVar("Target")
+TargetError = TypeVar("TargetError")
 
 
 class RecordStream[T, E]:
@@ -29,9 +31,9 @@ class RecordStream[T, E]:
 
     def map(
         self,
-        fn: Callable[[T], U],
-    ) -> RecordStream[U, E]:
-        def iterator() -> Iterator[Result[U, E]]:
+        fn: Callable[[T], Target],
+    ) -> RecordStream[Target, E]:
+        def iterator() -> Iterator[Result[Target, E]]:
             for result in self._iterator:
                 if isinstance(result, Success):
                     yield Success(fn(result.unwrap()))
@@ -81,3 +83,29 @@ class RecordStream[T, E]:
 
     def collect(self) -> list[Result[T, E]]:
         return list(self._iterator)
+
+    def map_result(
+        self,
+        fn: Callable[[T], Result[Target, TargetError]],
+    ) -> RecordStream[Target, E | TargetError]:
+        def iterator() -> Iterator[Result[Target, E | TargetError]]:
+            for result in self._iterator:
+                if isinstance(result, Success):
+                    yield fn(result.unwrap())
+                else:
+                    yield Failure(result.failure())
+
+        return RecordStream(iterator())
+
+    def map_error(
+        self,
+        fn: Callable[[E], TargetError],
+    ) -> RecordStream[T, TargetError]:
+        def iterator() -> Iterator[Result[T, TargetError]]:
+            for result in self._iterator:
+                if isinstance(result, Success):
+                    yield result
+                else:
+                    yield Failure(fn(result.failure()))
+
+        return RecordStream(iterator())
