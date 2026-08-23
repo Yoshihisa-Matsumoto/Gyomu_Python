@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from typing import Self
 
 
 class BaseError(Exception):
@@ -26,7 +27,8 @@ class BaseError(Exception):
         metadata, or other operational information.
 
         The original cause of an error is represented by Python's exception
-        chaining mechanism (__cause__) rather than by an explicit attribute.
+        chaining mechanism (__cause__). The :meth:`chain` method can be used
+        to explicitly associate an underlying exception as the cause.
     """
 
     def __init__(
@@ -40,3 +42,15 @@ class BaseError(Exception):
         super().__init__(message)
         self.context = context
         self.details = details
+
+    def chain(self, cause: BaseException) -> Self:
+        """Associate an exception as the explicit cause of this error.
+
+        Args:
+            cause: The underlying exception that caused this error.
+
+        Returns:
+            This error instance.
+        """
+        self.__cause__ = cause
+        return self

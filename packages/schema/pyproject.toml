@@ -5,6 +5,7 @@ description = "Gyomu canonical schemas"
 requires-python = ">=3.14"
 dependencies = [
     "pydantic>=2,<3",
+    "returns>=0.29.0",
 ]
 
 [build-system]

@@ -86,9 +86,7 @@ def _parse_raw_records(
             yield Success(row)
 
     except csv.Error as exc:
-        error = GyomuIOError(message="Failed to parse CSV")
-        error.__cause__ = exc
-        yield Failure(error)
+        yield Failure(GyomuIOError(message="Failed to parse CSV").chain(exc))
 
 
 def _text_stream(stream: TextIO | BinaryIO, encoding: str, utf8_bom: bool) -> TextIO:

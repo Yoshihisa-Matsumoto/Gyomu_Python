@@ -25,7 +25,7 @@ def convert(
                 details={
                     "issues": exc.errors(),
                 },
-            )
+            ).chain(exc)
         )
 
 
@@ -36,8 +36,6 @@ def convert_json(
     try:
         value = json.loads(content)
     except json.JSONDecodeError as exc:
-        error = GyomuIOError("Fail to load JSON")
-        error.__cause__ = exc
-        return Failure(error)
+        return Failure(GyomuIOError("Fail to load JSON").chain(exc))
 
     return convert(schema, value)
