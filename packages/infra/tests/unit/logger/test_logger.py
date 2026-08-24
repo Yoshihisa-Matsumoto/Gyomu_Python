@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from gyomu_schema.logger.config import LoggerConfig, LogLevel
 
-from gyomu_infra.logger.logger import LoggerImpl
+from gyomu_infra.logger.impl import LoggerImpl
 
 
 @pytest.fixture
@@ -165,7 +165,7 @@ class TestLoggerImpl:
         tmp_path: Path,
     ) -> None:
         monkeypatch.setattr(
-            "gyomu_infra.logger.logger.tempfile.gettempdir",
+            "gyomu_infra.logger.impl.tempfile.gettempdir",
             lambda: str(tmp_path),
         )
 
