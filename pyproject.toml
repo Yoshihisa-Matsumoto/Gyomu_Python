@@ -1,25 +1,55 @@
-#[build-system]
-#requires = [
-#    "setuptools>=42",
-#    "wheel"
-#]
-#build-backend = "setuptools.build_meta"
-
-[tool.poetry]
-name = "gyomu"
-version = "0.1.5-alpha.2"
+[project]
+name = "gyomu-python"
+version = "0.1.0"
 description = "Enterprise operational framework"
-authors = ["Yoshihisa Matsumoto <yoshmatsumoto@gmail.com>"]
+requires-python = ">=3.14"
+authors = [
+    { name = "Yoshihisa Matsumoto", email = "yoshmatsumoto@gmail.com" }
+]
 readme = "README.md"
+dependencies = [
+    "returns>=0.29.0",
+]
 
-[tool.poetry.dependencies]
-python = "*"
-click = "7.1.2"
-jsonpickle = "2.0.0"
-jsons = "1.4.0"
-pycryptodome = "3.10.1"
-pyzipper= "^0.3.4"
-sqlalchemy = "1.4.00"
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pytest>=9,<10",
+    "ruff>=0.16.3",
+]
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2"
+[tool.uv.workspace]
+members = [
+    "packages/schema",
+    "packages/infra",
+]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+plugins = ["returns.contrib.mypy.returns_plugin"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+exclude = [
+    "packages/infra/src/gyomu_infra/db/model/generated",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests requiring external infrastructure",
+]
+testpaths = [
+    "packages",
+]

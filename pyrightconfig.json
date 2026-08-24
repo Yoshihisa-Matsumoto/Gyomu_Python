@@ -1,0 +1,4 @@
+{
+  "include": ["packages"],
+  "extraPaths": ["packages/schema/src", "packages/infra/src"]
+}

@@ -1,0 +1,40 @@
+[project]
+name = "gyomu-infra"
+version = "0.1.0"
+description = "Gyomu infrastructure"
+requires-python = ">=3.14"
+dependencies = [
+    "gyomu-schema",
+    "sqlalchemy>=2,<3",
+    "pyodbc>=5,<6",
+    "python-dateutil>=2.9.0.post0",
+    "pyyaml>=6.0.3",
+    "returns>=0.29.0",
+    "pydantic>=2.13.4",
+    "python-dotenv>=1.2.3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9,<10",
+    "sqlacodegen>=4,<5",
+    "python-dotenv>=1,<2",
+    "types-python-dateutil>=2.9.0.20260807",
+    "types-pyyaml>=6.0.12.20260815",
+]
+
+[tool.uv.sources]
+gyomu-schema = { workspace = true }
+
+[tool.uv.scripts]
+schema-gen = "python scripts/schema_gen.py"
+
+[tool.ruff]
+exclude = [
+    "src/gyomu_infra/db/model/generated",
+    "tests/resources"
+]

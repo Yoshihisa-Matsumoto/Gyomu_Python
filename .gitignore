@@ -6,3 +6,9 @@ venv/
 /src/gyomu.egg-info/
 /.coverage
 /htmlcov/
+__pycache__/
+*.py[cod]
+
+.env
+.env.*
+!.env.example
