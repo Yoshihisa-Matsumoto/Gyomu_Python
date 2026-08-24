@@ -17,7 +17,7 @@ from returns.result import Failure, Success
 from gyomu_infra.config.loader import ConfigLoader
 
 
-class TestConfig(BaseModel):
+class DummyConfig(BaseModel):
     name: str
     count: int
     enabled: bool
@@ -33,7 +33,7 @@ class TestConfigLoaderEnv:
         monkeypatch.setenv("TEST_CONFIG_ENABLED", "true")
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             EnvironmentLoaderOption(
                 variables={
                     "TEST_CONFIG_NAME": "name",
@@ -44,7 +44,7 @@ class TestConfigLoaderEnv:
         )
 
         assert result == Success(
-            TestConfig(
+            DummyConfig(
                 name="example",
                 count=123,
                 enabled=True,
@@ -71,7 +71,7 @@ class TestConfigLoaderEnv:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             EnvironmentLoaderOption(
                 variables={
                     "TEST_CONFIG_NAME": "name",
@@ -84,7 +84,7 @@ class TestConfigLoaderEnv:
         )
 
         assert result == Success(
-            TestConfig(
+            DummyConfig(
                 name="from-dot-env",
                 count=456,
                 enabled=False,
@@ -112,7 +112,7 @@ class TestConfigLoaderEnv:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             EnvironmentLoaderOption(
                 variables={
                     "TEST_CONFIG_NAME": "name",
@@ -125,7 +125,7 @@ class TestConfigLoaderEnv:
         )
 
         assert result == Success(
-            TestConfig(
+            DummyConfig(
                 name="from-environment",
                 count=456,  # ← 実際のSchema定義に合わせる
                 enabled=False,  # ← 実際のSchema定義に合わせる
@@ -139,7 +139,7 @@ class TestConfigLoaderEnv:
         monkeypatch.setenv("TEST_CONFIG_COUNT", "not-an-integer")
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             EnvironmentLoaderOption(
                 variables={
                     "TEST_CONFIG_COUNT": "count",
@@ -154,7 +154,7 @@ class TestConfigLoaderEnv:
         assert isinstance(error, ConfigError)
         assert error.source == "env"
         assert error.phase == "validate"
-        assert error.schema is TestConfig
+        assert error.schema is DummyConfig
 
 
 class TestConfigLoaderJson:
@@ -175,12 +175,12 @@ class TestConfigLoaderJson:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             JsonLoaderOption(config_path),
         )
 
         assert result == Success(
-            TestConfig(
+            DummyConfig(
                 name="example",
                 count=123,
                 enabled=True,
@@ -198,7 +198,7 @@ class TestConfigLoaderJson:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             JsonLoaderOption(config_path),
         )
 
@@ -217,7 +217,7 @@ class TestConfigLoaderJson:
         config_path = tmp_path / "not-found.json"
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             JsonLoaderOption(config_path),
         )
 
@@ -244,7 +244,7 @@ class TestConfigLoaderJson:
             encoding="utf-8",
         )
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             JsonLoaderOption(config_path),
         )
 
@@ -255,7 +255,7 @@ class TestConfigLoaderJson:
         assert isinstance(error, ConfigError)
         assert error.source == "json"
         assert error.phase == "validate"
-        assert error.schema is TestConfig
+        assert error.schema is DummyConfig
 
 
 class TestConfigLoaderYaml:
@@ -274,12 +274,12 @@ class TestConfigLoaderYaml:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             YamlLoaderOption(config_path),
         )
 
         assert result == Success(
-            TestConfig(
+            DummyConfig(
                 name="example",
                 count=123,
                 enabled=True,
@@ -297,7 +297,7 @@ class TestConfigLoaderYaml:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             YamlLoaderOption(config_path),
         )
 
@@ -316,7 +316,7 @@ class TestConfigLoaderYaml:
         config_path = tmp_path / "not-found.yaml"
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             YamlLoaderOption(config_path),
         )
 
@@ -345,12 +345,12 @@ class TestConfigLoaderToml:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             TomlLoaderOption(config_path),
         )
 
         assert result == Success(
-            TestConfig(
+            DummyConfig(
                 name="example",
                 count=123,
                 enabled=True,
@@ -368,7 +368,7 @@ class TestConfigLoaderToml:
         )
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             TomlLoaderOption(config_path),
         )
 
@@ -387,7 +387,7 @@ class TestConfigLoaderToml:
         config_path = tmp_path / "not-found.toml"
 
         result = ConfigLoader.load(
-            TestConfig,
+            DummyConfig,
             TomlLoaderOption(config_path),
         )
 

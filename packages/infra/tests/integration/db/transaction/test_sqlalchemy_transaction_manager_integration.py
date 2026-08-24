@@ -16,6 +16,8 @@ from gyomu_infra.db.transaction.sqlalchemy_transaction_manager import (
 
 TEST_ITEM_KEY = "##TEST-KEY###"
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture(autouse=True)
 def cleanup_parameter(db_engine: Engine):

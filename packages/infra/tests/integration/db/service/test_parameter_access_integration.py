@@ -12,6 +12,8 @@ from gyomu_infra.gyomu.parameter.parameter_access import ParameterAccessImpl
 
 TEST_ITEM_KEY = "##TEST-KEY###"
 
+pytestmark = pytest.mark.integration
+
 
 class TestParameterAccessIntegration:
     @pytest.fixture(autouse=True)

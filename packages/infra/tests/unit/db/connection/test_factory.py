@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from gyomu_schema.config.config_loader_option import EnvironmentLoaderOption
 from gyomu_schema.error import ConfigError
 from sqlalchemy import Engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -21,7 +22,12 @@ def test_create_engine_from_environment_variable(
         connection_string,
     )
 
-    engine = DbConnectionFactory.create_engine()
+    engine = DbConnectionFactory.create_engine(
+        option=EnvironmentLoaderOption(
+            use_dot_env=False,
+            variables={"GYOMU_COMMON_MAINDB_CONNECTION": "connection_string"},
+        )
+    )
 
     assert isinstance(engine, Engine)
 
@@ -37,9 +43,14 @@ def test_create_engine_fails_when_connection_string_is_not_configured(
     )
 
     with pytest.raises(ConfigError) as exc_info:
-        DbConnectionFactory.create_engine()
+        DbConnectionFactory.create_engine(
+            option=EnvironmentLoaderOption(
+                use_dot_env=False,
+                variables={"GYOMU_COMMON_MAINDB_CONNECTION": "connection_string"},
+            )
+        )
 
-    assert exc_info.value.context == "DbConnectionFactory.create_engine"
+    assert exc_info.value.context == "ConfigLoader._validate"
 
 
 def test_create_engine_passes_connection_string_to_sqlalchemy(
@@ -53,7 +64,12 @@ def test_create_engine_passes_connection_string_to_sqlalchemy(
     )
 
     with patch("gyomu_infra.db.connection.factory.create_engine") as create_engine:
-        DbConnectionFactory.create_engine()
+        DbConnectionFactory.create_engine(
+            option=EnvironmentLoaderOption(
+                use_dot_env=False,
+                variables={"GYOMU_COMMON_MAINDB_CONNECTION": "connection_string"},
+            )
+        )
 
         create_engine.assert_called_once_with(connection_string)
 
@@ -77,7 +93,12 @@ def test_create_engine_converts_sqlalchemy_error_to_config_error(
         ),
         pytest.raises(ConfigError) as exc_info,
     ):
-        DbConnectionFactory.create_engine()
+        DbConnectionFactory.create_engine(
+            option=EnvironmentLoaderOption(
+                use_dot_env=False,
+                variables={"GYOMU_COMMON_MAINDB_CONNECTION": "connection_string"},
+            )
+        )
 
     error = exc_info.value
 

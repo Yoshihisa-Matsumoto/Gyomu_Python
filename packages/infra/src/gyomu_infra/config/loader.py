@@ -25,6 +25,7 @@ class ConfigLoader:
         schema: type[T],
         option: ConfigLoaderOption,
     ) -> Result[T, ConfigError]:
+        source: ConfigSource
         if isinstance(option, EnvironmentLoaderOption):
             result = ConfigLoader._load_environment(option)
             source = "env"
@@ -231,5 +232,6 @@ class ConfigLoader:
                 schema=schema,
                 phase="validate",
                 details=error.details,
+                context="ConfigLoader._validate",
             ).chain(error)
         )

@@ -19,3 +19,6 @@ def project_root() -> Path:
 @pytest.fixture
 def project_dot_env(project_root: Path) -> Path:
     return project_root / ".env"
+
+
+print("ROOT CONFTST LOADED")

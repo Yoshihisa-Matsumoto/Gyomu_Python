@@ -1,25 +1,13 @@
-import os
-
+from gyomu_schema.config.config_loader_option import EnvironmentLoaderOption
+from gyomu_schema.db.config import DbConfig
 from gyomu_schema.error import ConfigError
+from returns.result import Failure
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
+from gyomu_infra.config.loader import ConfigLoader
+
 GYOMU_COMMON_MAINDB_CONNECTION = "GYOMU_COMMON_MAINDB_CONNECTION"
-
-
-def get_main_db_connection_string() -> str:
-    connection_string = os.getenv(GYOMU_COMMON_MAINDB_CONNECTION)
-
-    if connection_string is None:
-        raise ConfigError(
-            "Database connection string is not configured",
-            context="DbConnectionFactory.create_engine",
-            details={
-                "environment_variable": GYOMU_COMMON_MAINDB_CONNECTION,
-            },
-        )
-
-    return connection_string
 
 
 class DbConnectionFactory:
@@ -35,7 +23,7 @@ class DbConnectionFactory:
     """
 
     @classmethod
-    def create_engine(cls) -> Engine:
+    def create_engine(cls, option: EnvironmentLoaderOption) -> Engine:
         """Create a SQLAlchemy Engine from the database configuration.
 
         Returns:
@@ -45,12 +33,17 @@ class DbConnectionFactory:
             ConfigError: If the database connection configuration is missing
                 or invalid.
         """
-        connection_string = get_main_db_connection_string()
+        config = ConfigLoader.load(DbConfig, option)
+        if isinstance(config, Failure):
+            raise config.failure()
 
         try:
-            return create_engine(connection_string)
+            return create_engine(config.unwrap().connection_string)
         except SQLAlchemyError as error:
             raise ConfigError(
                 "Database connection configuration is invalid",
+                schema=DbConfig,
                 context="DbConnectionFactory.create_engine",
-            ) from error
+                source="env",
+                phase="validate",
+            ).chain(error)

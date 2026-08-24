@@ -1,5 +1,4 @@
 import pytest
-from gyomu_schema.error import ConfigError
 from gyomu_schema.error.base import BaseError
 from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.error.io import GyomuIOError
@@ -9,20 +8,20 @@ from gyomu_schema.error.validation import ValidationError
 def test_error_can_preserve_cause() -> None:
     cause = ValueError("invalid configuration")
 
-    with pytest.raises(ConfigError) as exc_info:
+    with pytest.raises(GyomuIOError) as exc_info:
         try:
             raise cause
         except ValueError as error:
-            raise ConfigError(
+            raise GyomuIOError(
                 "Invalid configuration",
                 context="test",
-            ) from error
+            ).chain(error)
 
     assert exc_info.value.__cause__ is cause
 
 
 def test_config_error_is_base_error() -> None:
-    error = ConfigError("invalid configuration")
+    error = GyomuIOError("invalid configuration")
 
     assert isinstance(error, BaseError)
     assert isinstance(error, Exception)
