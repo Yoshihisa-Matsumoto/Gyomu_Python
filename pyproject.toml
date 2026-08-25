@@ -22,7 +22,6 @@ target-version = "py314"
 line-length = 88
 exclude = [
     "packages/infra/src/gyomu_infra/db/model/generated",
-    "scripts",
     "version"
 ]
 
