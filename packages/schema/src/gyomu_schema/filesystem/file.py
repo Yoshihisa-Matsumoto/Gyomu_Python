@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from os import path
 from pathlib import Path
@@ -7,7 +7,7 @@ from pathlib import Path
 class FileInfo:
     @staticmethod
     def epoch_to_datetimeutc(epoch: float) -> datetime:
-        return datetime.fromtimestamp(epoch, tz=timezone.utc)
+        return datetime.fromtimestamp(epoch, tz=UTC)
 
     file_name: str
     full_path: Path
@@ -119,9 +119,9 @@ class FileTransportInfo:
 
     @property
     def is_destination_root(self) -> bool:
-        if not self.__source_folder_name and not self.__destination_folder_name:
-            return True
-        return False
+        return bool(
+            not self.__source_folder_name and not self.__destination_folder_name
+        )
 
     @property
     def source_fullname(self) -> str:

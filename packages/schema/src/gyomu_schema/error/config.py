@@ -1,4 +1,5 @@
-from typing import Literal, Mapping
+from collections.abc import Mapping
+from typing import Literal
 
 from gyomu_schema.error.base import BaseError
 

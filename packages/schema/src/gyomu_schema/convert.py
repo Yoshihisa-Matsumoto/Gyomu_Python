@@ -1,5 +1,4 @@
 import json
-from typing import TypeVar
 
 from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
@@ -8,10 +7,8 @@ from returns.result import Failure, Result, Success
 from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.error.validation import ValidationError
 
-T = TypeVar("T", bound=BaseModel)
 
-
-def convert(
+def convert[T: BaseModel](
     schema: type[T],
     value: object,
 ) -> Result[T, ValidationError]:
@@ -29,7 +26,7 @@ def convert(
         )
 
 
-def convert_json(
+def convert_json[T: BaseModel](
     schema: type[T],
     content: str,
 ) -> Result[T, GyomuIOError | ValidationError]:

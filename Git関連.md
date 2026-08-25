@@ -33,20 +33,10 @@ git switch -c ＜新ブランチ名＞
 2. git switch main
 3. git reset --hard origin/main
 
-## Packaging まで (beta)
-
-1. 必要ならブランチ作業
-2. 開発
-3. pnpm changeset でコミットメッセージのようなものを用意しておく
-4. git commit
-5. npm whoami でLoginされていることを確認。されてなければnpm login
-6. pnpm release:beta
-
 ## Packaging まで
 
 1. 必要ならブランチ作業
 2. 開発
-3. pnpm changeset でコミットメッセージのようなものを用意しておく
+3. version/**about**.pyでバージョンを更新
 4. git commit
-5. npm whoami でLoginされていることを確認。されてなければnpm login
-6. pnpm release
+5.

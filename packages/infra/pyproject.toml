@@ -1,7 +1,8 @@
 [project]
 name = "gyomu-infra"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Gyomu infrastructure"
+readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "gyomu-schema",
@@ -36,3 +37,6 @@ exclude = [
     "src/gyomu_infra/db/model/generated",
     "tests/resources"
 ]
+
+[tool.hatch.version]
+path = "../../version/__about__.py"
