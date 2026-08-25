@@ -1,8 +1,9 @@
 import time
 from collections.abc import Callable
 
-from gyomu_schema.error.timeout import GyomuTimeoutError
 from returns.result import Failure, Result, Success
+
+from gyomu_schema.error.timeout import GyomuTimeoutError
 
 
 def polling(
