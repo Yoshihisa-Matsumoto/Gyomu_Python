@@ -227,9 +227,7 @@ class Zip:
         # ZIP paths are expected to use '/'.
         # Reject '\' as well because it has path semantics on Windows.
         if "\\" in entry_path:
-            raise ValueError(
-                f"Invalid ZIP entry path: {entry_path!r}",
-            )
+            entry_path = entry_path.replace("\\", "/")
 
         path = PurePosixPath(entry_path)
 
