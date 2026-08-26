@@ -1,9 +1,10 @@
 from datetime import date
 from typing import Protocol
 
+from returns.result import Result
+
 from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.error.validation import ValidationError
-from returns.result import Result
 
 
 class VariableTranslator(Protocol):

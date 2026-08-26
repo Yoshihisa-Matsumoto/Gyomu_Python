@@ -15,7 +15,7 @@ def test_error_can_preserve_cause() -> None:
             raise GyomuIOError(
                 "Invalid configuration",
                 context="test",
-            ).chain(error)
+            ).chain(error) from error
 
     assert exc_info.value.__cause__ is cause
 

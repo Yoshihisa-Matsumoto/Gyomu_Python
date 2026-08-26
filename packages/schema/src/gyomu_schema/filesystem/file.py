@@ -1,13 +1,13 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from os import path
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 class FileInfo:
     @staticmethod
     def epoch_to_datetimeutc(epoch: float) -> datetime:
-        return datetime.fromtimestamp(epoch, tz=timezone.utc)
+        return datetime.fromtimestamp(epoch, tz=UTC)
 
     file_name: str
     full_path: Path
@@ -119,9 +119,9 @@ class FileTransportInfo:
 
     @property
     def is_destination_root(self) -> bool:
-        if not self.__source_folder_name and not self.__destination_folder_name:
-            return True
-        return False
+        return bool(
+            not self.__source_folder_name and not self.__destination_folder_name
+        )
 
     @property
     def source_fullname(self) -> str:
@@ -129,7 +129,7 @@ class FileTransportInfo:
             return self.__source_filename
         if not self.__source_filename:
             return self.__source_folder_name
-        return path.join(self.__source_folder_name, self.__source_filename)
+        return str(PurePosixPath(self.__source_folder_name) / self.__source_filename)
 
     @property
     def source_fullname_with_basepath(self) -> str:
@@ -138,7 +138,7 @@ class FileTransportInfo:
         return (
             self.source_fullname
             if not self.__base_path
-            else path.join(self.__base_path, self.source_fullname)
+            else str(PurePosixPath(self.__base_path) / self.source_fullname)
         )
 
     @property
@@ -171,7 +171,7 @@ class FileTransportInfo:
             return self.destination_filename
         if not self.destination_filename:
             return self.destination_path
-        return path.join(self.destination_path, self.destination_filename)
+        return str(PurePosixPath(self.destination_path) / self.destination_filename)
 
     def __init__(
         self,

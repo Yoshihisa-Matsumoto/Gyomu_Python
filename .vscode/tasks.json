@@ -56,6 +56,29 @@
         "Gyomu: Test"
       ],
       "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Test Coverage",
+      "type": "shell",
+      "command": "uv run coverage run -m pytest && uv run coverage report",
+      "problemMatcher": []
+    },
+    {
+      "label": "Gyomu: Build Clean",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue; uv build --all-packages"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "release",
+      "type": "shell",
+      "command": "uv run python scripts/release.py",
+      "problemMatcher": []
     }
   ]
 }

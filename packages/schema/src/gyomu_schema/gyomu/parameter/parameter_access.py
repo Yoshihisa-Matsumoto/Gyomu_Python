@@ -2,10 +2,11 @@ from datetime import date
 from decimal import Decimal
 from typing import Protocol
 
+from returns.result import Result
+
 from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.gyomu.user import User
-from returns.result import Result
 
 
 class ParameterAccess(Protocol):

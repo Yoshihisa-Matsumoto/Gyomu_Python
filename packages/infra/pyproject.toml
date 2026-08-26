@@ -1,7 +1,8 @@
 [project]
 name = "gyomu-infra"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Gyomu infrastructure"
+readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "gyomu-schema",
@@ -20,9 +21,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "pytest>=9,<10",
     "sqlacodegen>=4,<5",
-    "python-dotenv>=1,<2",
     "types-python-dateutil>=2.9.0.20260807",
     "types-pyyaml>=6.0.12.20260815",
 ]
@@ -38,3 +37,6 @@ exclude = [
     "src/gyomu_infra/db/model/generated",
     "tests/resources"
 ]
+
+[tool.hatch.version]
+path = "../../version/__about__.py"

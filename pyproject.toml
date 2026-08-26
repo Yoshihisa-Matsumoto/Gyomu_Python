@@ -1,18 +1,6 @@
-[project]
-name = "gyomu-python"
-version = "0.1.0"
-description = "Enterprise operational framework"
-requires-python = ">=3.14"
-authors = [
-    { name = "Yoshihisa Matsumoto", email = "yoshmatsumoto@gmail.com" }
-]
-readme = "README.md"
-dependencies = [
-    "returns>=0.29.0",
-]
-
 [dependency-groups]
 dev = [
+    "coverage>=7,<8",
     "mypy>=2.3.1",
     "pytest>=9,<10",
     "ruff>=0.16.3",
@@ -34,6 +22,8 @@ target-version = "py314"
 line-length = 88
 exclude = [
     "packages/infra/src/gyomu_infra/db/model/generated",
+    "version",
+    "docs"
 ]
 
 [tool.ruff.lint]
@@ -41,6 +31,9 @@ select = [
     "E",
     "F",
     "I",
+    "UP",
+    "B",
+    "SIM"
 ]
 
 [tool.ruff.format]
@@ -53,3 +46,15 @@ markers = [
 testpaths = [
     "packages",
 ]
+
+[tool.coverage.run]
+source_pkgs = [
+    "gyomu_schema",
+    "gyomu_infra",
+]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 90
