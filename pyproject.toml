@@ -10,6 +10,7 @@ dev = [
 members = [
     "packages/schema",
     "packages/infra",
+    "packages/ai"
 ]
 
 [tool.mypy]
@@ -51,6 +52,7 @@ testpaths = [
 source_pkgs = [
     "gyomu_schema",
     "gyomu_infra",
+    "gyomu_ai"
 ]
 branch = true
 

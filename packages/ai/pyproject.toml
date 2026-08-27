@@ -1,0 +1,27 @@
+[project]
+name = "gyomu-ai"
+dynamic = ["version"]
+description = "Gyomu ai"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "gyomu-schema",
+    "gyomu-infra",
+    "returns>=0.29.0",
+    "instructor[google-genai]>=1.15.4",
+    "pydantic-ai>=2.31.1",
+    "pydantic-ai-slim[google]>=2.31.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[tool.uv.sources]
+gyomu-schema = { workspace = true }
+gyomu-infra = { workspace = true }
+
+
+[tool.hatch.version]
+path = "../../version/__about__.py"

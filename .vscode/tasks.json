@@ -43,7 +43,7 @@
     {
       "label": "Gyomu: Type Check",
       "type": "shell",
-      "command": "uv run mypy  packages/schema/src packages/infra/src",
+      "command": "uv run mypy  packages/schema/src packages/infra/src packages/ai/src",
       "problemMatcher": []
     },
     {
