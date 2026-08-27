@@ -2,13 +2,14 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from gyomu_ai.execution.context import AiModelContext
-from pydantic_ai import Agent, Embedder
+from pydantic_ai import Embedder
+from pydantic_ai.models import Model
 
 
 @dataclass(frozen=True)
 class PydanticAiModelRegistry:
-    fast: Callable[[AiModelContext], Agent]
-    smart: Callable[[AiModelContext], Agent]
-    reasoning: Callable[[AiModelContext], Agent]
-    vision: Callable[[AiModelContext], Agent]
-    embedding: Callable[[AiModelContext], Embedder]
+    fast: Callable[[AiModelContext | None], Model]
+    smart: Callable[[AiModelContext | None], Model]
+    reasoning: Callable[[AiModelContext | None], Model]
+    vision: Callable[[AiModelContext | None], Model]
+    embedding: Callable[[AiModelContext | None], Embedder]

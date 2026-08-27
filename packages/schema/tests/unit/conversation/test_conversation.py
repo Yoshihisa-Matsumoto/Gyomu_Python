@@ -1,9 +1,6 @@
-from datetime import datetime
-
 import pytest
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import (
-    AiTextPart,
     MessageRole,
     MessageSchema,
 )
@@ -11,30 +8,25 @@ from pydantic import ValidationError
 
 
 def create_message(
-    id: str,
     role: MessageRole,
     text: str,
 ) -> MessageSchema:
-    return MessageSchema(
-        id=id,
-        role=role,
-        parts=[AiTextPart(type="text", text=text)],
-        created_at=datetime(2026, 8, 27, 10, 0, 0),
-    )
+    match role:
+        case MessageRole.user:
+            return MessageSchema.user_text(text)
+        case MessageRole.system:
+            return MessageSchema.system_text(text)
+        case MessageRole.assistant:
+            return MessageSchema.assistant_text(text)
 
 
 class TestConversationSchema:
     def test_with_request(self) -> None:
         user = create_message(
-            "user-1",
             MessageRole.user,
             "Hello",
         )
-        conversation = ConversationSchema(
-            system=None,
-            messages=(),
-            request=None,
-        )
+        conversation = ConversationSchema()
 
         result = conversation.with_request(user)
 
@@ -47,15 +39,10 @@ class TestConversationSchema:
 
     def test_with_request_rejects_non_user_message(self) -> None:
         assistant = create_message(
-            "assistant-1",
             MessageRole.assistant,
             "Hello",
         )
-        conversation = ConversationSchema(
-            system=None,
-            messages=(),
-            request=None,
-        )
+        conversation = ConversationSchema()
 
         with pytest.raises(
             ValueError,
@@ -65,21 +52,15 @@ class TestConversationSchema:
 
     def test_with_request_rejects_existing_request(self) -> None:
         first_request = create_message(
-            "user-1",
             MessageRole.user,
             "Hello",
         )
         second_request = create_message(
-            "user-2",
             MessageRole.user,
             "How are you?",
         )
 
-        conversation = ConversationSchema(
-            system=None,
-            messages=(),
-            request=first_request,
-        )
+        conversation = ConversationSchema().with_request(first_request)
 
         with pytest.raises(
             ValueError,
@@ -89,20 +70,14 @@ class TestConversationSchema:
 
     def test_complete(self) -> None:
         user = create_message(
-            "user-1",
             MessageRole.user,
             "Hello",
         )
         assistant = create_message(
-            "assistant-1",
             MessageRole.assistant,
             "Hello!",
         )
-        conversation = ConversationSchema(
-            system=None,
-            messages=(),
-            request=user,
-        )
+        conversation = ConversationSchema().with_request(user)
 
         result = conversation.complete(assistant)
 
@@ -119,22 +94,18 @@ class TestConversationSchema:
 
     def test_complete_preserves_existing_messages(self) -> None:
         previous_user = create_message(
-            "user-1",
             MessageRole.user,
             "First question",
         )
         previous_assistant = create_message(
-            "assistant-1",
             MessageRole.assistant,
             "First answer",
         )
         current_user = create_message(
-            "user-2",
             MessageRole.user,
             "Second question",
         )
         current_assistant = create_message(
-            "assistant-2",
             MessageRole.assistant,
             "Second answer",
         )
@@ -160,15 +131,10 @@ class TestConversationSchema:
 
     def test_complete_rejects_missing_request(self) -> None:
         assistant = create_message(
-            "assistant-1",
             MessageRole.assistant,
             "Hello!",
         )
-        conversation = ConversationSchema(
-            system=None,
-            messages=(),
-            request=None,
-        )
+        conversation = ConversationSchema()
 
         with pytest.raises(
             ValueError,
@@ -178,20 +144,14 @@ class TestConversationSchema:
 
     def test_complete_rejects_non_assistant_message(self) -> None:
         user = create_message(
-            "user-1",
             MessageRole.user,
             "Hello",
         )
         another_user = create_message(
-            "user-2",
             MessageRole.user,
             "How are you?",
         )
-        conversation = ConversationSchema(
-            system=None,
-            messages=(),
-            request=user,
-        )
+        conversation = ConversationSchema().with_request(user)
 
         with pytest.raises(
             ValueError,
@@ -201,7 +161,6 @@ class TestConversationSchema:
 
     def test_is_immutable(self) -> None:
         user = create_message(
-            "user-1",
             MessageRole.user,
             "Hello",
         )
@@ -216,7 +175,6 @@ class TestConversationSchema:
 
     def test_messages_are_immutable(self) -> None:
         user = create_message(
-            "user-1",
             MessageRole.user,
             "Hello",
         )
@@ -231,15 +189,10 @@ class TestConversationSchema:
 
     def test_model_serialization_and_deserialization(self) -> None:
         user = create_message(
-            "user-1",
             MessageRole.user,
             "Hello",
         )
-        conversation = ConversationSchema(
-            system=None,
-            messages=(),
-            request=user,
-        )
+        conversation = ConversationSchema().with_request(user)
 
         json_data = conversation.model_dump_json()
 

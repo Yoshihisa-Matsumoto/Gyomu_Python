@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from typing import Protocol
 
 from gyomu_schema.conversation.conversation import ConversationSchema
@@ -12,7 +11,11 @@ from gyomu_ai.execution.parameter import (
     GenerateTextParams,
     StreamTextParams,
 )
-from gyomu_ai.execution.result import AiGenerateTextResult, AiTextStream
+from gyomu_ai.execution.result import (
+    AiEmbeddingResult,
+    AiGenerateTextResult,
+    AiTextStream,
+)
 
 
 class AiModelExecution(Protocol):
@@ -37,4 +40,4 @@ class AiModelExecution(Protocol):
     async def embed[T](
         self,
         params: EmbedParams[T],
-    ) -> Result[Sequence[float], AiError]: ...
+    ) -> Result[AiEmbeddingResult, AiError]: ...

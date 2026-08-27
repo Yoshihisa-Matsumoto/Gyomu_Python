@@ -1,26 +1,40 @@
 from gyomu_ai.execution.context import AiModelContext
-from gyomu_ai.execution.parameter import GenerateTextParams
-from gyomu_ai.execution.result import AiGenerateTextResult
-from gyomu_ai.model.ai_model import AiModelKey, AiModelRegistry
+from gyomu_ai.execution.parameter import (
+    EmbedParams,
+    GenerateObjectParams,
+    GenerateTextParams,
+)
+from gyomu_ai.execution.result import (
+    AiEmbeddingResult,
+    AiGenerateObjectResult,
+    AiGenerateTextResult,
+)
+from gyomu_ai.model.ai_model import AiModelKey
+from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_ai.provider.pydantic_ai.build_prompt import build_prompt
-from gyomu_ai.provider.pydantic_ai.map_result import map_generate_text_result
+from gyomu_ai.provider.pydantic_ai.map_result import (
+    map_embed_result,
+    map_generate_object_result,
+    map_generate_text_result,
+)
+from gyomu_ai.provider.pydantic_ai.model_settings import build_model_settings
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.error.ai import AiError
-from pydantic_ai import Agent, ModelSettings
+from gyomu_schema.utility.execution_timer import ExecutionTimer
+from pydantic import BaseModel
+from pydantic_ai import Agent
+from pydantic_ai.models import Model
 from returns.result import Result, Success
 
 
 class PydanticAiModelExecution:
     def __init__(
         self,
-        registry: AiModelRegistry[
-            Agent,
-            Agent,
-        ],
+        registry: PydanticAiModelRegistry,
     ) -> None:
         self._registry = registry
 
-    def _select_agent(self, key: AiModelKey, context: AiModelContext) -> Agent:
+    def _select_model(self, key: AiModelKey, context: AiModelContext | None) -> Model:
         match key:
             case AiModelKey.FAST:
                 return self._registry.fast(context)
@@ -38,18 +52,46 @@ class PydanticAiModelExecution:
         conversation: ConversationSchema,
         params: GenerateTextParams,
     ) -> Result[AiGenerateTextResult, AiError]:
-        agent = self._select_agent(params.key, params.execution)
+        model = self._select_model(params.key, params.execution)
+        agent = Agent(model=model)
         prompt = build_prompt(conversation)
-        model_settings: ModelSettings | None = (
-            {"temperature": params.execution.temperature}
-            if params.execution.temperature
-            else None
-        )
+        timer = ExecutionTimer.start()
         response = await agent.run(
             instructions=prompt.instructions,
             user_prompt=prompt.user_prompt,
             message_history=prompt.message_history,
-            model_settings=model_settings,
+            model_settings=build_model_settings(params.execution),
         )
 
-        return Success(map_generate_text_result(response))
+        return Success(map_generate_text_result(timer, response))
+
+    async def generate_object[T: BaseModel](
+        self,
+        conversation: ConversationSchema,
+        params: GenerateObjectParams[T],
+    ) -> Result[AiGenerateObjectResult[T], AiError]:
+        model = self._select_model(params.key, params.execution)
+        agent = Agent(model=model, output_type=params.output_type)
+        prompt = build_prompt(conversation)
+        timer = ExecutionTimer.start()
+        response = await agent.run(
+            instructions=prompt.instructions,
+            user_prompt=prompt.user_prompt,
+            message_history=prompt.message_history,
+            model_settings=build_model_settings(params.execution),
+        )
+
+        return Success(map_generate_object_result(timer, response))
+
+    async def embed[T](
+        self,
+        params: EmbedParams[T],
+    ) -> Result[AiEmbeddingResult, AiError]:
+        agent = self._registry.embedding(params.execution)
+
+        timer = ExecutionTimer.start()
+        response = await agent.embed(
+            str(params.value),
+            input_type="document" if params.mode == "document" else "query",
+        )
+        return Success(map_embed_result(timer, response))

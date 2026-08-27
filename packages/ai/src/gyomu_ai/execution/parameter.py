@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import StrEnum
 
 from pydantic import BaseModel
 
@@ -9,31 +10,35 @@ from gyomu_ai.model.ai_model import AiModelKey
 @dataclass(frozen=True)
 class GenerateTextParams:
     key: AiModelKey
-    execution: AiExecutionContext
+    execution: AiExecutionContext | None = None
     tool: ToolConfig | None = None
-    max_tokens: int | None = None
 
 
 @dataclass(frozen=True)
 class StreamTextParams:
     key: AiModelKey
-    execution: AiExecutionContext
+    execution: AiExecutionContext | None = None
     tool: ToolConfig | None = None
-    max_tokens: int | None = None
 
 
 @dataclass(frozen=True)
 class GenerateObjectParams[T: BaseModel]:
     key: AiModelKey
     output_type: type[T]
+    execution: AiExecutionContext | None = None
     tool: ToolConfig | None = None
-    context: AiExecutionContext | None = None
+
+
+class AiEmbeddingMode(StrEnum):
+    QUERY = "query"
+    DOCUMENT = "document"
 
 
 @dataclass(frozen=True)
 class EmbedParams[T]:
     execution: AiExecutionContext
     value: T
+    mode: AiEmbeddingMode
 
 
 @dataclass(frozen=True)

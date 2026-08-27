@@ -13,3 +13,4 @@ class AiModelContext:
 class AiExecutionContext(AiModelContext):
     temperature: float | None = None
     retry_option: RetryOption | None = None
+    max_tokens: int | None = None

@@ -8,9 +8,9 @@ from gyomu_schema.conversation.message import MessageRole, MessageSchema
 class ConversationSchema(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    system: MessageSchema | None
-    messages: tuple[MessageSchema, ...]
-    request: MessageSchema | None
+    system: MessageSchema | None = None
+    messages: tuple[MessageSchema, ...] = ()
+    request: MessageSchema | None = None
 
     def with_request(
         self,

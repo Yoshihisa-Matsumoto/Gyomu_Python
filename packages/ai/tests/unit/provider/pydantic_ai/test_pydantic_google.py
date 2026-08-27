@@ -4,8 +4,8 @@ from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_ai.provider.pydantic_ai.google import (
     GoogleAPIConfig,
     create_default_pydantic_ai_model_registry,
-    create_google_agent,
     create_google_embedding,
+    create_google_model,
     create_pydantic_ai_model_registry,
 )
 from gyomu_schema.error.config import ConfigError
@@ -16,7 +16,7 @@ from pydantic_ai.models.google import GoogleModel
 
 class TestCreateGoogleAgent:
     def test_creates_agent(self) -> None:
-        factory = create_google_agent(
+        factory = create_google_model(
             "gemini-3.5-flash-lite",
             GoogleAPIConfig(api_key="test-api-key"),
         )
