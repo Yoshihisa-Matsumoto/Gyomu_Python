@@ -1,8 +1,11 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Literal
+from types import TracebackType
+from typing import Any, Literal, Protocol, Self
 
+from gyomu_schema.conversation.conversation import ConversationSchema
+from gyomu_schema.conversation.message import AiTextPart, MessageSchema
 from pydantic import BaseModel
 
 
@@ -14,23 +17,28 @@ class AiToolCallResultPart:
 
 
 @dataclass(frozen=True)
-class AiTextResultPart:
-    text: str
-
-
-@dataclass(frozen=True)
 class AiTextDeltaResultPart:
     text: str
 
 
-type AiMessagePart = AiTextResultPart | AiToolCallResultPart
+type AiMessagePart = AiTextPart | AiToolCallResultPart
 type AiStreamEvent = AiTextDeltaResultPart | AiToolCallResultPart
 
 
 @dataclass(frozen=True)
-class AiAssistantMessage:
-    parts: list[AiMessagePart]
+class AiAssistantTextMessage:
+    parts: tuple[AiMessagePart, ...]
     text: str
+
+    @classmethod
+    def from_message(
+        cls,
+        message: MessageSchema,
+    ) -> Self:
+        text = "\r\n".join(
+            part.text for part in message.parts if isinstance(part, AiTextPart)
+        )
+        return cls(parts=message.parts, text=text)
 
 
 AiFinishReason = Literal[
@@ -62,8 +70,9 @@ class AiGenerationMetadata:
 
 @dataclass(frozen=True)
 class AiGenerateTextResult:
-    message: AiAssistantMessage
+    message: AiAssistantTextMessage
     metadata: AiGenerationMetadata
+    conversation: ConversationSchema
 
 
 @dataclass(frozen=True)
@@ -72,9 +81,22 @@ class AiGenerateObjectResult[T: BaseModel]:
     metadata: AiGenerationMetadata
 
 
-@dataclass(frozen=True)
-class AiTextStream:
-    pass
+class AiTextStream(Protocol):
+    async def __aenter__(self) -> Self: ...
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None: ...
+
+    def __aiter__(self) -> Self: ...
+
+    async def __anext__(self) -> str: ...
+
+    @property
+    def result(self) -> AiGenerateTextResult | None: ...
 
 
 @dataclass(frozen=True)

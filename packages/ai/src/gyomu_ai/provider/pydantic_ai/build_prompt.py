@@ -95,38 +95,3 @@ def _MessagePart2UserContent(message_part: MessagePart) -> UserContent:
             kind="text-content",
         )
     raise ValueError(f"Non Supported Message: {message_part}")
-
-
-# def find_user_prompt(
-#     sorted_messages: list[MessageSchema],
-# ) -> tuple[Sequence[UserContent], int]:
-#     result: list[UserContent] = []
-#     last_user_result = next(
-#         (
-#             (i, sorted_messages[i])
-#             for i in range(len(sorted_messages) - 1, -1, -1)
-#             if sorted_messages[i].role == MessageRole.user
-#         ),
-#         None,
-#     )
-
-#     if last_user_result is None:
-#         return result, -1
-#     else:
-#         return list(
-#             map(_MessagePart2UserContent, last_user_result[1].parts)
-#         ), last_user_result[0]
-
-
-# def find_system_prompt(
-#     sorted_messages: list[MessageSchema],
-# ) -> tuple[list[str], int]:
-#     result: list[str] = []
-#     last_index = -1
-#     for i, x in enumerate(sorted_messages):
-#         if x.role == MessageRole.system:
-#             result = [item.text for item in x.parts]
-#             last_index = i
-#             return result, last_index
-
-#     return result, last_index

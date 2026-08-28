@@ -1,5 +1,5 @@
 from gyomu_ai.execution.result import (
-    AiAssistantMessage,
+    AiAssistantTextMessage,
     AiEmbeddingResult,
     AiFinishReason,
     AiGenerateObjectResult,
@@ -7,6 +7,8 @@ from gyomu_ai.execution.result import (
     AiGenerationMetadata,
     AiUsage,
 )
+from gyomu_schema.conversation.conversation import ConversationSchema
+from gyomu_schema.conversation.message import MessageSchema
 from gyomu_schema.utility.execution_timer import ExecutionTimer
 from pydantic import BaseModel
 from pydantic_ai import (
@@ -15,6 +17,7 @@ from pydantic_ai import (
     FinishReason,
     ModelResponseState,
 )
+from pydantic_ai.result import StreamedRunResult
 
 
 def map_pydantic_finish_reason(
@@ -50,10 +53,11 @@ def map_pydantic_finish_reason(
 
 
 def _map_result_metadata[T](
-    timer: ExecutionTimer, response: AgentRunResult[T] | EmbeddingResult
+    timer: ExecutionTimer,
+    response: AgentRunResult[T] | EmbeddingResult | StreamedRunResult[object, str],
 ) -> AiGenerationMetadata:
     complete_result = timer.complete()
-    if isinstance(response, EmbeddingResult):
+    if isinstance(response, EmbeddingResult) or isinstance(response, StreamedRunResult):
         return AiGenerationMetadata(
             started_at=timer.started_at,
             completed_at=complete_result[0],
@@ -82,10 +86,16 @@ def _map_result_metadata[T](
 
 
 def map_generate_text_result(
-    timer: ExecutionTimer, response: AgentRunResult[str]
+    timer: ExecutionTimer,
+    response: AgentRunResult[str],
+    conversation: ConversationSchema,
 ) -> AiGenerateTextResult:
+    assistant_message = MessageSchema.assistant_text(response.output)
+
+    conversation = conversation.complete(assistant_message)
     return AiGenerateTextResult(
-        message=AiAssistantMessage(text=response.output, parts=[]),
+        message=AiAssistantTextMessage.from_message(assistant_message),
+        conversation=conversation,
         metadata=_map_result_metadata(timer, response),
     )
 
@@ -99,10 +109,36 @@ def map_generate_object_result[T: BaseModel](
     )
 
 
+def map_stream_text_result(
+    timer: ExecutionTimer,
+    response: StreamedRunResult[object, str],
+    total_text: str,
+    conversation: ConversationSchema,
+) -> AiGenerateTextResult:
+
+    assistant_message = MessageSchema.assistant_text(total_text)
+
+    conversation = conversation.complete(
+        assistant_message,
+    )
+
+    message = AiAssistantTextMessage.from_message(
+        assistant_message,
+    )
+
+    metadata = _map_result_metadata(timer, response)
+
+    return AiGenerateTextResult(
+        message=message,
+        metadata=metadata,
+        conversation=conversation,
+    )
+
+
 def map_embed_result(
     timer: ExecutionTimer,
     response: EmbeddingResult,
 ) -> AiEmbeddingResult:
     return AiEmbeddingResult(
-        output=response.embeddings, metadata=_map_result_metadata(timer, response)
+        vector=response.embeddings, metadata=_map_result_metadata(timer, response)
     )

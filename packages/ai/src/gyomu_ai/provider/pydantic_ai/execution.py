@@ -3,11 +3,13 @@ from gyomu_ai.execution.parameter import (
     EmbedParams,
     GenerateObjectParams,
     GenerateTextParams,
+    StreamTextParams,
 )
 from gyomu_ai.execution.result import (
     AiEmbeddingResult,
     AiGenerateObjectResult,
     AiGenerateTextResult,
+    AiTextStream,
 )
 from gyomu_ai.model.ai_model import AiModelKey
 from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
@@ -18,6 +20,7 @@ from gyomu_ai.provider.pydantic_ai.map_result import (
     map_generate_text_result,
 )
 from gyomu_ai.provider.pydantic_ai.model_settings import build_model_settings
+from gyomu_ai.provider.pydantic_ai.result import PydanticAiTextStream
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.error.ai import AiError
 from gyomu_schema.utility.execution_timer import ExecutionTimer
@@ -63,7 +66,24 @@ class PydanticAiModelExecution:
             model_settings=build_model_settings(params.execution),
         )
 
-        return Success(map_generate_text_result(timer, response))
+        return Success(map_generate_text_result(timer, response, conversation))
+
+    async def stream_text(
+        self,
+        conversation: ConversationSchema,
+        params: StreamTextParams,
+    ) -> Result[AiTextStream, AiError]:
+        model = self._select_model(params.key, params.execution)
+        agent = Agent(model=model)
+        prompt = build_prompt(conversation)
+        timer = ExecutionTimer.start()
+        response = agent.run_stream(
+            instructions=prompt.instructions,
+            user_prompt=prompt.user_prompt,
+            message_history=prompt.message_history,
+            model_settings=build_model_settings(params.execution),
+        )
+        return Success(PydanticAiTextStream(response, conversation, timer))
 
     async def generate_object[T: BaseModel](
         self,

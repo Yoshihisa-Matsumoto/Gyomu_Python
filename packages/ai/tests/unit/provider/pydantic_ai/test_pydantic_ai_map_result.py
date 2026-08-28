@@ -1,12 +1,25 @@
-from unittest.mock import Mock
+from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock
 
 import pytest
-from gyomu_ai.execution.result import AiFinishReason
+from gyomu_ai.execution.result import (
+    AiEmbeddingResult,
+    AiFinishReason,
+    AiGenerateObjectResult,
+    AiGenerateTextResult,
+    AiGenerationMetadata,
+    AiUsage,
+)
+from gyomu_ai.provider.pydantic_ai import map_result
 from gyomu_ai.provider.pydantic_ai.map_result import (
-    map_generate_text_result,
     map_pydantic_finish_reason,
 )
-from pydantic_ai import AgentRunResult, FinishReason, ModelResponseState
+from gyomu_schema.conversation.conversation import ConversationSchema
+from gyomu_schema.conversation.message import AiTextPart, MessageSchema
+from gyomu_schema.utility.execution_timer import ExecutionTimer
+from pydantic import BaseModel
+from pydantic_ai import FinishReason, ModelResponseState, RequestUsage
+from pydantic_ai.embeddings import EmbeddingResult
 
 
 class TestMapPydanticFinishReason:
@@ -44,29 +57,409 @@ class TestMapPydanticFinishReason:
         assert map_pydantic_finish_reason(None, "complete") is None
 
 
+class TestMapResultMetadata:
+    def _create_timer(self) -> MagicMock:
+        timer = MagicMock(spec=ExecutionTimer)
+
+        timer.started_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            0,
+            tzinfo=UTC,
+        )
+
+        timer.complete.return_value = (
+            datetime(
+                2026,
+                8,
+                28,
+                10,
+                0,
+                1,
+                tzinfo=UTC,
+            ),
+            timedelta(seconds=1),
+        )
+
+        return timer
+
+    def test_maps_agent_run_result(self) -> None:
+        timer = self._create_timer()
+
+        response = MagicMock(spec=map_result.AgentRunResult)
+
+        response.response.usage.input_tokens = 10
+        response.response.usage.output_tokens = 20
+        response.response.usage.total_tokens = 30
+
+        response.response.finish_reason = "stop"
+        response.response.state = "complete"
+
+        metadata = map_result._map_result_metadata(
+            timer,
+            response,
+        )
+
+        assert metadata == AiGenerationMetadata(
+            started_at=timer.started_at,
+            completed_at=datetime(
+                2026,
+                8,
+                28,
+                10,
+                0,
+                1,
+                tzinfo=UTC,
+            ),
+            elapsed_second=1.0,
+            usage=AiUsage(
+                input_tokens=10,
+                output_tokens=20,
+                total_tokens=30,
+            ),
+            finish_reason="completed",
+        )
+
+        timer.complete.assert_called_once()
+
+    def test_maps_embedding_result(self) -> None:
+        timer = self._create_timer()
+        response = MagicMock(spec=EmbeddingResult)
+        response.usage = RequestUsage(input_tokens=10, output_tokens=0)
+
+        metadata = map_result._map_result_metadata(
+            timer,
+            response,
+        )
+
+        assert metadata == AiGenerationMetadata(
+            started_at=timer.started_at,
+            completed_at=datetime(
+                2026,
+                8,
+                28,
+                10,
+                0,
+                1,
+                tzinfo=UTC,
+            ),
+            elapsed_second=1.0,
+            usage=AiUsage(
+                input_tokens=10,
+                output_tokens=0,
+                total_tokens=10,
+            ),
+            finish_reason=None,
+        )
+
+    def test_maps_streamed_run_result(self) -> None:
+        timer = self._create_timer()
+
+        response = MagicMock(
+            spec=map_result.StreamedRunResult,
+        )
+
+        response.usage.input_tokens = 50
+        response.usage.output_tokens = 25
+        response.usage.total_tokens = 75
+
+        metadata = map_result._map_result_metadata(
+            timer,
+            response,
+        )
+
+        assert metadata == AiGenerationMetadata(
+            started_at=timer.started_at,
+            completed_at=datetime(
+                2026,
+                8,
+                28,
+                10,
+                0,
+                1,
+                tzinfo=UTC,
+            ),
+            elapsed_second=1.0,
+            usage=AiUsage(
+                input_tokens=50,
+                output_tokens=25,
+                total_tokens=75,
+            ),
+            finish_reason=None,
+        )
+
+
 class TestMapGenerateTextResult:
-    def test_maps_generate_text_result(self) -> None:
-        usage = Mock()
-        usage.input_tokens = 10.0
-        usage.output_tokens = 20.0
-        usage.total_tokens = 30.0
+    def test_maps_result(self) -> None:
+        timer = MagicMock(spec=ExecutionTimer)
 
-        response = Mock()
-        response.output = "Hello"
-        response.usage = usage
-        response.finish_reason = "stop"
-        response.state = "complete"
+        started_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            0,
+            tzinfo=UTC,
+        )
 
-        agent_result = Mock(spec=AgentRunResult)
-        agent_result.output = response.output
-        agent_result.response = response
+        completed_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            1,
+            tzinfo=UTC,
+        )
 
-        result = map_generate_text_result(agent_result)
+        timer.started_at = started_at
+        timer.complete.return_value = (
+            completed_at,
+            timedelta(seconds=1),
+        )
 
-        assert result.message.text == "Hello"
-        assert result.message.parts == []
-        assert result.usage is not None
-        assert result.usage.input_tokens == 10.0
-        assert result.usage.output_tokens == 20.0
-        assert result.usage.total_tokens == 30.0
-        assert result.finish_reason == "completed"
+        response = MagicMock(
+            spec=map_result.AgentRunResult,
+        )
+
+        response.output = "Hello world"
+
+        response.response.usage.input_tokens = 10
+        response.response.usage.output_tokens = 5
+        response.response.usage.total_tokens = 15
+        response.response.finish_reason = "stop"
+        response.response.state = "complete"
+
+        conversation = ConversationSchema().with_request(
+            MessageSchema.user_text("Hello")
+        )
+
+        result = map_result.map_generate_text_result(
+            timer,
+            response,
+            conversation,
+        )
+
+        assert isinstance(result, AiGenerateTextResult)
+
+        assert result.message.text == "Hello world"
+        part = result.message.parts[0]
+
+        assert isinstance(part, AiTextPart)
+        assert part.text == "Hello world"
+
+        assert result.metadata == AiGenerationMetadata(
+            started_at=started_at,
+            completed_at=completed_at,
+            elapsed_second=1.0,
+            usage=AiUsage(
+                input_tokens=10,
+                output_tokens=5,
+                total_tokens=15,
+            ),
+            finish_reason="completed",
+        )
+
+        assert len(result.conversation.messages) == 2
+        assert result.conversation.request is None
+
+        assert result.conversation.messages[-1].role.value == "assistant"
+        assert result.conversation.messages[-1].parts[0].text == "Hello world"
+
+
+class TestMapGenerateObjectResult:
+    def test_maps_result(self) -> None:
+        timer = MagicMock(spec=ExecutionTimer)
+
+        started_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            0,
+            tzinfo=UTC,
+        )
+
+        completed_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            1,
+            tzinfo=UTC,
+        )
+
+        timer.started_at = started_at
+        timer.complete.return_value = (
+            completed_at,
+            timedelta(seconds=1),
+        )
+
+        class Output(BaseModel):
+            name: str
+            age: int
+
+        output = Output(
+            name="Taro",
+            age=30,
+        )
+
+        response = MagicMock(
+            spec=map_result.AgentRunResult,
+        )
+
+        response.output = output
+
+        response.response.usage.input_tokens = 20
+        response.response.usage.output_tokens = 10
+        response.response.usage.total_tokens = 30
+        response.response.finish_reason = "stop"
+        response.response.state = "complete"
+
+        result = map_result.map_generate_object_result(
+            timer,
+            response,
+        )
+
+        assert isinstance(result, AiGenerateObjectResult)
+        assert result.output is output
+
+        assert result.metadata.usage == AiUsage(
+            input_tokens=20,
+            output_tokens=10,
+            total_tokens=30,
+        )
+
+        assert result.metadata.finish_reason == "completed"
+        assert result.metadata.elapsed_second == 1.0
+
+
+class TestMapStreamTextResult:
+    def test_maps_result(self) -> None:
+        timer = MagicMock(spec=ExecutionTimer)
+
+        started_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            0,
+            tzinfo=UTC,
+        )
+
+        completed_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            1,
+            tzinfo=UTC,
+        )
+
+        timer.started_at = started_at
+        timer.complete.return_value = (
+            completed_at,
+            timedelta(seconds=1),
+        )
+
+        response = MagicMock(
+            spec=map_result.StreamedRunResult,
+        )
+
+        response.usage.input_tokens = 10
+        response.usage.output_tokens = 20
+        response.usage.total_tokens = 30
+
+        conversation = ConversationSchema().with_request(
+            MessageSchema.user_text("Hello")
+        )
+
+        result = map_result.map_stream_text_result(
+            timer,
+            response,
+            "Hello world",
+            conversation,
+        )
+
+        assert isinstance(result, AiGenerateTextResult)
+
+        assert result.message.text == "Hello world"
+        part = result.message.parts[0]
+
+        assert isinstance(part, AiTextPart)
+        assert part.text == "Hello world"
+
+        assert result.metadata.usage == AiUsage(
+            input_tokens=10,
+            output_tokens=20,
+            total_tokens=30,
+        )
+
+        assert result.metadata.finish_reason is None
+
+        assert len(result.conversation.messages) == 2
+        assert result.conversation.request is None
+
+
+class TestMapEmbedResult:
+    def test_maps_result(self) -> None:
+        timer = MagicMock(spec=ExecutionTimer)
+
+        started_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            0,
+            tzinfo=UTC,
+        )
+
+        completed_at = datetime(
+            2026,
+            8,
+            28,
+            10,
+            0,
+            1,
+            tzinfo=UTC,
+        )
+
+        timer.started_at = started_at
+        timer.complete.return_value = (
+            completed_at,
+            timedelta(seconds=1),
+        )
+
+        response = MagicMock(spec=EmbeddingResult)
+
+        vector = [0.1, 0.2, 0.3]
+
+        response.embeddings = vector
+        response.usage = RequestUsage(input_tokens=10, output_tokens=0)
+
+        result = map_result.map_embed_result(
+            timer,
+            response,
+        )
+
+        assert isinstance(result, AiEmbeddingResult)
+
+        assert result.vector == vector
+
+        assert result.metadata.usage == AiUsage(
+            input_tokens=10,
+            output_tokens=0,
+            total_tokens=10,
+        )
+
+        assert result.metadata.finish_reason is None
+        assert result.metadata.elapsed_second == 1.0
