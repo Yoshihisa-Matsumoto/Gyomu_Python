@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 from unittest.mock import MagicMock, Mock
-from uuid import UUID, uuid7
+from uuid import UUID
 
 import pytest
 from gyomu_schema.error import DatabaseError
@@ -14,6 +14,7 @@ from gyomu_schema.parameter.parameter_master import (
 )
 from returns.result import Failure, Success
 from sqlalchemy.orm import Session
+from uuid6 import uuid7
 
 from gyomu_infra.db.repository.parameter_master import ParameterMasterRepository
 from gyomu_infra.gyomu.parameter.parameter_access import (

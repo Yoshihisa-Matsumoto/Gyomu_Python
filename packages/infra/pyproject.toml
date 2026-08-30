@@ -3,7 +3,7 @@ name = "gyomu-infra"
 dynamic = ["version"]
 description = "Gyomu infrastructure"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 dependencies = [
     "gyomu-schema",
     "sqlalchemy>=2,<3",
@@ -13,6 +13,7 @@ dependencies = [
     "returns>=0.29.0",
     "pydantic>=2.13.4",
     "python-dotenv>=1.2.3",
+    "uuid6>=2025.0.1",
 ]
 
 [build-system]

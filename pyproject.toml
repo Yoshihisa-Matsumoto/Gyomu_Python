@@ -1,8 +1,11 @@
+
+
 [dependency-groups]
 dev = [
     "coverage>=7,<8",
     "mypy>=2.3.1",
     "pytest>=9,<10",
+    "pytest-asyncio>=1.4.0",
     "ruff>=0.16.3",
 ]
 
@@ -10,15 +13,16 @@ dev = [
 members = [
     "packages/schema",
     "packages/infra",
+    "packages/ai"
 ]
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.13"
 strict = true
 plugins = ["returns.contrib.mypy.returns_plugin"]
 
 [tool.ruff]
-target-version = "py314"
+target-version = "py313"
 line-length = 88
 exclude = [
     "packages/infra/src/gyomu_infra/db/model/generated",
@@ -51,6 +55,7 @@ testpaths = [
 source_pkgs = [
     "gyomu_schema",
     "gyomu_infra",
+    "gyomu_ai"
 ]
 branch = true
 

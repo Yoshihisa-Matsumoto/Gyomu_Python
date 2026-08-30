@@ -40,6 +40,7 @@ class BaseError(Exception):
     ) -> None:
         """Initialize a BaseError."""
         super().__init__(message)
+        self.message = message
         self.context = context
         self.details = details
 

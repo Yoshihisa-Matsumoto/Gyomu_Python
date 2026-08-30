@@ -10,9 +10,7 @@ from gyomu_infra.db.error.database import to_database_error
 
 
 class SqlAlchemyTransactionManager:
-    def __init__(
-        self, session: Session, parent: SqlAlchemyTransactionManager | None
-    ) -> None:
+    def __init__(self, session: Session, parent: Self | None) -> None:
         self._session = session
         self._completed = False
         if parent is None:
@@ -48,5 +46,5 @@ class SqlAlchemyTransactionManager:
 
         self._transaction.commit()
 
-    def create_child(self) -> Result[SqlAlchemyTransactionManager, GyomuIOError]:
-        return Success(SqlAlchemyTransactionManager(self._session, self))
+    def create_child(self) -> Result[Self, GyomuIOError]:
+        return Success(type(self)(self._session, self))

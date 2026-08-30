@@ -1,10 +1,9 @@
-from uuid import uuid4, uuid7
-
 import pytest
 from gyomu_schema.parameter.parameter_master import ParameterMasterCreate
 from returns.result import Success
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
+from uuid6 import uuid7
 
 from gyomu_infra.db.model.generated.models import GyomuParamMaster
 from gyomu_infra.db.repository.sqlalchemy_parameter_master import (
@@ -94,7 +93,7 @@ class TestSqlAlchemyTransactionManager:
             assert result is None
 
     def test_explicit_rollback(self, db_engine: Engine) -> None:
-        parameter_id = uuid4()
+        parameter_id = uuid7()
 
         with Session(db_engine) as session:
             repository = SqlAlchemyParameterMasterRepository(session)

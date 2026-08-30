@@ -1,12 +1,12 @@
 from datetime import date
 from unittest.mock import MagicMock
-from uuid import uuid7
 
 import pytest
 from gyomu_schema.error import DatabaseError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Failure, Success
 from sqlalchemy.exc import SQLAlchemyError
+from uuid6 import uuid7
 
 from gyomu_infra.db.model.generated.models import GyomuMarketHoliday
 from gyomu_infra.db.repository.sqlalchemy_market_holiday import (
