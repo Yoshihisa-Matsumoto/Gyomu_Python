@@ -280,7 +280,7 @@ class TestPydanticAiModelExecution_GenerateText:
 
         async def execute_tool(
             input: AddInput,
-            config: TestToolConfig | None,
+            config: DummyToolConfig | None,
         ) -> ToolResult[int]:
             return await execute(input, config)
 
@@ -359,7 +359,7 @@ class TestPydanticAiModelExecution_GenerateText:
 
         async def execute_tool(
             input: AddInput,
-            config: TestToolConfig | None,
+            config: DummyToolConfig | None,
         ) -> ToolResult[int]:
             return await execute(input, config)
 
@@ -603,7 +603,7 @@ class TestPydanticAiModelExecution_GenerateObject:
 
         async def execute_tool(
             input: AddInput,
-            config: TestToolConfig | None,
+            config: DummyToolConfig | None,
         ) -> ToolResult[int]:
             return await execute(input, config)
 
@@ -899,7 +899,7 @@ class TestPydanticAiModelExecution_StreamText:
 
         async def execute_tool(
             input: AddInput,
-            config: TestToolConfig | None,
+            config: DummyToolConfig | None,
         ) -> ToolResult[int]:
             return await execute(input, config)
 
@@ -1072,7 +1072,7 @@ class AddInput(BaseModel):
     right: int
 
 
-class TestToolConfig(BaseModel):
+class DummyToolConfig(BaseModel):
     pass
 
 
@@ -1087,7 +1087,7 @@ class TestPydanticAiToolCall:
 
         async def execute_tool(
             input: AddInput,
-            config: TestToolConfig | None,
+            config: DummyToolConfig | None,
         ) -> ToolResult[int]:
             return await execute(input, config)
 
@@ -1147,7 +1147,7 @@ class TestPydanticAiToolCall:
 
         async def execute_tool(
             input: AddInput,
-            config: TestToolConfig | None,
+            config: DummyToolConfig | None,
         ) -> ToolResult[int]:
             return await execute(input, config)
 
