@@ -1,13 +1,9 @@
-from pathlib import Path
-
 import pytest
 from gyomu_ai.execution.context import AiExecutionContext
 from gyomu_ai.execution.parameter import GenerateObjectParams
 from gyomu_ai.model.ai_model import AiModelKey
+from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
-from gyomu_ai.provider.pydantic_ai.google import (
-    create_default_pydantic_ai_model_registry,
-)
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
 from pydantic import BaseModel
@@ -22,8 +18,7 @@ class UserSchema(BaseModel):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_generate_object(project_dot_env: Path) -> None:
-    registry = create_default_pydantic_ai_model_registry(project_dot_env)
+async def test_generate_object(registry: PydanticAiModelRegistry) -> None:
 
     execution = PydanticAiModelExecution(registry)
 

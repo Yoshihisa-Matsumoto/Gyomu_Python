@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from gyomu_ai.execution.context import AiExecutionContext
 from gyomu_ai.execution.parameter import (
@@ -8,10 +6,8 @@ from gyomu_ai.execution.parameter import (
     ToolLoopPolicyMaxSteps,
 )
 from gyomu_ai.model.ai_model import AiModelKey
+from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
-from gyomu_ai.provider.pydantic_ai.google import (
-    create_default_pydantic_ai_model_registry,
-)
 from gyomu_ai.tool.ai_tool import (
     AiTool,
     PublicError,
@@ -28,8 +24,7 @@ pytestmark = pytest.mark.integration
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_generate_text(project_dot_env: Path) -> None:
-    registry = create_default_pydantic_ai_model_registry(project_dot_env)
+async def test_generate_text(registry: PydanticAiModelRegistry) -> None:
 
     execution = PydanticAiModelExecution(registry)
 
@@ -76,10 +71,7 @@ async def get_value(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_generate_text_with_tool(
-    project_dot_env: Path,
-) -> None:
-    registry = create_default_pydantic_ai_model_registry(project_dot_env)
+async def test_generate_text_with_tool(registry: PydanticAiModelRegistry) -> None:
 
     execution = PydanticAiModelExecution(registry)
 
@@ -138,9 +130,8 @@ async def test_generate_text_with_tool(
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_generate_text_with_tool_failure(
-    project_dot_env: Path,
+    registry: PydanticAiModelRegistry,
 ) -> None:
-    registry = create_default_pydantic_ai_model_registry(project_dot_env)
 
     execution = PydanticAiModelExecution(registry)
 

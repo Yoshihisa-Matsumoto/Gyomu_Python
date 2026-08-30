@@ -1,23 +1,18 @@
-from pathlib import Path
-
 import pytest
 from gyomu_ai.execution.context import AiExecutionContext
 from gyomu_ai.execution.parameter import (
     AiEmbeddingMode,
     EmbedParams,
 )
+from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
-from gyomu_ai.provider.pydantic_ai.google import (
-    create_default_pydantic_ai_model_registry,
-)
 
 pytestmark = pytest.mark.integration
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_generate_text(project_dot_env: Path) -> None:
-    registry = create_default_pydantic_ai_model_registry(project_dot_env)
+async def test_generate_text(registry: PydanticAiModelRegistry) -> None:
 
     execution = PydanticAiModelExecution(registry)
 
