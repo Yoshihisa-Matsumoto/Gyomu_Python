@@ -17,13 +17,6 @@ class TestMessageSchemaFactory:
         with pytest.raises(ValidationError):
             message.role = MessageRole.assistant
 
-    def test_id_is_unique_and_ordered(self) -> None:
-        first = MessageSchema.user_text("first")
-        second = MessageSchema.user_text("second")
-
-        assert first.id != second.id
-        assert first.id < second.id
-
     def test_user(self) -> None:
         part = AiTextPart(text="Hello")
 

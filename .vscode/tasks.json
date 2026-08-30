@@ -43,7 +43,7 @@
     {
       "label": "Gyomu: Type Check",
       "type": "shell",
-      "command": "uv run mypy  packages/schema/src packages/infra/src packages/ai/src",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe  -m mypy  packages/schema/src packages/infra/src packages/ai/src",
       "problemMatcher": []
     },
     {
@@ -53,7 +53,7 @@
         "Gyomu: Format Check",
         "Gyomu: Lint",
         "Gyomu: Type Check",
-        "Gyomu: Test"
+        "Gyomu: Test Unit"
       ],
       "problemMatcher": []
     },

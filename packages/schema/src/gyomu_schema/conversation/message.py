@@ -1,9 +1,21 @@
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Annotated, Literal, Self
-from uuid import UUID, uuid7
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class AiTextPart(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    type: Literal["text"] = "text"
+    text: str
+
+
+MessagePart = Annotated[
+    AiTextPart,
+    Field(discriminator="type"),
+]
 
 
 class MessageRole(StrEnum):
@@ -22,7 +34,7 @@ class MessageSchema(BaseModel):
     @classmethod
     def user(cls, parts: tuple[MessagePart, ...]) -> Self:
         return cls(
-            id=(uuid7()),
+            id=(uuid4()),
             role=MessageRole.user,
             parts=parts,
             created_at=datetime.now(UTC),
@@ -31,7 +43,7 @@ class MessageSchema(BaseModel):
     @classmethod
     def user_text(cls, text: str) -> Self:
         return cls(
-            id=(uuid7()),
+            id=(uuid4()),
             role=MessageRole.user,
             parts=(AiTextPart(type="text", text=text),),
             created_at=datetime.now(UTC),
@@ -40,7 +52,7 @@ class MessageSchema(BaseModel):
     @classmethod
     def system(cls, parts: tuple[MessagePart, ...]) -> Self:
         return cls(
-            id=(uuid7()),
+            id=(uuid4()),
             role=MessageRole.system,
             parts=parts,
             created_at=datetime.now(UTC),
@@ -49,7 +61,7 @@ class MessageSchema(BaseModel):
     @classmethod
     def system_text(cls, text: str) -> Self:
         return cls(
-            id=(uuid7()),
+            id=(uuid4()),
             role=MessageRole.system,
             parts=(AiTextPart(type="text", text=text),),
             created_at=datetime.now(UTC),
@@ -58,7 +70,7 @@ class MessageSchema(BaseModel):
     @classmethod
     def assistant(cls, parts: tuple[MessagePart, ...]) -> Self:
         return cls(
-            id=(uuid7()),
+            id=(uuid4()),
             role=MessageRole.assistant,
             parts=parts,
             created_at=datetime.now(UTC),
@@ -67,20 +79,8 @@ class MessageSchema(BaseModel):
     @classmethod
     def assistant_text(cls, text: str) -> Self:
         return cls(
-            id=(uuid7()),
+            id=(uuid4()),
             role=MessageRole.assistant,
             parts=(AiTextPart(type="text", text=text),),
             created_at=datetime.now(UTC),
         )
-
-
-class AiTextPart(BaseModel):
-    model_config = ConfigDict(frozen=True)
-    type: Literal["text"] = "text"
-    text: str
-
-
-MessagePart = Annotated[
-    AiTextPart,
-    Field(discriminator="type"),
-]

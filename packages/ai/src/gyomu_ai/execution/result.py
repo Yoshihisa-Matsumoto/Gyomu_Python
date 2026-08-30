@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal
 from types import TracebackType
 from typing import Any, Literal, Protocol, Self
 
@@ -10,10 +11,25 @@ from pydantic import BaseModel
 
 
 @dataclass(frozen=True)
+class AiToolUsage:
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+
+
+@dataclass(frozen=True)
 class AiToolCallResultPart:
     tool_name: str
     tool_call_id: str
     input: Any
+    output: Any | None
+    elapsed_second: float | None
+
+
+@dataclass(frozen=True)
+class AiToolCallGroup:
+    calls: list[AiToolCallResultPart]
+    usage: AiToolUsage
 
 
 @dataclass(frozen=True)
@@ -57,6 +73,7 @@ class AiUsage:
     input_tokens: int
     output_tokens: int
     total_tokens: int
+    cost: Decimal | None
 
 
 @dataclass(frozen=True)
@@ -66,6 +83,7 @@ class AiGenerationMetadata:
     elapsed_second: float
     usage: AiUsage
     finish_reason: AiFinishReason | None
+    tool_calls: AiToolCallGroup | None
 
 
 @dataclass(frozen=True)

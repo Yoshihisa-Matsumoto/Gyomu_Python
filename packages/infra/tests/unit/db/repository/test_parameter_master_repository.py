@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock
-from uuid import uuid7
 
 from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.error.validation import ValidationError
@@ -11,6 +10,7 @@ from gyomu_schema.parameter.parameter_master import (
 from returns.result import Failure, Success
 from sqlalchemy import Delete, Select, Table
 from sqlalchemy.exc import SQLAlchemyError
+from uuid6 import uuid7
 
 from gyomu_infra.db.mapper.parameter_master import to_schema
 from gyomu_infra.db.model.generated.models import GyomuParamMaster

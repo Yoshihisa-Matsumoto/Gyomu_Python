@@ -12,6 +12,8 @@ from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
 from pydantic import BaseModel
 
+pytestmark = pytest.mark.integration
+
 
 class UserSchema(BaseModel):
     name: str

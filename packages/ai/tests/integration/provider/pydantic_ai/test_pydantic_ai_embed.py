@@ -11,6 +11,8 @@ from gyomu_ai.provider.pydantic_ai.google import (
     create_default_pydantic_ai_model_registry,
 )
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.integration
 @pytest.mark.asyncio

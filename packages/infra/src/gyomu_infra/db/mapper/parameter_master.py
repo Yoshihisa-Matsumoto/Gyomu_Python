@@ -1,5 +1,3 @@
-from uuid import uuid7
-
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.parameter.parameter_master import (
     ParameterMaster,
@@ -7,6 +5,7 @@ from gyomu_schema.parameter.parameter_master import (
     ParameterMasterUpdate,
 )
 from returns.result import Failure, Result, Success
+from uuid6 import uuid7
 
 from gyomu_infra.db.model.generated.models import GyomuParamMaster
 

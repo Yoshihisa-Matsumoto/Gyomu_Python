@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from gyomu_ai.execution.context import AiModelContext
 from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
@@ -9,22 +11,21 @@ from gyomu_ai.provider.pydantic_ai.google import (
     create_pydantic_ai_model_registry,
 )
 from gyomu_schema.error.config import ConfigError
-from pydantic_ai import Agent, Embedder
+from pydantic_ai import Embedder
 from pydantic_ai.embeddings.google import GoogleEmbeddingModel
-from pydantic_ai.models.google import GoogleModel
+from pydantic_ai.models import Model
 
 
 class TestCreateGoogleAgent:
-    def test_creates_agent(self) -> None:
+    def test_creates_model(self) -> None:
         factory = create_google_model(
             "gemini-3.5-flash-lite",
             GoogleAPIConfig(api_key="test-api-key"),
         )
 
-        agent = factory(AiModelContext())
+        model = factory(AiModelContext())
 
-        assert isinstance(agent, Agent)
-        assert isinstance(agent.model, GoogleModel)
+        assert isinstance(model, Model)
 
 
 class TestCreateGoogleEmbedding:
@@ -54,19 +55,19 @@ class TestCreatePydanticAiModelRegistry:
 
         assert isinstance(
             registry.fast(AiModelContext()),
-            Agent,
+            Model,
         )
         assert isinstance(
             registry.smart(AiModelContext()),
-            Agent,
+            Model,
         )
         assert isinstance(
             registry.reasoning(AiModelContext()),
-            Agent,
+            Model,
         )
         assert isinstance(
             registry.vision(AiModelContext()),
-            Agent,
+            Model,
         )
         assert isinstance(
             registry.embedding(AiModelContext()),
@@ -91,6 +92,7 @@ class TestCreateDefaultPydanticAiModelRegistry:
     def test_raises_when_api_key_is_missing(
         self,
         monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
     ) -> None:
         monkeypatch.delenv(
             "GEMINI_API_KEY",
@@ -98,4 +100,4 @@ class TestCreateDefaultPydanticAiModelRegistry:
         )
 
         with pytest.raises(ConfigError):
-            create_default_pydantic_ai_model_registry()
+            create_default_pydantic_ai_model_registry(dot_env_path=tmp_path / ".env")

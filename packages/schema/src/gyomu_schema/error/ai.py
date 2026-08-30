@@ -1,6 +1,6 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Literal
 
 from gyomu_schema.error.base import BaseError
 
@@ -22,18 +22,17 @@ class AiErrorPhase(StrEnum):
 
 @dataclass(frozen=True)
 class AiRetryImmediate:
-    type: Literal["immediate"] = "immediate"
+    pass
 
 
 @dataclass(frozen=True)
 class AiRetryExponential:
-    type: Literal["exponential"] = "exponential"
+    pass
 
 
 @dataclass(frozen=True)
 class AiRetryAfter:
     delay_second: float
-    type: Literal["retry-after"] = "retry-after"
 
 
 type AiRetryStrategy = AiRetryImmediate | AiRetryExponential | AiRetryAfter
@@ -60,9 +59,27 @@ type AiErrorResolution = AiRetryResolution | AiFallbackResolution | AiFailResolu
 class AiError(BaseError):
     """AI operation error."""
 
-    operation: AiOperation
-    model_key: str | None
-    model: str | None
-    phase: AiErrorPhase
-    resolution: AiErrorResolution
-    status_code: int | None = None
+    def __init__(
+        self,
+        message: str,
+        *,
+        operation: AiOperation,
+        model_key: str | None,
+        model: str | None,
+        phase: AiErrorPhase,
+        resolution: AiErrorResolution,
+        status_code: int | None = None,
+        context: str | None = None,
+        details: Mapping[str, object] | None = None,
+    ) -> None:
+        super().__init__(
+            message,
+            context=context,
+            details=details,
+        )
+        self.operation = operation
+        self.model_key = model_key
+        self.model = model
+        self.phase = phase
+        self.resolution = resolution
+        self.status_code = status_code

@@ -6,8 +6,10 @@ from typing import Self
 from gyomu_ai.execution.result import (
     AiGenerateTextResult,
 )
+from gyomu_ai.provider.pydantic_ai.map_error import map_pydantic_ai_error
 from gyomu_ai.provider.pydantic_ai.map_result import map_stream_text_result
 from gyomu_schema.conversation.conversation import ConversationSchema
+from gyomu_schema.error.ai import AiError, AiErrorPhase, AiFailResolution, AiOperation
 from gyomu_schema.utility.execution_timer import ExecutionTimer
 from pydantic_ai.result import StreamedRunResult
 
@@ -20,10 +22,14 @@ class PydanticAiTextStream:
         ],
         conversation: ConversationSchema,
         timer: ExecutionTimer,
+        model: str,
+        model_key: str,
     ) -> None:
         self._internal_response = response
         self._conversation = conversation
         self._timer = timer
+        self._model = model
+        self._model_key = model_key
 
         self._response: StreamedRunResult[object, str] | None = None
         self._stream: AsyncIterator[str] | None = None
@@ -31,9 +37,17 @@ class PydanticAiTextStream:
         self._result: AiGenerateTextResult | None = None
 
     async def __aenter__(self) -> Self:
-        self._response = await self._internal_response.__aenter__()
-        self._stream = self._response.stream_text(delta=True).__aiter__()
-        return self
+        try:
+            self._response = await self._internal_response.__aenter__()
+            self._stream = self._response.stream_text(delta=True).__aiter__()
+            return self
+        except Exception as error:
+            raise map_pydantic_ai_error(
+                error,
+                operation=AiOperation.STREAM,
+                model_key=self._model_key,
+                model=self._model,
+            ) from error
 
     async def __aexit__(
         self,
@@ -59,6 +73,13 @@ class PydanticAiTextStream:
         except StopAsyncIteration:
             await self._complete()
             raise
+        except Exception as error:
+            raise map_pydantic_ai_error(
+                error,
+                operation=AiOperation.STREAM,
+                model_key=self._model_key,
+                model=self._model,
+            ) from error
 
         self._text += delta
         return delta
@@ -69,9 +90,20 @@ class PydanticAiTextStream:
         if self._response is None:
             raise RuntimeError("Stream is not active")
 
-        self._result = map_stream_text_result(
-            self._timer, self._response, self._text, self._conversation
-        )
+        try:
+            self._result = map_stream_text_result(
+                self._timer, self._response, self._text, self._conversation
+            )
+        except Exception as error:
+            raise AiError(
+                message="Fail on Stream Result Mapping",
+                model=self._model,
+                model_key=self._model_key,
+                operation=AiOperation.STREAM,
+                phase=AiErrorPhase.DECODE,
+                resolution=AiFailResolution(),
+                context="PydanticAiTextStream._complete",
+            ) from error
 
     @property
     def result(self) -> AiGenerateTextResult | None:
