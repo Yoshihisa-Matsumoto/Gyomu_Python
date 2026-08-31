@@ -1,4 +1,9 @@
 {
   "include": ["packages"],
-  "extraPaths": ["packages/schema/src", "packages/infra/src", "packages/ai/src"]
+  "extraPaths": [
+    "packages/schema/src",
+    "packages/infra/src",
+    "packages/ai/src",
+    "packages/python-analysis/src"
+  ]
 }

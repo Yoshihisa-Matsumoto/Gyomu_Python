@@ -43,7 +43,7 @@
     {
       "label": "Gyomu: Type Check",
       "type": "shell",
-      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe  -m mypy  packages/schema/src packages/infra/src packages/ai/src",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe  -m mypy  packages/schema/src packages/infra/src packages/ai/src packages/python-analysis/src",
       "problemMatcher": []
     },
     {

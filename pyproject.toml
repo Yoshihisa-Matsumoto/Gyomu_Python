@@ -13,7 +13,8 @@ dev = [
 members = [
     "packages/schema",
     "packages/infra",
-    "packages/ai"
+    "packages/ai",
+    "packages/python-analysis"
 ]
 
 [tool.mypy]
