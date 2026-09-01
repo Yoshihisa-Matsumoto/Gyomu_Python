@@ -1,0 +1,13 @@
+[project]
+name = "test-fixture"
+dynamic = ["version"]
+description = "Gyomu Test Fixture"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

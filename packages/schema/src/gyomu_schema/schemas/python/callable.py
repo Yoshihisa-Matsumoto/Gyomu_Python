@@ -1,8 +1,9 @@
+from pydantic import BaseModel
+
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
-from gyomu_schema.schemas.python.type import TypeAnalysis
 
 
-class CallableAnalysisBase:
+class CallableAnalysisBase(BaseModel):
     parameters: tuple[ParameterAnalysis, ...]
-    return_type: TypeAnalysis | None
+    return_type: str | None
     is_async: bool

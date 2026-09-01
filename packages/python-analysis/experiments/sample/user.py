@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+Version = 1.2
+
 
 class User(BaseModel):
     """User information."""

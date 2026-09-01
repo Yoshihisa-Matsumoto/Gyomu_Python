@@ -17,6 +17,8 @@ members = [
     "packages/python-analysis"
 ]
 
+
+
 [tool.mypy]
 python_version = "3.13"
 strict = true
@@ -51,6 +53,7 @@ markers = [
 testpaths = [
     "packages",
 ]
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 source_pkgs = [

@@ -1,7 +1,8 @@
 from enum import StrEnum
 
-from gyomu_schema.schemas.python.type import TypeAnalysis
 from pydantic import BaseModel
+
+from gyomu_schema.schemas.python.type import TypeAnalysis
 
 
 class ParameterKind(StrEnum):
@@ -16,4 +17,4 @@ class ParameterAnalysis(BaseModel):
     name: str
     kind: ParameterKind
     type: TypeAnalysis | None
-    default: ...
+    default: None
