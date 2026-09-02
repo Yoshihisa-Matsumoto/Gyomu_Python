@@ -6,6 +6,7 @@ from gyomu_python_analysis.analysis.analyzers.internal.common import (
     build_member_common,
     build_symbol_common,
 )
+from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassVariableAnalysis,
@@ -41,6 +42,7 @@ def analyze_class(
     # retrieve class variables
     for member_name, member in cls.members.items():
         if isinstance(member, Attribute):
+            print(member_name)
             parameters.append(
                 ClassVariableAnalysis(
                     **build_member_common(
@@ -52,7 +54,7 @@ def analyze_class(
                     docstring=None,
                     decorators=tuple([]),
                     kind=MemberKind.VARIABLE,
-                    type=None,
+                    type=analyze_type(member.annotation),
                     value_source=str(member.value)
                     if member.value is not None
                     else None,
@@ -68,7 +70,7 @@ def analyze_class(
                     ParameterAnalysis(
                         name=param.name,
                         kind=_get_function_parameter_kind(param.kind),
-                        type=None,
+                        type=analyze_type(param.annotation),
                         default=None,
                     )
                 )

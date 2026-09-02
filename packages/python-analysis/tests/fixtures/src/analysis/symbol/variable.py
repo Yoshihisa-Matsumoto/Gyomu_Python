@@ -1,4 +1,5 @@
 VERSION = 5
+VERSION_STR = "5"
 
 _internal_value = 10
 

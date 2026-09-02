@@ -6,7 +6,7 @@ from gyomu_schema.schemas.python.member_analysis import MemberAnalysisBase, Memb
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticModelAnalysis
 from gyomu_schema.schemas.python.symbol_base import SymbolAnalysisBase, SymbolKind
-from gyomu_schema.schemas.python.type import TypeAnalysis
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
 
 class ClassVariableAnalysis(MemberAnalysisBase):

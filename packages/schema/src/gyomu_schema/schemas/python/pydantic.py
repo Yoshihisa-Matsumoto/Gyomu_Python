@@ -1,5 +1,6 @@
-from gyomu_schema.schemas.python.type import TypeAnalysis
 from pydantic import BaseModel
+
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
 
 class PydanticFieldAnalysis(BaseModel):

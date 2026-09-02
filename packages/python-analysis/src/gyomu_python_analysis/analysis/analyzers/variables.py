@@ -1,5 +1,6 @@
 from griffe import Attribute
 from gyomu_python_analysis.analysis.analyzers.internal.common import build_symbol_common
+from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 
@@ -9,7 +10,8 @@ def analyze_variable(
     name: str,
     source_lines: list[str],
 ) -> VariableAnalysis:
-
+    print(variable.as_dict())
+    print(name)
     return VariableAnalysis(
         **build_symbol_common(
             symbol=variable,
@@ -20,6 +22,6 @@ def analyze_variable(
         docstring=None,
         decorators=tuple([]),
         dependencies=[],
-        type=None,
+        type=analyze_type(variable.annotation),
         value_source=str(variable.value) if variable.value is not None else None,
     )

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pprint import pprint
 
 from griffe import Alias, Attribute, Class, Function, Module
 from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
@@ -45,6 +46,8 @@ def _extract_symbols_internal(
     for symbol_name, symbol in source_file.module.members.items():
         if isinstance(symbol, Alias):
             continue
+        pprint(f"Extracting symbol: {symbol_name} ({type(symbol)})")
+        pprint(symbol.as_dict())
         if isinstance(symbol, Attribute):
             symbols.append(
                 analyze_variable(

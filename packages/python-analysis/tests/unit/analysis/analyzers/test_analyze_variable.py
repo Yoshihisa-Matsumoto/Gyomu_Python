@@ -73,6 +73,10 @@ class TestAnalyzeVariable(AnalysisTestBase):
             indent=0,
         )
 
+        result = self._analyze_variable(
+            "VERSION_STR",
+        )
+
     def test_analyzes_private_variable(self) -> None:
         result = self._analyze_variable(
             "_internal_value",

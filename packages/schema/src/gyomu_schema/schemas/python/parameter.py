@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
-from gyomu_schema.schemas.python.type import TypeAnalysis
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
 
 class ParameterKind(StrEnum):
