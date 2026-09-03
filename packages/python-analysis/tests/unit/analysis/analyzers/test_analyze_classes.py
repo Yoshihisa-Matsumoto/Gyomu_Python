@@ -4,6 +4,10 @@ from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.member_analysis import MemberKind
 from gyomu_schema.schemas.python.parameter import ParameterKind
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.type.structure import (
+    NameStructureAnalysis,
+    TypeStructureKind,
+)
 from gyomu_schema.schemas.python.types import PythonPath
 
 from tests.helpers import AnalysisTestBase
@@ -80,7 +84,12 @@ class TestAnalyzeClass(AnalysisTestBase):
 
         position = variables["position"]
         assert position.kind == MemberKind.VARIABLE
-        assert position.type is None
+        assert position.type
+        assert position.type.text == "int"
+        assert position.type.structure
+        assert isinstance(position.type.structure, NameStructureAnalysis)
+        assert position.type.structure.kind == TypeStructureKind.NAME
+        assert position.type.structure.name == "int"
         assert position.value_source is None
         assert position.location is not None
         assert position.location.start_line == 16
@@ -132,7 +141,8 @@ class TestAnalyzeClass(AnalysisTestBase):
 
         assert variable.name == "value"
         assert variable.kind == MemberKind.VARIABLE
-        assert variable.type is None
+        assert variable.type
+        assert variable.type.text == "int"
         assert variable.value_source == "10"
 
         assert variable.location is not None
@@ -148,7 +158,8 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert result.inner_classes == ()
 
         # TypeAnalysis is not implemented yet.
-        assert result.bases == ()
+        assert len(result.bases) == 1
+        assert result.bases[0].text == "Base"
 
     def test_analyzes_class_complex(self) -> None:
         result = self._analyze_class("Complex")

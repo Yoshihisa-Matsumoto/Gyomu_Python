@@ -11,6 +11,10 @@ class TypeStructureKind(StrEnum):
     CALLABLE = "callable"
     NONE = "none"
     UNKNOWN = "unknown"
+    ATTRIBUTE = "attribute"
+    TUPLE = "tuple"
+    ARRAY = "array"
+    DICTIONARY = "dictionary"
 
 
 class NoneStructureAnalysis(BaseModel):
@@ -24,3 +28,7 @@ class NameStructureAnalysis(BaseModel):
 
 class UnknownStructureAnalysis(BaseModel):
     kind: TypeStructureKind = TypeStructureKind.UNKNOWN
+
+
+class LiteralValue(BaseModel):
+    value: str | int | bool
