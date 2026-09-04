@@ -8,15 +8,15 @@ from griffe import (
     ExprDict,
     ExprList,
     ExprName,
+    ExprSet,
     ExprSubscript,
     ExprTuple,
 )
-from gyomu_python_analysis.analysis.analyzers.expression.name import (
-    analyze_expression_name,
-)
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
+    NameStructureAnalysis,
     NoneStructureAnalysis,
+    TypeStructureKind,
     UnknownStructureAnalysis,
 )
 from gyomu_schema.schemas.python.type.type_analysis import (
@@ -25,9 +25,10 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     CallableStructureAnalysis,
     DictionaryStructureAnalysis,
     ExpressionAnalysis,
+    GenericsStructureAnalysis,
     LiteralStructureAnalysis,
+    SetStructureAnalysis,
     TupleStructureAnalysis,
-    TypeAnalysis,
     TypeExpression,
     UnionStructureAnalysis,
 )
@@ -48,6 +49,8 @@ def analyze_expression(expression: Expr) -> ExpressionAnalysis:
         return analyze_array(expression)
     if isinstance(expression, ExprDict):
         return analyze_dictionary(expression)
+    if isinstance(expression, ExprSet):
+        return analyze_set(expression)
 
     else:
         print(f"Unsupported expression type: {type(expression)}")
@@ -83,7 +86,7 @@ def _analyze_expression_attribute(
             [
                 analyzed
                 for value in expression.values
-                if (analyzed := _analyze_type_internal(value)) is not None
+                if (analyzed := analyze_type_expression(value)) is not None
             ]
         )
     )
@@ -108,37 +111,40 @@ def _analyze_expression_binary_operation(
         case "|":
             return _analyze_union(expression)
         case _:
-            print(f"Unsupported expression type: {type(expression)}")
+            print(f"Unsupported operation: {type(expression)}")
             print(expression.as_dict())
             return UnknownStructureAnalysis()
 
 
 def _analyze_union(expression: ExprBinOp) -> UnionStructureAnalysis:
-    left = expression.left
-    right = expression.right
-    types: list[TypeAnalysis] = []
+    types: list[TypeExpression] = []
 
-    analyze_left = _analyze_type_internal(left)
-    if analyze_left is not None:
-        types.append(analyze_left)
-    analyze_right = _analyze_type_internal(right)
-    if analyze_right is not None:
-        types.append(analyze_right)
+    def append_union_types(value: str | Expr) -> None:
+        if isinstance(value, ExprBinOp) and value.operator == "|":
+            append_union_types(value.left)
+            append_union_types(value.right)
+            return
+
+        analyzed = analyze_type_expression(value)
+        types.append(analyzed)
+
+    append_union_types(expression)
+
     return UnionStructureAnalysis(
         types=tuple(types),
     )
 
 
-def _analyze_type_internal(annotation: str | Expr) -> TypeAnalysis:
-    if isinstance(annotation, str):
-        print(annotation)
-        if annotation == "None":
-            return TypeAnalysis(text=annotation, structure=NoneStructureAnalysis())
-        return TypeAnalysis(text=annotation)
-    if isinstance(annotation, Expr):
-        text = str(annotation)
-        print(annotation.as_dict())
-        return TypeAnalysis(text=text, structure=analyze_expression(annotation))
+# def _analyze_type_internal(annotation: str | Expr) -> TypeAnalysis:
+#     if isinstance(annotation, str):
+#         print(annotation)
+#         if annotation == "None":
+#             return TypeAnalysis(text=annotation, structure=NoneStructureAnalysis())
+#         return TypeAnalysis(text=annotation)
+#     if isinstance(annotation, Expr):
+#         text = str(annotation)
+#         print(annotation.as_dict())
+#         return TypeAnalysis(text=text, structure=analyze_expression(annotation))
 
 
 def analyze_subscript(expression: ExprSubscript) -> ExpressionAnalysis:
@@ -162,7 +168,23 @@ def analyze_subscript(expression: ExprSubscript) -> ExpressionAnalysis:
             return _analyze_dictionary_from_subscript(slice)
         elif left.name == "Callable":
             return _analyze_callable_from_subscript(slice)
+        elif left.name == "tuple":
+            return _analyze_tuple_from_subscript(slice)
+        elif left.name == "set":
+            return _analyze_set_from_subscript(slice)
 
+    param = analyze_type_expression(slice)
+    if not isinstance(param, LiteralValue):
+        parameters: list[TypeExpression] = []
+        if isinstance(param, TupleStructureAnalysis):
+            parameters = list(param.elements)
+        elif isinstance(param, NameStructureAnalysis):
+            parameters.append(param)
+        else:
+            parameters.append(param)
+        return GenericsStructureAnalysis(
+            base=analyze_type_expression(left), parameters=tuple(parameters)
+        )
     print(f"Unsupported expression type in subscript: {type(expression)}")
     print(expression.as_dict())
     return UnknownStructureAnalysis()
@@ -200,20 +222,20 @@ def _analyze_callable_from_subscript(slice: str | Expr) -> CallableStructureAnal
     assert len(slice.elements) == 2
     parameters_expression = slice.elements[0]
     if isinstance(parameters_expression, ExprList):
-        parameters: list[TypeAnalysis] = []
+        parameters: list[TypeExpression] = []
         for expression in parameters_expression.elements:
-            analyzed = _analyze_type_internal(expression)
+            analyzed = analyze_type_expression(expression)
             parameters.append(analyzed)
 
         return CallableStructureAnalysis(
             parameters=tuple(parameters),
-            return_type=_analyze_type_internal(slice.elements[1]),
+            return_type=analyze_type_expression(slice.elements[1]),
         )
     assert isinstance(parameters_expression, str)
     assert parameters_expression == "..."
     return CallableStructureAnalysis(
         parameters=None,
-        return_type=_analyze_type_internal(slice.elements[1]),
+        return_type=analyze_type_expression(slice.elements[1]),
     )
 
 
@@ -228,6 +250,9 @@ def analyze_literal(slice: str | Expr) -> LiteralStructureAnalysis:
 
 def analyze_type_expression(value: str | Expr) -> TypeExpression:
     if isinstance(value, str):
+        parsed = ast.literal_eval(value)
+        if parsed is None:
+            return NoneStructureAnalysis()
         return LiteralValue(value=parse_literal_value(value))
     return analyze_expression(value)
 
@@ -246,11 +271,60 @@ def parse_literal_value(value: str) -> str | int | bool:
     raise ValueError(f"Unsupported literal value: {value}")
 
 
+def _analyze_tuple_from_subscript(slice: str | Expr) -> TupleStructureAnalysis:
+    assert isinstance(slice, ExprTuple)
+
+    return analyze_tuple(slice)
+
+
 def analyze_tuple(expression: ExprTuple) -> TupleStructureAnalysis:
+    variable_length = False
+    elements: list[TypeExpression] = []
+
+    for value in expression.elements:
+        if value == "...":
+            variable_length = True
+            continue
+
+        analyzed = analyze_type_expression(value)
+        if analyzed is not None:
+            elements.append(analyzed)
+
     return TupleStructureAnalysis(
-        elements=[
-            analyzed
-            for value in expression.elements
-            if (analyzed := analyze_type_expression(value))
-        ]
+        elements=tuple(elements),
+        variable_length=variable_length,
+    )
+
+
+def _analyze_set_from_subscript(slice: str | Expr) -> SetStructureAnalysis:
+    return SetStructureAnalysis(element_type=analyze_type_expression(slice))
+
+
+def analyze_set(expression: ExprSet) -> SetStructureAnalysis:
+    return SetStructureAnalysis(
+        element_type=analyze_type_expression(expression.elements[0])
+    )
+
+
+def analyze_expression_name(
+    expression: ExprName,
+) -> NameStructureAnalysis | NoneStructureAnalysis:
+    # print(
+    #     dict(
+    #         name=expression.name,
+    #         member=expression.member,
+    #         path=expression.path,
+    #         canonical_name=expression.canonical_name,
+    #         is_enum_class=expression.is_enum_class,
+    #         is_enum_instance=expression.is_enum_instance,
+    #         is_enum_value=expression.is_enum_value,
+    #         is_type_parameter=expression.is_type_parameter,
+    #     )
+    # )
+    if expression.name == "None":
+        return NoneStructureAnalysis(
+            kind=TypeStructureKind.NONE,
+        )
+    return NameStructureAnalysis(
+        name=expression.name,
     )

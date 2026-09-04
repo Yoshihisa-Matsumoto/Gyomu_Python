@@ -1,32 +1,32 @@
 from enum import StrEnum
 
-from gyomu_schema.schemas.python.location import SourceLocation
 from pydantic import BaseModel
 
+from gyomu_schema.schemas.python.location import SourceLocation
 
-class DocstringParameter(BaseModel):
+
+class DocstringSectionKind(StrEnum):
+    ARGS = "args"
+    RETURNS = "returns"
+    RAISES = "raises"
+    EXAMPLES = "examples"
+    NOTES = "notes"
+    CUSTOM = "custom"
+    GYOMU_CONTEXT = "gyomu_context"
+
+
+class DocstringSection(BaseModel):
+    kind: DocstringSectionKind
     name: str
-    description: str
+    value: str
 
 
-class DocstringReturns(BaseModel):
-    description: str
-
-
-class DocstringRaise(BaseModel):
-    name: str
-    description: str
+class DocstringStyle(StrEnum):
+    GOOGLE = "google"
 
 
 class DocstringAnalysis(BaseModel):
     raw: str
-    summary: str | None
-    description: str | None
+    style: DocstringStyle
     location: SourceLocation
-    parameters: tuple[DocstringParameter, ...]
-    returns: DocstringReturns | None
-    raises: tuple[DocstringRaise, ...]
-
-
-class DocstringFormat(StrEnum):
-    GOOGLE = "google"
+    sections: tuple[DocstringSection, ...]

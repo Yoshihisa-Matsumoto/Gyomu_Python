@@ -2,6 +2,12 @@ from griffe import Attribute
 from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.type.structure import (
+    NameStructureAnalysis,
+)
+from gyomu_schema.schemas.python.type.type_analysis import (
+    TypeAnalysis,
+)
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
@@ -95,7 +101,9 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.kind == SymbolKind.VARIABLE
         assert result.name == "ANNOTATED"
         assert result.visibility == Visibility.PUBLIC
-        assert result.type is None
+        assert result.type == TypeAnalysis(
+            text="int", structure=NameStructureAnalysis(name="int")
+        )
         assert result.value_source is None
 
     def test_analyzes_variable_expression(self) -> None:

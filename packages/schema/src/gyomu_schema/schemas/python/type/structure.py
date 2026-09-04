@@ -15,6 +15,7 @@ class TypeStructureKind(StrEnum):
     TUPLE = "tuple"
     ARRAY = "array"
     DICTIONARY = "dictionary"
+    SET = "set"
 
 
 class NoneStructureAnalysis(BaseModel):

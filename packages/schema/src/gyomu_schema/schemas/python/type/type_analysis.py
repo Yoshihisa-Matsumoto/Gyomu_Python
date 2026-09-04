@@ -18,27 +18,32 @@ from gyomu_schema.schemas.python.type.structure import (
 class TypeAnalysis(BaseModel):
     text: str
     structure: ExpressionAnalysis | None = None
-    generics: tuple[GenericsParameter, ...] | None = None
 
 
-class GenericsParameter(BaseModel):
-    name: str
-    type: TypeAnalysis | None = None
+# class GenericsParameter(BaseModel):
+#     name: str
+#     type: TypeAnalysis | None = None
 
 
 class UnionStructureAnalysis(BaseModel):
     kind: Literal[TypeStructureKind.UNION] = TypeStructureKind.UNION
-    types: tuple[TypeAnalysis, ...]
+    types: tuple[TypeExpression, ...]
 
 
 class AttributeStructureAnalysis(BaseModel):
     kind: TypeStructureKind = TypeStructureKind.ATTRIBUTE
-    values: tuple[TypeAnalysis, ...]
+    values: tuple[TypeExpression, ...]
 
 
 class TupleStructureAnalysis(BaseModel):
     kind: TypeStructureKind = TypeStructureKind.TUPLE
     elements: Sequence[TypeExpression]
+    variable_length: bool = False
+
+
+class SetStructureAnalysis(BaseModel):
+    kind: TypeStructureKind = TypeStructureKind.SET
+    element_type: TypeExpression
 
 
 class LiteralStructureAnalysis(BaseModel):
@@ -59,8 +64,14 @@ class DictionaryStructureAnalysis(BaseModel):
 
 class CallableStructureAnalysis(BaseModel):
     kind: TypeStructureKind = TypeStructureKind.CALLABLE
-    parameters: tuple[TypeAnalysis, ...] | None
-    return_type: TypeAnalysis
+    parameters: tuple[TypeExpression, ...] | None
+    return_type: TypeExpression
+
+
+class GenericsStructureAnalysis(BaseModel):
+    kind: TypeStructureKind = TypeStructureKind.GENERIC
+    base: TypeExpression
+    parameters: tuple[TypeExpression, ...]
 
 
 type ExpressionAnalysis = (
@@ -69,12 +80,13 @@ type ExpressionAnalysis = (
     | UnionStructureAnalysis
     | AttributeStructureAnalysis
     | TupleStructureAnalysis
-    # | GenericStructureAnalysis
+    | GenericsStructureAnalysis
     | LiteralStructureAnalysis
     | ArrayStructureAnalysis
     | DictionaryStructureAnalysis
     | CallableStructureAnalysis
     | UnknownStructureAnalysis
+    | SetStructureAnalysis
 )
 
 type TypeExpression = LiteralValue | ExpressionAnalysis

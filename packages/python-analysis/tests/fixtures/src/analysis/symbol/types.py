@@ -25,3 +25,13 @@ value_literal_bool: Literal[True]
 value_literal_bool2: Literal[True, False, Color.RED]
 value_callable: Callable[[Exception], bool]
 value_callable2: Callable[[str, bool, dict[str, str]], list[str]]
+# Tuple
+value_tuple2: tuple[str, int]
+value_tuple_nested: tuple[str, tuple[int, bool]]
+value_tuple_nested2: tuple[str, tuple[int, ...]]
+value_tuple_empty: tuple[()]
+value_tuple_nested3: tuple[tuple[int, ...], ...]
+
+# Set
+value_set: set[str]
+value_set_nested: set[tuple[str, int]]
