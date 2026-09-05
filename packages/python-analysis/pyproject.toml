@@ -9,6 +9,7 @@ dependencies = [
     "gyomu-infra",
     "returns>=0.29.0",
     "griffelib>=2.2.0",
+    "docstring-parser>=0.18.0",
 ]
 
 [build-system]

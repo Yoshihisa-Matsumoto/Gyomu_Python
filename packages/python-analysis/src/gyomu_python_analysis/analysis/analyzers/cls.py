@@ -1,4 +1,5 @@
 from griffe import Attribute, Class, Function
+from gyomu_python_analysis.analysis.analyzers.docstring import analyze_docstring
 from gyomu_python_analysis.analysis.analyzers.functions import (
     _get_function_parameter_kind,
 )
@@ -59,14 +60,18 @@ def _build_class_variable_analysis(
     parent_location: SourceLocation | None,
     source_lines: list[str],
 ) -> ClassVariableAnalysis:
+    variable_common = build_member_common(
+        symbol=member,
+        name=name,
+        parent_location=parent_location,
+        source_lines=source_lines,
+    )
     return ClassVariableAnalysis(
-        **build_member_common(
-            symbol=member,
-            name=name,
-            parent_location=parent_location,
+        **variable_common,
+        docstring=analyze_docstring(
+            member.docstring,
             source_lines=source_lines,
         ),
-        docstring=None,
         decorators=tuple([]),
         kind=MemberKind.VARIABLE,
         type=analyze_type(member.annotation),
@@ -90,15 +95,19 @@ def _build_class_method_analysis(
                 default=None,
             )
         )
+    method_common = build_member_common(
+        symbol=member,
+        name=name,
+        parent_location=parent_location,
+        source_lines=source_lines,
+    )
     return MethodAnalysis(
-        **build_member_common(
-            symbol=member,
-            name=name,
-            parent_location=parent_location,
+        **method_common,
+        kind=MemberKind.METHOD,
+        docstring=analyze_docstring(
+            member.docstring,
             source_lines=source_lines,
         ),
-        kind=MemberKind.METHOD,
-        docstring=None,
         decorators=tuple([]),
         parameters=tuple(method_parameters),
         return_type=None,
@@ -163,14 +172,18 @@ def analyze_class(
     )
 
     # pprint(cls.as_dict())
+    cls_common = build_symbol_common(
+        symbol=cls,
+        name=name,
+        source_lines=source_lines,
+    )
     return ClassAnalysis(
-        **build_symbol_common(
-            symbol=cls,
-            name=name,
+        **cls_common,
+        kind=SymbolKind.CLASS,
+        docstring=analyze_docstring(
+            cls.docstring,
             source_lines=source_lines,
         ),
-        kind=SymbolKind.CLASS,
-        docstring=None,
         decorators=tuple([]),
         dependencies=[],
         variables=tuple(parameters),

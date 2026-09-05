@@ -1,9 +1,9 @@
-from griffe import Object
+from griffe import Docstring, Object
 from gyomu_schema.schemas.python.location import SourceLocation
 
 
 def calculate_symbol_location(
-    symbol: Object,
+    symbol: Object | Docstring,
     source_lines: list[str],
 ) -> SourceLocation:
     # source_full_path = project.project_root / project.source_root / source_file.path
@@ -43,3 +43,10 @@ def calculate_member_location(
     ):
         return None
     return location
+
+
+def calculate_docstring_location(
+    doc: Docstring,
+    source_lines: list[str],
+) -> SourceLocation:
+    return calculate_symbol_location(symbol=doc, source_lines=source_lines)

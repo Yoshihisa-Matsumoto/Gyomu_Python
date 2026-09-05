@@ -69,18 +69,18 @@ def analyze_expression_constant(expression: ExprConstant) -> TypeExpression:
 def _analyze_expression_attribute(
     expression: ExprAttribute,
 ) -> AttributeStructureAnalysis:
-    print(
-        dict(
-            canonical_path=expression.canonical_path,
-            values=expression.values,
-            path=expression.path,
-            canonical_name=expression.canonical_name,
-            is_classvar=expression.is_classvar,
-            is_generator=expression.is_generator,
-            is_iterator=expression.is_iterator,
-            is_tuple=expression.is_tuple,
-        )
-    )
+    # print(
+    #     dict(
+    #         canonical_path=expression.canonical_path,
+    #         values=expression.values,
+    #         path=expression.path,
+    #         canonical_name=expression.canonical_name,
+    #         is_classvar=expression.is_classvar,
+    #         is_generator=expression.is_generator,
+    #         is_iterator=expression.is_iterator,
+    #         is_tuple=expression.is_tuple,
+    #     )
+    # )
     return AttributeStructureAnalysis(
         values=tuple(
             [
@@ -148,7 +148,7 @@ def _analyze_union(expression: ExprBinOp) -> UnionStructureAnalysis:
 
 
 def analyze_subscript(expression: ExprSubscript) -> ExpressionAnalysis:
-    print(expression.as_dict())
+    # print(expression.as_dict())
     # print(f"canonical_name  : {expression.canonical_name}")
     # print(f"canonical_path  : {expression.canonical_path}")
     # print(f"classname : {expression.classname}")

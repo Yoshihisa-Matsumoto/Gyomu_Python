@@ -1,4 +1,5 @@
 from griffe import Attribute
+from gyomu_python_analysis.analysis.analyzers.docstring import analyze_docstring
 from gyomu_python_analysis.analysis.analyzers.internal.common import build_symbol_common
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
@@ -12,14 +13,18 @@ def analyze_variable(
 ) -> VariableAnalysis:
     print(variable.as_dict())
     print(name)
+    variable_common = build_symbol_common(
+        symbol=variable,
+        name=name,
+        source_lines=source_lines,
+    )
     return VariableAnalysis(
-        **build_symbol_common(
-            symbol=variable,
-            name=name,
+        **variable_common,
+        kind=SymbolKind.VARIABLE,
+        docstring=analyze_docstring(
+            variable.docstring,
             source_lines=source_lines,
         ),
-        kind=SymbolKind.VARIABLE,
-        docstring=None,
         decorators=tuple([]),
         dependencies=[],
         type=analyze_type(variable.annotation),

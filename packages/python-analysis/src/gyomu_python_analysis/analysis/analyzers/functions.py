@@ -1,5 +1,6 @@
 from griffe import Function
 from griffe import ParameterKind as GriffeParameterKind
+from gyomu_python_analysis.analysis.analyzers.docstring import analyze_docstring
 from gyomu_python_analysis.analysis.analyzers.internal.common import build_symbol_common
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
@@ -37,14 +38,18 @@ def analyze_function(
             )
         )
     # pprint(func.as_dict())
+    func_common = build_symbol_common(
+        symbol=func,
+        name=name,
+        source_lines=source_lines,
+    )
     return FunctionAnalysis(
-        **build_symbol_common(
-            symbol=func,
-            name=name,
+        **func_common,
+        kind=SymbolKind.FUNCTION,
+        docstring=analyze_docstring(
+            func.docstring,
             source_lines=source_lines,
         ),
-        kind=SymbolKind.FUNCTION,
-        docstring=None,
         decorators=tuple([]),
         dependencies=[],
         parameters=tuple(parameters),

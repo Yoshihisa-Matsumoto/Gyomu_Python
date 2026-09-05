@@ -834,6 +834,7 @@ dev = [
 name = "gyomu-python-analysis"
 source = { editable = "packages/python-analysis" }
 dependencies = [
+    { name = "docstring-parser" },
     { name = "griffelib" },
     { name = "gyomu-infra" },
     { name = "gyomu-schema" },
@@ -842,6 +843,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "docstring-parser", specifier = ">=0.18.0" },
     { name = "griffelib", specifier = ">=2.2.0" },
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-schema", editable = "packages/schema" },

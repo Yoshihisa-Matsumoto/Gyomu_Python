@@ -1,11 +1,13 @@
-from griffe import Object
+from griffe import Docstring, Object
 from gyomu_python_analysis.analysis.analyzers.internal.location import (
+    calculate_docstring_location,
     calculate_member_location,
     calculate_symbol_location,
 )
 from gyomu_python_analysis.analysis.analyzers.internal.visibility import (
     calculate_visibility,
 )
+from gyomu_schema.schemas.python.docstring import DocstringCommon
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.member_analysis import MemberCommon
 from gyomu_schema.schemas.python.symbol_base import SymbolCommon
@@ -44,4 +46,18 @@ def build_member_common(
         "location": location,
         "visibility": calculate_visibility(name),
         "indent": location.start_column if location is not None else None,
+    }
+
+
+def build_docstring_common(
+    doc: Docstring,
+    source_lines: list[str],
+) -> DocstringCommon:
+    location = calculate_docstring_location(
+        doc=doc,
+        source_lines=source_lines,
+    )
+    return {
+        "location": location,
+        "indent": location.start_column,
     }

@@ -3,6 +3,7 @@ from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.utility.returns import from_sync
 from returns.result import Failure, Result
 
+from gyomu_python_analysis.analysis.analyzers.docstring import analyze_docstring
 from gyomu_python_analysis.analysis.extract.symbols import extract_symbols
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.error.analysis import AnalysisError
@@ -28,7 +29,10 @@ def load_module_analysis(
             imports=symbols.imported,
             symbols=symbols.symbols,
             name=source_file.module.name,
-            docstring=None,
+            docstring=analyze_docstring(
+                source_file.module.docstring,
+                source_lines=source_lines,
+            ),
         )
 
     return from_sync(
