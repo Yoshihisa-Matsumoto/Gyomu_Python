@@ -1,8 +1,12 @@
-from griffe import Function
+from griffe import Attribute, Class, Function
+from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
 from gyomu_python_analysis.analysis.analyzers.docstring import (
     _extract_return_description,
 )
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
+from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
+from gyomu_python_analysis.analysis.load_module_analysis import load_module_analysis
+from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.docstring import (
     DocstringCustomSection,
     DocstringExamplesSection,
@@ -14,7 +18,10 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringSectionKind,
 )
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
+from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import PythonPath
+from gyomu_schema.schemas.python.variable import VariableAnalysis
+from returns.result import Failure
 
 from tests.helpers import AnalysisTestBase
 
@@ -65,6 +72,63 @@ class TestAnalyzeDocstring(AnalysisTestBase):
             source_lines=source_lines,
         )
         return result
+
+    def _analyze_class(self, file_name: str, name: str) -> ClassAnalysis:
+        context = self._read_module_fixture(
+            PythonPath(f"analysis.docstring.{file_name}")
+        )
+        module = context.source.module
+        cls = module[name]
+
+        assert isinstance(cls, Class)
+
+        source_full_path = (
+            context.project.project_root
+            / context.project.source_root
+            / context.source.path
+        )
+        source_lines = source_full_path.read_text(
+            encoding="utf-8",
+        ).splitlines()
+        result = analyze_class(
+            cls=cls,
+            name=name,
+            source_lines=source_lines,
+        )
+        return result
+
+    def _analyze_variable(self, file_name: str, name: str) -> VariableAnalysis:
+        context = self._read_module_fixture(
+            PythonPath(f"analysis.docstring.{file_name}")
+        )
+        module = context.source.module
+        variable = module[name]
+
+        assert isinstance(variable, Attribute)
+
+        source_full_path = (
+            context.project.project_root
+            / context.project.source_root
+            / context.source.path
+        )
+        source_lines = source_full_path.read_text(
+            encoding="utf-8",
+        ).splitlines()
+        result = analyze_variable(
+            variable=variable,
+            name=name,
+            source_lines=source_lines,
+        )
+        return result
+
+    def _analyze_file(self, file_name: str) -> ModuleAnalysis:
+        module_path = PythonPath(f"analysis.docstring.{file_name}")
+        context = self._read_module_fixture(module_path)
+        result = load_module_analysis(context.project, module_path)
+        if isinstance(result, Failure):
+            raise result.failure()
+
+        return result.unwrap()
 
     def test_simple(self) -> None:
         func = self._analyze_function("01-simple", "basic")
@@ -382,4 +446,163 @@ class TestAnalyzeDocstring(AnalysisTestBase):
         assert gyomu_context.value == (
             "This function is used by the application workflow.\n"
             "It should only be called from the service layer."
+        )
+
+    def test_module(self) -> None:
+        module = self._analyze_file("12-module")
+        docstring = module.docstring
+        assert docstring is not None
+
+        assert docstring.summary == "User management module."
+        assert (
+            docstring.description
+            == "This module provides operations for creating and updating users."
+        )
+
+        assert len(docstring.sections) == 2
+
+        notes = docstring.sections[0]
+        assert isinstance(notes, DocstringNotesSection)
+        assert notes.value == ("User data is managed by the application service layer.")
+
+        gyomu_context = docstring.sections[1]
+        assert isinstance(gyomu_context, DocstringGyomuContextSection)
+        assert gyomu_context.value == (
+            "This module belongs to the user synchronization workflow.\n"
+            "It should only be used by the application service layer."
+        )
+
+    def test_class(self) -> None:
+        cls = self._analyze_class(
+            "13-class",
+            "User",
+        )
+
+        # Class docstring
+        assert cls.docstring is not None
+        assert cls.docstring.indent == 4
+        assert cls.docstring.location.start_line == 2
+        assert cls.docstring.location.start_column == 4
+        assert cls.docstring.location.end_line == 12
+        assert cls.docstring.location.end_column == 7
+        assert cls.docstring.summary == "User model."
+        assert (
+            cls.docstring.description
+            == "This class represents a user in the application."
+        )
+
+        assert len(cls.docstring.sections) == 2
+
+        notes = cls.docstring.sections[0]
+        assert isinstance(notes, DocstringNotesSection)
+        assert notes.value == (
+            "User instances are managed by the application service layer."
+        )
+
+        gyomu_context = cls.docstring.sections[1]
+        assert isinstance(gyomu_context, DocstringGyomuContextSection)
+        assert gyomu_context.value == (
+            "This class is used by the user synchronization workflow.\n"
+            "It should only be created by the application service layer."
+        )
+
+        # Methods
+        assert len(cls.methods) == 3
+
+        init = next(method for method in cls.methods if method.name == "__init__")
+        assert init.docstring is not None
+        assert init.docstring.location.start_line == 25
+        assert init.docstring.location.start_column == 8
+        assert init.docstring.location.end_line == 33
+        assert init.docstring.location.end_column == 11
+        print(init.docstring.location)
+        assert init.docstring.summary == "Initialize a user."
+        assert init.docstring.description is None
+
+        activate = next(method for method in cls.methods if method.name == "activate")
+        assert activate.docstring is not None
+        assert activate.docstring.indent == 8
+        assert activate.docstring.location.start_line == 38
+        assert activate.docstring.location.start_column == 8
+        assert activate.docstring.location.end_line == 47
+        assert activate.docstring.location.end_column == 11
+        assert activate.docstring.summary == "Activate the user."
+        assert activate.docstring.description == "This method marks the user as active."
+
+        deactivate = next(
+            method for method in cls.methods if method.name == "deactivate"
+        )
+        assert deactivate.docstring is not None
+        assert deactivate.docstring.indent == 8
+        assert deactivate.docstring.location.start_line == 51
+        assert deactivate.docstring.location.start_column == 8
+        assert deactivate.docstring.location.end_line == 57
+        assert deactivate.docstring.location.end_column == 11
+        assert deactivate.docstring.summary == "Deactivate the user."
+        assert (
+            deactivate.docstring.description
+            == "This method marks the user as inactive."
+        )
+
+        # Variables
+        assert len(cls.variables) == 2
+
+        name = next(variable for variable in cls.variables if variable.name == "name")
+        assert name.docstring is not None
+        assert name.docstring.indent == 4
+        assert name.docstring.location.start_line == 15
+        assert name.docstring.location.start_column == 4
+        assert name.docstring.location.end_line == 15
+        assert name.docstring.location.end_column == 26
+        assert name.docstring.summary == "The user's name."
+        assert name.docstring.description is None
+
+        active = next(
+            variable for variable in cls.variables if variable.name == "active"
+        )
+        assert active.docstring is not None
+        assert active.docstring.indent == 4
+        assert active.docstring.location.start_line == 18
+        assert active.docstring.location.start_column == 4
+        assert active.docstring.location.end_line == 18
+        assert active.docstring.location.end_column == 37
+        assert active.docstring.summary == "Whether the user is active."
+        assert active.docstring.description is None
+
+    def test_variable(self) -> None:
+        description = self._analyze_variable("14-variable", "description")
+        assert description.docstring is not None
+        assert description.docstring.summary == "Description of the user."
+        assert (
+            description.docstring.description
+            == "This variable contains the human-readable description."
+        )
+        assert description.docstring.indent == 0
+        assert description.docstring.location.start_line == 34
+        assert description.docstring.location.start_column == 0
+        assert description.docstring.location.end_line == 40
+        assert description.docstring.location.end_column == 3
+
+        assert len(description.docstring.sections) == 1
+
+        notes = description.docstring.sections[0]
+        assert isinstance(notes, DocstringNotesSection)
+        assert notes.value == "The description is displayed to users."
+
+        status = self._analyze_variable("14-variable", "status")
+        assert status.docstring is not None
+        assert status.docstring.summary == "Current user status."
+        assert status.docstring.description is None
+        assert status.docstring.indent == 0
+        assert status.docstring.location.start_line == 45
+        assert status.docstring.location.start_column == 0
+        assert status.docstring.location.end_line == 49
+        assert status.docstring.location.end_column == 3
+
+        assert len(status.docstring.sections) == 1
+
+        gyomu_context = status.docstring.sections[0]
+        assert isinstance(gyomu_context, DocstringGyomuContextSection)
+        assert (
+            gyomu_context.value == "This value is updated during user synchronization."
         )
