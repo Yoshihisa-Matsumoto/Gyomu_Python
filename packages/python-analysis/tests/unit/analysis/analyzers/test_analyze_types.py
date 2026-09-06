@@ -1,4 +1,5 @@
 from griffe import Attribute
+from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_schema.schemas.python.type.structure import (
@@ -23,11 +24,28 @@ from tests.helpers import AnalysisTestBase
 
 
 def test_analyze_type_returns_none_for_none() -> None:
-    assert analyze_type(None) is None
+    assert (
+        analyze_type(
+            None,
+            initialize_symbol_context(
+                imports=tuple(),
+                module_name=PythonPath(""),
+                name="test",
+            ),
+        )
+        is None
+    )
 
 
 def test_analyze_type_analyzes_none_string() -> None:
-    result = analyze_type("None")
+    result = analyze_type(
+        "None",
+        initialize_symbol_context(
+            imports=tuple(),
+            module_name=PythonPath(""),
+            name="test",
+        ),
+    )
 
     assert result is not None
     assert result.text == "None"
@@ -35,7 +53,14 @@ def test_analyze_type_analyzes_none_string() -> None:
 
 
 def test_analyze_type_preserves_string_annotation() -> None:
-    result = analyze_type("MyType")
+    result = analyze_type(
+        "MyType",
+        initialize_symbol_context(
+            imports=tuple(),
+            module_name=PythonPath(""),
+            name="test",
+        ),
+    )
 
     assert result is not None
     assert result.text == "MyType"
@@ -64,6 +89,11 @@ class TestAnalyzeType(AnalysisTestBase):
             variable=variable,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 

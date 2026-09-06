@@ -1,5 +1,6 @@
 from griffe import Attribute, Class
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
+from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.type.structure import NameStructureAnalysis
@@ -11,7 +12,8 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeType(AnalysisTestBase):
     def _analyze_class(self, class_name: str) -> ClassAnalysis:
-        context = self._read_module_fixture(PythonPath("analysis.types.name"))
+        module_name = PythonPath("analysis.types.name")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         cls = module[class_name]
 
@@ -29,11 +31,17 @@ class TestAnalyzeType(AnalysisTestBase):
             cls=cls,
             name=class_name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=class_name,
+            ),
         )
         return result
 
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        context = self._read_module_fixture(PythonPath("analysis.types.name"))
+        module_name = PythonPath("analysis.types.name")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         variable = module[name]
 
@@ -51,6 +59,11 @@ class TestAnalyzeType(AnalysisTestBase):
             variable=variable,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 

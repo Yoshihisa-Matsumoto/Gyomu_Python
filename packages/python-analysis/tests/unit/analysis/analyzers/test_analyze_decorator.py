@@ -1,5 +1,6 @@
 from griffe import Attribute, Class, Function
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
+from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
 from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_python_analysis.analysis.load_module_analysis import load_module_analysis
@@ -21,7 +22,8 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeDecorator(AnalysisTestBase):
     def _analyze_function(self, name: str) -> FunctionAnalysis:
-        context = self._read_module_fixture(PythonPath("analysis.symbol.decorator"))
+        module_name = PythonPath("analysis.symbol.decorator")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         func = module[name]
 
@@ -41,11 +43,17 @@ class TestAnalyzeDecorator(AnalysisTestBase):
             func=func,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 
     def _analyze_class(self, name: str) -> ClassAnalysis:
-        context = self._read_module_fixture(PythonPath("analysis.symbol.decorator"))
+        module_name = PythonPath("analysis.symbol.decorator")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         cls = module[name]
 
@@ -65,11 +73,17 @@ class TestAnalyzeDecorator(AnalysisTestBase):
             cls=cls,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        context = self._read_module_fixture(PythonPath("analysis.symbol.decorator"))
+        module_name = PythonPath("analysis.symbol.decorator")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         variable = module[name]
 
@@ -87,6 +101,11 @@ class TestAnalyzeDecorator(AnalysisTestBase):
             variable=variable,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 

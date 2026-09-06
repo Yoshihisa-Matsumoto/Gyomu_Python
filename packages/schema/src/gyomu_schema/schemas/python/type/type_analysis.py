@@ -21,11 +21,6 @@ class TypeAnalysis(BaseModel):
     structure: ExpressionAnalysis | None = None
 
 
-# class GenericsParameter(BaseModel):
-#     name: str
-#     type: TypeAnalysis | None = None
-
-
 class UnionStructureAnalysis(BaseModel):
     kind: Literal[TypeStructureKind.UNION] = TypeStructureKind.UNION
     types: tuple[TypeExpression, ...]

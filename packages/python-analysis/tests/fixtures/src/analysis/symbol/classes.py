@@ -68,3 +68,8 @@ class Nested:
         class InnerMost:
             def __init__(self, value: int) -> None:
                 self.grandchild_value = value
+
+
+class TypeAlias:
+    type UserId = int
+    type UserList = list[UserId]

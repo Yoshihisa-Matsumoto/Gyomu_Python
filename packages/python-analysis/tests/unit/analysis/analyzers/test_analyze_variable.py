@@ -1,4 +1,5 @@
 from griffe import Attribute
+from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
@@ -8,7 +9,12 @@ from gyomu_schema.schemas.python.type.structure import (
 from gyomu_schema.schemas.python.type.type_analysis import (
     TypeAnalysis,
 )
-from gyomu_schema.schemas.python.types import PythonPath
+from gyomu_schema.schemas.python.types import (
+    DeclarationId,
+    DeclarationIdentity,
+    PythonPath,
+    SymbolId,
+)
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
 
@@ -17,7 +23,8 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeVariable(AnalysisTestBase):
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        context = self._read_module_fixture(PythonPath("analysis.symbol.variable"))
+        module_name = PythonPath("analysis.symbol.variable")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         variable = module[name]
 
@@ -35,6 +42,11 @@ class TestAnalyzeVariable(AnalysisTestBase):
             variable=variable,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 
@@ -66,7 +78,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
             name="VERSION",
             docstring=None,
             decorators=tuple(),
-            dependencies=[],
+            dependencies=tuple(),
             type=None,
             value_source="5",
             location=SourceLocation(
@@ -77,6 +89,10 @@ class TestAnalyzeVariable(AnalysisTestBase):
             ),
             visibility=Visibility.PUBLIC,
             indent=0,
+            identity=DeclarationIdentity(
+                symbol_id=SymbolId("analysis.symbol.variable::VERSION"),
+                declaration_id=DeclarationId("."),
+            ),
         )
 
         result = self._analyze_variable(

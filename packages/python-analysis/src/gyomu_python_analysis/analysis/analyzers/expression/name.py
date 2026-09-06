@@ -5,9 +5,11 @@ from gyomu_schema.schemas.python.type.structure import (
     TypeStructureKind,
 )
 
+from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
+
 
 def analyze_expression_name(
-    expression: ExprName,
+    expression: ExprName, context: SymbolContext
 ) -> NameStructureAnalysis | NoneStructureAnalysis:
     # print(
     #     dict(
@@ -21,6 +23,7 @@ def analyze_expression_name(
     #         is_type_parameter=expression.is_type_parameter,
     #     )
     # )
+
     if expression.name == "None":
         return NoneStructureAnalysis(
             kind=TypeStructureKind.NONE,

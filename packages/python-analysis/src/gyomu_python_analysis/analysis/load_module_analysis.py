@@ -3,6 +3,7 @@ from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.utility.returns import from_sync
 from returns.result import Failure, Result
 
+from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.docstring import analyze_docstring
 from gyomu_python_analysis.analysis.analyzers.internal.common import (
     build_docstring_common,
@@ -27,8 +28,10 @@ def load_module_analysis(
         source_full_path = context.project_root / context.source_root / source_file.path
         source_lines = source_full_path.read_text(encoding="utf-8").splitlines()
         symbols = extract_symbols(source_file=source_file, source_lines=source_lines)
+        module_name = PythonPath(source_file.module.path)
         return ModuleAnalysis(
             path=source_file.path,
+            module_name=module_name,
             imports=symbols.imported,
             symbols=symbols.symbols,
             name=source_file.module.name,
@@ -38,6 +41,11 @@ def load_module_analysis(
                     source_lines,
                     doc_common=build_docstring_common(
                         source_file.module.docstring, source_lines=source_lines
+                    ),
+                    context=initialize_symbol_context(
+                        imports=symbols.imported,
+                        module_name=module_name,
+                        name="",
                     ),
                 )
                 if source_file.module.docstring is not None

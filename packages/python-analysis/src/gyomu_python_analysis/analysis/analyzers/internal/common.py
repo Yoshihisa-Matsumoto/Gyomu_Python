@@ -5,6 +5,7 @@ from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.member_analysis import MemberCommon
 from gyomu_schema.schemas.python.symbol_base import SymbolCommon
 
+from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
 from gyomu_python_analysis.analysis.analyzers.decorator import analyze_decorators
 from gyomu_python_analysis.analysis.analyzers.docstring import analyze_docstring
 from gyomu_python_analysis.analysis.analyzers.internal.location import (
@@ -21,6 +22,7 @@ def build_symbol_common(
     symbol: Object,
     name: str,
     source_lines: list[str],
+    context: SymbolContext,
 ) -> SymbolCommon:
     location = calculate_symbol_location(
         symbol=symbol,
@@ -33,13 +35,16 @@ def build_symbol_common(
             doc_common=build_docstring_common(
                 symbol.docstring, source_lines=source_lines
             ),
+            context=context,
         )
         if symbol.docstring is not None
         else None
     )
     decorators: list[DecoratorAnalysis] = []
     if isinstance(symbol, Class | Function):
-        decorators = analyze_decorators(symbol.decorators, source_lines=source_lines)
+        decorators = analyze_decorators(
+            symbol.decorators, source_lines=source_lines, context=context
+        )
     return {
         "name": name,
         "location": location,
@@ -54,6 +59,7 @@ def build_member_common(
     symbol: Object,
     name: str,
     source_lines: list[str],
+    context: SymbolContext,
     parent_location: SourceLocation | None = None,
 ) -> MemberCommon:
     location = calculate_member_location(
@@ -68,13 +74,16 @@ def build_member_common(
             doc_common=build_docstring_common(
                 symbol.docstring, source_lines=source_lines
             ),
+            context=context,
         )
         if symbol.docstring is not None
         else None
     )
     decorators: list[DecoratorAnalysis] = []
     if isinstance(symbol, Function):
-        decorators = analyze_decorators(symbol.decorators, source_lines=source_lines)
+        decorators = analyze_decorators(
+            symbol.decorators, source_lines=source_lines, context=context
+        )
 
     return {
         "name": name,

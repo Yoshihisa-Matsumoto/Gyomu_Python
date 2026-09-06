@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, TypedDict
+
+from pydantic import BaseModel
 
 from gyomu_schema.schemas.python.member_analysis import MemberAnalysisBase, MemberKind
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
@@ -16,11 +18,31 @@ class ClassVariableAnalysis(MemberAnalysisBase):
     pydantic: PydanticFieldAnalysis | None
 
 
-class ClassAnalysis(SymbolAnalysisBase):
-    kind: Literal[SymbolKind.CLASS]
+class ClassTypeAliasAnalysis(MemberAnalysisBase):
+    kind: Literal[MemberKind.TYPEALIAS]
+    alias_type: TypeAnalysis | None
 
+
+class ClassBase(BaseModel):
     bases: tuple[TypeAnalysis, ...]
     methods: tuple[MethodAnalysis, ...]
     variables: tuple[ClassVariableAnalysis, ...]
+    type_aliases: tuple[ClassTypeAliasAnalysis, ...]
 
-    inner_classes: tuple[ClassAnalysis, ...]
+    inner_classes: tuple[InnerClassAnalysis, ...]
+
+
+class ClassCommon(TypedDict):
+    bases: tuple[TypeAnalysis, ...]
+    methods: tuple[MethodAnalysis, ...]
+    variables: tuple[ClassVariableAnalysis, ...]
+    type_aliases: tuple[ClassTypeAliasAnalysis, ...]
+    inner_classes: tuple[InnerClassAnalysis, ...]
+
+
+class InnerClassAnalysis(MemberAnalysisBase, ClassBase):
+    kind: Literal[MemberKind.CLASS]
+
+
+class ClassAnalysis(SymbolAnalysisBase, ClassBase):
+    kind: Literal[SymbolKind.CLASS]

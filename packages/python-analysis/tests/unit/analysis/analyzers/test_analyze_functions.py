@@ -1,4 +1,5 @@
 from griffe import Function
+from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
@@ -11,7 +12,8 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeFunctions(AnalysisTestBase):
     def _analyze_function(self, name: str) -> FunctionAnalysis:
-        context = self._read_module_fixture(PythonPath("analysis.symbol.functions"))
+        module_name = PythonPath("analysis.symbol.functions")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         func = module[name]
 
@@ -29,6 +31,11 @@ class TestAnalyzeFunctions(AnalysisTestBase):
             func=func,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 
@@ -42,30 +49,31 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         assert result.name == "greet"
         assert result.visibility == Visibility.PUBLIC
 
+        # Identity
+        assert result.identity.symbol_id == "analysis.symbol.functions::greet"
+        assert result.identity.declaration_id == "."
+
         assert result.docstring is None
         assert result.decorators == ()
-        assert result.dependencies == []
+        assert result.dependencies == ()
 
-        assert result.parameters == (
-            ParameterAnalysis(
-                name="name",
-                kind=ParameterKind.POSITIONAL_OR_KEYWORD,
-                type=None,
-                default=None,
-            ),
-            ParameterAnalysis(
-                name="count",
-                kind=ParameterKind.POSITIONAL_OR_KEYWORD,
-                type=None,
-                default=None,
-            ),
-        )
+        assert [
+            (p.name, p.kind, p.default, p.type.text if p.type else None)
+            for p in result.parameters
+        ] == [
+            ("name", ParameterKind.POSITIONAL_OR_KEYWORD, None, "str"),
+            ("count", ParameterKind.POSITIONAL_OR_KEYWORD, None, "int"),
+        ]
 
         assert result.is_async is False
-        assert result.return_type == "str"
+        assert result.return_type.text if result.return_type else None == "str"
 
         function2 = self._analyze_function("test_async")
         assert function2.is_async is True
+
+        # Identity
+        assert function2.identity.symbol_id == "analysis.symbol.functions::test_async"
+        assert function2.identity.declaration_id == "."
 
     def test_analyzes_function_parameter_kinds(self) -> None:
 

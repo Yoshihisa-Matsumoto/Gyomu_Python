@@ -13,6 +13,7 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     TypeExpression,
 )
 
+from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
 from gyomu_python_analysis.analysis.analyzers.expression.expr import (
     analyze_type_expression,
 )
@@ -22,21 +23,19 @@ from gyomu_python_analysis.analysis.analyzers.internal.location import (
 
 
 def analyze_decorators(
-    decorators: list[Decorator],
-    source_lines: list[str],
+    decorators: list[Decorator], source_lines: list[str], context: SymbolContext
 ) -> list[DecoratorAnalysis]:
     returns: list[DecoratorAnalysis] = []
     for dec in decorators:
-        returns.append(analyze_decorator(dec, source_lines))
+        returns.append(analyze_decorator(dec, source_lines, context))
 
     return returns
 
 
 def analyze_decorator(
-    decorator: Decorator,
-    source_lines: list[str],
+    decorator: Decorator, source_lines: list[str], context: SymbolContext
 ) -> DecoratorAnalysis:
-    value = analyze_type_expression(decorator.value)
+    value = analyze_type_expression(decorator.value, context)
     name: str
     arguments: list[DecoratorArgument] = []
     if isinstance(value, LiteralValue):

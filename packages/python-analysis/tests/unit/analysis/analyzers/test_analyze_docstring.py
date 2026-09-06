@@ -1,5 +1,6 @@
 from griffe import Attribute, Class, Function
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
+from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.docstring import (
     _extract_return_description,
 )
@@ -50,9 +51,8 @@ class TestExtractReturnDescription:
 
 class TestAnalyzeDocstring(AnalysisTestBase):
     def _analyze_function(self, file_name: str, name: str) -> FunctionAnalysis:
-        context = self._read_module_fixture(
-            PythonPath(f"analysis.docstring.{file_name}")
-        )
+        module_name = PythonPath(f"analysis.docstring.{file_name}")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         func = module[name]
 
@@ -70,13 +70,17 @@ class TestAnalyzeDocstring(AnalysisTestBase):
             func=func,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 
     def _analyze_class(self, file_name: str, name: str) -> ClassAnalysis:
-        context = self._read_module_fixture(
-            PythonPath(f"analysis.docstring.{file_name}")
-        )
+        module_name = PythonPath(f"analysis.docstring.{file_name}")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         cls = module[name]
 
@@ -94,13 +98,17 @@ class TestAnalyzeDocstring(AnalysisTestBase):
             cls=cls,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 
     def _analyze_variable(self, file_name: str, name: str) -> VariableAnalysis:
-        context = self._read_module_fixture(
-            PythonPath(f"analysis.docstring.{file_name}")
-        )
+        module_name = PythonPath(f"analysis.docstring.{file_name}")
+        context = self._read_module_fixture(module_name)
         module = context.source.module
         variable = module[name]
 
@@ -118,6 +126,11 @@ class TestAnalyzeDocstring(AnalysisTestBase):
             variable=variable,
             name=name,
             source_lines=source_lines,
+            context=initialize_symbol_context(
+                imports=tuple(),
+                module_name=module_name,
+                name=name,
+            ),
         )
         return result
 

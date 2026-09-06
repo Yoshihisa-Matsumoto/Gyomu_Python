@@ -4,6 +4,7 @@ from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_schema.schemas.python.types import PythonPath, SourceRelativePath
 from returns.result import Failure, Success
+
 from tests.helpers import _create_context
 
 

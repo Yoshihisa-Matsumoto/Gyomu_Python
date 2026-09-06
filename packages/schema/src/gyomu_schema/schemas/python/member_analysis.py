@@ -6,12 +6,15 @@ from pydantic import BaseModel
 from gyomu_schema.schemas.python.decorator import DecoratorAnalysis
 from gyomu_schema.schemas.python.docstring import DocstringAnalysis
 from gyomu_schema.schemas.python.location import SourceLocation
+from gyomu_schema.schemas.python.types import DeclarationIdentity
 from gyomu_schema.schemas.python.visibility import Visibility
 
 
 class MemberKind(StrEnum):
     VARIABLE = "variable"
     METHOD = "method"
+    CLASS = "class"
+    TYPEALIAS = "typealias"
 
 
 class MemberAnalysisBase(BaseModel):
@@ -21,6 +24,7 @@ class MemberAnalysisBase(BaseModel):
     docstring: DocstringAnalysis | None
     decorators: tuple[DecoratorAnalysis, ...]
     indent: int | None
+    identity: DeclarationIdentity
 
 
 class MemberCommon(TypedDict):
