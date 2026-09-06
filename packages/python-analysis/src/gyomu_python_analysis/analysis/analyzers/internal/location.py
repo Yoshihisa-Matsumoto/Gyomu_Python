@@ -1,14 +1,14 @@
-from griffe import Docstring, Object
+from griffe import Decorator, Docstring, Object
 from gyomu_schema.schemas.python.location import SourceLocation
 
 
-def calculate_symbol_location(
-    symbol: Object | Docstring,
+def _calculate_location(
+    target: Object | Docstring | Decorator,
     source_lines: list[str],
 ) -> SourceLocation:
     # source_full_path = project.project_root / project.source_root / source_file.path
-    start_line_no = symbol.lineno
-    end_line_no = symbol.endlineno
+    start_line_no = target.lineno
+    end_line_no = target.endlineno
 
     assert start_line_no is not None
     assert end_line_no is not None
@@ -31,6 +31,13 @@ def calculate_symbol_location(
     )
 
 
+def calculate_symbol_location(
+    symbol: Object,
+    source_lines: list[str],
+) -> SourceLocation:
+    return _calculate_location(symbol, source_lines)
+
+
 def calculate_member_location(
     symbol: Object,
     source_lines: list[str],
@@ -49,4 +56,10 @@ def calculate_docstring_location(
     doc: Docstring,
     source_lines: list[str],
 ) -> SourceLocation:
-    return calculate_symbol_location(symbol=doc, source_lines=source_lines)
+    return _calculate_location(target=doc, source_lines=source_lines)
+
+
+def calculate_decorator_location(
+    decorator: Decorator, source_lines: list[str]
+) -> SourceLocation:
+    return _calculate_location(target=decorator, source_lines=source_lines)

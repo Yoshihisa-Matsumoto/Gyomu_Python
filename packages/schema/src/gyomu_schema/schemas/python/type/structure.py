@@ -16,6 +16,9 @@ class TypeStructureKind(StrEnum):
     ARRAY = "array"
     DICTIONARY = "dictionary"
     SET = "set"
+    KEYWORD = "keyword"
+    CALL = "call"
+    ELLIPSIS = "ellipsis"
 
 
 class NoneStructureAnalysis(BaseModel):
@@ -33,3 +36,7 @@ class UnknownStructureAnalysis(BaseModel):
 
 class LiteralValue(BaseModel):
     value: str | int | bool
+
+
+class EllipsisStructureAnalysis(BaseModel):
+    kind: TypeStructureKind = TypeStructureKind.ELLIPSIS

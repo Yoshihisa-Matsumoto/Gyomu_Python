@@ -28,3 +28,5 @@ class MemberCommon(TypedDict):
     location: SourceLocation | None
     visibility: Visibility
     indent: int | None
+    docstring: DocstringAnalysis | None
+    decorators: tuple[DecoratorAnalysis, ...]

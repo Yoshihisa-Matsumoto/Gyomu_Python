@@ -4,8 +4,10 @@ from griffe import (
     Expr,
     ExprAttribute,
     ExprBinOp,
+    ExprCall,
     ExprConstant,
     ExprDict,
+    ExprKeyword,
     ExprList,
     ExprName,
     ExprSet,
@@ -13,6 +15,7 @@ from griffe import (
     ExprTuple,
 )
 from gyomu_schema.schemas.python.type.structure import (
+    EllipsisStructureAnalysis,
     LiteralValue,
     NameStructureAnalysis,
     NoneStructureAnalysis,
@@ -23,9 +26,11 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     ArrayStructureAnalysis,
     AttributeStructureAnalysis,
     CallableStructureAnalysis,
+    CallStructureAnalysis,
     DictionaryStructureAnalysis,
     ExpressionAnalysis,
     GenericsStructureAnalysis,
+    KeywordStructureAnalysis,
     LiteralStructureAnalysis,
     SetStructureAnalysis,
     TupleStructureAnalysis,
@@ -51,6 +56,10 @@ def analyze_expression(expression: Expr) -> ExpressionAnalysis:
         return analyze_dictionary(expression)
     if isinstance(expression, ExprSet):
         return analyze_set(expression)
+    if isinstance(expression, ExprKeyword):
+        return _analyze_keyword(expression)
+    if isinstance(expression, ExprCall):
+        return _analyze_call(expression)
 
     else:
         print(f"Unsupported expression type: {type(expression)}")
@@ -253,6 +262,8 @@ def analyze_type_expression(value: str | Expr) -> TypeExpression:
         parsed = ast.literal_eval(value)
         if parsed is None:
             return NoneStructureAnalysis()
+        if parsed is Ellipsis:
+            return EllipsisStructureAnalysis()
         return LiteralValue(value=parse_literal_value(value))
     return analyze_expression(value)
 
@@ -328,3 +339,20 @@ def analyze_expression_name(
     return NameStructureAnalysis(
         name=expression.name,
     )
+
+
+def _analyze_keyword(expression: ExprKeyword) -> KeywordStructureAnalysis:
+    name = expression.name
+    value = analyze_type_expression(expression.value)
+    return KeywordStructureAnalysis(name=name, value=value)
+
+
+def _analyze_call(expression: ExprCall) -> CallStructureAnalysis:
+    func = analyze_expression(expression.function)
+    arguments: list[TypeExpression] = []
+
+    for value in expression.arguments:
+        analyzed = analyze_type_expression(value)
+        arguments.append(analyzed)
+
+    return CallStructureAnalysis(function=func, arguments=tuple(arguments))

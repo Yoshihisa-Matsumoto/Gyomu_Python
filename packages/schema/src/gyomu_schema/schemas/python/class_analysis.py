@@ -4,7 +4,7 @@ from typing import Literal
 
 from gyomu_schema.schemas.python.member_analysis import MemberAnalysisBase, MemberKind
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
-from gyomu_schema.schemas.python.pydantic import PydanticModelAnalysis
+from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.symbol_base import SymbolAnalysisBase, SymbolKind
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
@@ -13,6 +13,7 @@ class ClassVariableAnalysis(MemberAnalysisBase):
     kind: Literal[MemberKind.VARIABLE]
     type: TypeAnalysis | None
     value_source: str | None
+    pydantic: PydanticFieldAnalysis | None
 
 
 class ClassAnalysis(SymbolAnalysisBase):
@@ -21,5 +22,5 @@ class ClassAnalysis(SymbolAnalysisBase):
     bases: tuple[TypeAnalysis, ...]
     methods: tuple[MethodAnalysis, ...]
     variables: tuple[ClassVariableAnalysis, ...]
-    pydantic: PydanticModelAnalysis | None
+
     inner_classes: tuple[ClassAnalysis, ...]

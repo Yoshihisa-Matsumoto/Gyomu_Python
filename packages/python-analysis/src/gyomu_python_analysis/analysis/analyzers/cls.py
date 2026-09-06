@@ -1,13 +1,4 @@
 from griffe import Attribute, Class, Function
-from gyomu_python_analysis.analysis.analyzers.docstring import analyze_docstring
-from gyomu_python_analysis.analysis.analyzers.functions import (
-    _get_function_parameter_kind,
-)
-from gyomu_python_analysis.analysis.analyzers.internal.common import (
-    build_member_common,
-    build_symbol_common,
-)
-from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassVariableAnalysis,
@@ -18,6 +9,15 @@ from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
+
+from gyomu_python_analysis.analysis.analyzers.functions import (
+    _get_function_parameter_kind,
+)
+from gyomu_python_analysis.analysis.analyzers.internal.common import (
+    build_member_common,
+    build_symbol_common,
+)
+from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 
 def _retrieve_constructor_location(
@@ -68,14 +68,10 @@ def _build_class_variable_analysis(
     )
     return ClassVariableAnalysis(
         **variable_common,
-        docstring=analyze_docstring(
-            member.docstring,
-            source_lines=source_lines,
-        ),
-        decorators=tuple([]),
         kind=MemberKind.VARIABLE,
         type=analyze_type(member.annotation),
         value_source=str(member.value) if member.value is not None else None,
+        pydantic=None,
     )
 
 
@@ -104,11 +100,6 @@ def _build_class_method_analysis(
     return MethodAnalysis(
         **method_common,
         kind=MemberKind.METHOD,
-        docstring=analyze_docstring(
-            member.docstring,
-            source_lines=source_lines,
-        ),
-        decorators=tuple([]),
         parameters=tuple(method_parameters),
         return_type=None,
         is_async="async" in member.labels,
@@ -177,18 +168,13 @@ def analyze_class(
         name=name,
         source_lines=source_lines,
     )
+
     return ClassAnalysis(
         **cls_common,
         kind=SymbolKind.CLASS,
-        docstring=analyze_docstring(
-            cls.docstring,
-            source_lines=source_lines,
-        ),
-        decorators=tuple([]),
         dependencies=[],
         variables=tuple(parameters),
         bases=tuple(bases),
         methods=tuple(methods),
-        pydantic=None,
         inner_classes=tuple(inner_classes),
     )

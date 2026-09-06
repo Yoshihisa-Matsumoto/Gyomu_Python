@@ -31,3 +31,5 @@ class SymbolCommon(TypedDict):
     location: SourceLocation
     visibility: Visibility
     indent: int
+    docstring: DocstringAnalysis | None
+    decorators: tuple[DecoratorAnalysis, ...]

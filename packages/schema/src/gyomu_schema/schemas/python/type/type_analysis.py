@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 # from gyomu_schema.schemas.python.type.generics import GenericsParameter
 from gyomu_schema.schemas.python.type.structure import (
+    EllipsisStructureAnalysis,
     LiteralValue,
     NameStructureAnalysis,
     NoneStructureAnalysis,
@@ -68,10 +69,22 @@ class CallableStructureAnalysis(BaseModel):
     return_type: TypeExpression
 
 
+class CallStructureAnalysis(BaseModel):
+    kind: TypeStructureKind = TypeStructureKind.CALL
+    function: ExpressionAnalysis
+    arguments: tuple[TypeExpression, ...]
+
+
 class GenericsStructureAnalysis(BaseModel):
     kind: TypeStructureKind = TypeStructureKind.GENERIC
     base: TypeExpression
     parameters: tuple[TypeExpression, ...]
+
+
+class KeywordStructureAnalysis(BaseModel):
+    kind: TypeStructureKind = TypeStructureKind.KEYWORD
+    name: str
+    value: TypeExpression
 
 
 type ExpressionAnalysis = (
@@ -87,6 +100,9 @@ type ExpressionAnalysis = (
     | CallableStructureAnalysis
     | UnknownStructureAnalysis
     | SetStructureAnalysis
+    | KeywordStructureAnalysis
+    | CallStructureAnalysis
+    | EllipsisStructureAnalysis
 )
 
 type TypeExpression = LiteralValue | ExpressionAnalysis

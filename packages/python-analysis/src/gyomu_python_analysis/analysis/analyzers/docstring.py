@@ -19,6 +19,7 @@ from griffe import (
 from gyomu_infra.logger import logger
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
+    DocstringCommon,
     DocstringCustomSection,
     DocstringExamplesSection,
     DocstringExamplesSectionItem,
@@ -37,9 +38,6 @@ from gyomu_schema.schemas.python.docstring import (
 
 _CUSTOM_SECTION_PATTERN = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9 _-]*):\s*$")
 
-from gyomu_python_analysis.analysis.analyzers.internal.common import (
-    build_docstring_common,
-)
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 
@@ -221,15 +219,11 @@ def parse_text_section(
 
 
 def analyze_docstring(
-    doc: Docstring | None,
-    source_lines: list[str],
+    doc: Docstring | None, source_lines: list[str], doc_common: DocstringCommon
 ) -> DocstringAnalysis | None:
     if doc is None:
         return None
-    doc_common = build_docstring_common(
-        doc=doc,
-        source_lines=source_lines,
-    )
+
     # print(doc.source)
     sections = doc.parse(parser="auto")
 
