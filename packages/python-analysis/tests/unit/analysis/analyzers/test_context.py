@@ -11,15 +11,12 @@ MODULE_NAME = PythonPath("gyomu_schema.schemas.python.user")
 
 def test_initialize_symbol_context() -> None:
     context = initialize_symbol_context(
-        imports=(),
         module_name=MODULE_NAME,
         name="User",
     )
 
     assert context.dependencies == []
-    assert context.dependency_names == set()
-    assert context.imports == ()
-    assert context.symbol_id == "gyomu_schema.schemas.python.user::User"
+    assert context.declaration.symbol_id == "gyomu_schema.schemas.python.user::User"
 
 
 def test_build_symbol_id() -> None:
@@ -57,7 +54,6 @@ def test_build_declaration_identity(
     expected_declaration_id: str,
 ) -> None:
     context = initialize_symbol_context(
-        imports=(),
         module_name=MODULE_NAME,
         name="User",
     )
@@ -67,5 +63,5 @@ def test_build_declaration_identity(
         member_path=member_path,
     )
 
-    assert result.symbol_id == context.symbol_id
+    assert result.symbol_id == context.declaration.symbol_id
     assert result.declaration_id == expected_declaration_id

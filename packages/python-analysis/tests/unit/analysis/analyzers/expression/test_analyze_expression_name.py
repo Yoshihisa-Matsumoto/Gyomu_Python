@@ -32,7 +32,6 @@ class TestAnalyzeType(AnalysisTestBase):
             name=class_name,
             source_lines=source_lines,
             context=initialize_symbol_context(
-                imports=tuple(),
                 module_name=module_name,
                 name=class_name,
             ),
@@ -60,7 +59,6 @@ class TestAnalyzeType(AnalysisTestBase):
             name=name,
             source_lines=source_lines,
             context=initialize_symbol_context(
-                imports=tuple(),
                 module_name=module_name,
                 name=name,
             ),

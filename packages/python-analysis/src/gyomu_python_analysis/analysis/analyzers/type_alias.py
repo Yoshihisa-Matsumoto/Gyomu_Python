@@ -22,7 +22,7 @@ def analyze_type_alias(
     return TypeAliasAnalysis(
         **alias_common,
         kind=SymbolKind.TYPEALIAS,
-        dependencies=tuple(context.dependencies),
+        dependencies=tuple(),
         alias_type=type,
         identity=build_declaration_identity(context, member_path),
     )

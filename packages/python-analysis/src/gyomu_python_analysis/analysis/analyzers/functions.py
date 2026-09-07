@@ -5,9 +5,7 @@ from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKi
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
 
 from gyomu_python_analysis.analysis.analyzers.context import (
-    MemberPath,
     SymbolContext,
-    build_declaration_identity,
 )
 from gyomu_python_analysis.analysis.analyzers.internal.common import build_symbol_common
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
@@ -31,7 +29,6 @@ def _get_function_parameter_kind(kind: GriffeParameterKind | None) -> ParameterK
 def analyze_function(
     func: Function, name: str, source_lines: list[str], context: SymbolContext
 ) -> FunctionAnalysis:
-    member_path: MemberPath = ()
     for dec in func.decorators:
         print(dec.as_dict())
     parameters: list[ParameterAnalysis] = []
@@ -52,9 +49,9 @@ def analyze_function(
     return FunctionAnalysis(
         **func_common,
         kind=SymbolKind.FUNCTION,
-        dependencies=tuple(context.dependencies),
+        dependencies=tuple([]),
         parameters=tuple(parameters),
         is_async="async" in func.labels,
         return_type=return_type,
-        identity=build_declaration_identity(context, member_path),
+        identity=context.declaration,
     )

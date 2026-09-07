@@ -28,7 +28,6 @@ def test_analyze_type_returns_none_for_none() -> None:
         analyze_type(
             None,
             initialize_symbol_context(
-                imports=tuple(),
                 module_name=PythonPath(""),
                 name="test",
             ),
@@ -41,7 +40,6 @@ def test_analyze_type_analyzes_none_string() -> None:
     result = analyze_type(
         "None",
         initialize_symbol_context(
-            imports=tuple(),
             module_name=PythonPath(""),
             name="test",
         ),
@@ -56,7 +54,6 @@ def test_analyze_type_preserves_string_annotation() -> None:
     result = analyze_type(
         "MyType",
         initialize_symbol_context(
-            imports=tuple(),
             module_name=PythonPath(""),
             name="test",
         ),
@@ -90,7 +87,6 @@ class TestAnalyzeType(AnalysisTestBase):
             name=name,
             source_lines=source_lines,
             context=initialize_symbol_context(
-                imports=tuple(),
                 module_name=module_name,
                 name=name,
             ),

@@ -71,7 +71,6 @@ class TestAnalyzeDocstring(AnalysisTestBase):
             name=name,
             source_lines=source_lines,
             context=initialize_symbol_context(
-                imports=tuple(),
                 module_name=module_name,
                 name=name,
             ),
@@ -99,7 +98,6 @@ class TestAnalyzeDocstring(AnalysisTestBase):
             name=name,
             source_lines=source_lines,
             context=initialize_symbol_context(
-                imports=tuple(),
                 module_name=module_name,
                 name=name,
             ),
@@ -127,7 +125,6 @@ class TestAnalyzeDocstring(AnalysisTestBase):
             name=name,
             source_lines=source_lines,
             context=initialize_symbol_context(
-                imports=tuple(),
                 module_name=module_name,
                 name=name,
             ),

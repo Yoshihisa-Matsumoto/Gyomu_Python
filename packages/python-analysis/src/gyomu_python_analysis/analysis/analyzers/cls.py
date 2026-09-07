@@ -325,6 +325,6 @@ def analyze_class(
         **base_common,
         **class_common,
         kind=SymbolKind.CLASS,
-        dependencies=tuple(context.dependencies),
-        identity=build_declaration_identity(context, member_path),
+        dependencies=tuple(),
+        identity=context.declaration,
     )

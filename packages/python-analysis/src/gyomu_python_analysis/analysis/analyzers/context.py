@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-from gyomu_schema.schemas.python.dependency import DependencyAnalysis
-from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
@@ -11,24 +9,28 @@ from gyomu_schema.schemas.python.types import (
 
 
 @dataclass
+class DependencyInformation:
+    source: DeclarationIdentity
+    target_name: str
+
+
+@dataclass
 class SymbolContext:
-    dependencies: list[DependencyAnalysis]
-    dependency_names: set[str]
-    imports: tuple[ImportAnalysis, ...]
-    symbol_id: SymbolId
+    dependencies: list[DependencyInformation]
+    declaration: DeclarationIdentity
 
 
 type MemberPath = tuple[str, ...]
 
 
-def initialize_symbol_context(
-    imports: tuple[ImportAnalysis, ...], module_name: PythonPath, name: str
-) -> SymbolContext:
+def initialize_symbol_context(module_name: PythonPath, name: str) -> SymbolContext:
+    symbol_id = build_symbol_id(module_name=module_name, name=name)
     return SymbolContext(
         dependencies=[],
-        dependency_names=set(),
-        imports=imports,
-        symbol_id=build_symbol_id(module_name=module_name, name=name),
+        declaration=DeclarationIdentity(
+            symbol_id=symbol_id,
+            declaration_id=_build_declaration_id(tuple()),
+        ),
     )
 
 
@@ -48,6 +50,6 @@ def build_declaration_identity(
     context: SymbolContext, member_path: MemberPath
 ) -> DeclarationIdentity:
     return DeclarationIdentity(
-        symbol_id=context.symbol_id,
+        symbol_id=context.declaration.symbol_id,
         declaration_id=_build_declaration_id(member_path),
     )

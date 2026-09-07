@@ -1,7 +1,8 @@
+from collections.abc import Hashable
 from pathlib import Path
 from typing import NewType
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 DirectoryRelativePath = NewType("DirectoryRelativePath", Path)
 
@@ -18,7 +19,7 @@ DeclarationId = NewType("DeclarationId", str)
 SymbolId = NewType("SymbolId", str)
 
 
-class DeclarationIdentity(BaseModel):
+class DeclarationIdentity(BaseModel, Hashable):
     """
     Gyomu Context:
         - symbol_id identifies the externally referenceable Symbol that owns the declaration.
@@ -53,3 +54,14 @@ class DeclarationIdentity(BaseModel):
 
     symbol_id: SymbolId
     declaration_id: DeclarationId
+
+    model_config = ConfigDict(frozen=True)
+
+    def __hash__(self) -> int:
+        return hash((self.symbol_id, self.declaration_id))
+
+
+def is_declaration_identity_equal(
+    a: DeclarationIdentity, b: DeclarationIdentity
+) -> bool:
+    return a.symbol_id == b.symbol_id and a.declaration_id == b.declaration_id

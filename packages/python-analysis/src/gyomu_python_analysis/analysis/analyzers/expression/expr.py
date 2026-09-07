@@ -39,11 +39,16 @@ from gyomu_schema.schemas.python.type.type_analysis import (
 )
 
 from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
+from gyomu_python_analysis.analysis.analyzers.dependency import register_dependency
 
 
-def analyze_expression(expression: Expr, context: SymbolContext) -> ExpressionAnalysis:
+def analyze_expression(
+    expression: Expr, context: SymbolContext, need_registration_dependency: bool = True
+) -> ExpressionAnalysis:
     if isinstance(expression, ExprName):
-        return analyze_expression_name(expression, context)
+        return analyze_expression_name(
+            expression, context, need_registration_dependency
+        )
     if isinstance(expression, ExprBinOp):
         return _analyze_expression_binary_operation(expression, context)
     if isinstance(expression, ExprSubscript):
@@ -96,11 +101,16 @@ def _analyze_expression_attribute(
     # )
     return AttributeStructureAnalysis(
         values=tuple(
-            [
-                analyzed
-                for value in expression.values
-                if (analyzed := analyze_type_expression(value, context)) is not None
-            ]
+            analyzed
+            for index, value in enumerate(expression.values)
+            if (
+                analyzed := analyze_type_expression(
+                    value,
+                    context,
+                    need_registration_dependency=index == 0,
+                )
+            )
+            is not None
         )
     )
 
@@ -276,7 +286,7 @@ def analyze_literal(
 
 
 def analyze_type_expression(
-    value: str | Expr, context: SymbolContext
+    value: str | Expr, context: SymbolContext, need_registration_dependency: bool = True
 ) -> TypeExpression:
     if isinstance(value, str):
         parsed = ast.literal_eval(value)
@@ -285,7 +295,7 @@ def analyze_type_expression(
         if parsed is Ellipsis:
             return EllipsisStructureAnalysis()
         return LiteralValue(value=parse_literal_value(value))
-    return analyze_expression(value, context)
+    return analyze_expression(value, context, need_registration_dependency)
 
 
 def parse_literal_value(value: str) -> str | int | bool:
@@ -344,7 +354,7 @@ def analyze_set(expression: ExprSet, context: SymbolContext) -> SetStructureAnal
 
 
 def analyze_expression_name(
-    expression: ExprName, context: SymbolContext
+    expression: ExprName, context: SymbolContext, need_registration_dependency: bool
 ) -> NameStructureAnalysis | NoneStructureAnalysis:
     # print(
     #     dict(
@@ -362,6 +372,8 @@ def analyze_expression_name(
         return NoneStructureAnalysis(
             kind=TypeStructureKind.NONE,
         )
+    if need_registration_dependency:
+        register_dependency(context.declaration, expression.name, context)
     return NameStructureAnalysis(
         name=expression.name,
     )

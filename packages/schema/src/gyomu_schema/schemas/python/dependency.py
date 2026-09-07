@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from gyomu_schema.schemas.python.types import DeclarationIdentity
+from gyomu_schema.schemas.python.types import DeclarationIdentity, SymbolId
 
 
 class DependencyKind(StrEnum):
@@ -15,12 +15,12 @@ class DependencyKind(StrEnum):
 
 class LocalFileDependency(BaseModel):
     scope: Literal["local-file"] = "local-file"
-    local_symbol_name: str
+    symbol_id: SymbolId
 
 
 class ImportedSymbolDependency(BaseModel):
     scope: Literal["import"] = "import"
-    local_symbol_name: str
+    symbol_id: SymbolId
 
 
 class DependencyAnalysis(BaseModel):

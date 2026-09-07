@@ -43,7 +43,6 @@ def load_module_analysis(
                         source_file.module.docstring, source_lines=source_lines
                     ),
                     context=initialize_symbol_context(
-                        imports=symbols.imported,
                         module_name=module_name,
                         name="",
                     ),
