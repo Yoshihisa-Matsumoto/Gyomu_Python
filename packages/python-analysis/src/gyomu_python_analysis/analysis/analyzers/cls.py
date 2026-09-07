@@ -1,4 +1,5 @@
 from griffe import Attribute, Class, Function, TypeAlias
+from gyomu_infra.logger import logger
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassCommon,
@@ -10,13 +11,18 @@ from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.member_analysis import MemberKind
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
+from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.type.structure import NameStructureAnalysis
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
 from gyomu_python_analysis.analysis.analyzers.context import (
     MemberPath,
     SymbolContext,
     build_declaration_identity,
+)
+from gyomu_python_analysis.analysis.analyzers.expression.expr import (
+    analyze_type_expression,
 )
 from gyomu_python_analysis.analysis.analyzers.functions import (
     _get_function_parameter_kind,
@@ -25,6 +31,7 @@ from gyomu_python_analysis.analysis.analyzers.internal.common import (
     build_member_common,
     build_symbol_common,
 )
+from gyomu_python_analysis.analysis.analyzers.pydantic import analyze_pydantic
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 
@@ -103,6 +110,7 @@ def _build_class_variables(
     source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
+    is_pydantic_base_class: bool,
 ) -> list[ClassVariableAnalysis]:
     variables: list[ClassVariableAnalysis] = []
     for member_name, member in cls.members.items():
@@ -115,6 +123,7 @@ def _build_class_variables(
                     source_lines=source_lines,
                     context=context,
                     member_path=member_path,
+                    is_pydantic_base_class=is_pydantic_base_class,
                 )
             )
     return variables
@@ -127,6 +136,7 @@ def _build_class_variable_analysis(
     source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
+    is_pydantic_base_class: bool,
 ) -> ClassVariableAnalysis:
     new_member_path = (*member_path, name)
     variable_common = build_member_common(
@@ -136,12 +146,33 @@ def _build_class_variable_analysis(
         source_lines=source_lines,
         context=context,
     )
+    variable_type = analyze_type(member.annotation, context)
+    value_expression = (
+        analyze_type_expression(member.value, context)
+        if member.value is not None
+        else None
+    )
+    pydantic: PydanticFieldAnalysis | None = None
+    logger.info(f"pydantic_base:{is_pydantic_base_class}")
+    if (
+        value_expression
+        and variable_type
+        and variable_type.structure
+        and is_pydantic_base_class
+    ):
+        print(repr(variable_type.structure))
+        print(repr(value_expression))
+        pydantic = analyze_pydantic(variable_type.structure, value_expression)
+
     return ClassVariableAnalysis(
         **variable_common,
         kind=MemberKind.VARIABLE,
-        type=analyze_type(member.annotation, context),
+        type=variable_type,
         value_source=str(member.value) if member.value is not None else None,
-        pydantic=None,
+        value_expression=analyze_type_expression(member.value, context)
+        if member.value is not None
+        else None,
+        pydantic=pydantic,
         identity=build_declaration_identity(
             context=context, member_path=new_member_path
         ),
@@ -228,6 +259,17 @@ def _build_inner_classes(
     return inner_classes
 
 
+def _is_pydantic_base_class(bases: list[TypeAnalysis]) -> bool:
+    for base in bases:
+        if (
+            isinstance(base.structure, NameStructureAnalysis)
+            and base.structure.name == "BaseModel"
+        ):
+            return True
+
+    return False
+
+
 def _analyze_class_common(
     cls: Class,
     name: str,
@@ -241,6 +283,8 @@ def _analyze_class_common(
         if (analyzed := analyze_type(base, context)) is not None
     ]
 
+    is_pydantic_base_class = _is_pydantic_base_class(bases)
+
     constructor_location: SourceLocation | None = _retrieve_constructor_location(
         cls, source_lines, context
     )
@@ -251,6 +295,7 @@ def _analyze_class_common(
         source_lines=source_lines,
         context=context,
         member_path=member_path,
+        is_pydantic_base_class=is_pydantic_base_class,
     )
 
     methods: list[MethodAnalysis] = _build_class_methods(

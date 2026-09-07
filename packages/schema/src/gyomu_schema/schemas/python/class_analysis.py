@@ -8,13 +8,14 @@ from gyomu_schema.schemas.python.member_analysis import MemberAnalysisBase, Memb
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.symbol_base import SymbolAnalysisBase, SymbolKind
-from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis, TypeExpression
 
 
 class ClassVariableAnalysis(MemberAnalysisBase):
     kind: Literal[MemberKind.VARIABLE]
     type: TypeAnalysis | None
     value_source: str | None
+    value_expression: TypeExpression | None
     pydantic: PydanticFieldAnalysis | None
 
 

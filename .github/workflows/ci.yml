@@ -36,7 +36,7 @@ jobs:
         run: uv run mypy packages/schema/src packages/infra/src
 
       - name: Test with coverage
-        run: uv run coverage run -m pytest
+        run: uv run pytest -n auto -m "not integration" --cov
 
       - name: Coverage report
         run: uv run coverage report --fail-under=90

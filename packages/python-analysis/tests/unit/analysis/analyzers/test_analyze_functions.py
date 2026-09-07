@@ -18,7 +18,7 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         func = module[name]
 
         assert isinstance(func, Function)
-
+        print(func.as_dict())
         source_full_path = (
             context.project.project_root
             / context.project.source_root
