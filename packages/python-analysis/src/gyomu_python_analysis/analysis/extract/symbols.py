@@ -67,13 +67,14 @@ def _extract_symbols_internal(
             continue
         # pprint(f"Extracting symbol: {symbol_name} ({type(symbol)})")
         # pprint(symbol.as_dict())
-        context = initialize_symbol_context(module_name=module_name, name=symbol_name)
+        context = initialize_symbol_context(
+            module_name=module_name, name=symbol_name, source_lines=source_lines
+        )
         if isinstance(symbol, Attribute):
             symbols.append(
                 analyze_variable(
                     variable=symbol,
                     name=symbol_name,
-                    source_lines=source_lines,
                     context=context,
                 )
             )
@@ -82,7 +83,6 @@ def _extract_symbols_internal(
                 analyze_function(
                     func=symbol,
                     name=symbol_name,
-                    source_lines=source_lines,
                     context=context,
                 )
             )
@@ -91,7 +91,6 @@ def _extract_symbols_internal(
                 analyze_class(
                     cls=symbol,
                     name=symbol_name,
-                    source_lines=source_lines,
                     context=context,
                 )
             )
@@ -101,7 +100,6 @@ def _extract_symbols_internal(
                 analyze_type_alias(
                     alias=symbol,
                     name=symbol_name,
-                    source_lines=source_lines,
                     context=context,
                 )
             )

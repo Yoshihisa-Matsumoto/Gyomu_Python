@@ -26,9 +26,15 @@ def load_module_analysis(
 
     def analyze_module() -> ModuleAnalysis:
         source_full_path = context.project_root / context.source_root / source_file.path
-        source_lines = source_full_path.read_text(encoding="utf-8").splitlines()
+        source_lines = source_full_path.read_text(encoding="utf-8").splitlines(
+            keepends=True
+        )
+
         symbols = extract_symbols(source_file=source_file, source_lines=source_lines)
         module_name = PythonPath(source_file.module.path)
+        module_context = initialize_symbol_context(
+            module_name=module_name, name="", source_lines=source_lines
+        )
         return ModuleAnalysis(
             path=source_file.path,
             module_name=module_name,
@@ -38,14 +44,10 @@ def load_module_analysis(
             docstring=(
                 analyze_docstring(
                     source_file.module.docstring,
-                    source_lines,
                     doc_common=build_docstring_common(
-                        source_file.module.docstring, source_lines=source_lines
+                        source_file.module.docstring, module_context
                     ),
-                    context=initialize_symbol_context(
-                        module_name=module_name,
-                        name="",
-                    ),
+                    context=module_context,
                 )
                 if source_file.module.docstring is not None
                 else None

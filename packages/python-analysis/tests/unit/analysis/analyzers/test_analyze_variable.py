@@ -1,6 +1,3 @@
-from griffe import Attribute
-from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
-from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
 from gyomu_schema.schemas.python.type.structure import (
@@ -23,49 +20,7 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeVariable(AnalysisTestBase):
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        module_name = PythonPath("analysis.symbol.variable")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        variable = module[name]
-
-        assert isinstance(variable, Attribute)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
-        )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_variable(
-            variable=variable,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
-
-    # def _create_variable(
-    #     self,
-    #     name: str,
-    # ) -> tuple[ProjectContext, SourceFileContext, Attribute]:
-    #     context = self._read_module_fixture(
-    #         PythonPath("analysis.symbol.variable"),
-    #     )
-    #     module = context.source.module
-    #     variable = module.members[name]
-
-    #     assert isinstance(variable, Attribute)
-
-    #     return (
-    #         context.project,
-    #         context.source,
-    #         variable,
-    #     )
+        return self._analyze_variable_base(PythonPath("analysis.symbol.variable"), name)
 
     def test_analyzes_public_variable(self) -> None:
         result = self._analyze_variable(
@@ -85,6 +40,8 @@ class TestAnalyzeVariable(AnalysisTestBase):
                 start_column=0,
                 end_line=1,
                 end_column=11,
+                start_offset=0,
+                end_offset=11,
             ),
             visibility=Visibility.PUBLIC,
             indent=0,

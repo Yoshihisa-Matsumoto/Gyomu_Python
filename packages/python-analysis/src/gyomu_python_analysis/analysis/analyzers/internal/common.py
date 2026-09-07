@@ -21,20 +21,13 @@ from gyomu_python_analysis.analysis.analyzers.internal.visibility import (
 def build_symbol_common(
     symbol: Object,
     name: str,
-    source_lines: list[str],
     context: SymbolContext,
 ) -> SymbolCommon:
-    location = calculate_symbol_location(
-        symbol=symbol,
-        source_lines=source_lines,
-    )
+    location = calculate_symbol_location(symbol=symbol, context=context)
     docstring = (
         analyze_docstring(
             symbol.docstring,
-            source_lines,
-            doc_common=build_docstring_common(
-                symbol.docstring, source_lines=source_lines
-            ),
+            doc_common=build_docstring_common(symbol.docstring, context=context),
             context=context,
         )
         if symbol.docstring is not None
@@ -42,9 +35,7 @@ def build_symbol_common(
     )
     decorators: list[DecoratorAnalysis] = []
     if isinstance(symbol, Class | Function):
-        decorators = analyze_decorators(
-            symbol.decorators, source_lines=source_lines, context=context
-        )
+        decorators = analyze_decorators(symbol.decorators, context=context)
     return {
         "name": name,
         "location": location,
@@ -58,22 +49,18 @@ def build_symbol_common(
 def build_member_common(
     symbol: Object,
     name: str,
-    source_lines: list[str],
     context: SymbolContext,
     parent_location: SourceLocation | None = None,
 ) -> MemberCommon:
     location = calculate_member_location(
         symbol=symbol,
-        source_lines=source_lines,
+        context=context,
         parent_location=parent_location,
     )
     docstring = (
         analyze_docstring(
             symbol.docstring,
-            source_lines,
-            doc_common=build_docstring_common(
-                symbol.docstring, source_lines=source_lines
-            ),
+            doc_common=build_docstring_common(symbol.docstring, context=context),
             context=context,
         )
         if symbol.docstring is not None
@@ -81,9 +68,7 @@ def build_member_common(
     )
     decorators: list[DecoratorAnalysis] = []
     if isinstance(symbol, Function):
-        decorators = analyze_decorators(
-            symbol.decorators, source_lines=source_lines, context=context
-        )
+        decorators = analyze_decorators(symbol.decorators, context=context)
 
     return {
         "name": name,
@@ -95,14 +80,8 @@ def build_member_common(
     }
 
 
-def build_docstring_common(
-    doc: Docstring,
-    source_lines: list[str],
-) -> DocstringCommon:
-    location = calculate_docstring_location(
-        doc=doc,
-        source_lines=source_lines,
-    )
+def build_docstring_common(doc: Docstring, context: SymbolContext) -> DocstringCommon:
+    location = calculate_docstring_location(doc=doc, context=context)
     return {
         "location": location,
         "indent": location.start_column,

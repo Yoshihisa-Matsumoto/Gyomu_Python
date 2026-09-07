@@ -1,7 +1,3 @@
-from griffe import Attribute, Class
-from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
-from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
-from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.type.structure import NameStructureAnalysis
 from gyomu_schema.schemas.python.types import PythonPath
@@ -12,58 +8,12 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeType(AnalysisTestBase):
     def _analyze_class(self, class_name: str) -> ClassAnalysis:
-        module_name = PythonPath("analysis.types.name")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        cls = module[class_name]
-
-        assert isinstance(cls, Class)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
+        return self._analyze_class_base(
+            file_name=PythonPath("analysis.types.name"), symbol_name=class_name
         )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_class(
-            cls=cls,
-            name=class_name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=class_name,
-            ),
-        )
-        return result
 
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        module_name = PythonPath("analysis.types.name")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        variable = module[name]
-
-        assert isinstance(variable, Attribute)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
-        )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_variable(
-            variable=variable,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
+        return self._analyze_variable_base(PythonPath("analysis.types.name"), name)
 
     def _check_name_analysis(self, variable: VariableAnalysis, expected_name: str):
         assert variable.type

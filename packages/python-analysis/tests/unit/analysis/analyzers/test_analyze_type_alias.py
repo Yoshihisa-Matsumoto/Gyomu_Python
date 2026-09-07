@@ -1,6 +1,3 @@
-from griffe import TypeAlias
-from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
-from gyomu_python_analysis.analysis.analyzers.type_alias import analyze_type_alias
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
 from gyomu_schema.schemas.python.type.structure import (
     NameStructureAnalysis,
@@ -22,31 +19,9 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeTypeAlias(AnalysisTestBase):
     def _analyze_typealias(self, name: str) -> TypeAliasAnalysis:
-        module_name = PythonPath("analysis.symbol.type_alias")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        alias = module[name]
-
-        assert isinstance(alias, TypeAlias)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
+        return self._analyze_typealias_bases(
+            PythonPath("analysis.symbol.type_alias"), name
         )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_type_alias(
-            alias=alias,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
 
     def test_analyzes_userid(self) -> None:
         result = self._analyze_typealias(

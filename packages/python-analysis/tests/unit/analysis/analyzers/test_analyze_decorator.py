@@ -1,9 +1,3 @@
-from griffe import Attribute, Class, Function
-from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
-from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
-from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
-from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
-from gyomu_python_analysis.analysis.load_module_analysis import load_module_analysis
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.decorator import DecoratorAnalysis, DecoratorArgument
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
@@ -15,105 +9,26 @@ from gyomu_schema.schemas.python.type.structure import (
 )
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
-from returns.result import Failure
 
 from tests.helpers import AnalysisTestBase
 
 
 class TestAnalyzeDecorator(AnalysisTestBase):
     def _analyze_function(self, name: str) -> FunctionAnalysis:
-        module_name = PythonPath("analysis.symbol.decorator")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        func = module[name]
-
-        assert isinstance(func, Function)
-
-        print(func.decorators)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
+        return self._analyze_function_base(
+            PythonPath("analysis.symbol.decorator"), name
         )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_function(
-            func=func,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
 
     def _analyze_class(self, name: str) -> ClassAnalysis:
-        module_name = PythonPath("analysis.symbol.decorator")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        cls = module[name]
-
-        assert isinstance(cls, Class)
-
-        print(cls.decorators)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
-        )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_class(
-            cls=cls,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
+        return self._analyze_class_base(PythonPath("analysis.symbol.decorator"), name)
 
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        module_name = PythonPath("analysis.symbol.decorator")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        variable = module[name]
-
-        assert isinstance(variable, Attribute)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
+        return self._analyze_variable_base(
+            PythonPath("analysis.symbol.decorator"), name
         )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_variable(
-            variable=variable,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
 
     def _analyze_file(self) -> ModuleAnalysis:
-        module_path = PythonPath("analysis.symbol.decorator")
-        context = self._read_module_fixture(module_path)
-        result = load_module_analysis(context.project, module_path)
-        if isinstance(result, Failure):
-            raise result.failure()
-
-        return result.unwrap()
+        return self._analyze_module_base(PythonPath("analysis.symbol.decorator"))
 
     def test_class_method(self):
         func = self._analyze_function("class_method")

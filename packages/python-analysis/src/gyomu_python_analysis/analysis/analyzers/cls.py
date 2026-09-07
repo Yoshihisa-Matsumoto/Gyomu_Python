@@ -37,7 +37,6 @@ from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 def _retrieve_constructor_location(
     cls: Class,
-    source_lines: list[str],
     context: SymbolContext,
 ) -> SourceLocation | None:
     constructor_location: SourceLocation | None = None
@@ -48,7 +47,6 @@ def _retrieve_constructor_location(
                 symbol=init_member,
                 name="__init__",
                 parent_location=None,
-                source_lines=source_lines,
                 context=context,
             )
             constructor_location = constructor_common["location"]
@@ -58,7 +56,6 @@ def _retrieve_constructor_location(
 def _build_class_type_aliases(
     cls: Class,
     parent_location: SourceLocation | None,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
 ) -> list[ClassTypeAliasAnalysis]:
@@ -70,7 +67,6 @@ def _build_class_type_aliases(
                     member=member,
                     name=member_name,
                     parent_location=parent_location,
-                    source_lines=source_lines,
                     context=context,
                     member_path=member_path,
                 )
@@ -82,7 +78,6 @@ def _build_class_type_alias_analysis(
     member: TypeAlias,
     name: str,
     parent_location: SourceLocation | None,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
 ) -> ClassTypeAliasAnalysis:
@@ -91,7 +86,6 @@ def _build_class_type_alias_analysis(
         symbol=member,
         name=name,
         parent_location=parent_location,
-        source_lines=source_lines,
         context=context,
     )
     return ClassTypeAliasAnalysis(
@@ -107,7 +101,6 @@ def _build_class_type_alias_analysis(
 def _build_class_variables(
     cls: Class,
     parent_location: SourceLocation | None,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
     is_pydantic_base_class: bool,
@@ -120,7 +113,6 @@ def _build_class_variables(
                     member=member,
                     name=member_name,
                     parent_location=parent_location,
-                    source_lines=source_lines,
                     context=context,
                     member_path=member_path,
                     is_pydantic_base_class=is_pydantic_base_class,
@@ -133,7 +125,6 @@ def _build_class_variable_analysis(
     member: Attribute,
     name: str,
     parent_location: SourceLocation | None,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
     is_pydantic_base_class: bool,
@@ -143,7 +134,6 @@ def _build_class_variable_analysis(
         symbol=member,
         name=name,
         parent_location=parent_location,
-        source_lines=source_lines,
         context=context,
     )
     variable_type = analyze_type(member.annotation, context)
@@ -183,7 +173,6 @@ def _build_class_method_analysis(
     member: Function,
     name: str,
     parent_location: SourceLocation | None,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
 ) -> MethodAnalysis:
@@ -202,7 +191,6 @@ def _build_class_method_analysis(
         symbol=member,
         name=name,
         parent_location=parent_location,
-        source_lines=source_lines,
         context=context,
     )
 
@@ -221,7 +209,6 @@ def _build_class_method_analysis(
 def _build_class_methods(
     cls: Class,
     parent_location: SourceLocation | None,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
 ) -> list[MethodAnalysis]:
@@ -233,7 +220,6 @@ def _build_class_methods(
                     member=member,
                     name=member_name,
                     parent_location=parent_location,
-                    source_lines=source_lines,
                     context=context,
                     member_path=member_path,
                 )
@@ -242,7 +228,7 @@ def _build_class_methods(
 
 
 def _build_inner_classes(
-    cls: Class, source_lines: list[str], context: SymbolContext, member_path: MemberPath
+    cls: Class, context: SymbolContext, member_path: MemberPath
 ) -> list[InnerClassAnalysis]:
     inner_classes: list[InnerClassAnalysis] = []
     for member_name, member in cls.members.items():
@@ -251,7 +237,6 @@ def _build_inner_classes(
                 _analyze_inner_class(
                     cls=member,
                     name=member_name,
-                    source_lines=source_lines,
                     context=context,
                     member_path=member_path,
                 )
@@ -273,7 +258,6 @@ def _is_pydantic_base_class(bases: list[TypeAnalysis]) -> bool:
 def _analyze_class_common(
     cls: Class,
     name: str,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
 ) -> ClassCommon:
@@ -286,13 +270,12 @@ def _analyze_class_common(
     is_pydantic_base_class = _is_pydantic_base_class(bases)
 
     constructor_location: SourceLocation | None = _retrieve_constructor_location(
-        cls, source_lines, context
+        cls, context
     )
 
     parameters: list[ClassVariableAnalysis] = _build_class_variables(
         cls=cls,
         parent_location=constructor_location,
-        source_lines=source_lines,
         context=context,
         member_path=member_path,
         is_pydantic_base_class=is_pydantic_base_class,
@@ -301,7 +284,6 @@ def _analyze_class_common(
     methods: list[MethodAnalysis] = _build_class_methods(
         cls=cls,
         parent_location=constructor_location,
-        source_lines=source_lines,
         context=context,
         member_path=member_path,
     )
@@ -309,13 +291,12 @@ def _analyze_class_common(
     type_aliases: list[ClassTypeAliasAnalysis] = _build_class_type_aliases(
         cls=cls,
         parent_location=constructor_location,
-        source_lines=source_lines,
         context=context,
         member_path=member_path,
     )
 
     inner_classes: list[InnerClassAnalysis] = _build_inner_classes(
-        cls=cls, source_lines=source_lines, context=context, member_path=member_path
+        cls=cls, context=context, member_path=member_path
     )
 
     return {
@@ -330,20 +311,18 @@ def _analyze_class_common(
 def _analyze_inner_class(
     cls: Class,
     name: str,
-    source_lines: list[str],
     context: SymbolContext,
     member_path: MemberPath,
 ) -> InnerClassAnalysis:
     new_member_path = (*member_path, name)
     class_common = _analyze_class_common(
-        cls, name, source_lines, context, member_path=new_member_path
+        cls, name, context, member_path=new_member_path
     )
     # pprint(cls.as_dict())
     base_common = build_member_common(
         symbol=cls,
         name=name,
         parent_location=None,
-        source_lines=source_lines,
         context=context,
     )
     return InnerClassAnalysis(
@@ -356,15 +335,11 @@ def _analyze_inner_class(
     )
 
 
-def analyze_class(
-    cls: Class, name: str, source_lines: list[str], context: SymbolContext
-) -> ClassAnalysis:
+def analyze_class(cls: Class, name: str, context: SymbolContext) -> ClassAnalysis:
     member_path: MemberPath = ()
-    class_common = _analyze_class_common(cls, name, source_lines, context, member_path)
+    class_common = _analyze_class_common(cls, name, context, member_path)
     # pprint(cls.as_dict())
-    base_common = build_symbol_common(
-        symbol=cls, name=name, source_lines=source_lines, context=context
-    )
+    base_common = build_symbol_common(symbol=cls, name=name, context=context)
 
     return ClassAnalysis(
         **base_common,

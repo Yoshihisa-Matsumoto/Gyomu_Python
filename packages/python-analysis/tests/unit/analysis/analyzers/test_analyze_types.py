@@ -1,7 +1,5 @@
-from griffe import Attribute
 from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
-from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
     NameStructureAnalysis,
@@ -28,8 +26,7 @@ def test_analyze_type_returns_none_for_none() -> None:
         analyze_type(
             None,
             initialize_symbol_context(
-                module_name=PythonPath(""),
-                name="test",
+                module_name=PythonPath(""), name="test", source_lines=[""]
             ),
         )
         is None
@@ -40,8 +37,7 @@ def test_analyze_type_analyzes_none_string() -> None:
     result = analyze_type(
         "None",
         initialize_symbol_context(
-            module_name=PythonPath(""),
-            name="test",
+            module_name=PythonPath(""), name="test", source_lines=[""]
         ),
     )
 
@@ -54,8 +50,7 @@ def test_analyze_type_preserves_string_annotation() -> None:
     result = analyze_type(
         "MyType",
         initialize_symbol_context(
-            module_name=PythonPath(""),
-            name="test",
+            module_name=PythonPath(""), name="test", source_lines=[""]
         ),
     )
 
@@ -68,30 +63,7 @@ class TestAnalyzeType(AnalysisTestBase):
     def _analyze_variable_internal(
         self, name: str, module_name: PythonPath
     ) -> VariableAnalysis:
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        variable = module[name]
-
-        assert isinstance(variable, Attribute)
-
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
-        )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_variable(
-            variable=variable,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
+        return self._analyze_variable_base(module_name, name)
 
     def _analyze_variable(self, name: str) -> VariableAnalysis:
         return self._analyze_variable_internal(

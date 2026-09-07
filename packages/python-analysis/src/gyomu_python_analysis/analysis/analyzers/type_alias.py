@@ -12,12 +12,10 @@ from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 
 def analyze_type_alias(
-    alias: TypeAlias, name: str, source_lines: list[str], context: SymbolContext
+    alias: TypeAlias, name: str, context: SymbolContext
 ) -> TypeAliasAnalysis:
     member_path: MemberPath = ()
-    alias_common = build_symbol_common(
-        symbol=alias, name=name, source_lines=source_lines, context=context
-    )
+    alias_common = build_symbol_common(symbol=alias, name=name, context=context)
     type = analyze_type(alias.value, context)
     return TypeAliasAnalysis(
         **alias_common,

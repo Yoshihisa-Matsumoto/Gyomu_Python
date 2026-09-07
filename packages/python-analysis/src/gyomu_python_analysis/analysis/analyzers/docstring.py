@@ -227,7 +227,6 @@ def parse_text_section(
 
 def analyze_docstring(
     doc: Docstring | None,
-    source_lines: list[str],
     doc_common: DocstringCommon,
     context: SymbolContext,
 ) -> DocstringAnalysis | None:

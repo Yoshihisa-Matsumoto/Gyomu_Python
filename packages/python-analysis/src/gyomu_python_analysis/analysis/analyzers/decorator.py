@@ -23,17 +23,17 @@ from gyomu_python_analysis.analysis.analyzers.internal.location import (
 
 
 def analyze_decorators(
-    decorators: list[Decorator], source_lines: list[str], context: SymbolContext
+    decorators: list[Decorator], context: SymbolContext
 ) -> list[DecoratorAnalysis]:
     returns: list[DecoratorAnalysis] = []
     for dec in decorators:
-        returns.append(analyze_decorator(dec, source_lines, context))
+        returns.append(analyze_decorator(dec, context))
 
     return returns
 
 
 def analyze_decorator(
-    decorator: Decorator, source_lines: list[str], context: SymbolContext
+    decorator: Decorator, context: SymbolContext
 ) -> DecoratorAnalysis:
     value = analyze_type_expression(decorator.value, context)
     name: str
@@ -45,9 +45,7 @@ def analyze_decorator(
         name, arguments = _retrieve_expression_name(value)
 
     return DecoratorAnalysis(
-        location=calculate_decorator_location(
-            decorator=decorator, source_lines=source_lines
-        ),
+        location=calculate_decorator_location(decorator=decorator, context=context),
         name=name,
         arguments=tuple(arguments),
     )

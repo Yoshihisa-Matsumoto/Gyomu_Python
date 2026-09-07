@@ -1,6 +1,3 @@
-from griffe import Function
-from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
-from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
 from gyomu_schema.schemas.python.symbol_base import SymbolKind
@@ -12,31 +9,9 @@ from tests.helpers import AnalysisTestBase
 
 class TestAnalyzeFunctions(AnalysisTestBase):
     def _analyze_function(self, name: str) -> FunctionAnalysis:
-        module_name = PythonPath("analysis.symbol.functions")
-        context = self._read_module_fixture(module_name)
-        module = context.source.module
-        func = module[name]
-
-        assert isinstance(func, Function)
-        print(func.as_dict())
-        source_full_path = (
-            context.project.project_root
-            / context.project.source_root
-            / context.source.path
+        return self._analyze_function_base(
+            PythonPath("analysis.symbol.functions"), name
         )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines()
-        result = analyze_function(
-            func=func,
-            name=name,
-            source_lines=source_lines,
-            context=initialize_symbol_context(
-                module_name=module_name,
-                name=name,
-            ),
-        )
-        return result
 
     def test_analyzes_function(self) -> None:
 

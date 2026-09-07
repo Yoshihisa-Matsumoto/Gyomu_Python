@@ -35,7 +35,14 @@ def create_symbol(name: str, symbol_id: SymbolId | None = None) -> SymbolAnalysi
     return VariableAnalysis(
         name=name,
         visibility=Visibility.PUBLIC,
-        location=SourceLocation(start_line=1, end_line=1, start_column=1, end_column=1),
+        location=SourceLocation(
+            start_line=1,
+            end_line=1,
+            start_column=1,
+            end_column=1,
+            start_offset=1,
+            end_offset=1,
+        ),
         identity=DeclarationIdentity(
             symbol_id=symbol_id if symbol_id else SymbolId("##test"),
             declaration_id=DeclarationId("**ABC##"),
@@ -55,7 +62,7 @@ def test_registers_dependency() -> None:
         symbol_id=SymbolId("test::User"),
         declaration_id=DeclarationId("test::User"),
     )
-    context = initialize_symbol_context(PythonPath("test"), "User")
+    context = initialize_symbol_context(PythonPath("test"), "User", [""])
 
     register_dependency(identity, "UserId", context)
 
@@ -76,7 +83,7 @@ def test_does_not_register_reserved_type_name(name: str) -> None:
         symbol_id=SymbolId("test::User"),
         declaration_id=DeclarationId("test::User"),
     )
-    context = initialize_symbol_context(PythonPath("test"), "User")
+    context = initialize_symbol_context(PythonPath("test"), "User", [""])
 
     register_dependency(identity, name, context)
 

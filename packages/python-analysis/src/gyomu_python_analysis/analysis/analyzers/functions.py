@@ -27,7 +27,7 @@ def _get_function_parameter_kind(kind: GriffeParameterKind | None) -> ParameterK
 
 
 def analyze_function(
-    func: Function, name: str, source_lines: list[str], context: SymbolContext
+    func: Function, name: str, context: SymbolContext
 ) -> FunctionAnalysis:
     for dec in func.decorators:
         print(dec.as_dict())
@@ -42,9 +42,7 @@ def analyze_function(
             )
         )
     # pprint(func.as_dict())
-    func_common = build_symbol_common(
-        symbol=func, name=name, source_lines=source_lines, context=context
-    )
+    func_common = build_symbol_common(symbol=func, name=name, context=context)
     return_type = analyze_type(func.returns, context)
     return FunctionAnalysis(
         **func_common,

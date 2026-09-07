@@ -10,11 +10,9 @@ from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 
 def analyze_variable(
-    variable: Attribute, name: str, source_lines: list[str], context: SymbolContext
+    variable: Attribute, name: str, context: SymbolContext
 ) -> VariableAnalysis:
-    variable_common = build_symbol_common(
-        symbol=variable, name=name, source_lines=source_lines, context=context
-    )
+    variable_common = build_symbol_common(symbol=variable, name=name, context=context)
     type = analyze_type(variable.annotation, context)
     return VariableAnalysis(
         **variable_common,

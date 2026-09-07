@@ -11,8 +11,7 @@ MODULE_NAME = PythonPath("gyomu_schema.schemas.python.user")
 
 def test_initialize_symbol_context() -> None:
     context = initialize_symbol_context(
-        module_name=MODULE_NAME,
-        name="User",
+        module_name=MODULE_NAME, name="User", source_lines=[""]
     )
 
     assert context.dependencies == []
@@ -54,8 +53,7 @@ def test_build_declaration_identity(
     expected_declaration_id: str,
 ) -> None:
     context = initialize_symbol_context(
-        module_name=MODULE_NAME,
-        name="User",
+        module_name=MODULE_NAME, name="User", source_lines=[""]
     )
 
     result = build_declaration_identity(
