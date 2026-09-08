@@ -1,7 +1,6 @@
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
-from gyomu_schema.schemas.python.member_analysis import MemberKind
 from gyomu_schema.schemas.python.parameter import ParameterKind
-from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.structure import (
     NameStructureAnalysis,
     NoneStructureAnalysis,
@@ -27,7 +26,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         result = self._analyze_class("Simple")
 
         assert result.name == "Simple"
-        assert result.kind == SymbolKind.CLASS
+        assert result.kind == DeclarationKind.CLASS
         assert result.visibility.value == "public"
 
         # class Simple starts at column 0
@@ -57,19 +56,19 @@ class TestAnalyzeClass(AnalysisTestBase):
         variables = {variable.name: variable for variable in result.variables}
 
         name = variables["name"]
-        assert name.kind == MemberKind.VARIABLE
+        assert name.kind == DeclarationKind.VARIABLE
         assert name.type is None
         assert name.value_source == "name"
         assert name.location is None
 
         age = variables["age"]
-        assert age.kind == MemberKind.VARIABLE
+        assert age.kind == DeclarationKind.VARIABLE
         assert age.type is None
         assert age.value_source == "age"
         assert age.location is None
 
         position = variables["position"]
-        assert position.kind == MemberKind.VARIABLE
+        assert position.kind == DeclarationKind.VARIABLE
         assert position.type
         assert position.type.text == "int"
         assert position.type.structure
@@ -87,7 +86,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         init_method = result.methods[0]
         print(init_method)
         assert init_method.name == "__init__"
-        assert init_method.kind == MemberKind.METHOD
+        assert init_method.kind == DeclarationKind.METHOD
         assert init_method.is_async is False
         assert init_method.return_type
         assert isinstance(init_method.return_type.structure, NoneStructureAnalysis)
@@ -131,7 +130,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         variable = result.variables[0]
 
         assert variable.name == "value"
-        assert variable.kind == MemberKind.VARIABLE
+        assert variable.kind == DeclarationKind.VARIABLE
 
         # Identity
         assert variable.identity.symbol_id == result.identity.symbol_id

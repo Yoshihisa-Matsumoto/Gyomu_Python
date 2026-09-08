@@ -11,28 +11,45 @@ from gyomu_schema.schemas.python.types import DeclarationIdentity
 from gyomu_schema.schemas.python.visibility import Visibility
 
 
-class SymbolKind(StrEnum):
+class DeclarationKind(StrEnum):
     VARIABLE = "variable"
     CLASS = "class"
     FUNCTION = "function"
+    METHOD = "method"
     TYPEALIAS = "typealias"
 
 
-class SymbolAnalysisBase(BaseModel):
+class DeclarationAnalysisBase(BaseModel):
     name: str
     visibility: Visibility
-    location: SourceLocation
     docstring: DocstringAnalysis | None
     decorators: tuple[DecoratorAnalysis, ...]
-    dependencies: tuple[DependencyAnalysis, ...]
-    indent: int
     identity: DeclarationIdentity
 
 
-class SymbolCommon(TypedDict):
-    name: str
+class SymbolAnalysisBase(DeclarationAnalysisBase):
     location: SourceLocation
-    visibility: Visibility
+    dependencies: tuple[DependencyAnalysis, ...]
     indent: int
+
+
+class MemberAnalysisBase(DeclarationAnalysisBase):
+    location: SourceLocation | None
+    indent: int | None
+
+
+class DeclarationCommon(TypedDict):
+    name: str
+    visibility: Visibility
     docstring: DocstringAnalysis | None
     decorators: tuple[DecoratorAnalysis, ...]
+
+
+class SymbolCommon(DeclarationCommon):
+    location: SourceLocation
+    indent: int
+
+
+class MemberCommon(DeclarationCommon):
+    location: SourceLocation | None
+    indent: int | None

@@ -8,11 +8,9 @@ from gyomu_schema.schemas.python.class_analysis import (
     InnerClassAnalysis,
 )
 from gyomu_schema.schemas.python.location import SourceLocation
-from gyomu_schema.schemas.python.member_analysis import MemberKind
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
-from gyomu_schema.schemas.python.symbol_base import SymbolKind
 from gyomu_schema.schemas.python.type.structure import NameStructureAnalysis
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
@@ -90,7 +88,6 @@ def _build_class_type_alias_analysis(
     )
     return ClassTypeAliasAnalysis(
         **alias_common,
-        kind=MemberKind.TYPEALIAS,
         alias_type=analyze_type(member.value, context),
         identity=build_declaration_identity(
             context=context, member_path=new_member_path
@@ -156,7 +153,6 @@ def _build_class_variable_analysis(
 
     return ClassVariableAnalysis(
         **variable_common,
-        kind=MemberKind.VARIABLE,
         type=variable_type,
         value_source=str(member.value) if member.value is not None else None,
         value_expression=analyze_type_expression(member.value, context)
@@ -196,7 +192,6 @@ def _build_class_method_analysis(
 
     return MethodAnalysis(
         **method_common,
-        kind=MemberKind.METHOD,
         parameters=tuple(method_parameters),
         return_type=analyze_type(member.returns, context),
         is_async="async" in member.labels,
@@ -328,7 +323,6 @@ def _analyze_inner_class(
     return InnerClassAnalysis(
         **base_common,
         **class_common,
-        kind=MemberKind.CLASS,
         identity=build_declaration_identity(
             context=context, member_path=new_member_path
         ),
@@ -344,7 +338,6 @@ def analyze_class(cls: Class, name: str, context: SymbolContext) -> ClassAnalysi
     return ClassAnalysis(
         **base_common,
         **class_common,
-        kind=SymbolKind.CLASS,
         dependencies=tuple(),
         identity=context.declaration,
     )

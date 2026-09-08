@@ -1,6 +1,6 @@
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
-from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.visibility import Visibility
 
@@ -19,7 +19,7 @@ class TestAnalyzeFunctions(AnalysisTestBase):
             name="greet",
         )
 
-        assert result.kind == SymbolKind.FUNCTION
+        assert result.kind == DeclarationKind.FUNCTION
         assert result.name == "greet"
         assert result.visibility == Visibility.PUBLIC
 

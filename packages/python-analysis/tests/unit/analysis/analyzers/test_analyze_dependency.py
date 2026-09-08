@@ -20,7 +20,7 @@ from gyomu_schema.schemas.python.dependency import (
 from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKind
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
-from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
@@ -51,7 +51,7 @@ def create_symbol(name: str, symbol_id: SymbolId | None = None) -> SymbolAnalysi
         decorators=tuple(),
         dependencies=(),
         indent=0,
-        kind=SymbolKind.VARIABLE,
+        kind=DeclarationKind.VARIABLE,
         type=None,
         value_source="",
     )

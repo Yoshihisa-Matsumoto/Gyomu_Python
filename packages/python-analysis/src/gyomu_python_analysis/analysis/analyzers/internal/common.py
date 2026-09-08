@@ -2,8 +2,7 @@ from griffe import Class, Docstring, Function, Object
 from gyomu_schema.schemas.python.decorator import DecoratorAnalysis
 from gyomu_schema.schemas.python.docstring import DocstringCommon
 from gyomu_schema.schemas.python.location import SourceLocation
-from gyomu_schema.schemas.python.member_analysis import MemberCommon
-from gyomu_schema.schemas.python.symbol_base import SymbolCommon
+from gyomu_schema.schemas.python.symbol_base import MemberCommon, SymbolCommon
 
 from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
 from gyomu_python_analysis.analysis.analyzers.decorator import analyze_decorators

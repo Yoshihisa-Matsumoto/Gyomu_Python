@@ -4,15 +4,18 @@ from typing import Literal, TypedDict
 
 from pydantic import BaseModel
 
-from gyomu_schema.schemas.python.member_analysis import MemberAnalysisBase, MemberKind
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
-from gyomu_schema.schemas.python.symbol_base import SymbolAnalysisBase, SymbolKind
+from gyomu_schema.schemas.python.symbol_base import (
+    DeclarationKind,
+    MemberAnalysisBase,
+    SymbolAnalysisBase,
+)
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis, TypeExpression
 
 
 class ClassVariableAnalysis(MemberAnalysisBase):
-    kind: Literal[MemberKind.VARIABLE]
+    kind: Literal[DeclarationKind.VARIABLE] = DeclarationKind.VARIABLE
     type: TypeAnalysis | None
     value_source: str | None
     value_expression: TypeExpression | None
@@ -20,7 +23,7 @@ class ClassVariableAnalysis(MemberAnalysisBase):
 
 
 class ClassTypeAliasAnalysis(MemberAnalysisBase):
-    kind: Literal[MemberKind.TYPEALIAS]
+    kind: Literal[DeclarationKind.TYPEALIAS] = DeclarationKind.TYPEALIAS
     alias_type: TypeAnalysis | None
 
 
@@ -42,8 +45,8 @@ class ClassCommon(TypedDict):
 
 
 class InnerClassAnalysis(MemberAnalysisBase, ClassBase):
-    kind: Literal[MemberKind.CLASS]
+    kind: Literal[DeclarationKind.CLASS] = DeclarationKind.CLASS
 
 
 class ClassAnalysis(SymbolAnalysisBase, ClassBase):
-    kind: Literal[SymbolKind.CLASS]
+    kind: Literal[DeclarationKind.CLASS] = DeclarationKind.CLASS

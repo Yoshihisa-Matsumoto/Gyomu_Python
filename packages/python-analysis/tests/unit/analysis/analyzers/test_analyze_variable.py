@@ -1,5 +1,5 @@
 from gyomu_schema.schemas.python.location import SourceLocation
-from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.structure import (
     NameStructureAnalysis,
 )
@@ -28,7 +28,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
         )
 
         assert result == VariableAnalysis(
-            kind=SymbolKind.VARIABLE,
+            kind=DeclarationKind.VARIABLE,
             name="VERSION",
             docstring=None,
             decorators=tuple(),
@@ -61,7 +61,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
         )
 
         assert result.visibility == Visibility.PRIVATE
-        assert result.kind == SymbolKind.VARIABLE
+        assert result.kind == DeclarationKind.VARIABLE
         assert result.name == "_internal_value"
         assert result.value_source == "10"
 
@@ -70,7 +70,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
             "ANNOTATED",
         )
 
-        assert result.kind == SymbolKind.VARIABLE
+        assert result.kind == DeclarationKind.VARIABLE
         assert result.name == "ANNOTATED"
         assert result.visibility == Visibility.PUBLIC
         assert result.type == TypeAnalysis(
@@ -83,7 +83,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
             "Calculated",
         )
 
-        assert result.kind == SymbolKind.VARIABLE
+        assert result.kind == DeclarationKind.VARIABLE
         assert result.name == "Calculated"
         assert result.visibility == Visibility.PUBLIC
         assert result.type is None

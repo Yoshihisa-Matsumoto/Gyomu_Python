@@ -2,7 +2,6 @@ from griffe import Function
 from griffe import ParameterKind as GriffeParameterKind
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
-from gyomu_schema.schemas.python.symbol_base import SymbolKind
 
 from gyomu_python_analysis.analysis.analyzers.context import (
     SymbolContext,
@@ -46,7 +45,6 @@ def analyze_function(
     return_type = analyze_type(func.returns, context)
     return FunctionAnalysis(
         **func_common,
-        kind=SymbolKind.FUNCTION,
         dependencies=tuple([]),
         parameters=tuple(parameters),
         is_async="async" in func.labels,

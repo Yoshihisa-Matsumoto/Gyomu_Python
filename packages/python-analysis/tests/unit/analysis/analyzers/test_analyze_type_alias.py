@@ -1,4 +1,4 @@
-from gyomu_schema.schemas.python.symbol_base import SymbolKind
+from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.structure import (
     NameStructureAnalysis,
 )
@@ -28,7 +28,7 @@ class TestAnalyzeTypeAlias(AnalysisTestBase):
             "UserId",
         )
 
-        assert result.kind == SymbolKind.TYPEALIAS
+        assert result.kind == DeclarationKind.TYPEALIAS
         assert result.name == "UserId"
 
         assert result.docstring is None
@@ -50,7 +50,7 @@ class TestAnalyzeTypeAlias(AnalysisTestBase):
             "UserList",
         )
 
-        assert result.kind == SymbolKind.TYPEALIAS
+        assert result.kind == DeclarationKind.TYPEALIAS
         assert result.name == "UserList"
 
         assert result.docstring is None
@@ -68,7 +68,7 @@ class TestAnalyzeTypeAlias(AnalysisTestBase):
             "UserValue",
         )
 
-        assert result.kind == SymbolKind.TYPEALIAS
+        assert result.kind == DeclarationKind.TYPEALIAS
         assert result.name == "UserValue"
 
         assert result.docstring is None
@@ -84,7 +84,7 @@ class TestAnalyzeTypeAlias(AnalysisTestBase):
             "Status",
         )
 
-        assert result.kind == SymbolKind.TYPEALIAS
+        assert result.kind == DeclarationKind.TYPEALIAS
         assert result.name == "Status"
 
         assert result.docstring is None
