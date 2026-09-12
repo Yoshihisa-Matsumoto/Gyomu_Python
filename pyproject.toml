@@ -71,7 +71,8 @@ source_pkgs = [
     "gyomu_schema",
     "gyomu_infra",
     "gyomu_ai",
-    "gyomu_python_analysis"
+    "gyomu_python_analysis",
+    "gyomu_docstring"
 ]
 branch = true
 
