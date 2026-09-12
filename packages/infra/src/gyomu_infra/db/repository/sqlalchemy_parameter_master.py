@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from gyomu_schema.error import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.parameter.parameter_master import (
     ParameterMaster,
@@ -35,7 +35,7 @@ class SqlAlchemyParameterMasterRepository:
     def find_by_item_key(
         self,
         item_key: str,
-    ) -> Result[list[ParameterMaster], GyomuIOError]:
+    ) -> Result[list[ParameterMaster], DatabaseError]:
         return self._find_by_item_key(item_key).alt(
             to_database_error,
         )
@@ -56,7 +56,7 @@ class SqlAlchemyParameterMasterRepository:
     def insert(
         self,
         parameter: ParameterMasterCreate,
-    ) -> Result[ParameterMaster, GyomuIOError]:
+    ) -> Result[ParameterMaster, DatabaseError]:
         return self._execute_insert(parameter).alt(
             to_database_error,
         )
@@ -76,7 +76,7 @@ class SqlAlchemyParameterMasterRepository:
     def update(
         self,
         parameter: ParameterMasterUpdate,
-    ) -> Result[ParameterMaster, GyomuIOError | ValidationError]:
+    ) -> Result[ParameterMaster, DatabaseError | ValidationError]:
         values_result = to_model_for_update(parameter)
 
         if isinstance(values_result, Failure):
@@ -122,7 +122,7 @@ class SqlAlchemyParameterMasterRepository:
     def delete(
         self,
         id: UUID,
-    ) -> Result[None, GyomuIOError]:
+    ) -> Result[None, DatabaseError]:
 
         delete_result = self._execute_delete(id).alt(
             to_database_error,

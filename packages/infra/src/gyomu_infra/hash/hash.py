@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from returns.result import Failure, Result, Success
 
 
@@ -20,4 +20,12 @@ def hash_file(path: Path) -> Result[str, GyomuIOError]:
 
         return Success(hasher.hexdigest())
     except OSError as error:
-        return Failure(GyomuIOError(str(error)))
+        return Failure(
+            GyomuIOError(
+                message="fail to hash file",
+                layer=IOLayer.FILESYSTEM,
+                operation=IOOperation.READ,
+                context="gyomu_infra.hash.hash_file",
+                details={"file_name": path},
+            ).chain(error)
+        )

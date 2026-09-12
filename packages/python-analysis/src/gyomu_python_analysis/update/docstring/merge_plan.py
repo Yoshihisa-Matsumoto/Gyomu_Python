@@ -40,11 +40,26 @@ class ParamActionValue(BaseModel):
 
 
 # 一時的な定義（後でLLM側に）
+class ReturnActionValue(BaseModel):
+    return_type: str | None = Field(description="Type hint of return")
+    description: str | None = Field(
+        description="Complete replacement parameter metadata. When using replace, provide the final parameter documentation to be written."
+    )
+
+
+# 一時的な定義（後でLLM側に）
 class RaiseActionValue(BaseModel):
-    exception_type: str | None = Field(description="Type hint of exception")
+    exception_type: str = Field(description="Type hint of exception")
     description: str | None = Field(
         description="Complete replacement parameter metadata. When using replace, provide the final raise documentation to be written."
     )
+
+
+@dataclass(frozen=True)
+class RaiseMergePlan:
+    exception_type: str
+    sort_order: int
+    action: MergeAction[RaiseActionValue]
 
 
 @dataclass(frozen=True)
@@ -52,7 +67,6 @@ class ParamMergePlan:
     name: str
     sort_order: int
     action: MergeAction[ParamActionValue]
-    conflict: ConflictType | None = None
 
 
 @dataclass(frozen=True)
@@ -72,9 +86,9 @@ class MergePlan:
 
     params: tuple[ParamMergePlan, ...]
 
-    returns: MergeAction[str]
+    returns: MergeAction[ReturnActionValue]
 
-    raises: tuple[RaiseActionValue, ...]
+    raises: tuple[RaiseMergePlan, ...]
 
     conflicts: tuple[MergeConflict, ...]
 

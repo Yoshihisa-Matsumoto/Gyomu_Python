@@ -1,5 +1,5 @@
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.base import BaseError
 
 
-class DatabaseError(GyomuIOError):
+class DatabaseError(BaseError):
     """Database access error."""

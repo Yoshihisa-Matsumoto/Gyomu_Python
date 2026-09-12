@@ -48,7 +48,7 @@ class DocstringReturnsSection(BaseModel):
 
 
 class DocstringRaisesSectionItem(BaseModel):
-    type: str | None
+    type: str
     description: str
 
 

@@ -4,7 +4,7 @@ from typing import Protocol
 
 from returns.result import Result
 
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.gyomu.user import User
 
@@ -17,7 +17,7 @@ class ParameterAccess(Protocol):
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[str, GyomuIOError]:
+    ) -> Result[str, DatabaseError]:
         """
         Gyomu Context:
             ParameterAccess is a service for retrieving application-level
@@ -51,29 +51,29 @@ class ParameterAccess(Protocol):
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[bool, GyomuIOError]: ...
+    ) -> Result[bool, DatabaseError]: ...
 
     def get_int_value(
         self,
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[int, GyomuIOError | ValidationError]: ...
+    ) -> Result[int, DatabaseError | ValidationError]: ...
 
     def get_decimal_value(
         self,
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[Decimal, GyomuIOError | ValidationError]: ...
+    ) -> Result[Decimal, DatabaseError | ValidationError]: ...
 
     def key_exists(
         self, key: str, user: User | None = None
-    ) -> Result[bool, GyomuIOError]: ...
+    ) -> Result[bool, DatabaseError]: ...
 
     def set_value(
         self, key: str, value: str, user: User | None = None
-    ) -> Result[None, GyomuIOError | ValidationError]:
+    ) -> Result[None, DatabaseError | ValidationError]:
         """
         Gyomu Context:
             set_value manages the current value of a parameter.
