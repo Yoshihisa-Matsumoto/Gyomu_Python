@@ -1,7 +1,7 @@
 import pytest
 from gyomu_schema.error.base import BaseError
 from gyomu_schema.error.database import DatabaseError
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
 
 
@@ -13,7 +13,9 @@ def test_error_can_preserve_cause() -> None:
             raise cause
         except ValueError as error:
             raise GyomuIOError(
-                "Invalid configuration",
+                message="Invalid configuration",
+                layer=IOLayer.FILESYSTEM,
+                operation=IOOperation.READ,
                 context="test",
             ).chain(error) from error
 
@@ -21,16 +23,19 @@ def test_error_can_preserve_cause() -> None:
 
 
 def test_config_error_is_base_error() -> None:
-    error = GyomuIOError("invalid configuration")
+    error = GyomuIOError(
+        message="Invalid configuration",
+        layer=IOLayer.FILESYSTEM,
+        operation=IOOperation.READ,
+    )
 
     assert isinstance(error, BaseError)
     assert isinstance(error, Exception)
 
 
-def test_database_error_is_gyomu_io_error() -> None:
+def test_database_error_is_base_error() -> None:
     error = DatabaseError("database error")
 
-    assert isinstance(error, GyomuIOError)
     assert isinstance(error, BaseError)
     assert isinstance(error, Exception)
 
@@ -42,6 +47,10 @@ def test_validation_error_is_base_error() -> None:
 
 
 def test_gyomu_io_error_is_base_error() -> None:
-    error = GyomuIOError("I/O error")
+    error = GyomuIOError(
+        "I/O error",
+        layer=IOLayer.FILESYSTEM,
+        operation=IOOperation.READ,
+    )
 
     assert isinstance(error, BaseError)

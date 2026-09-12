@@ -11,7 +11,7 @@
     {
       "label": "Gyomu: Test Unit",
       "type": "shell",
-      "command": "uv run pytest -m 'not integration'",
+      "command": "uv run pytest -n auto -m 'not integration'",
       "group": "test",
       "problemMatcher": []
     },
@@ -43,7 +43,7 @@
     {
       "label": "Gyomu: Type Check",
       "type": "shell",
-      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe  -m mypy  packages/schema/src packages/infra/src packages/ai/src",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe  -m mypy  packages/schema/src packages/infra/src packages/ai/src packages/python-analysis/src packages/docstring/src",
       "problemMatcher": []
     },
     {
@@ -60,7 +60,7 @@
     {
       "label": "Gyomu: Test Coverage",
       "type": "shell",
-      "command": "uv run coverage run -m pytest && uv run coverage report",
+      "command": "uv run pytest -n auto -m 'not integration' --cov && uv run coverage report",
       "problemMatcher": []
     },
     {

@@ -1,14 +1,14 @@
 from types import TracebackType
 from typing import Protocol, Self
 
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from returns.result import Result
 
 
 class TransactionManager(Protocol):
-    def rollback(self) -> Result[None, GyomuIOError]: ...
+    def rollback(self) -> Result[None, DatabaseError]: ...
 
-    def create_child(self) -> Result[Self, GyomuIOError]: ...
+    def create_child(self) -> Result[Self, DatabaseError]: ...
 
     def __enter__(self) -> Self: ...
 

@@ -3,7 +3,6 @@ from datetime import date
 from decimal import Decimal
 
 from gyomu_schema.error.database import DatabaseError
-from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.gyomu.parameter.parameter_access import ParameterAccess
 from gyomu_schema.gyomu.user import User
@@ -34,7 +33,7 @@ class ParameterAccessImpl:
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[str, GyomuIOError]:
+    ) -> Result[str, DatabaseError]:
         item_key = self._get_item_key(key, user)
         load_data_result = self.repository.find_by_item_key(item_key)
 
@@ -104,7 +103,7 @@ class ParameterAccessImpl:
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[bool, GyomuIOError]:
+    ) -> Result[bool, DatabaseError]:
         return self.get_value(key, user, target_date).map(
             lambda value: value.lower() == "true"
         )
@@ -114,7 +113,7 @@ class ParameterAccessImpl:
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[int, GyomuIOError | ValidationError]:
+    ) -> Result[int, DatabaseError | ValidationError]:
         result = self.get_value(key, user, target_date)
 
         if isinstance(result, Failure):
@@ -126,7 +125,7 @@ class ParameterAccessImpl:
         key: str,
         user: User | None = None,
         target_date: date | None = None,
-    ) -> Result[Decimal, GyomuIOError | ValidationError]:
+    ) -> Result[Decimal, DatabaseError | ValidationError]:
         result = self.get_value(key, user, target_date)
 
         if isinstance(result, Failure):
@@ -135,7 +134,7 @@ class ParameterAccessImpl:
 
     def key_exists(
         self, key: str, user: User | None = None
-    ) -> Result[bool, GyomuIOError]:
+    ) -> Result[bool, DatabaseError]:
         item_key = self._get_item_key(key, user)
         record_result = self.repository.find_by_item_key(item_key)
         if isinstance(record_result, Failure):
@@ -145,7 +144,7 @@ class ParameterAccessImpl:
 
     def set_value(
         self, key: str, value: str, user: User | None = None
-    ) -> Result[None, GyomuIOError | ValidationError]:
+    ) -> Result[None, DatabaseError | ValidationError]:
         item_key = self._get_item_key(key, user)
 
         with self.repository.transaction() as trn:

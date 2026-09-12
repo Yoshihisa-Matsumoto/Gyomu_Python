@@ -5,7 +5,7 @@ from io import TextIOBase
 from typing import BinaryIO, TextIO, cast
 
 from gyomu_schema.convert import convert
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
 from pydantic import BaseModel
 from returns.result import Failure, Result, Success
@@ -86,7 +86,14 @@ def _parse_raw_records(
             yield Success(row)
 
     except csv.Error as exc:
-        yield Failure(GyomuIOError(message="Failed to parse CSV").chain(exc))
+        yield Failure(
+            GyomuIOError(
+                message="Failed to parse CSV",
+                layer=IOLayer.STREAM,
+                operation=IOOperation.READ,
+                context="gyomu_infra.csv.csv_reader._parse_raw_record",
+            ).chain(exc)
+        )
 
 
 def _text_stream(stream: TextIO | BinaryIO, encoding: str, utf8_bom: bool) -> TextIO:

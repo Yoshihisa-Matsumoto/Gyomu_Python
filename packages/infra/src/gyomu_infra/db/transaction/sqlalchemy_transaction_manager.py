@@ -1,7 +1,7 @@
 from types import TracebackType
 from typing import Self
 
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from returns.result import Result, Success, safe
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -18,7 +18,7 @@ class SqlAlchemyTransactionManager:
         else:
             self._transaction = session.begin_nested()
 
-    def rollback(self) -> Result[None, GyomuIOError]:
+    def rollback(self) -> Result[None, DatabaseError]:
         self._completed = True
         return self._rollback().alt(
             to_database_error,
@@ -46,5 +46,5 @@ class SqlAlchemyTransactionManager:
 
         self._transaction.commit()
 
-    def create_child(self) -> Result[Self, GyomuIOError]:
+    def create_child(self) -> Result[Self, DatabaseError]:
         return Success(type(self)(self._session, self))

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from pydantic import ValidationError as PydanticValidationError
 from returns.result import Failure, Result, Success
 
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
 
 
@@ -33,6 +33,13 @@ def convert_json[T: BaseModel](
     try:
         value = json.loads(content)
     except json.JSONDecodeError as exc:
-        return Failure(GyomuIOError("Fail to load JSON").chain(exc))
+        return Failure(
+            GyomuIOError(
+                message="Fail to load JSON",
+                layer=IOLayer.STREAM,
+                operation=IOOperation.TRANSFORM,
+                context="gyomu_schema.utility.searialization.convert_json",
+            ).chain(exc)
+        )
 
     return convert(schema, value)

@@ -1,4 +1,4 @@
-from gyomu_schema.error import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Result, safe
 from sqlalchemy import select
@@ -17,7 +17,7 @@ class SqlAlchemyMarketHolidayRepository:
     def find_by_market(
         self,
         market: str,
-    ) -> Result[list[MarketHoliday], GyomuIOError]:
+    ) -> Result[list[MarketHoliday], DatabaseError]:
         return self._find_by_market(market).alt(
             to_database_error,
         )
@@ -37,7 +37,7 @@ class SqlAlchemyMarketHolidayRepository:
 
         return [to_schema(model) for model in models]
 
-    def get_supported_market(self) -> Result[list[str], GyomuIOError]:
+    def get_supported_market(self) -> Result[list[str], DatabaseError]:
         return self._get_supported_market().alt(
             to_database_error,
         )

@@ -1,7 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from gyomu_schema.error.io import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.parameter.parameter_master import (
     ParameterMaster,
@@ -17,21 +17,21 @@ class ParameterMasterRepository(Protocol):
     def find_by_item_key(
         self,
         item_key: str,
-    ) -> Result[list[ParameterMaster], GyomuIOError]: ...
+    ) -> Result[list[ParameterMaster], DatabaseError]: ...
 
     def insert(
         self,
         parameter: ParameterMasterCreate,
-    ) -> Result[ParameterMaster, GyomuIOError]: ...
+    ) -> Result[ParameterMaster, DatabaseError]: ...
 
     def update(
         self,
         parameter: ParameterMasterUpdate,
-    ) -> Result[ParameterMaster, GyomuIOError | ValidationError]: ...
+    ) -> Result[ParameterMaster, DatabaseError | ValidationError]: ...
 
     def delete(
         self,
         id: UUID,
-    ) -> Result[None, GyomuIOError]: ...
+    ) -> Result[None, DatabaseError]: ...
 
     def transaction(self) -> TransactionManager: ...

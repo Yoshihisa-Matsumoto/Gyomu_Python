@@ -1,4 +1,4 @@
-from gyomu_schema.error import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Result
 
@@ -15,8 +15,8 @@ class MarketHolidayService:
     def find_by_market(
         self,
         market: str,
-    ) -> Result[list[MarketHoliday], GyomuIOError]:
+    ) -> Result[list[MarketHoliday], DatabaseError]:
         return self._repository.find_by_market(market)
 
-    def get_supported_market(self) -> Result[list[str], GyomuIOError]:
+    def get_supported_market(self) -> Result[list[str], DatabaseError]:
         return self._repository.get_supported_market()

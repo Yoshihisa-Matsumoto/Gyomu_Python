@@ -1,7 +1,7 @@
 from datetime import date
 from uuid import uuid4
 
-from gyomu_schema.error import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Failure, Result, Success
 
@@ -16,18 +16,24 @@ class DummyMarketHolidayRepository:
     def find_by_market(
         self,
         market: str,
-    ) -> Result[list[MarketHoliday], GyomuIOError]:
+    ) -> Result[list[MarketHoliday], DatabaseError]:
         return Success(
             [holiday for holiday in self._holidays if holiday.market == market]
         )
+
+    def get_supported_market(self) -> Result[list[str], DatabaseError]:
+        return Success([])
 
 
 class DummyFailureMarketHolidayRepository:
     def find_by_market(
         self,
         market: str,
-    ) -> Result[list[MarketHoliday], GyomuIOError]:
-        return Failure(GyomuIOError("failed to find market holidays"))
+    ) -> Result[list[MarketHoliday], DatabaseError]:
+        return Failure(DatabaseError("failed to find market holidays"))
+
+    def get_supported_market(self) -> Result[list[str], DatabaseError]:
+        return Success([])
 
 
 def test_find_by_market() -> None:
@@ -59,14 +65,17 @@ def test_find_by_market() -> None:
 
 
 def test_find_by_market_failure() -> None:
-    error = GyomuIOError("failed to find market holidays")
+    error = DatabaseError("failed to find market holidays")
 
     class DummyFailureMarketHolidayRepository:
         def find_by_market(
             self,
             market: str,
-        ) -> Result[list[MarketHoliday], GyomuIOError]:
+        ) -> Result[list[MarketHoliday], DatabaseError]:
             return Failure(error)
+
+        def get_supported_market(self) -> Result[list[str], DatabaseError]:
+            return Success([])
 
     repository: MarketHolidayRepository = DummyFailureMarketHolidayRepository()
 

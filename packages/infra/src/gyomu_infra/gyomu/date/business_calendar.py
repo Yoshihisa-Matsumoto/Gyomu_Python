@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from threading import Lock
 
-from gyomu_schema.error import GyomuIOError
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.gyomu.holiday.business_calendar import BusinessCalendar
 from gyomu_schema.market_holiday import MarketHoliday
 from returns.result import Result
@@ -318,7 +318,7 @@ class BusinessCalendarService:
     def get(
         self,
         market: str,
-    ) -> Result[BusinessCalendar, GyomuIOError]:
+    ) -> Result[BusinessCalendar, DatabaseError]:
         with self._lock:
             cached = self._cache.get(market)
 
