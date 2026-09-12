@@ -1,9 +1,9 @@
-from gyomu_python_analysis.update.docstring.rendered_symbol import (
+from gyomu_docstring.update.docstring.rendered_symbol import (
     RenderedSymbolDocstring,
 )
-from gyomu_python_analysis.update.docstring.updated_docstring import UpdatedDocstring
-from gyomu_python_analysis.update.internal.render_line import render_docstring_lines
-from gyomu_python_analysis.update.internal.render_string import render_docstring_string
+from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
+from gyomu_docstring.update.internal.render_line import render_docstring_lines
+from gyomu_docstring.update.internal.render_string import render_docstring_string
 
 
 def render_docstring(updated: UpdatedDocstring) -> RenderedSymbolDocstring:

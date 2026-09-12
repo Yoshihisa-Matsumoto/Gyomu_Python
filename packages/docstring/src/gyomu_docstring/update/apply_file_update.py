@@ -1,4 +1,4 @@
-from gyomu_python_analysis.update.docstring.file_update_plan import FileUpdatePlan
+from gyomu_docstring.update.docstring.file_update_plan import FileUpdatePlan
 
 
 def apply_file_update_plan(

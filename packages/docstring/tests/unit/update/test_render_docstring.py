@@ -1,15 +1,14 @@
-from gyomu_python_analysis.update.docstring.rendered_symbol import (
+from docstring_test_support.helpers import _default_identity, create_location
+from gyomu_docstring.update.docstring.rendered_symbol import (
     RenderedSymbolDocstring,
 )
-from gyomu_python_analysis.update.docstring.updated_docstring import UpdatedDocstring
-from gyomu_python_analysis.update.render_docstring import render_docstring
+from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
+from gyomu_docstring.update.render_docstring import render_docstring
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
     DocstringSection,
     DocstringStyle,
 )
-
-from tests.helpers import _default_identity, create_location
 
 
 def make_updated_docstring(

@@ -1,21 +1,4 @@
-from gyomu_python_analysis.error.update import UpdateError
-from gyomu_python_analysis.update.build_file_update import (
-    _get_declaration_definition_end_offset,
-    build_addition_entry,
-    build_deletion_entry,
-    build_file_update_plan,
-    build_file_update_plan_entry,
-    build_replacement_entry,
-    validate_file_update_plan_entries,
-)
-from gyomu_python_analysis.update.docstring.rendered_symbol import (
-    RenderedSymbolDocstring,
-)
-from gyomu_schema.error.validation import ValidationError
-from gyomu_schema.schemas.python.location import SourceLocation
-from returns.result import Failure, Success
-
-from tests.helpers import (
+from docstring_test_support.helpers import (
     _default_identity,
     create_class_analysis,
     create_declaration_identity,
@@ -26,6 +9,22 @@ from tests.helpers import (
     create_method_analysis,
     create_rendered_docstring,
 )
+from gyomu_docstring.update.build_file_update import (
+    _get_declaration_definition_end_offset,
+    build_addition_entry,
+    build_deletion_entry,
+    build_file_update_plan,
+    build_file_update_plan_entry,
+    build_replacement_entry,
+    validate_file_update_plan_entries,
+)
+from gyomu_docstring.update.docstring.rendered_symbol import (
+    RenderedSymbolDocstring,
+)
+from gyomu_python_analysis.error.update import UpdateError
+from gyomu_schema.error.validation import ValidationError
+from gyomu_schema.schemas.python.location import SourceLocation
+from returns.result import Failure, Success
 
 
 class TestValidateFileUpdatePlanEntries:
@@ -757,7 +756,7 @@ class TestGetDeclarationDefinitionEndOffset:
         assert isinstance(error, ValidationError)
         assert error.message == "Declaration definition end not found"
         assert error.context == (
-            "gyomu_python_analysis.update.build_file_update."
+            "gyomu_docstring.update.build_file_update."
             "_get_declaration_definition_end_offset"
         )
         assert error.details == {"identity": analysis.identity}

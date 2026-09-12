@@ -17,8 +17,7 @@ from gyomu_schema.schemas.python.type.type_analysis import (
 )
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
-
-from tests.helpers import AnalysisTestBase
+from python_analysis_test_support.helpers import AnalysisTestBase
 
 
 def test_analyze_type_returns_none_for_none() -> None:

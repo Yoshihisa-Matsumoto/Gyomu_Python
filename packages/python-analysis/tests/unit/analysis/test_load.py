@@ -3,9 +3,8 @@ from pathlib import Path
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_schema.schemas.python.types import PythonPath, SourceRelativePath
+from python_analysis_test_support.helpers import _create_context
 from returns.result import Failure, Success
-
-from tests.helpers import _create_context
 
 
 def test_loads_module() -> None:

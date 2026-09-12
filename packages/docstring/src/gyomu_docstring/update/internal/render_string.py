@@ -1,4 +1,4 @@
-from gyomu_python_analysis.update.docstring.line import (
+from gyomu_docstring.update.docstring.line import (
     DocstringBlank,
     DocstringLine,
     DocstringSectionItem,

@@ -1,9 +1,8 @@
-from gyomu_python_analysis.update.apply_file_update import apply_file_update_plan
-from gyomu_python_analysis.update.docstring.file_update_plan import (
+from docstring_test_support.helpers import create_declaration_identity, create_entry
+from gyomu_docstring.update.apply_file_update import apply_file_update_plan
+from gyomu_docstring.update.docstring.file_update_plan import (
     FileUpdatePlan,
 )
-
-from tests.helpers import create_declaration_identity, create_entry
 
 
 class TestApplyFileUpdate:

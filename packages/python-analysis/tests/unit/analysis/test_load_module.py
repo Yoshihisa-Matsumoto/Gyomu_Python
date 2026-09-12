@@ -12,9 +12,8 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
+from python_analysis_test_support.helpers import create_location
 from returns.result import Failure, Success
-
-from tests.helpers import create_location
 
 
 class TestLoadModuleAnalysis:
@@ -82,7 +81,7 @@ class TestLoadModuleAnalysis:
         build_common_mock = mocker.patch(
             "gyomu_python_analysis.analysis.load_module.build_docstring_common",
         )
-        read_mock = mocker.patch("pathlib.Path.read_text", return_value="")
+        mocker.patch("pathlib.Path.read_text", return_value="")
 
         result = load_module_analysis(
             context,

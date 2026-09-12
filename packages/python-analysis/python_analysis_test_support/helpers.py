@@ -12,10 +12,6 @@ from gyomu_python_analysis.analysis.file.source_file_context import SourceFileCo
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.update.docstring.file_update_plan import FileUpdatePlanEntry
-from gyomu_python_analysis.update.docstring.rendered_symbol import (
-    RenderedSymbolDocstring,
-)
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.file_analysis import (
     FileAnalysisContext,
@@ -42,6 +38,8 @@ from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure
 
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
+
+print("LOADED PYTHON-ANALYSIS TESTS.HELPERS")
 
 
 def _create_context() -> ProjectContext:
@@ -80,33 +78,6 @@ _default_identity = DeclarationIdentity(
     symbol_id=SymbolId("test.User"),
     declaration_id=DeclarationId("."),
 )
-
-
-def create_entry(
-    start_offset: int = 0,
-    end_offset: int = 0,
-    identity: DeclarationIdentity = _default_identity,
-    new_text: str = "",
-) -> FileUpdatePlanEntry:
-
-    return FileUpdatePlanEntry(
-        identity=identity,
-        location=create_location(start_offset=start_offset, end_offset=end_offset),
-        new_text=new_text,
-    )
-
-
-def create_rendered_docstring(
-    docstring: str | None,
-    start_offset: int = 0,
-    end_offset: int = 0,
-    identity: DeclarationIdentity = _default_identity,
-) -> RenderedSymbolDocstring:
-    return RenderedSymbolDocstring(
-        identity=identity,
-        docstring=docstring,
-        location=create_location(start_offset=start_offset, end_offset=end_offset),
-    )
 
 
 def create_type_alias_analysis(

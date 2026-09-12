@@ -35,7 +35,11 @@ class ConflictType(StrEnum):
 class ParamActionValue(BaseModel):
     parameter_type: str | None = Field(description="Type hint of parameter")
     description: str | None = Field(
-        description="Complete replacement parameter metadata. When using replace, provide the final parameter documentation to be written."
+        description=(
+            "Complete replacement parameter metadata. "
+            "When using replace, provide the final parameter "
+            "documentation to be written."
+        )
     )
 
 
@@ -43,7 +47,11 @@ class ParamActionValue(BaseModel):
 class ReturnActionValue(BaseModel):
     return_type: str | None = Field(description="Type hint of return")
     description: str | None = Field(
-        description="Complete replacement parameter metadata. When using replace, provide the final parameter documentation to be written."
+        description=(
+            "Complete replacement parameter metadata. "
+            "When using replace, provide the final return "
+            "documentation to be written."
+        )
     )
 
 
@@ -51,7 +59,11 @@ class ReturnActionValue(BaseModel):
 class RaiseActionValue(BaseModel):
     exception_type: str = Field(description="Type hint of exception")
     description: str | None = Field(
-        description="Complete replacement parameter metadata. When using replace, provide the final raise documentation to be written."
+        description=(
+            "Complete replacement parameter metadata. "
+            "When using replace, provide the final raise "
+            "documentation to be written."
+        )
     )
 
 

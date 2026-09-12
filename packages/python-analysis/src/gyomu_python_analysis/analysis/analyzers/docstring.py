@@ -67,7 +67,7 @@ def _analyze_raises(
         raises.append(
             DocstringRaisesSectionItem(
                 description=raiseItem.description,
-                type=raise_type if raise_type is None else raise_type.text,
+                type="" if raise_type is None else raise_type.text,
             )
         )
     return DocstringRaisesSection(items=tuple(raises))

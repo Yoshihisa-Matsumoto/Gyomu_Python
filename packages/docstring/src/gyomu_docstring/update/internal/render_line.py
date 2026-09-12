@@ -1,10 +1,3 @@
-from gyomu_python_analysis.update.docstring.line import (
-    DocstringBlank,
-    DocstringLine,
-    DocstringSectionItem,
-    DocstringText,
-)
-from gyomu_python_analysis.update.docstring.updated_docstring import UpdatedDocstring
 from gyomu_schema.schemas.python.docstring import (
     DocstringCustomSection,
     DocstringExamplesSection,
@@ -18,6 +11,14 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringSectionKind,
     DocstringStyle,
 )
+
+from gyomu_docstring.update.docstring.line import (
+    DocstringBlank,
+    DocstringLine,
+    DocstringSectionItem,
+    DocstringText,
+)
+from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 
 
 def render_docstring_lines(updated: UpdatedDocstring) -> tuple[DocstringLine, ...]:

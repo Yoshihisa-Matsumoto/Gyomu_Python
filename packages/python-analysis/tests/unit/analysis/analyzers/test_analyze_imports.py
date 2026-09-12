@@ -3,8 +3,7 @@ from pathlib import Path
 from gyomu_python_analysis.analysis.extract.symbols import _extract_imports
 from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKind
 from gyomu_schema.schemas.python.types import PythonPath
-
-from tests.helpers import AnalysisTestBase
+from python_analysis_test_support.helpers import AnalysisTestBase
 
 
 class TestAnalizeImport(AnalysisTestBase):

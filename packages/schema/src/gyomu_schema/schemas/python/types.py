@@ -22,15 +22,17 @@ SymbolId = NewType("SymbolId", str)
 class DeclarationIdentity(BaseModel, Hashable):
     """
     Gyomu Context:
-        - symbol_id identifies the externally referenceable Symbol that owns the declaration.
-        It uses the format "<module_name>::<symbol_name>" and is shared by all declarations
+        - symbol_id identifies the externally referenceable Symbol
+        that owns the declaration.
+        It uses the format "<module_name>::<symbol_name>" and
+        is shared by all declarations
         belonging to the same Symbol.
 
         For example:
             gyomu_schema.schemas.python.user::User
 
-        For a class Symbol, the same symbol_id is used for its variables, methods, nested
-        classes, method parameters, and return values.
+        For a class Symbol, the same symbol_id is used for its variables,
+          methods, nested classes, method parameters, and return values.
 
         - declaration_id identifies a declaration within the Symbol.
         It starts with the "." and then

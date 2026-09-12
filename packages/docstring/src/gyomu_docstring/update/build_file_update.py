@@ -1,6 +1,7 @@
 import io
 import tokenize
 
+from gyomu_python_analysis.error.update import UpdateError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis, InnerClassAnalysis
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
@@ -9,12 +10,11 @@ from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
 from returns.result import Failure, Result, Success
 
-from gyomu_python_analysis.error.update import UpdateError
-from gyomu_python_analysis.update.docstring.file_update_plan import (
+from gyomu_docstring.update.docstring.file_update_plan import (
     FileUpdatePlan,
     FileUpdatePlanEntry,
 )
-from gyomu_python_analysis.update.docstring.rendered_symbol import (
+from gyomu_docstring.update.docstring.rendered_symbol import (
     RenderedSymbolDocstring,
 )
 
@@ -97,7 +97,7 @@ def validate_file_update_plan_entries(
                     f"{entry.identity}: "
                     f"start_offset ({location.start_offset}) is greater than "
                     f"end_offset ({location.end_offset}).",
-                    context="gyomu_python_analysis.update.build_file_update.validate_file_update_plan_entries",
+                    context="gyomu_docstring.update.build_file_update.validate_file_update_plan_entries",
                 )
             )
 
@@ -113,7 +113,7 @@ def validate_file_update_plan_entries(
                     f"[{previous.location.start_offset}, {previous_end}) and "
                     f"{current.identity} "
                     f"[{current_start}, {current.location.end_offset}).",
-                    context="gyomu_python_analysis.update.build_file_update.validate_file_update_plan_entries",
+                    context="gyomu_docstring.update.build_file_update.validate_file_update_plan_entries",
                 )
             )
 
@@ -131,7 +131,7 @@ def build_file_update_plan_entry(
         return Failure(
             ValidationError(
                 message="Declaration Item Not Found",
-                context="gyomu_python_analysis.update.build_file_update.build_file_update_plan_entry",
+                context="gyomu_docstring.update.build_file_update.build_file_update_plan_entry",
                 details={"identity": rendered.identity},
             )
         )
@@ -140,7 +140,7 @@ def build_file_update_plan_entry(
         return Failure(
             ValidationError(
                 message="Declation Item is constructor parameter",
-                context="gyomu_python_analysis.update.build_file_update.build_file_update_plan_entry",
+                context="gyomu_docstring.update.build_file_update.build_file_update_plan_entry",
                 details={"identity": rendered.identity},
             )
         )
@@ -237,7 +237,7 @@ def _get_declaration_definition_end_offset(
     return Failure(
         ValidationError(
             message="Declaration definition end not found",
-            context="gyomu_python_analysis.update.build_file_update._get_declaration_definition_end_offset",
+            context="gyomu_docstring.update.build_file_update._get_declaration_definition_end_offset",
             details={"identity": analysis.identity},
         )
     )

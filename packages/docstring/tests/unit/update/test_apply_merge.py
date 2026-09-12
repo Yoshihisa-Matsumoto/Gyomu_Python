@@ -1,8 +1,16 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from gyomu_python_analysis.update.apply_merge import apply_merge_plan, apply_merge_plans
-from gyomu_python_analysis.update.docstring.merge_plan import (
+from docstring_test_support.helpers import (
+    create_class_analysis,
+    create_function_analysis,
+    create_location,
+    create_method_analysis,
+    create_type_alias_analysis,
+    create_variable_analysis,
+)
+from gyomu_docstring.update.apply_merge import apply_merge_plan, apply_merge_plans
+from gyomu_docstring.update.docstring.merge_plan import (
     DeleteAction,
     MergeAction,
     MergePlan,
@@ -14,7 +22,7 @@ from gyomu_python_analysis.update.docstring.merge_plan import (
     ReplaceAction,
     ReturnActionValue,
 )
-from gyomu_python_analysis.update.docstring.updated_docstring import (
+from gyomu_docstring.update.docstring.updated_docstring import (
     UpdatedDocstring,
 )
 from gyomu_schema.schemas.python.docstring import (
@@ -44,15 +52,6 @@ from gyomu_schema.schemas.python.types import (
     SymbolId,
 )
 from returns.result import Success
-
-from tests.helpers import (
-    create_class_analysis,
-    create_function_analysis,
-    create_location,
-    create_method_analysis,
-    create_type_alias_analysis,
-    create_variable_analysis,
-)
 
 
 @dataclass(frozen=True)

@@ -101,8 +101,7 @@ Function
 class User:
     name: str
 
-    def save(self):
-        ...
+    def save(self): ...
 ```
 
 なら、
@@ -404,9 +403,7 @@ ClassAnalysis
 ### Pydantic Field
 
 ```python
-id: int = Field(
-    description="Primary identifier"
-)
+id: int = Field(description="Primary identifier")
 ```
 
 から、

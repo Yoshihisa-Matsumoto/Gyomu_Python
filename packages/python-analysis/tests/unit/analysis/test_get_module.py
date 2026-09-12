@@ -258,12 +258,6 @@ class TestGetModuleAnalysis:
 
         result = get_module_analysis(context, file_path)
 
-        expected_error = AnalysisError(
-            "fail to write ModuleAnalysis",
-            file_path=PythonPath("foo"),
-            phase="post-analysis",
-        ).chain(write_error)
-
         assert isinstance(result, Failure)
         failure = result.failure()
         assert failure.message == "fail to write ModuleAnalysis"

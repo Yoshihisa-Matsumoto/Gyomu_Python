@@ -9,8 +9,7 @@ from gyomu_schema.schemas.python.type.structure import (
 )
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
-
-from tests.helpers import AnalysisTestBase
+from python_analysis_test_support.helpers import AnalysisTestBase
 
 
 class TestAnalyzeDecorator(AnalysisTestBase):

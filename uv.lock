@@ -10,6 +10,7 @@ resolution-markers = [
 [manifest]
 members = [
     "gyomu-ai",
+    "gyomu-docstring",
     "gyomu-infra",
     "gyomu-python-analysis",
     "gyomu-schema",
@@ -797,6 +798,24 @@ requires-dist = [
     { name = "gyomu-schema", editable = "packages/schema" },
     { name = "pydantic-ai", specifier = ">=2.31.1" },
     { name = "pydantic-ai-slim", extras = ["google"], specifier = ">=2.31.1" },
+    { name = "returns", specifier = ">=0.29.0" },
+]
+
+[[package]]
+name = "gyomu-docstring"
+source = { editable = "packages/docstring" }
+dependencies = [
+    { name = "gyomu-infra" },
+    { name = "gyomu-python-analysis" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-python-analysis", editable = "packages/python-analysis" },
+    { name = "gyomu-schema", editable = "packages/schema" },
     { name = "returns", specifier = ">=0.29.0" },
 ]
 

@@ -14,8 +14,7 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
-
-from tests.helpers import AnalysisTestBase
+from python_analysis_test_support.helpers import AnalysisTestBase
 
 
 class TestAnalyzeVariable(AnalysisTestBase):

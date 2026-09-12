@@ -1,10 +1,10 @@
 import pytest
-from gyomu_python_analysis.update.docstring.line import (
+from gyomu_docstring.update.docstring.line import (
     DocstringBlank,
     DocstringSectionItem,
     DocstringText,
 )
-from gyomu_python_analysis.update.internal.render_string import render_docstring_string
+from gyomu_docstring.update.internal.render_string import render_docstring_string
 
 
 class TestRenderDocstringString:

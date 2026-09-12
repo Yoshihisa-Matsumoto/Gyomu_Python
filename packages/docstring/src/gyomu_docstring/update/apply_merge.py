@@ -1,3 +1,4 @@
+from gyomu_python_analysis.error.update import UpdateError
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
     DocstringParametersSection,
@@ -15,8 +16,7 @@ from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
 from returns.result import Failure, Result, Success
 
-from gyomu_python_analysis.error.update import UpdateError
-from gyomu_python_analysis.update.docstring.merge_plan import (
+from gyomu_docstring.update.docstring.merge_plan import (
     DeleteAction,
     MergeAction,
     MergePlan,
@@ -26,7 +26,7 @@ from gyomu_python_analysis.update.docstring.merge_plan import (
     ReplaceAction,
     ReturnActionValue,
 )
-from gyomu_python_analysis.update.docstring.updated_docstring import UpdatedDocstring
+from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 
 
 def apply_merge_plans(
