@@ -11,7 +11,7 @@ from gyomu_ai_compiler.pipelines.docstring_update.context.declaration_context im
 
 
 @dataclass(frozen=True)
-class RetryOption:
+class DocstringRetryOption:
     attempt: int
     missing_identity: tuple[DeclarationIdentity]
 
@@ -21,4 +21,4 @@ class DocstringFileContext:
     project_name: str
     source_relative_path: SourceRelativePath
     symbols: tuple[DocstringDeclarationContext, ...]
-    retry: RetryOption | None
+    retry: DocstringRetryOption | None

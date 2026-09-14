@@ -5,8 +5,12 @@ from returns.result import Failure, Result, Success
 from gyomu_schema.error.validation import ValidationError
 
 
-def dump_json(value: BaseModel) -> str:
-    return value.model_dump_json()
+def dump_json(
+    value: BaseModel,
+    *,
+    indent: int | None = None,
+) -> str:
+    return value.model_dump_json(indent=indent)
 
 
 def validate_json[T: BaseModel](
