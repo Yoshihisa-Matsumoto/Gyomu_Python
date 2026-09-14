@@ -298,12 +298,15 @@ def analyze_type_expression(
     return analyze_expression(value, context, need_registration_dependency)
 
 
-def parse_literal_value(value: str) -> str | int | bool:
+def parse_literal_value(value: str) -> str | int | bool | float:
     parsed = ast.literal_eval(value)
     if isinstance(parsed, bool):
         return parsed
 
     if isinstance(parsed, int):
+        return parsed
+
+    if isinstance(parsed, float):
         return parsed
 
     if isinstance(parsed, str):

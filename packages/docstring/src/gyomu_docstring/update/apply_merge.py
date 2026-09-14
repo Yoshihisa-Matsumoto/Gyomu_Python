@@ -17,13 +17,13 @@ from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
 from returns.result import Failure, Result, Success
 
 from gyomu_docstring.update.docstring.merge_plan import (
-    DeleteAction,
     MergeAction,
+    MergeDeleteAction,
     MergePlan,
+    MergePreserveAction,
+    MergeReplaceAction,
     ParamMergePlan,
-    PreserveAction,
     RaiseMergePlan,
-    ReplaceAction,
     ReturnActionValue,
 )
 from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
@@ -266,17 +266,17 @@ def _merge_arguments(
         existing_param = existing_parameters_by_name.get(plan.name)
 
         match plan.action:
-            case PreserveAction():
+            case MergePreserveAction():
                 if existing_param is not None:
                     merged.append((plan.sort_order, existing_param))
 
-            case DeleteAction():
+            case MergeDeleteAction():
                 pass
 
-            case ReplaceAction(value=value):
+            case MergeReplaceAction(value=value):
                 if (
                     existing_param is None
-                    and value.parameter_type is None
+                    and value.type is None
                     and value.description is None
                 ):
                     return Failure(
@@ -295,8 +295,8 @@ def _merge_arguments(
                         DocstringParametersSectionItem(
                             name=plan.name,
                             type=(
-                                value.parameter_type
-                                if value.parameter_type is not None
+                                value.type
+                                if value.type is not None
                                 else existing_param.type
                                 if existing_param is not None
                                 else None
@@ -361,20 +361,20 @@ def _merge_raises(
         else {}
     )
 
-    merged: list[tuple[int, DocstringRaisesSectionItem]] = []
+    merged: list[DocstringRaisesSectionItem] = []
 
     for plan in plans:
         existing_raise = existing_raises_by_type.get(plan.exception_type)
 
         match plan.action:
-            case PreserveAction():
+            case MergePreserveAction():
                 if existing_raise is not None:
-                    merged.append((plan.sort_order, existing_raise))
+                    merged.append(existing_raise)
 
-            case DeleteAction():
+            case MergeDeleteAction():
                 pass
 
-            case ReplaceAction(value=value):
+            case MergeReplaceAction(value=value):
                 if existing_raise is None and value.description is None:
                     return Failure(
                         UpdateError(
@@ -387,21 +387,18 @@ def _merge_raises(
                     )
 
                 merged.append(
-                    (
-                        plan.sort_order,
-                        DocstringRaisesSectionItem(
-                            type=(value.exception_type),
-                            description=(
-                                value.description
-                                if value.description is not None
-                                else existing_raise.description
-                                if existing_raise is not None
-                                else ""
-                            ),
+                    DocstringRaisesSectionItem(
+                        type=(value.error_type),
+                        description=(
+                            value.description
+                            if value.description is not None
+                            else existing_raise.description
+                            if existing_raise is not None
+                            else ""
                         ),
-                    )
+                    ),
                 )
 
-    merged.sort(key=lambda item: item[0])
+    merged.sort(key=lambda item: item.type)
 
-    return Success(tuple(item for _, item in merged))
+    return Success(tuple(item for item in merged))

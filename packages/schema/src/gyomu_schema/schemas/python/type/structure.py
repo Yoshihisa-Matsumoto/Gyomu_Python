@@ -35,7 +35,7 @@ class UnknownStructureAnalysis(BaseModel):
 
 
 class LiteralValue(BaseModel):
-    value: str | int | bool
+    value: str | int | bool | float
 
 
 class EllipsisStructureAnalysis(BaseModel):

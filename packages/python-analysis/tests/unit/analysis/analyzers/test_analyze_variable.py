@@ -1,6 +1,7 @@
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.structure import (
+    LiteralValue,
     NameStructureAnalysis,
 )
 from gyomu_schema.schemas.python.type.type_analysis import (
@@ -35,12 +36,12 @@ class TestAnalyzeVariable(AnalysisTestBase):
             type=None,
             value_source="5",
             location=SourceLocation(
-                start_line=1,
+                start_line=6,
                 start_column=0,
-                end_line=1,
+                end_line=6,
                 end_column=11,
-                start_offset=0,
-                end_offset=11,
+                start_offset=59,
+                end_offset=70,
             ),
             visibility=Visibility.PUBLIC,
             indent=0,
@@ -48,6 +49,8 @@ class TestAnalyzeVariable(AnalysisTestBase):
                 symbol_id=SymbolId("analysis.symbol.variable::VERSION"),
                 declaration_id=DeclarationId("."),
             ),
+            value_expression=LiteralValue(value=5),
+            pydantic=None,
         )
 
         result = self._analyze_variable(
@@ -87,3 +90,31 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.visibility == Visibility.PUBLIC
         assert result.type is None
         assert result.value_source == "2 + 3"
+
+    def test_analyzes_variable_pydantic(self) -> None:
+        result = self._analyze_variable(
+            "Confidence",
+        )
+
+        assert result.kind == DeclarationKind.VARIABLE
+        assert result.name == "Confidence"
+        assert result.visibility == Visibility.PUBLIC
+        assert result.value_expression is not None
+        assert result.pydantic is not None
+        assert result.pydantic.description
+        assert "AI decision" in result.pydantic.description
+        assert result.pydantic.required
+
+    def test_analyzes_variable_pydantic2(self) -> None:
+        result = self._analyze_variable(
+            "Confidence2",
+        )
+
+        assert result.kind == DeclarationKind.VARIABLE
+        assert result.name == "Confidence2"
+        assert result.visibility == Visibility.PUBLIC
+        assert result.value_expression is not None
+        assert result.pydantic is not None
+        assert result.pydantic.description
+        assert "AI decision" in result.pydantic.description
+        assert result.pydantic.required

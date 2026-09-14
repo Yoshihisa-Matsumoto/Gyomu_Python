@@ -5,6 +5,7 @@
     "packages/infra/src",
     "packages/ai/src",
     "packages/python-analysis/src",
-    "packages/docstring"
+    "packages/docstring/src",
+    "packages/ai-compiler/src"
   ]
 }

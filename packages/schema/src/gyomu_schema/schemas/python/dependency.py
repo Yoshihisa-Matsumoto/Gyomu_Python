@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import StrEnum
 from typing import Literal
 
@@ -25,4 +26,9 @@ class ImportedSymbolDependency(BaseModel):
 
 class DependencyAnalysis(BaseModel):
     source: DeclarationIdentity
+    target: LocalFileDependency | ImportedSymbolDependency
+
+
+@dataclass(frozen=True)
+class DependencySummary:
     target: LocalFileDependency | ImportedSymbolDependency

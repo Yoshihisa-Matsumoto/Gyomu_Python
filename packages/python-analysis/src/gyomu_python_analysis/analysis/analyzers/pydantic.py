@@ -7,6 +7,7 @@ from gyomu_schema.schemas.python.type.structure import (
 from gyomu_schema.schemas.python.type.type_analysis import (
     CallStructureAnalysis,
     ExpressionAnalysis,
+    GenericsStructureAnalysis,
     KeywordStructureAnalysis,
     TypeExpression,
     UnionStructureAnalysis,
@@ -59,4 +60,33 @@ def analyze_pydantic(
             alias=alias,
             default_source=default,
         )
+    return None
+
+
+def get_pydantic_field_from_annotated_type_expression(
+    expression: TypeExpression | None,
+) -> tuple[TypeExpression, CallStructureAnalysis] | None:
+    if not isinstance(expression, GenericsStructureAnalysis):
+        return None
+
+    if not (
+        isinstance(expression.base, NameStructureAnalysis)
+        and expression.base.name == "Annotated"
+    ):
+        return None
+
+    parameters = expression.parameters
+    if len(parameters) < 2:
+        return None
+
+    assumed_type = parameters[0]
+
+    for metadata in parameters[1:]:
+        if (
+            isinstance(metadata, CallStructureAnalysis)
+            and isinstance(metadata.function, NameStructureAnalysis)
+            and metadata.function.name == "Field"
+        ):
+            return assumed_type, metadata
+
     return None

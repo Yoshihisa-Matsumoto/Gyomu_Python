@@ -16,7 +16,18 @@ from gyomu_python_analysis.analysis.file.source_file_context import SourceFileCo
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
+from gyomu_schema.schemas.python.class_analysis import (
+    ClassAnalysis,
+    ClassTypeAliasAnalysis,
+    ClassVariableAnalysis,
+    InnerClassAnalysis,
+)
+from gyomu_schema.schemas.python.dependency import DependencyAnalysis
+from gyomu_schema.schemas.python.docstring import (
+    DocstringAnalysis,
+    DocstringSection,
+    DocstringStyle,
+)
 from gyomu_schema.schemas.python.file_analysis import (
     FileAnalysisContext,
     FileAnalysisMetadata,
@@ -133,6 +144,27 @@ def create_type_alias_analysis(
     )
 
 
+def create_class_type_alias_analysis(
+    indent: int,
+    location: SourceLocation,
+    name: str = "test_func",
+    identity: DeclarationIdentity | None = None,
+) -> ClassTypeAliasAnalysis:
+    if identity is None:
+        identity = create_declaration_identity(name)
+    return ClassTypeAliasAnalysis(
+        name=name,
+        docstring=None,
+        identity=identity,
+        decorators=tuple(),
+        indent=indent,
+        kind=DeclarationKind.TYPEALIAS,
+        visibility=Visibility.PUBLIC,
+        location=location,
+        alias_type=None,
+    )
+
+
 def create_variable_analysis(
     indent: int,
     location: SourceLocation,
@@ -156,20 +188,46 @@ def create_variable_analysis(
     )
 
 
+def create_class_variable_analysis(
+    indent: int,
+    location: SourceLocation,
+    name: str = "test_func",
+    identity: DeclarationIdentity | None = None,
+) -> ClassVariableAnalysis:
+    if identity is None:
+        identity = create_declaration_identity(name)
+    return ClassVariableAnalysis(
+        name=name,
+        docstring=None,
+        identity=identity,
+        decorators=tuple(),
+        indent=indent,
+        kind=DeclarationKind.VARIABLE,
+        visibility=Visibility.PUBLIC,
+        location=location,
+        type=None,
+        value_source=None,
+        value_expression=None,
+        pydantic=None,
+    )
+
+
 def create_function_analysis(
     indent: int,
     location: SourceLocation,
     name: str = "test_func",
     identity: DeclarationIdentity | None = None,
+    docstring: DocstringAnalysis | None = None,
+    dependencies: tuple[DependencyAnalysis, ...] = tuple(),
 ) -> FunctionAnalysis:
     if identity is None:
         identity = create_declaration_identity(name)
     return FunctionAnalysis(
         name=name,
-        docstring=None,
+        docstring=docstring,
         identity=identity,
         decorators=tuple(),
-        dependencies=tuple(),
+        dependencies=dependencies,
         indent=indent,
         is_async=False,
         kind=DeclarationKind.FUNCTION,
@@ -185,12 +243,13 @@ def create_method_analysis(
     location: SourceLocation | None,
     name: str = "test_func",
     identity: DeclarationIdentity | None = None,
+    docstring: DocstringAnalysis | None = None,
 ) -> MethodAnalysis:
     if identity is None:
         identity = create_declaration_identity(name)
     return MethodAnalysis(
         name=name,
-        docstring=None,
+        docstring=docstring,
         identity=identity,
         decorators=tuple(),
         indent=indent,
@@ -208,6 +267,10 @@ def create_class_analysis(
     location: SourceLocation,
     name: str = "test_class",
     identity: DeclarationIdentity | None = None,
+    methods: tuple[MethodAnalysis, ...] = tuple(),
+    variables: tuple[ClassVariableAnalysis, ...] = tuple(),
+    type_aliases: tuple[ClassTypeAliasAnalysis, ...] = tuple(),
+    inner_classes: tuple[InnerClassAnalysis, ...] = tuple(),
 ) -> ClassAnalysis:
     if identity is None:
         identity = create_declaration_identity(name)
@@ -222,7 +285,33 @@ def create_class_analysis(
         bases=tuple(),
         visibility=Visibility.PUBLIC,
         location=location,
-        methods=tuple(),
+        methods=methods,
+        variables=variables,
+        type_aliases=type_aliases,
+        inner_classes=inner_classes,
+    )
+
+
+def create_inner_class_analysis(
+    indent: int,
+    location: SourceLocation,
+    name: str = "test_class",
+    identity: DeclarationIdentity | None = None,
+    methods: tuple[MethodAnalysis, ...] = tuple(),
+) -> InnerClassAnalysis:
+    if identity is None:
+        identity = create_declaration_identity(name)
+    return InnerClassAnalysis(
+        name=name,
+        docstring=None,
+        identity=identity,
+        decorators=tuple(),
+        indent=indent,
+        kind=DeclarationKind.CLASS,
+        bases=tuple(),
+        visibility=Visibility.PUBLIC,
+        location=location,
+        methods=methods,
         variables=tuple(),
         type_aliases=tuple(),
         inner_classes=tuple(),
@@ -236,11 +325,25 @@ def create_file_analysis_context(
 ) -> FileAnalysisContext:
     symbols: dict[DeclarationIdentity, SymbolAnalysis | MemberAnalysis]
     symbols = dict([(symbol.identity, symbol)]) if symbol else dict()
-
+    analysis_symbols: list[SymbolAnalysis] = []
+    if isinstance(
+        symbol, VariableAnalysis | ClassAnalysis | FunctionAnalysis | TypeAliasAnalysis
+    ):
+        analysis_symbols.append(symbol)
     if symbol2:
         symbols[symbol2.identity] = symbol2
+        if isinstance(
+            symbol2,
+            VariableAnalysis | ClassAnalysis | FunctionAnalysis | TypeAliasAnalysis,
+        ):
+            analysis_symbols.append(symbol2)
     if symbol3:
         symbols[symbol3.identity] = symbol3
+        if isinstance(
+            symbol3,
+            VariableAnalysis | ClassAnalysis | FunctionAnalysis | TypeAliasAnalysis,
+        ):
+            analysis_symbols.append(symbol3)
     return FileAnalysisContext(
         metadata=FileAnalysisMetadata(parsed_docstring=dict(), symbols=symbols),
         analysis=ModuleAnalysis(
@@ -249,8 +352,25 @@ def create_file_analysis_context(
             module_name=PythonPath(""),
             docstring=None,
             imports=tuple(),
-            symbols=(),
+            symbols=tuple(analysis_symbols),
         ),
+    )
+
+
+def create_docstring(
+    summary: str | None = None,
+    description: str | None = None,
+    location: SourceLocation | None = None,
+    sections: tuple[DocstringSection, ...] = tuple(),
+) -> DocstringAnalysis:
+    return DocstringAnalysis(
+        raw="",
+        summary=summary,
+        description=description,
+        location=location if location is not None else create_location(),
+        style=DocstringStyle.GOOGLE,
+        indent=0,
+        sections=sections,
     )
 
 
