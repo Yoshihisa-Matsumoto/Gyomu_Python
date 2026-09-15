@@ -1,20 +1,18 @@
-from dataclasses import dataclass
 from typing import Literal
 
+from pydantic import BaseModel
 
-@dataclass(frozen=True)
-class DocstringText:
+
+class DocstringText(BaseModel):
     text: str
     type: Literal["text"] = "text"
 
 
-@dataclass(frozen=True)
-class DocstringBlank:
+class DocstringBlank(BaseModel):
     type: Literal["blank"] = "blank"
 
 
-@dataclass(frozen=True)
-class DocstringSectionItem:
+class DocstringSectionItem(BaseModel):
     text: str
     type: Literal["section"] = "section"
 

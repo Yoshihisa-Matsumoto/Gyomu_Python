@@ -1,38 +1,33 @@
-from dataclasses import dataclass
 from typing import Literal, Self
 
 from gyomu_schema.schemas.python.dependency import DependencySummary
 from gyomu_schema.schemas.python.types import DeclarationIdentity
+from pydantic import BaseModel
 
 
-@dataclass(frozen=True)
-class DeclarationInfo:
+class DeclarationInfo(BaseModel):
     name: str
     kind: str
 
 
-@dataclass(frozen=True)
-class DocstringParameter:
+class DocstringParameter(BaseModel):
     name: str
     sort_order: int
     type: str | None
     description: str | None
 
 
-@dataclass(frozen=True)
-class DocstringRaise:
+class DocstringRaise(BaseModel):
     type: str
     description: str
 
 
-@dataclass(frozen=True)
-class DocstringReturn:
+class DocstringReturn(BaseModel):
     type: str | None
     description: str
 
 
-@dataclass(frozen=True)
-class ExistingDocstring:
+class ExistingDocstring(BaseModel):
     summary: str | None
     description: str | None
     parameters: tuple[DocstringParameter, ...]
@@ -40,19 +35,16 @@ class ExistingDocstring:
     raises: tuple[DocstringRaise, ...]
 
 
-@dataclass(frozen=True)
-class DocumentableContext:
+class DocumentableContext(BaseModel):
     documentable: Literal[True] = True
 
 
-@dataclass(frozen=True)
-class NonDocumentableContext:
+class NonDocumentableContext(BaseModel):
     reason: Literal["generated", "external", "non-documentable-member"]
     documentable: Literal[False] = False
 
 
-@dataclass(frozen=True)
-class ContextEntry:
+class ContextEntry(BaseModel):
     """Context for generating a docstring for a Python declaration."""
 
     target: DeclarationIdentity
@@ -66,8 +58,7 @@ class ContextEntry:
     documentable: DocumentableContext | NonDocumentableContext
 
 
-@dataclass(frozen=True)
-class DocstringDeclarationContext:
+class DocstringDeclarationContext(BaseModel):
     """Context for generating a docstring for a Python declaration."""
 
     target: DeclarationIdentity

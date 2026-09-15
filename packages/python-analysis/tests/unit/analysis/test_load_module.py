@@ -12,8 +12,9 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
-from python_analysis_test_support.helpers import create_location
 from returns.result import Failure, Success
+
+from packages.schema.schema_test_support.helpers import create_location
 
 
 class TestLoadModuleAnalysis:

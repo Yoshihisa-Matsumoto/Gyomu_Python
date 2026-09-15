@@ -27,3 +27,19 @@ def validate_json[T: BaseModel](
                 input=data,
             ).chain(error)
         )
+
+
+def _assert_json_round_trip[T: BaseModel](
+    model_type: type[T],
+    value: T,
+) -> None:
+
+    data = dump_json(value)
+    result = validate_json(model_type, data)
+
+    if isinstance(result, Failure):
+        print(str(result.failure()))
+        raise AssertionError(result.failure())
+
+    assert isinstance(result, Success)
+    assert result.unwrap() == value

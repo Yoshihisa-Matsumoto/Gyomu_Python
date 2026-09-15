@@ -1,3 +1,6 @@
+from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
+    ReturnActionValue,
+)
 from gyomu_python_analysis.error.update import UpdateError
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
@@ -24,7 +27,6 @@ from gyomu_docstring.update.docstring.merge_plan import (
     MergeReplaceAction,
     ParamMergePlan,
     RaiseMergePlan,
-    ReturnActionValue,
 )
 from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import StrEnum
 from typing import Literal
 
@@ -8,21 +7,19 @@ from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
     ReturnActionValue,
 )
 from gyomu_schema.schemas.python.types import DeclarationIdentity
+from pydantic import BaseModel
 
 
-@dataclass(frozen=True)
-class MergeReplaceAction[T]:
+class MergeReplaceAction[T](BaseModel):
     value: T
     type: Literal["replace"] = "replace"
 
 
-@dataclass(frozen=True)
-class MergeDeleteAction:
+class MergeDeleteAction(BaseModel):
     type: Literal["delete"] = "delete"
 
 
-@dataclass(frozen=True)
-class MergePreserveAction:
+class MergePreserveAction(BaseModel):
     type: Literal["preserve"] = "preserve"
 
 
@@ -35,28 +32,24 @@ class ConflictType(StrEnum):
     STRUCTURAL_MISMATCH = "structural-mismatch"
 
 
-@dataclass(frozen=True)
-class RaiseMergePlan:
+class RaiseMergePlan(BaseModel):
     exception_type: str
     action: MergeAction[RaiseActionValue]
 
 
-@dataclass(frozen=True)
-class ParamMergePlan:
+class ParamMergePlan(BaseModel):
     name: str
     sort_order: int
     action: MergeAction[ParamActionValue]
 
 
-@dataclass(frozen=True)
-class MergeConflict:
+class MergeConflict(BaseModel):
     symbol: str
     type: ConflictType
     message: str
 
 
-@dataclass(frozen=True)
-class MergePlan:
+class MergePlan(BaseModel):
     identity: DeclarationIdentity
 
     summary: MergeAction[str]

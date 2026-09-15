@@ -38,7 +38,7 @@ from gyomu_schema.schemas.python.docstring import (
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.types import SymbolId
 
-from packages.docstring.docstring_test_support.helpers import (
+from packages.schema.schema_test_support.helpers import (
     create_class_analysis,
     create_class_type_alias_analysis,
     create_class_variable_analysis,

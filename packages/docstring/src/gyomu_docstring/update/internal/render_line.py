@@ -59,7 +59,7 @@ def computeCustom_tag(
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text=section.title + ":"))
-            lines.append(DocstringText(f"    {section.value}"))
+            lines.append(DocstringText(text=f"    {section.value}"))
 
 
 def compute_gyomu_context(
@@ -70,7 +70,7 @@ def compute_gyomu_context(
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Gyomu Context:"))
-            lines.append(DocstringText(f"    {section.value}"))
+            lines.append(DocstringText(text=f"    {section.value}"))
 
 
 def compute_examples_tag(
@@ -81,7 +81,7 @@ def compute_examples_tag(
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Examples:"))
             for item in section.items:
-                lines.append(DocstringText(f"    {item.value}"))
+                lines.append(DocstringText(text=f"    {item.value}"))
                 lines.append(DocstringBlank())
 
 
@@ -91,7 +91,7 @@ def compute_notes_tag(
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Notes:"))
-            lines.append(DocstringText(f"    {section.value}"))
+            lines.append(DocstringText(text=f"    {section.value}"))
 
 
 def compute_raises_tag(
@@ -102,7 +102,7 @@ def compute_raises_tag(
 
     lines.append(DocstringSectionItem(text=_get_raises_section_name(style)))
     for item in section.items:
-        lines.append(DocstringText(_compute_raises_item(item, style)))
+        lines.append(DocstringText(text=_compute_raises_item(item, style)))
 
 
 def _get_raises_section_name(style: DocstringStyle) -> str:
@@ -128,7 +128,7 @@ def compute_returns_tag(
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Returns:"))
             return_type = f"{item.type}: " if item.type else ""
-            lines.append(DocstringText(f"    {return_type}{item.description}"))
+            lines.append(DocstringText(text=f"    {return_type}{item.description}"))
 
 
 def compute_args_tag(
@@ -141,7 +141,9 @@ def compute_args_tag(
 
     lines.append(DocstringSectionItem(text=_get_args_section_name(style)))
     for parameter in section.items:
-        lines.append(DocstringText(_compute_args_item(parameter, style)))
+        lines.append(
+            DocstringText(text=_compute_args_item(parameter=parameter, style=style))
+        )
 
 
 def _get_args_section_name(style: DocstringStyle) -> str:

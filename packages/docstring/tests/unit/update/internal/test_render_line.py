@@ -1,4 +1,3 @@
-from docstring_test_support.helpers import _default_identity, create_location
 from gyomu_docstring.update.docstring.line import (
     DocstringBlank,
     DocstringSectionItem,
@@ -19,6 +18,11 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringReturnsSectionItem,
     DocstringSection,
     DocstringStyle,
+)
+
+from packages.schema.schema_test_support.helpers import (
+    _default_identity,
+    create_location,
 )
 
 
@@ -48,7 +52,7 @@ def test_renders_summary() -> None:
 
     result = render_docstring_lines(updated)
 
-    assert result == (DocstringText("Finds a user."),)
+    assert result == (DocstringText(text="Finds a user."),)
 
 
 def test_renders_summary_and_description() -> None:
@@ -60,9 +64,9 @@ def test_renders_summary_and_description() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringText("Searches the repository."),
+        DocstringText(text="Searches the repository."),
     )
 
 
@@ -86,8 +90,8 @@ def test_renders_blank_when_summary_is_none() -> None:
 
     assert result == (
         DocstringBlank(),
-        DocstringSectionItem("Args:"),
-        DocstringText("    user_id (int): User identifier."),
+        DocstringSectionItem(text="Args:"),
+        DocstringText(text="    user_id (int): User identifier."),
     )
 
 
@@ -115,11 +119,11 @@ def test_renders_parameters() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Args:"),
-        DocstringText("    user_id (int): User identifier."),
-        DocstringText("    name: User name."),
+        DocstringSectionItem(text="Args:"),
+        DocstringText(text="    user_id (int): User identifier."),
+        DocstringText(text="    name: User name."),
     )
 
 
@@ -139,10 +143,10 @@ def test_renders_returns() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Returns:"),
-        DocstringText("    User: The matching user."),
+        DocstringSectionItem(text="Returns:"),
+        DocstringText(text="    User: The matching user."),
     )
 
 
@@ -162,10 +166,10 @@ def test_renders_returns_without_type() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Returns:"),
-        DocstringText("    The matching user."),
+        DocstringSectionItem(text="Returns:"),
+        DocstringText(text="    The matching user."),
     )
 
 
@@ -187,11 +191,11 @@ def test_renders_raises() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Raises:"),
+        DocstringSectionItem(text="Raises:"),
         DocstringText(
-            "    ValueError: If the user does not exist.",
+            text="    ValueError: If the user does not exist.",
         ),
     )
 
@@ -245,14 +249,14 @@ def test_renders_multiple_raises() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Raises:"),
+        DocstringSectionItem(text="Raises:"),
         DocstringText(
-            "    ValueError: If the user does not exist.",
+            text="    ValueError: If the user does not exist.",
         ),
         DocstringText(
-            "    PermissionError: If access is denied.",
+            text="    PermissionError: If access is denied.",
         ),
     )
 
@@ -296,20 +300,20 @@ def test_renders_all_standard_sections() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringText("Searches the repository."),
+        DocstringText(text="Searches the repository."),
         DocstringBlank(),
-        DocstringSectionItem("Args:"),
-        DocstringText("    user_id (int): User identifier."),
-        DocstringText("    name: User name."),
+        DocstringSectionItem(text="Args:"),
+        DocstringText(text="    user_id (int): User identifier."),
+        DocstringText(text="    name: User name."),
         DocstringBlank(),
-        DocstringSectionItem("Returns:"),
-        DocstringText("    User: The matching user."),
+        DocstringSectionItem(text="Returns:"),
+        DocstringText(text="    User: The matching user."),
         DocstringBlank(),
-        DocstringSectionItem("Raises:"),
+        DocstringSectionItem(text="Raises:"),
         DocstringText(
-            "    ValueError: If the user does not exist.",
+            text="    ValueError: If the user does not exist.",
         ),
     )
 
@@ -327,11 +331,11 @@ def test_renders_notes() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Notes:"),
+        DocstringSectionItem(text="Notes:"),
         DocstringText(
-            "    This operation uses the repository cache.",
+            text="    This operation uses the repository cache.",
         ),
     )
 
@@ -349,11 +353,11 @@ def test_renders_gyomu_context() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Gyomu Context:"),
+        DocstringSectionItem(text="Gyomu Context:"),
         DocstringText(
-            "    Used by the user lookup workflow.",
+            text="    Used by the user lookup workflow.",
         ),
     )
 
@@ -372,10 +376,10 @@ def test_renders_custom_section() -> None:
     result = render_docstring_lines(updated)
 
     assert result == (
-        DocstringText("Finds a user."),
+        DocstringText(text="Finds a user."),
         DocstringBlank(),
-        DocstringSectionItem("Warning:"),
+        DocstringSectionItem(text="Warning:"),
         DocstringText(
-            "    This operation may be expensive.",
+            text="    This operation may be expensive.",
         ),
     )

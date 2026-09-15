@@ -92,7 +92,7 @@ def build_context_entry(member: MemberAnalysis) -> ContextEntry:
         else None,
         documentable=DocumentableContext()
         if member.location is not None
-        else NonDocumentableContext("non-documentable-member"),
+        else NonDocumentableContext(reason="non-documentable-member"),
         children=build_context_entries(member)
         if isinstance(member, InnerClassAnalysis)
         else tuple(),

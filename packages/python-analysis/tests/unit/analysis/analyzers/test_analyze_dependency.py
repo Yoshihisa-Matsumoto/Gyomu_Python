@@ -54,6 +54,8 @@ def create_symbol(name: str, symbol_id: SymbolId | None = None) -> SymbolAnalysi
         kind=DeclarationKind.VARIABLE,
         type=None,
         value_source="",
+        value_expression=None,
+        pydantic=None,
     )
 
 

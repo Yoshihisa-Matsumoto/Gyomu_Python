@@ -1,14 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from docstring_test_support.helpers import (
-    create_class_analysis,
-    create_function_analysis,
-    create_location,
-    create_method_analysis,
-    create_type_alias_analysis,
-    create_variable_analysis,
-)
 from gyomu_docstring.update.apply_merge import apply_merge_plan, apply_merge_plans
 from gyomu_docstring.update.docstring.merge_plan import (
     MergeAction,
@@ -52,6 +44,15 @@ from gyomu_schema.schemas.python.types import (
     SymbolId,
 )
 from returns.result import Success
+
+from packages.schema.schema_test_support.helpers import (
+    create_class_analysis,
+    create_function_analysis,
+    create_location,
+    create_method_analysis,
+    create_type_alias_analysis,
+    create_variable_analysis,
+)
 
 
 @dataclass(frozen=True)
@@ -145,9 +146,6 @@ class TestApplyMerge:
             params=params,
             returns=returns,
             raises=raises,
-            conflicts=(),
-            confidence=1.0,
-            average_confidence=1.0,
         )
 
     def test_apply_merge_plan_preserves_summary(self) -> None:
@@ -168,7 +166,7 @@ class TestApplyMerge:
         context = self._context(identity, self._docstring(summary="Original summary."))
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("Updated summary."),
+            summary=MergeReplaceAction(value="Updated summary."),
         )
 
         result = apply_merge_plan(context, plan)
@@ -210,7 +208,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            description=MergeReplaceAction("Updated description."),
+            description=MergeReplaceAction(value="Updated description."),
         )
 
         result = apply_merge_plan(context, plan)
@@ -302,7 +300,7 @@ class TestApplyMerge:
                     name="user_id",
                     sort_order=0,
                     action=MergeReplaceAction(
-                        ParamActionValue(
+                        value=ParamActionValue(
                             type="int",
                             description="The user's identifier.",
                         )
@@ -408,7 +406,7 @@ class TestApplyMerge:
                     name="name",
                     sort_order=1,
                     action=MergeReplaceAction(
-                        ParamActionValue(
+                        value=ParamActionValue(
                             type="str",
                             description="User name.",
                         )
@@ -461,7 +459,7 @@ class TestApplyMerge:
                     name="name",
                     sort_order=0,
                     action=MergeReplaceAction(
-                        ParamActionValue(
+                        value=ParamActionValue(
                             type="str",
                             description="User name.",
                         )
@@ -541,7 +539,9 @@ class TestApplyMerge:
         plan = self._plan(
             identity=identity,
             returns=MergeReplaceAction(
-                ReturnActionValue(description="The matching user.", return_type=None)
+                value=ReturnActionValue(
+                    description="The matching user.", return_type=None
+                )
             ),
         )
 
@@ -707,7 +707,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("Updated summary."),
+            summary=MergeReplaceAction(value="Updated summary."),
         )
 
         result = apply_merge_plan(context, plan)
@@ -737,7 +737,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("Updated summary."),
+            summary=MergeReplaceAction(value="Updated summary."),
         )
 
         result = apply_merge_plan(context, plan)
@@ -761,7 +761,7 @@ class TestApplyMerge:
         context = self._context(identity, existing)
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("Updated summary."),
+            summary=MergeReplaceAction(value="Updated summary."),
         )
 
         result = apply_merge_plan(context, plan).unwrap()
@@ -778,7 +778,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("Updated summary."),
+            summary=MergeReplaceAction(value="Updated summary."),
         )
 
         result = apply_merge_plan(context, plan).unwrap()
@@ -826,11 +826,11 @@ class TestApplyMerge:
         plans = (
             self._plan(
                 identity=first_identity,
-                summary=MergeReplaceAction("Updated first."),
+                summary=MergeReplaceAction(value="Updated first."),
             ),
             self._plan(
                 identity=second_identity,
-                summary=MergeReplaceAction("Updated second."),
+                summary=MergeReplaceAction(value="Updated second."),
             ),
         )
 
@@ -879,7 +879,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("New summary."),
+            summary=MergeReplaceAction(value="New summary."),
         )
 
         result = apply_merge_plan(context, plan).unwrap()
@@ -902,7 +902,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("New summary."),
+            summary=MergeReplaceAction(value="New summary."),
         )
 
         result = apply_merge_plan(context, plan).unwrap()
@@ -925,7 +925,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("New summary."),
+            summary=MergeReplaceAction(value="New summary."),
         )
 
         result = apply_merge_plan(context, plan).unwrap()
@@ -948,7 +948,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("New summary."),
+            summary=MergeReplaceAction(value="New summary."),
         )
 
         result = apply_merge_plan(context, plan).unwrap()
@@ -971,7 +971,7 @@ class TestApplyMerge:
         )
         plan = self._plan(
             identity=identity,
-            summary=MergeReplaceAction("New summary."),
+            summary=MergeReplaceAction(value="New summary."),
         )
 
         result = apply_merge_plan(context, plan).unwrap()
