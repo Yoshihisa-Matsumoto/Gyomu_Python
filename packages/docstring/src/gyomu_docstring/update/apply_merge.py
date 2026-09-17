@@ -1,7 +1,6 @@
 from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
     ReturnActionValue,
 )
-from gyomu_python_analysis.error.update import UpdateError
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
     DocstringParametersSection,
@@ -19,6 +18,7 @@ from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
 from returns.result import Failure, Result, Success
 
+from gyomu_docstring.error.update import UpdateError
 from gyomu_docstring.update.docstring.merge_plan import (
     MergeAction,
     MergeDeleteAction,

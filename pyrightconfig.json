@@ -4,8 +4,8 @@
     "packages/schema/src",
     "packages/infra/src",
     "packages/ai/src",
-    "packages/python-analysis/src",
+    "packages/python_analysis/src",
     "packages/docstring/src",
-    "packages/ai-compiler/src"
+    "packages/ai_compiler/src"
   ]
 }

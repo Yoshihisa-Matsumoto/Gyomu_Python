@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from pathlib import Path
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
@@ -80,8 +81,23 @@ def read_json[T: BaseModel](
 
 
 def write_json(
-    path: Path,
-    value: BaseModel,
+    path: Path, value: BaseModel, indent: int | None = 2
 ) -> Result[None, GyomuIOError]:
-    content = dump_json(value)
+    content = dump_json(value, indent=indent)
     return write_text(path, content)
+
+
+def enumerate_files(
+    path: Path,
+    filter: Callable[[Path], bool] | None = None,
+    relative_to: Path | None = None,
+) -> frozenset[Path]:
+    files = (file for file in path.rglob("*") if file.is_file())
+
+    if filter is not None:
+        files = (file for file in files if filter(file))
+
+    if relative_to:
+        return frozenset(file.relative_to(relative_to) for file in files)
+
+    return frozenset(files)

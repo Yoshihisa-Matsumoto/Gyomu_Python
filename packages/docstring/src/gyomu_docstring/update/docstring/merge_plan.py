@@ -61,3 +61,7 @@ class MergePlan(BaseModel):
     returns: MergeAction[ReturnActionValue]
 
     raises: tuple[RaiseMergePlan, ...]
+
+
+class MergePlans(BaseModel):
+    plans: tuple[MergePlan, ...]

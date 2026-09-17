@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from pathlib import Path
 
 from gyomu_schema.schemas.python.class_analysis import (
@@ -42,7 +43,22 @@ from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
     NameStructureAnalysis,
 )
-from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis, TypeExpression
+from gyomu_schema.schemas.python.type.type_analysis import (
+    ArrayStructureAnalysis,
+    AttributeStructureAnalysis,
+    CallableStructureAnalysis,
+    CallStructureAnalysis,
+    DictionaryStructureAnalysis,
+    ExpressionAnalysis,
+    GenericsStructureAnalysis,
+    KeywordStructureAnalysis,
+    LiteralStructureAnalysis,
+    SetStructureAnalysis,
+    TupleStructureAnalysis,
+    TypeAnalysis,
+    TypeExpression,
+    UnionStructureAnalysis,
+)
 from gyomu_schema.schemas.python.type_alias import TypeAliasAnalysis
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
@@ -313,6 +329,71 @@ def create_literal_value(value: str | int | bool | float) -> LiteralValue:
 
 def create_name_structure(name: str) -> NameStructureAnalysis:
     return NameStructureAnalysis(name=name)
+
+
+def create_type_analysis(
+    text: str, structure: ExpressionAnalysis | None = None
+) -> TypeAnalysis:
+    return TypeAnalysis(text=text, structure=structure)
+
+
+def create_union_structure(types: tuple[TypeExpression, ...]) -> UnionStructureAnalysis:
+    return UnionStructureAnalysis(types=types)
+
+
+def create_attribute_structure(
+    values: tuple[TypeExpression, ...],
+) -> AttributeStructureAnalysis:
+    return AttributeStructureAnalysis(values=values)
+
+
+def create_tuple_structure(
+    elements: Sequence[TypeExpression], variable_length: bool = False
+) -> TupleStructureAnalysis:
+    return TupleStructureAnalysis(elements=elements, variable_length=variable_length)
+
+
+def create_set_structure(element_type: TypeExpression) -> SetStructureAnalysis:
+    return SetStructureAnalysis(element_type=element_type)
+
+
+def create_literal_structure(value: TypeExpression) -> LiteralStructureAnalysis:
+    return LiteralStructureAnalysis(value=value)
+
+
+def create_array_structure(element: TypeExpression) -> ArrayStructureAnalysis:
+    return ArrayStructureAnalysis(element=element)
+
+
+def create_dictionary_structure(
+    keys: TypeExpression, values: TypeExpression
+) -> DictionaryStructureAnalysis:
+    return DictionaryStructureAnalysis(keys=keys, values=values)
+
+
+def create_callable_structure(
+    return_type: TypeExpression,
+    parameters: tuple[TypeExpression, ...] | None = None,
+) -> CallableStructureAnalysis:
+    return CallableStructureAnalysis(return_type=return_type, parameters=parameters)
+
+
+def create_call_structure(
+    function: ExpressionAnalysis, arguments: tuple[TypeExpression, ...]
+) -> CallStructureAnalysis:
+    return CallStructureAnalysis(function=function, arguments=arguments)
+
+
+def create_generics_structure(
+    base: TypeExpression, parameters: tuple[TypeExpression, ...]
+) -> GenericsStructureAnalysis:
+    return GenericsStructureAnalysis(base=base, parameters=parameters)
+
+
+def create_keyword_structure(
+    name: str, value: TypeExpression
+) -> KeywordStructureAnalysis:
+    return KeywordStructureAnalysis(name=name, value=value)
 
 
 def create_module_analysis(

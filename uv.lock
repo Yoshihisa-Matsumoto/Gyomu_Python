@@ -809,7 +809,7 @@ requires-dist = [
 
 [[package]]
 name = "gyomu-ai-compiler"
-source = { editable = "packages/ai-compiler" }
+source = { editable = "packages/ai_compiler" }
 dependencies = [
     { name = "gyomu-ai" },
     { name = "gyomu-infra" },
@@ -838,9 +838,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "gyomu-ai-compiler", editable = "packages/ai-compiler" },
+    { name = "gyomu-ai-compiler", editable = "packages/ai_compiler" },
     { name = "gyomu-infra", editable = "packages/infra" },
-    { name = "gyomu-python-analysis", editable = "packages/python-analysis" },
+    { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
     { name = "gyomu-schema", editable = "packages/schema" },
     { name = "returns" },
 ]
@@ -889,7 +889,7 @@ dev = [
 
 [[package]]
 name = "gyomu-python-analysis"
-source = { editable = "packages/python-analysis" }
+source = { editable = "packages/python_analysis" }
 dependencies = [
     { name = "docstring-parser" },
     { name = "griffelib" },

@@ -1,3 +1,4 @@
+from gyomu_docstring.error.update import UpdateError
 from gyomu_docstring.update.build_file_update import (
     _get_declaration_definition_end_offset,
     build_addition_entry,
@@ -10,12 +11,11 @@ from gyomu_docstring.update.build_file_update import (
 from gyomu_docstring.update.docstring.rendered_symbol import (
     RenderedSymbolDocstring,
 )
-from gyomu_python_analysis.error.update import UpdateError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.python.location import SourceLocation
 from returns.result import Failure, Success
 
-from packages.docstring.docstring_test_support.helpers import (
+from packages.docstring.docstring_test_support.helper import (
     create_entry,
     create_rendered_docstring,
 )

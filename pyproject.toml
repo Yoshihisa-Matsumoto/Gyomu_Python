@@ -23,9 +23,9 @@ members = [
     "packages/schema",
     "packages/infra",
     "packages/ai",
-    "packages/python-analysis",
-    "packages/docstring",
-    "packages/ai-compiler"
+    "packages/python_analysis",
+    "packages/ai_compiler",
+    "packages/docstring"
 ]
 
 
@@ -40,8 +40,8 @@ target-version = "py313"
 line-length = 88
 exclude = [
     "packages/infra/src/gyomu_infra/db/model/generated",
-    "packages/python-analysis/python_analysis_test_support/fixtures",
-    "packages/python-analysis/experiments",
+    "packages/python_analysis/python_analysis_test_support/fixtures",
+    "packages/python_analysis/experiments",
     "version",
     "docs"
 ]
@@ -62,6 +62,7 @@ quote-style = "double"
 [tool.pytest.ini_options]
 markers = [
     "integration: tests requiring external infrastructure",
+    "package: tests requiring independent venv while installing built packages"
 ]
 testpaths = [
     "packages",
@@ -69,8 +70,9 @@ testpaths = [
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib"
 pythonpath = [
-    "packages/python-analysis",
+    "packages/python_analysis",
     "packages/docstring",
+    "packages/ai_compiler",
 ]
 
 [tool.coverage.run]
