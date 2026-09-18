@@ -4,7 +4,6 @@ from pathlib import Path
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.utility.serialization import dump_json, validate_json
-from pydantic import BaseModel
 from returns.result import Failure, Result, Success
 
 
@@ -68,7 +67,7 @@ def write_text(
         )
 
 
-def read_json[T: BaseModel](
+def read_json[T](
     path: Path,
     model_type: type[T],
 ) -> Result[T, GyomuIOError | ValidationError]:
@@ -80,10 +79,10 @@ def read_json[T: BaseModel](
     return validate_json(model_type, text_result.unwrap())
 
 
-def write_json(
-    path: Path, value: BaseModel, indent: int | None = 2
+def write_json[T](
+    path: Path, value: T, value_type: type[T], indent: int | None = 2
 ) -> Result[None, GyomuIOError]:
-    content = dump_json(value, indent=indent)
+    content = dump_json(value, value_type, indent=indent)
     return write_text(path, content)
 
 

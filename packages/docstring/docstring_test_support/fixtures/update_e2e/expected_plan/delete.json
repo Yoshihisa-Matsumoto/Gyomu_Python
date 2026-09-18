@@ -1,0 +1,64 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.delete::divide",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 0.99
+      },
+      "params": [
+        {
+          "name": "a",
+          "sort_order": 0,
+          "action": {
+            "type": "preserve"
+          },
+          "confidence": 0.99
+        },
+        {
+          "name": "b",
+          "sort_order": 1,
+          "action": {
+            "type": "preserve"
+          },
+          "confidence": 0.99
+        }
+      ],
+      "raises": [
+        {
+          "error_type": "ValueError",
+          "action": {
+            "type": "delete"
+          },
+          "confidence": 0.99
+        }
+      ],
+      "returns": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 0.99
+      },
+      "reasoning": {
+        "summary": "The ValueError documentation is no longer needed.",
+        "param_mapping": "The existing parameter documentation should be preserved.",
+        "return_mapping": "The existing return documentation should be preserved."
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

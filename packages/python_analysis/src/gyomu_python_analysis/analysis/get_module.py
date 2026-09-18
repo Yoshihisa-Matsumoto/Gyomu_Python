@@ -35,7 +35,7 @@ def get_module_analysis(
     module_path = source_relative_path_to_python_path(path=source_relative_path)
     result = load_module_analysis(context, module_path)
     if isinstance(result, Success):
-        write_result = write_json(cache_path, result.unwrap())
+        write_result = write_json(cache_path, result.unwrap(), ModuleAnalysis)
         if isinstance(write_result, Failure):
             return Failure(
                 AnalysisError(

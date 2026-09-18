@@ -55,7 +55,9 @@ async def build_docstring_update_plan_with_retry(
             and option.debug_info.docstring_update_plan
             and option.debug_info.dump_to_file
         ):
-            write_json(Path("log") / "DocstringUpdatePlan.json", plan)
+            write_json(
+                Path("log") / "DocstringUpdatePlan.json", plan, DocstringUpdatePlan
+            )
 
         override_plan = override_docstring_update_plan(
             current_context,

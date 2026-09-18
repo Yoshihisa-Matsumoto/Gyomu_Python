@@ -20,6 +20,14 @@ class MergeDeleteAction(BaseModel):
 
 
 class MergePreserveAction(BaseModel):
+    """
+    Gyomu Context:
+    Preserve the semantic content of the existing docstring section.
+
+    The existing docstring text may be normalized or enriched with
+    information derived from source code analysis.
+    """
+
     type: Literal["preserve"] = "preserve"
 
 
@@ -58,7 +66,7 @@ class MergePlan(BaseModel):
 
     params: tuple[ParamMergePlan, ...]
 
-    returns: MergeAction[ReturnActionValue]
+    returns: MergeAction[ReturnActionValue] | None
 
     raises: tuple[RaiseMergePlan, ...]
 

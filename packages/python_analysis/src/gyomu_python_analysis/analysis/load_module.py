@@ -26,7 +26,6 @@ def load_module_analysis(
     source_file = source_file_result.unwrap()
 
     def analyze_module() -> ModuleAnalysis:
-        # source_full_path = context.project_root / context.source_root / source_file.path
         source_full_path = source_relative_path_to_full_path(source_file.path, context)
         source_lines = source_full_path.read_text(encoding="utf-8").splitlines(
             keepends=True

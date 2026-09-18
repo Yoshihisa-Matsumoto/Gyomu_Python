@@ -286,7 +286,7 @@ class DocstringUpdateEntry(BaseModel):
     description: DescriptionPlan
     params: tuple[ParamUpdatePlan, ...]
     raises: tuple[RaiseUpdatePlan, ...]
-    returns: ReturnUpdatePlan
+    returns: ReturnUpdatePlan | None
     reasoning: Reasoning
     risk: Risk
 

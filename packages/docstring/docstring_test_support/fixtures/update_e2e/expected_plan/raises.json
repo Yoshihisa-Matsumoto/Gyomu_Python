@@ -1,0 +1,69 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.raises::parse_number",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Parse a string as an integer."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 0.99
+      },
+      "params": [
+        {
+          "name": "value",
+          "sort_order": 0,
+          "action": {
+            "type": "replace",
+            "value": {
+              "type": "str",
+              "description": "The string to parse."
+            }
+          },
+          "confidence": 0.99
+        }
+      ],
+      "raises": [
+        {
+          "error_type": "ValueError",
+          "action": {
+            "type": "replace",
+            "value": {
+              "error_type": "ValueError",
+              "description": "If the string cannot be parsed as an integer."
+            }
+          },
+          "confidence": 0.99
+        }
+      ],
+      "returns": {
+        "action": {
+          "type": "replace",
+          "value": {
+            "return_type": "int",
+            "description": "The parsed integer."
+          }
+        },
+        "confidence": 0.99
+      },
+      "reasoning": {
+        "summary": "The function converts a string to an integer.",
+        "param_mapping": "The value parameter contains the string to parse.",
+        "return_mapping": "The function returns the parsed integer."
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

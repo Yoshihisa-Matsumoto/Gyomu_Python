@@ -27,7 +27,7 @@ def render_docstring_lines(updated: UpdatedDocstring) -> tuple[DocstringLine, ..
     if docstring.summary is not None:
         lines.append(DocstringText(text=docstring.summary))
 
-    if docstring.description is not None:
+    if docstring.description is not None and docstring.description != "":
         lines.append(DocstringBlank())
         lines.append(DocstringText(text=docstring.description))
 

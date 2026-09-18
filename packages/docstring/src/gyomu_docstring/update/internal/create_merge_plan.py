@@ -109,8 +109,10 @@ def _convert_return_action(
 
 
 def _create_return_merge_plan(
-    plan: ReturnUpdatePlan,
-) -> MergeAction[ReturnActionValue]:
+    plan: ReturnUpdatePlan | None,
+) -> MergeAction[ReturnActionValue] | None:
+    if plan is None:
+        return
     return _convert_return_action(plan.action)
 
 

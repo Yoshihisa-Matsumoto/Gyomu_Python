@@ -20,6 +20,9 @@ def render_docstring_string(
         assert lines[0].type == "text"
         text = lines[0].text
         result = f'{prefix}"""{text}"""'
+
+        if is_added:
+            result += "\n"
     else:
         first_line = compute_docstring_line(lines[0], prefix)
         start = f'{prefix}"""{first_line.removeprefix(prefix)}'
@@ -32,9 +35,6 @@ def render_docstring_string(
 
         result = "\n".join(string_lines)
 
-    if is_added:
-        result += "\n"
-
     return result
 
 
@@ -44,7 +44,7 @@ def compute_docstring_line(
 ) -> str:
     match line:
         case DocstringBlank():
-            return prefix
+            return ""
 
         case DocstringText(text=text):
             return "\n".join(f"{prefix}{part}" for part in text.split("\n"))

@@ -1,0 +1,14 @@
+class Calculator:
+    """Provide arithmetic operations."""
+
+    def add(self, a: int, b: int) -> int:
+        """Add two integers.
+
+        Args:
+            a (int): The first integer.
+            b (int): The second integer.
+
+        Returns:
+            int: The sum of the two integers.
+        """
+        return a + b

@@ -1,4 +1,6 @@
-from gyomu_infra.filesystem.file_io import read_text, write_text
+from pathlib import Path
+
+from gyomu_infra.filesystem.file_io import read_text, write_json, write_text
 from gyomu_python_analysis.path.conversion import source_relative_path_to_full_path
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.update import UpdateOption
@@ -10,6 +12,9 @@ from gyomu_docstring.update.apply_file_update import apply_file_update_plan
 from gyomu_docstring.update.apply_merge import apply_merge_plans
 from gyomu_docstring.update.build_file_update import build_file_update_plan
 from gyomu_docstring.update.build_merge import build_merge_plan
+from gyomu_docstring.update.docstring.file_update_plan import FileUpdatePlan
+from gyomu_docstring.update.docstring.rendered_symbol import RenderedSymbolDocstring
+from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 from gyomu_docstring.update.render_docstring import render_docstring
 
 
@@ -61,12 +66,32 @@ async def process_docstring_update(
     updated_docstrings = updated_result.unwrap()
 
     # debug
+    if (
+        option
+        and option.debug_info.dump_to_file
+        and option.debug_info.updated_symbol_docstring
+    ):
+        write_json(
+            Path("log") / "DocstringUpdateContext.json",
+            updated_docstrings,
+            tuple[UpdatedDocstring, ...],
+        )
 
     rendered_docstrings = tuple(
         render_docstring(updated) for updated in updated_docstrings
     )
 
     # debug
+    if (
+        option
+        and option.debug_info.dump_to_file
+        and option.debug_info.rendered_symbol_docstring
+    ):
+        write_json(
+            Path("log") / "RenderedDocstrings.json",
+            rendered_docstrings,
+            tuple[RenderedSymbolDocstring, ...],
+        )
 
     file_plan_result = build_file_update_plan(
         file_context,
@@ -80,6 +105,12 @@ async def process_docstring_update(
     file_update_plan = file_plan_result.unwrap()
 
     # debug
+    if option and option.debug_info.dump_to_file and option.debug_info.file_update_plan:
+        write_json(
+            Path("log") / "FileUpdatePlan.json",
+            file_update_plan,
+            FileUpdatePlan,
+        )
 
     updated_source = apply_file_update_plan(
         source,

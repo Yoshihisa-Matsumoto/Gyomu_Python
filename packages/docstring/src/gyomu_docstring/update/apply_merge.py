@@ -320,8 +320,11 @@ def _merge_arguments(
 
 
 def _merge_returns(
-    plan: MergeAction[ReturnActionValue], existing_docstring: DocstringAnalysis | None
+    plan: MergeAction[ReturnActionValue] | None,
+    existing_docstring: DocstringAnalysis | None,
 ) -> DocstringReturnsSectionItem | None:
+    if plan is None:
+        return None
     returns_section = _find_section(existing_docstring, DocstringReturnsSection)
     existing_item = returns_section.item if returns_section is not None else None
     match plan.type:

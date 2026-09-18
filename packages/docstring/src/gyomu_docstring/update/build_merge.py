@@ -1,5 +1,8 @@
 from pathlib import Path
 
+from gyomu_ai_compiler.pipelines.docstring_update.context.file_context import (
+    DocstringFileContext,
+)
 from gyomu_infra.filesystem.file_io import write_json, write_text
 from gyomu_schema.option.update import UpdateOption
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
@@ -32,7 +35,11 @@ async def build_merge_plan(
         and option.debug_info.docstring_update_context
         and option.debug_info.dump_to_file
     ):
-        write_json(Path("log") / "DocstringUpdateContext.json", docstring_context)
+        write_json(
+            Path("log") / "DocstringUpdateContext.json",
+            docstring_context,
+            DocstringFileContext,
+        )
     if (
         option
         and option.debug_info.docstring_update_plan
@@ -53,6 +60,6 @@ async def build_merge_plan(
     merge_plans = create_merge_plan(plan_result.unwrap())
     plans = MergePlans(plans=tuple(merge_plans))
     if option and option.debug_info.merge_plan and option.debug_info.dump_to_file:
-        write_json(Path("log") / "MergePlan.json", plans)
+        write_json(Path("log") / "MergePlan.json", plans, MergePlans)
 
     return Success(plans.plans)

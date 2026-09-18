@@ -1,23 +1,31 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 from pydantic import ValidationError as PydanticValidationError
 from returns.result import Failure, Result, Success
 
 from gyomu_schema.error.validation import ValidationError
 
+type JsonableType = BaseModel | list[BaseModel] | tuple[BaseModel, ...]
 
-def dump_json(
-    value: BaseModel,
+
+def dump_json[T](
+    value: T,
+    model_type: type[T],
     *,
     indent: int | None = None,
 ) -> str:
-    return value.model_dump_json(indent=indent)
+    return (
+        TypeAdapter(model_type)
+        .dump_json(
+            value,
+            indent=indent,
+        )
+        .decode()
+    )
 
 
-def validate_json[T: BaseModel](
-    model_type: type[T], data: str
-) -> Result[T, ValidationError]:
+def validate_json[T](model_type: type[T], data: str) -> Result[T, ValidationError]:
     try:
-        return Success(model_type.model_validate_json(data))
+        return Success(TypeAdapter(model_type).validate_json(data))
     except PydanticValidationError as error:
         return Failure(
             ValidationError(
@@ -29,12 +37,12 @@ def validate_json[T: BaseModel](
         )
 
 
-def _assert_json_round_trip[T: BaseModel](
+def _assert_json_round_trip[T](
     model_type: type[T],
     value: T,
 ) -> None:
 
-    data = dump_json(value)
+    data = dump_json(value, model_type)
     result = validate_json(model_type, data)
 
     if isinstance(result, Failure):

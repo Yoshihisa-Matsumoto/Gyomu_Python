@@ -28,10 +28,10 @@ def initialize_project_context(
     toml_data = loads(read_result.unwrap())
     # print(repr(toml_data))
     project = toml_data["project"]
-    name = "" if "name" not in project else project["name"]
-    description = None if "description" not in project else project["description"]
+    name = project.get("name", "")
+    description = project.get("description", None)
     is_version_dynamic = "dynamic" in project and "version" in project["dynamic"]
-    version = "" if "version" not in project else project["version"]
+    version = project.get("version", "")
     # print(version)
     # print(is_version_dynamic)
     if is_version_dynamic:

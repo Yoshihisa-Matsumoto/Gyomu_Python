@@ -144,7 +144,7 @@ class TestWriteJson:
         path = tmp_path / "example.json"
         value = ExampleModel(name="example", value=42)
 
-        result = write_json(path, value)
+        result = write_json(path, value, ExampleModel)
 
         assert result == Success(None)
         assert path.exists()
@@ -159,7 +159,7 @@ class TestWriteJson:
         path = tmp_path / "cache" / "nested" / "example.json"
         value = ExampleModel(name="example", value=42)
 
-        result = write_json(path, value)
+        result = write_json(path, value, ExampleModel)
 
         assert result == Success(None)
         assert path.exists()
@@ -167,15 +167,9 @@ class TestWriteJson:
     def test_overwrites_existing_file(self, tmp_path: Path) -> None:
         path = tmp_path / "example.json"
 
-        write_json(
-            path,
-            ExampleModel(name="old", value=1),
-        )
+        write_json(path, ExampleModel(name="old", value=1), ExampleModel)
 
-        result = write_json(
-            path,
-            ExampleModel(name="new", value=2),
-        )
+        result = write_json(path, ExampleModel(name="new", value=2), ExampleModel)
 
         assert result == Success(None)
         assert ExampleModel.model_validate_json(
@@ -223,7 +217,7 @@ class TestReadJson:
         path = tmp_path / "example.json"
         value = ExampleModel(name="example", value=42)
 
-        write_result = write_json(path, value)
+        write_result = write_json(path, value, ExampleModel)
         assert write_result == Success(None)
 
         read_result = read_json(path, ExampleModel)

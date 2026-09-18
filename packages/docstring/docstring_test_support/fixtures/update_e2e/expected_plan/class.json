@@ -1,0 +1,35 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.class::User",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Represent a user."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 0.99
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "The class represents a user.",
+        "param_mapping": "The class has no documented parameters.",
+        "return_mapping": "The class has no return documentation target."
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

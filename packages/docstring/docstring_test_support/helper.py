@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from difflib import unified_diff
 from pathlib import Path
 
 from griffe import Attribute, Class, Function, TypeAlias
@@ -36,6 +37,26 @@ from returns.result import Failure
 from packages.schema.schema_test_support.helpers import create_location
 
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
+
+
+def assert_text_file_equals(
+    root_path: Path, source_path: Path, expected_path: Path
+) -> None:
+    actual_path = root_path / source_path
+    expected_path = root_path / expected_path
+    actual = actual_path.read_text(encoding="utf-8")
+    expected = expected_path.read_text(encoding="utf-8")
+
+    diff = "".join(
+        unified_diff(
+            expected.splitlines(keepends=True),
+            actual.splitlines(keepends=True),
+            fromfile=str(expected_path),
+            tofile=str(actual_path),
+        )
+    )
+
+    assert actual == expected, f"\n{diff}"
 
 
 def _create_context() -> ProjectContext:
