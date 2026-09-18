@@ -17,6 +17,7 @@ from griffe import (
     DocstringSectionText as GriffeSectionText,
 )
 from gyomu_infra.logger import logger
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
     DocstringCommon,
@@ -43,11 +44,13 @@ _CUSTOM_SECTION_PATTERN = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9 _-]*):\s*$")
 
 
 def _analyze_parameters(
-    section: GriffeSectionParameters, context: SymbolContext
+    section: GriffeSectionParameters,
+    context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> DocstringParametersSection:
     parameters: list[DocstringParametersSectionItem] = []
     for parameter in section.value:
-        param_type = analyze_type(parameter.annotation, context)
+        param_type = analyze_type(parameter.annotation, context, option)
         parameters.append(
             DocstringParametersSectionItem(
                 name=parameter.name,
@@ -59,11 +62,13 @@ def _analyze_parameters(
 
 
 def _analyze_raises(
-    section: GriffeSectionRaises, context: SymbolContext
+    section: GriffeSectionRaises,
+    context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> DocstringRaisesSection:
     raises: list[DocstringRaisesSectionItem] = []
     for raiseItem in section.value:
-        raise_type = analyze_type(raiseItem.annotation, context)
+        raise_type = analyze_type(raiseItem.annotation, context, option)
         raises.append(
             DocstringRaisesSectionItem(
                 description=raiseItem.description,
@@ -89,7 +94,9 @@ def _analyze_examples(section: GriffeSectionExamples) -> DocstringExamplesSectio
 
 
 def _analyze_returns(
-    section: GriffeSectionReturns, context: SymbolContext
+    section: GriffeSectionReturns,
+    context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> DocstringReturnsSection:
     # Gyomu models a Returns section as a single item.
     # Google-style docstrings are expected to contain at most one return item.
@@ -101,7 +108,7 @@ def _analyze_returns(
 
     return_item = section.value[0]
     print(return_item.as_dict())
-    return_type = analyze_type(return_item.annotation, context)
+    return_type = analyze_type(return_item.annotation, context, option)
 
     return DocstringReturnsSection(
         item=DocstringReturnsSectionItem(
@@ -229,6 +236,7 @@ def analyze_docstring(
     doc: Docstring | None,
     doc_common: DocstringCommon,
     context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> DocstringAnalysis | None:
     if doc is None:
         return None
@@ -242,13 +250,13 @@ def analyze_docstring(
         if isinstance(section, GriffeSectionText):
             text_section = DocstringTextSection(value=section.value)
         elif isinstance(section, GriffeSectionParameters):
-            parsed_sections.append(_analyze_parameters(section, context))
+            parsed_sections.append(_analyze_parameters(section, context, option))
         elif isinstance(section, GriffeSectionRaises):
-            parsed_sections.append(_analyze_raises(section, context))
+            parsed_sections.append(_analyze_raises(section, context, option))
         elif isinstance(section, GriffeSectionExamples):
             parsed_sections.append(_analyze_examples(section))
         elif isinstance(section, GriffeSectionReturns):
-            parsed_sections.append(_analyze_returns(section, context))
+            parsed_sections.append(_analyze_returns(section, context, option))
         elif isinstance(section, DocstringSectionAdmonition):
             parsed_sections.append(_analyze_admonition(section))
         else:

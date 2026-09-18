@@ -1,5 +1,6 @@
 from griffe import Decorator
 from gyomu_infra.logger import logger
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.decorator import DecoratorAnalysis, DecoratorArgument
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
@@ -23,19 +24,23 @@ from gyomu_python_analysis.analysis.analyzers.internal.location import (
 
 
 def analyze_decorators(
-    decorators: list[Decorator], context: SymbolContext
+    decorators: list[Decorator],
+    context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> list[DecoratorAnalysis]:
     returns: list[DecoratorAnalysis] = []
     for dec in decorators:
-        returns.append(analyze_decorator(dec, context))
+        returns.append(analyze_decorator(dec, context, option))
 
     return returns
 
 
 def analyze_decorator(
-    decorator: Decorator, context: SymbolContext
+    decorator: Decorator,
+    context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> DecoratorAnalysis:
-    value = analyze_type_expression(decorator.value, context)
+    value = analyze_type_expression(decorator.value, context, option)
     name: str
     arguments: list[DecoratorArgument] = []
     if isinstance(value, LiteralValue):

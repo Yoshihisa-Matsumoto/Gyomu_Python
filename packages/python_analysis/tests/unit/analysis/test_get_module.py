@@ -142,14 +142,10 @@ class TestGetModuleAnalysis:
 
         assert result == Success(expected)
 
-        load_mock.assert_called_once_with(
-            context,
-            PythonPath("foo"),
-        )
+        load_mock.assert_called_once_with(context, PythonPath("foo"), None)
 
         write_mock.assert_called_once_with(
-            _get_cache_path(context, file_path),
-            expected,
+            _get_cache_path(context, file_path), expected, ModuleAnalysis
         )
 
     def test_loads_module_analysis_when_cache_is_invalid(
@@ -191,15 +187,9 @@ class TestGetModuleAnalysis:
 
         assert result == Success(expected)
 
-        load_mock.assert_called_once_with(
-            context,
-            PythonPath("foo"),
-        )
+        load_mock.assert_called_once_with(context, PythonPath("foo"), None)
 
-        write_mock.assert_called_once_with(
-            cache_path,
-            expected,
-        )
+        write_mock.assert_called_once_with(cache_path, expected, ModuleAnalysis)
 
     def test_returns_failure_when_load_module_analysis_fails(
         self,
@@ -233,10 +223,7 @@ class TestGetModuleAnalysis:
 
         assert result == Failure(expected)
 
-        load_mock.assert_called_once_with(
-            context,
-            PythonPath("foo"),
-        )
+        load_mock.assert_called_once_with(context, PythonPath("foo"), None)
 
         write_mock.assert_not_called()
 
@@ -285,12 +272,8 @@ class TestGetModuleAnalysis:
         assert failure.file_path == PythonPath("foo")
         assert failure.phase == "post-analysis"
 
-        load_mock.assert_called_once_with(
-            context,
-            PythonPath("foo"),
-        )
+        load_mock.assert_called_once_with(context, PythonPath("foo"), None)
 
         write_mock.assert_called_once_with(
-            _get_cache_path(context, file_path),
-            expected,
+            _get_cache_path(context, file_path), expected, ModuleAnalysis
         )

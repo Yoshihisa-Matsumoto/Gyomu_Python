@@ -27,6 +27,7 @@ def test_analyze_type_returns_none_for_none() -> None:
             initialize_symbol_context(
                 module_name=PythonPath(""), name="test", source_lines=[""]
             ),
+            None,
         )
         is None
     )
@@ -38,6 +39,7 @@ def test_analyze_type_analyzes_none_string() -> None:
         initialize_symbol_context(
             module_name=PythonPath(""), name="test", source_lines=[""]
         ),
+        None,
     )
 
     assert result is not None
@@ -51,6 +53,7 @@ def test_analyze_type_preserves_string_annotation() -> None:
         initialize_symbol_context(
             module_name=PythonPath(""), name="test", source_lines=[""]
         ),
+        None,
     )
 
     assert result is not None

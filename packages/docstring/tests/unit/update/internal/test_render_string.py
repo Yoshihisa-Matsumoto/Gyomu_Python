@@ -98,10 +98,10 @@ class TestRenderDocstringString:
 
         assert result == (
             '    """Finds a user.\n'
-            "    \n"
+            "\n"
             "    Args:\n"
             "        user_id (int): User identifier.\n"
-            "    \n"
+            "\n"
             "    Returns:\n"
             "        User: The matching user.\n"
             '    """'
@@ -134,7 +134,7 @@ class TestRenderDocstringString:
         )
 
         assert result == (
-            '    """Finds a user.\n    \n    Searches the repository.\n    """'
+            '    """Finds a user.\n\n    Searches the repository.\n    """'
         )
 
     def test_adds_trailing_newline_when_added(self) -> None:

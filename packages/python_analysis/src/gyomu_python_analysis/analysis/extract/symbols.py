@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from griffe import Alias, Attribute, Class, Function, Module, TypeAlias
 from gyomu_infra.logger import logger
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
 from gyomu_schema.schemas.python.types import (
@@ -32,10 +33,11 @@ class SymbolExtractContext:
 def extract_symbols(
     source_file: SourceFileContext,
     source_lines: list[str],
+    option: AnalysisOption | None = None,
 ) -> SymbolExtractContext:
     imported: list[ImportAnalysis] = _extract_imports(source_file.module, source_lines)
     symbols: list[SymbolAnalysis] = _extract_symbols_internal(
-        source_file, source_lines, imported
+        source_file, source_lines, imported, option
     )
     # for symbol_name, value in module.members.items():
     #     if isinstance(value, Alias):
@@ -57,6 +59,7 @@ def _extract_symbols_internal(
     source_file: SourceFileContext,
     source_lines: list[str],
     imported: list[ImportAnalysis],
+    option: AnalysisOption | None = None,
 ) -> list[SymbolAnalysis]:
     symbols: list[SymbolAnalysis] = []
     dependencies: list[DependencyInformation] = []
@@ -73,34 +76,26 @@ def _extract_symbols_internal(
         if isinstance(symbol, Attribute):
             symbols.append(
                 analyze_variable(
-                    variable=symbol,
-                    name=symbol_name,
-                    context=context,
+                    variable=symbol, name=symbol_name, context=context, option=option
                 )
             )
         elif isinstance(symbol, Function):
             symbols.append(
                 analyze_function(
-                    func=symbol,
-                    name=symbol_name,
-                    context=context,
+                    func=symbol, name=symbol_name, context=context, option=option
                 )
             )
         elif isinstance(symbol, Class):
             symbols.append(
                 analyze_class(
-                    cls=symbol,
-                    name=symbol_name,
-                    context=context,
+                    cls=symbol, name=symbol_name, context=context, option=option
                 )
             )
 
         elif isinstance(symbol, TypeAlias):
             symbols.append(
                 analyze_type_alias(
-                    alias=symbol,
-                    name=symbol_name,
-                    context=context,
+                    alias=symbol, name=symbol_name, context=context, option=option
                 )
             )
         for item in context.dependencies:

@@ -1,3 +1,4 @@
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.utility.returns import from_sync
@@ -16,7 +17,9 @@ from gyomu_python_analysis.project.context import ProjectContext
 
 
 def load_module_analysis(
-    context: ProjectContext, module_path: PythonPath
+    context: ProjectContext,
+    module_path: PythonPath,
+    option: AnalysisOption | None = None,
 ) -> Result[ModuleAnalysis, AnalysisError]:
     source_file_result = load_module(context, module_path)
 
@@ -31,7 +34,9 @@ def load_module_analysis(
             keepends=True
         )
 
-        symbols = extract_symbols(source_file=source_file, source_lines=source_lines)
+        symbols = extract_symbols(
+            source_file=source_file, source_lines=source_lines, option=option
+        )
         module_name = PythonPath(source_file.module.path)
         module_context = initialize_symbol_context(
             module_name=module_name, name="", source_lines=source_lines
@@ -49,6 +54,7 @@ def load_module_analysis(
                         source_file.module.docstring, module_context
                     ),
                     context=module_context,
+                    option=option,
                 )
                 if source_file.module.docstring is not None
                 else None

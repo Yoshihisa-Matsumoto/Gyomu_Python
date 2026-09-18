@@ -1,5 +1,6 @@
 from griffe import Function
 from griffe import ParameterKind as GriffeParameterKind
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
 
@@ -26,7 +27,10 @@ def _get_function_parameter_kind(kind: GriffeParameterKind | None) -> ParameterK
 
 
 def analyze_function(
-    func: Function, name: str, context: SymbolContext
+    func: Function,
+    name: str,
+    context: SymbolContext,
+    option: AnalysisOption | None = None,
 ) -> FunctionAnalysis:
     for dec in func.decorators:
         print(dec.as_dict())
@@ -36,13 +40,15 @@ def analyze_function(
             ParameterAnalysis(
                 name=param.name,
                 kind=_get_function_parameter_kind(param.kind),
-                type=analyze_type(param.annotation, context),
+                type=analyze_type(param.annotation, context, option),
                 default=None,
             )
         )
     # pprint(func.as_dict())
-    func_common = build_symbol_common(symbol=func, name=name, context=context)
-    return_type = analyze_type(func.returns, context)
+    func_common = build_symbol_common(
+        symbol=func, name=name, context=context, option=option
+    )
+    return_type = analyze_type(func.returns, context, option)
     return FunctionAnalysis(
         **func_common,
         dependencies=tuple([]),

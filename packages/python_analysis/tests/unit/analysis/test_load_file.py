@@ -49,7 +49,7 @@ class TestLoadFileAnalysisContext:
         result = load_file_analysis_context(context, file_path)
 
         assert result == failure
-        get_module_analysis_mock.assert_called_once_with(context, file_path)
+        get_module_analysis_mock.assert_called_once_with(context, file_path, None, None)
         create_metadata_mock.assert_not_called()
 
     def test_creates_file_analysis_context(
@@ -98,5 +98,5 @@ class TestLoadFileAnalysisContext:
         assert file_analysis_context.analysis is module_analysis
         assert file_analysis_context.metadata is metadata
 
-        get_module_analysis_mock.assert_called_once_with(context, file_path)
+        get_module_analysis_mock.assert_called_once_with(context, file_path, None, None)
         create_metadata_mock.assert_called_once_with(module_analysis)

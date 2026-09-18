@@ -1,4 +1,5 @@
 from griffe import Attribute
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.type.structure import LiteralValue
 from gyomu_schema.schemas.python.type.type_analysis import (
@@ -22,13 +23,18 @@ from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 
 def analyze_variable(
-    variable: Attribute, name: str, context: SymbolContext
+    variable: Attribute,
+    name: str,
+    context: SymbolContext,
+    option: AnalysisOption | None = None,
 ) -> VariableAnalysis:
-    variable_common = build_symbol_common(symbol=variable, name=name, context=context)
-    type = analyze_type(variable.annotation, context)
+    variable_common = build_symbol_common(
+        symbol=variable, name=name, context=context, option=option
+    )
+    type = analyze_type(variable.annotation, context, option)
 
     value_expression = (
-        analyze_type_expression(variable.value, context)
+        analyze_type_expression(variable.value, context, option=option)
         if variable.value is not None
         else None
     )

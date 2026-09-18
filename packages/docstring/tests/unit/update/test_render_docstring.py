@@ -75,8 +75,8 @@ class TestRenderDocstring:
 
         assert result.identity == updated.identity
         assert result.docstring == '    """Finds a user."""\n'
-        assert result.location.start_offset == 96
-        assert result.location.end_offset == 96
+        assert result.location.start_offset == 100
+        assert result.location.end_offset == 100
 
     def test_adjusts_start_offset_by_indent(self) -> None:
         updated = make_updated_docstring(
@@ -114,7 +114,7 @@ class TestRenderDocstring:
 
         result = render_docstring(updated)
 
-        assert result.location.end_offset == 192
+        assert result.location.end_offset == 200
 
     def test_preserves_other_location_fields(self) -> None:
         updated = make_updated_docstring(

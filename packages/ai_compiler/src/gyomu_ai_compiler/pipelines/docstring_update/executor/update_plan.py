@@ -34,7 +34,11 @@ async def generate_docstring_update_plan(
 
     conversation = ConversationSchema(
         system=MessageSchema.system_text(prompt.unwrap())
-    ).with_request(MessageSchema.user_text(dump_json(context, indent=2)))
+    ).with_request(
+        MessageSchema.user_text(
+            dump_json(context, indent=2, model_type=DocstringFileContext)
+        )
+    )
 
     try:
         registry = create_default_pydantic_ai_model_registry()

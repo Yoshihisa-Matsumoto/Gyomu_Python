@@ -5,6 +5,9 @@ import pytest
 from gyomu_ai_compiler.pipelines.docstring_update.context.file_context import (
     DocstringRetryOption,
 )
+from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
+    DocstringUpdatePlan,
+)
 from gyomu_docstring.update.internal.build_update_plan import (
     build_docstring_update_plan_with_retry,
     override_docstring_update_plan,
@@ -126,8 +129,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
 
         assert isinstance(result, Success)
         write_json.assert_called_once_with(
-            Path("log") / "DocstringUpdatePlan.json",
-            plan,
+            Path("log") / "DocstringUpdatePlan.json", plan, DocstringUpdatePlan
         )
 
     @pytest.mark.asyncio

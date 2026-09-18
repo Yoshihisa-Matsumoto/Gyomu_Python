@@ -111,8 +111,7 @@ class TestLoadModuleAnalysis:
         load_mock.assert_called_once_with(context, PythonPath("foo"))
 
         extract_mock.assert_called_once_with(
-            source_file=source_file,
-            source_lines=[],
+            source_file=source_file, source_lines=[], option=None
         )
 
         initialize_mock.assert_called_once_with(
@@ -255,8 +254,7 @@ class TestLoadModuleAnalysis:
         assert result == Success(expected)
 
         extract_mock.assert_called_once_with(
-            source_file=source_file,
-            source_lines=source_lines,
+            source_file=source_file, source_lines=source_lines, option=None
         )
 
         initialize_mock.assert_called_once_with(
@@ -271,9 +269,7 @@ class TestLoadModuleAnalysis:
         )
 
         analyze_docstring_mock.assert_called_once_with(
-            raw_docstring,
-            doc_common=doc_common,
-            context=module_context,
+            raw_docstring, doc_common=doc_common, context=module_context, option=None
         )
 
     def test_returns_analysis_error_when_analysis_fails(

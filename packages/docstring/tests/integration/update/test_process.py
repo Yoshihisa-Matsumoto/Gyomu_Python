@@ -25,18 +25,6 @@ from packages.docstring.docstring_test_support.helper import (
     assert_text_file_equals,
 )
 
-# @pytest.fixture
-# def project_path(tmp_path: Path) -> Path:
-#     fixture_path = FIXTURES_ROOT / "update_e2e"
-#     project_path = tmp_path / "update_e2e"
-
-#     shutil.copytree(
-#         fixture_path,
-#         project_path,
-#     )
-#     print(project_path)
-#     return project_path
-
 
 @pytest.fixture(scope="session")
 def project_path(
@@ -144,65 +132,66 @@ async def test_update(
     )
 
 
-# @pytest.mark.asyncio
-# async def test_simple(
-#     project_path: Path,
-#     mocker: MockerFixture,
-# ) -> None:
-#     result = initialize_project_context(
-#         project_root=FullPath(project_path),
-#         source_root=ProjectRelativePath(Path("src")),
-#     )
-#     assert isinstance(result, Success)
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_update_with_real_llm(
+    project_path: Path,
+) -> None:
+    result = initialize_project_context(
+        project_root=FullPath(project_path),
+        source_root=ProjectRelativePath(Path("src")),
+    )
+    assert isinstance(result, Success)
 
-#     project_context = result.unwrap()
+    project_context = result.unwrap()
 
-#     assert project_context.name == "test-fixture"
+    file_path = ProjectRelativePath(Path("src") / "docstring" / "example.py")
 
-#     file_path = ProjectRelativePath(Path("src") / "docstring" / "simple.py")
+    result = load_file_analysis_context(
+        context=project_context,
+        file_path=file_path,
+    )
+    assert isinstance(result, Success)
 
-#     result = load_file_analysis_context(
-#         context=project_context,
-#         file_path=file_path,
-#     )
-#     assert isinstance(result, Success)
+    file_context = result.unwrap()
 
-#     file_context = result.unwrap()
-#     assert file_context.analysis.name == "simple"
-#     assert len(file_context.metadata.symbols) == 1
+    original_source = (project_path / file_path).read_text()
 
-#     result = read_json(
-#         project_path / "expected_plan" / "simple.json", DocstringUpdatePlan
-#     )
-#     assert isinstance(result, Success)
+    option = UpdateOption(
+        debug_info=UpdateDebugInfoOption(
+            dump_to_file=True,
+            updated_symbol_docstring=True,
+            file_update_plan=True,
+            rendered_symbol_docstring=True,
+            docstring_update_plan=True,
+            docstring_update_context=True,
+        )
+    )
+    result = await process_docstring_update(
+        context=project_context, file_context=file_context, option=option
+    )
+    if isinstance(result, Failure):
+        print(repr(result.failure()))
+    assert isinstance(result, Success)
 
-#     plan = result.unwrap()
+    updated_source = (project_path / file_path).read_text()
 
-#     mocker.patch(
-#         "gyomu_docstring.update.internal.build_update_plan.generate_docstring_update_plan",
-#         new_callable=AsyncMock,
-#         return_value=Success(plan),
-#     )
+    assert updated_source != original_source
 
-#     option = UpdateOption(
-#         debug_info=UpdateDebugInfoOption(
-#             dump_to_file=True,
-#             updated_symbol_docstring=True,
-#             file_update_plan=True,
-#             rendered_symbol_docstring=True,
-#             docstring_update_plan=True,
-#             docstring_update_context=True,
-#         )
-#     )
+    result = load_file_analysis_context(
+        context=project_context, file_path=file_path, file_hash="DFDF"
+    )
+    assert isinstance(result, Success)
 
-#     result = await process_docstring_update(
-#         context=project_context, file_context=file_context, option=option
-#     )
-#     if isinstance(result, Failure):
-#         print(repr(result.failure()))
-#     assert isinstance(result, Success)
+    updated_file_context = result.unwrap()
 
-#     expected_path = ProjectRelativePath(Path("expected") / "simple.py")
-#     assert_text_file_equals(
-#         project_path, source_path=file_path, expected_path=expected_path
-#     )
+    original_symbols = file_context.metadata.symbols.keys()
+    updated_symbols = updated_file_context.metadata.symbols.keys()
+
+    assert original_symbols == updated_symbols
+
+    docstring_count = 0
+    for symbol in updated_file_context.metadata.symbols.values():
+        if symbol.docstring and symbol.docstring.summary:
+            docstring_count = docstring_count + 1
+    assert docstring_count > 3

@@ -1,5 +1,6 @@
 from griffe import Attribute, Class, Function, TypeAlias
 from gyomu_infra.logger import logger
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassCommon,
@@ -36,6 +37,7 @@ from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 def _retrieve_constructor_location(
     cls: Class,
     context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> SourceLocation | None:
     constructor_location: SourceLocation | None = None
     if "__init__" in cls.members:
@@ -46,6 +48,7 @@ def _retrieve_constructor_location(
                 name="__init__",
                 parent_location=None,
                 context=context,
+                option=option,
             )
             constructor_location = constructor_common["location"]
     return constructor_location
@@ -56,6 +59,7 @@ def _build_class_type_aliases(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
+    option: AnalysisOption | None = None,
 ) -> list[ClassTypeAliasAnalysis]:
     aliases: list[ClassTypeAliasAnalysis] = []
     for member_name, member in cls.members.items():
@@ -67,6 +71,7 @@ def _build_class_type_aliases(
                     parent_location=parent_location,
                     context=context,
                     member_path=member_path,
+                    option=option,
                 )
             )
     return aliases
@@ -78,6 +83,7 @@ def _build_class_type_alias_analysis(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
+    option,
 ) -> ClassTypeAliasAnalysis:
     new_member_path = (*member_path, name)
     alias_common = build_member_common(
@@ -85,10 +91,11 @@ def _build_class_type_alias_analysis(
         name=name,
         parent_location=parent_location,
         context=context,
+        option=option,
     )
     return ClassTypeAliasAnalysis(
         **alias_common,
-        alias_type=analyze_type(member.value, context),
+        alias_type=analyze_type(member.value, context, option),
         identity=build_declaration_identity(
             context=context, member_path=new_member_path
         ),
@@ -101,6 +108,7 @@ def _build_class_variables(
     context: SymbolContext,
     member_path: MemberPath,
     is_pydantic_base_class: bool,
+    option: AnalysisOption | None,
 ) -> list[ClassVariableAnalysis]:
     variables: list[ClassVariableAnalysis] = []
     for member_name, member in cls.members.items():
@@ -113,6 +121,7 @@ def _build_class_variables(
                     context=context,
                     member_path=member_path,
                     is_pydantic_base_class=is_pydantic_base_class,
+                    option=option,
                 )
             )
     return variables
@@ -125,6 +134,7 @@ def _build_class_variable_analysis(
     context: SymbolContext,
     member_path: MemberPath,
     is_pydantic_base_class: bool,
+    option: AnalysisOption | None,
 ) -> ClassVariableAnalysis:
     new_member_path = (*member_path, name)
     variable_common = build_member_common(
@@ -132,10 +142,11 @@ def _build_class_variable_analysis(
         name=name,
         parent_location=parent_location,
         context=context,
+        option=option,
     )
-    variable_type = analyze_type(member.annotation, context)
+    variable_type = analyze_type(member.annotation, context, option)
     value_expression = (
-        analyze_type_expression(member.value, context)
+        analyze_type_expression(member.value, context, option)
         if member.value is not None
         else None
     )
@@ -155,7 +166,7 @@ def _build_class_variable_analysis(
         **variable_common,
         type=variable_type,
         value_source=str(member.value) if member.value is not None else None,
-        value_expression=analyze_type_expression(member.value, context)
+        value_expression=analyze_type_expression(member.value, context, option)
         if member.value is not None
         else None,
         pydantic=pydantic,
@@ -171,6 +182,7 @@ def _build_class_method_analysis(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
+    option: AnalysisOption | None,
 ) -> MethodAnalysis:
     new_member_path = (*member_path, name)
     method_parameters: list[ParameterAnalysis] = []
@@ -179,7 +191,7 @@ def _build_class_method_analysis(
             ParameterAnalysis(
                 name=param.name,
                 kind=_get_function_parameter_kind(param.kind),
-                type=analyze_type(param.annotation, context),
+                type=analyze_type(param.annotation, context, option),
                 default=None,
             )
         )
@@ -188,12 +200,13 @@ def _build_class_method_analysis(
         name=name,
         parent_location=parent_location,
         context=context,
+        option=option,
     )
 
     return MethodAnalysis(
         **method_common,
         parameters=tuple(method_parameters),
-        return_type=analyze_type(member.returns, context),
+        return_type=analyze_type(member.returns, context, option),
         is_async="async" in member.labels,
         identity=build_declaration_identity(
             context=context, member_path=new_member_path
@@ -206,6 +219,7 @@ def _build_class_methods(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
+    option: AnalysisOption | None,
 ) -> list[MethodAnalysis]:
     methods: list[MethodAnalysis] = []
     for member_name, member in cls.members.items():
@@ -217,13 +231,17 @@ def _build_class_methods(
                     parent_location=parent_location,
                     context=context,
                     member_path=member_path,
+                    option=option,
                 )
             )
     return methods
 
 
 def _build_inner_classes(
-    cls: Class, context: SymbolContext, member_path: MemberPath
+    cls: Class,
+    context: SymbolContext,
+    member_path: MemberPath,
+    option: AnalysisOption | None,
 ) -> list[InnerClassAnalysis]:
     inner_classes: list[InnerClassAnalysis] = []
     for member_name, member in cls.members.items():
@@ -234,6 +252,7 @@ def _build_inner_classes(
                     name=member_name,
                     context=context,
                     member_path=member_path,
+                    option=option,
                 )
             )
     return inner_classes
@@ -255,17 +274,18 @@ def _analyze_class_common(
     name: str,
     context: SymbolContext,
     member_path: MemberPath,
+    option: AnalysisOption | None = None,
 ) -> ClassCommon:
     bases: list[TypeAnalysis] = [
         analyzed
         for base in cls.bases
-        if (analyzed := analyze_type(base, context)) is not None
+        if (analyzed := analyze_type(base, context, option)) is not None
     ]
 
     is_pydantic_base_class = _is_pydantic_base_class(bases)
 
     constructor_location: SourceLocation | None = _retrieve_constructor_location(
-        cls, context
+        cls, context, option
     )
 
     parameters: list[ClassVariableAnalysis] = _build_class_variables(
@@ -274,6 +294,7 @@ def _analyze_class_common(
         context=context,
         member_path=member_path,
         is_pydantic_base_class=is_pydantic_base_class,
+        option=option,
     )
 
     methods: list[MethodAnalysis] = _build_class_methods(
@@ -281,6 +302,7 @@ def _analyze_class_common(
         parent_location=constructor_location,
         context=context,
         member_path=member_path,
+        option=option,
     )
 
     type_aliases: list[ClassTypeAliasAnalysis] = _build_class_type_aliases(
@@ -288,10 +310,11 @@ def _analyze_class_common(
         parent_location=constructor_location,
         context=context,
         member_path=member_path,
+        option=option,
     )
 
     inner_classes: list[InnerClassAnalysis] = _build_inner_classes(
-        cls=cls, context=context, member_path=member_path
+        cls=cls, context=context, member_path=member_path, option=option
     )
 
     return {
@@ -308,17 +331,15 @@ def _analyze_inner_class(
     name: str,
     context: SymbolContext,
     member_path: MemberPath,
+    option: AnalysisOption | None = None,
 ) -> InnerClassAnalysis:
     new_member_path = (*member_path, name)
     class_common = _analyze_class_common(
-        cls, name, context, member_path=new_member_path
+        cls, name, context, member_path=new_member_path, option=option
     )
     # pprint(cls.as_dict())
     base_common = build_member_common(
-        symbol=cls,
-        name=name,
-        parent_location=None,
-        context=context,
+        symbol=cls, name=name, parent_location=None, context=context, option=option
     )
     return InnerClassAnalysis(
         **base_common,
@@ -329,11 +350,18 @@ def _analyze_inner_class(
     )
 
 
-def analyze_class(cls: Class, name: str, context: SymbolContext) -> ClassAnalysis:
+def analyze_class(
+    cls: Class,
+    name: str,
+    context: SymbolContext,
+    option: AnalysisOption | None = None,
+) -> ClassAnalysis:
     member_path: MemberPath = ()
-    class_common = _analyze_class_common(cls, name, context, member_path)
+    class_common = _analyze_class_common(cls, name, context, member_path, option)
     # pprint(cls.as_dict())
-    base_common = build_symbol_common(symbol=cls, name=name, context=context)
+    base_common = build_symbol_common(
+        symbol=cls, name=name, context=context, option=option
+    )
 
     return ClassAnalysis(
         **base_common,

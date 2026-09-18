@@ -1,4 +1,5 @@
 from griffe import Class, Docstring, Function, Object
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.decorator import DecoratorAnalysis
 from gyomu_schema.schemas.python.docstring import DocstringCommon
 from gyomu_schema.schemas.python.location import SourceLocation
@@ -21,6 +22,7 @@ def build_symbol_common(
     symbol: Object,
     name: str,
     context: SymbolContext,
+    option: AnalysisOption | None,
 ) -> SymbolCommon:
     location = calculate_symbol_location(symbol=symbol, context=context)
     docstring = (
@@ -28,13 +30,16 @@ def build_symbol_common(
             symbol.docstring,
             doc_common=build_docstring_common(symbol.docstring, context=context),
             context=context,
+            option=option,
         )
         if symbol.docstring is not None
         else None
     )
     decorators: list[DecoratorAnalysis] = []
     if isinstance(symbol, Class | Function):
-        decorators = analyze_decorators(symbol.decorators, context=context)
+        decorators = analyze_decorators(
+            symbol.decorators, context=context, option=option
+        )
     return {
         "name": name,
         "location": location,
@@ -49,6 +54,7 @@ def build_member_common(
     symbol: Object,
     name: str,
     context: SymbolContext,
+    option: AnalysisOption | None,
     parent_location: SourceLocation | None = None,
 ) -> MemberCommon:
     location = calculate_member_location(
@@ -61,13 +67,16 @@ def build_member_common(
             symbol.docstring,
             doc_common=build_docstring_common(symbol.docstring, context=context),
             context=context,
+            option=option,
         )
         if symbol.docstring is not None
         else None
     )
     decorators: list[DecoratorAnalysis] = []
     if isinstance(symbol, Function):
-        decorators = analyze_decorators(symbol.decorators, context=context)
+        decorators = analyze_decorators(
+            symbol.decorators, context=context, option=option
+        )
 
     return {
         "name": name,

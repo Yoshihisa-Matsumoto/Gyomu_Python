@@ -22,10 +22,11 @@ def render_docstring(updated: UpdatedDocstring) -> RenderedSymbolDocstring:
 
     location = updated.docstring.location.model_copy()
 
-    location.start_offset -= updated.docstring.indent
+    if not is_added:
+        location.start_offset -= updated.docstring.indent
 
     if is_added:
-        location.end_offset -= updated.docstring.indent
+        location.end_offset = location.start_offset
 
     return RenderedSymbolDocstring(
         identity=updated.identity,
