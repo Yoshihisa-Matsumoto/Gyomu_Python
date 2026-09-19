@@ -62,7 +62,7 @@ class MergePlan(BaseModel):
 
     summary: MergeAction[str]
 
-    description: MergeAction[str]
+    description: MergeAction[str] | None
 
     params: tuple[ParamMergePlan, ...]
 

@@ -35,6 +35,20 @@ def create_merge_plan(plans: DocstringUpdatePlan) -> list[MergePlan]:
     return merge_plans
 
 
+def _convert_description_action(
+    action: UpdateReplaceAction | UpdatePreserveAction | UpdateDeleteAction | None,
+) -> MergeAction[str] | None:
+    if action is None:
+        return None
+    if isinstance(action, UpdateReplaceAction):
+        return MergeReplaceAction(value=action.value)
+
+    if isinstance(action, UpdatePreserveAction):
+        return MergePreserveAction()
+
+    return MergeDeleteAction()
+
+
 def _convert_action(
     action: UpdateReplaceAction | UpdatePreserveAction | UpdateDeleteAction,
 ) -> MergeAction[str]:
@@ -112,7 +126,7 @@ def _create_return_merge_plan(
     plan: ReturnUpdatePlan | None,
 ) -> MergeAction[ReturnActionValue] | None:
     if plan is None:
-        return
+        return None
     return _convert_return_action(plan.action)
 
 
@@ -123,7 +137,9 @@ def _create_merge_plan(
     return MergePlan(
         identity=entry.identity,
         summary=_convert_action(entry.summary.action),
-        description=_convert_action(entry.description.action),
+        description=_convert_description_action(
+            entry.description.action if entry.description else None
+        ),
         params=tuple(_create_param_merge_plan(param) for param in entry.params),
         returns=_create_return_merge_plan(entry.returns),
         raises=tuple(

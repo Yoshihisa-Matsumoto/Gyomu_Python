@@ -1,3 +1,4 @@
+import pytest
 from gyomu_ai_compiler.pipelines.docstring_update.context.declaration_context import (
     ContextEntry,
     DeclarationInfo,
@@ -17,7 +18,9 @@ from gyomu_docstring.update.internal.build_file_context import (
     build_docstring_declaration_context,
     build_docstring_file_context,
     build_existing_docstring,
+    is_documentable_child_entry,
 )
+from gyomu_python_analysis.analysis.analyzers.cls import is_base_class_pydantic
 from gyomu_schema.schemas.python.dependency import (
     DependencyAnalysis,
     DependencySummary,
@@ -36,6 +39,8 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringStyle,
 )
 from gyomu_schema.schemas.python.location import SourceLocation
+from gyomu_schema.schemas.python.symbol_base import DeclarationKind
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.schemas.python.types import SymbolId
 
 from packages.schema.schema_test_support.helpers import (
@@ -49,6 +54,8 @@ from packages.schema.schema_test_support.helpers import (
     create_inner_class_analysis,
     create_location,
     create_method_analysis,
+    create_name_structure,
+    create_type_analysis,
 )
 
 
@@ -341,13 +348,14 @@ class TestBuildDependencies:
 
 class TestBuildContextEntry:
     def test_build_context_entry(self) -> None:
+        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
         member = create_method_analysis(
             indent=4,
             name="foo",
             location=create_location(),
         )
 
-        result = build_context_entry(member)
+        result = build_context_entry(cls, member)
 
         assert result == ContextEntry(
             target=member.identity,
@@ -361,6 +369,7 @@ class TestBuildContextEntry:
         )
 
     def test_build_context_entry_with_docstring(self) -> None:
+        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
         docstring = create_docstring(
             summary="Do something.",
         )
@@ -371,7 +380,7 @@ class TestBuildContextEntry:
             docstring=docstring,
         )
 
-        result = build_context_entry(member)
+        result = build_context_entry(cls, member)
 
         assert result.existing_docstring == build_existing_docstring(docstring)
 
@@ -384,19 +393,21 @@ class TestBuildContextEntry:
         )
 
     def test_build_context_entry_without_location(self) -> None:
+        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
         member = create_method_analysis(
             indent=4,
             name="foo",
             location=None,
         )
 
-        result = build_context_entry(member)
+        result = build_context_entry(cls, member)
 
         assert result.documentable == NonDocumentableContext(
             reason="non-documentable-member",
         )
 
     def test_build_context_entry_builds_inner_class_children(self) -> None:
+        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
         method = create_method_analysis(
             indent=8,
             name="foo",
@@ -410,7 +421,7 @@ class TestBuildContextEntry:
             methods=(method,),
         )
 
-        result = build_context_entry(inner_class)
+        result = build_context_entry(cls, inner_class)
 
         assert result.children == (
             ContextEntry(
@@ -567,3 +578,48 @@ class TestBuildDocstringFileContext:
             function.identity,
             cls.identity,
         )
+
+
+@pytest.mark.parametrize(
+    ("is_pydantic", "name", "expected", "kind"),
+    [
+        (False, "messages", True, DeclarationKind.VARIABLE),
+        (False, "model_config", True, DeclarationKind.VARIABLE),
+        (True, "messages", True, DeclarationKind.VARIABLE),
+        (True, "model_config", False, DeclarationKind.VARIABLE),
+        (True, "model_config", True, DeclarationKind.FUNCTION),
+    ],
+)
+def test_is_documentable_child_entry(
+    is_pydantic: bool, name: str, expected: bool, kind: DeclarationKind
+) -> None:
+    bases: tuple[TypeAnalysis, ...] = tuple()
+    if is_pydantic:
+        bases = tuple(
+            [
+                create_type_analysis(
+                    "BaseModel", structure=create_name_structure("BaseModel")
+                )
+            ]
+        )
+    cls = create_class_analysis(indent=0, location=create_location(), bases=bases)
+    member = None
+    match kind:
+        case DeclarationKind.VARIABLE:
+            member = create_class_variable_analysis(
+                indent=4,
+                location=create_location(),
+                name=name,
+                identity=create_declaration_identity(name),
+            )
+        case DeclarationKind.FUNCTION:
+            member = create_method_analysis(
+                indent=4,
+                location=create_location(),
+                name=name,
+                identity=create_declaration_identity(name),
+            )
+    assert member
+    print(is_base_class_pydantic(list(cls.bases)))
+    print(expected)
+    assert is_documentable_child_entry(cls, member) is expected

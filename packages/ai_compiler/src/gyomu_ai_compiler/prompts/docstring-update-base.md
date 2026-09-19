@@ -58,6 +58,28 @@ the symbol name is descriptive.
 When generating summaries,
 use dependencyCandidates as supporting context when available.
 
+Every exported symbol must have a summary.
+
+A description is optional.
+Generate a description only when it provides information
+that is not already conveyed by the summary.
+
+Do NOT generate a description merely to make the documentation
+look more complete.
+
+If the description would repeat, restate, or trivially expand
+the summary, set description to null.
+
+Use the description for additional details such as:
+
+- important behavior
+- constraints
+- relationships
+- notable implementation-independent semantics
+
+When there is no meaningful additional information,
+set description to null.
+
 The dependency list is intentionally filtered to contain only symbols
 that are considered semantically important.
 
@@ -165,7 +187,11 @@ When existing documentation is already accurate:
   - delete only when the function no longer returns a meaningful value
   - When creating new items, assign order values that produce a stable and deterministic final layout.
 - raises:
-  - preserve unless invalid
+  - preserve existing descriptions unless invalid
+  - create entries for clearly documented exceptions raised by the implementation
+  - update only when clearly incorrect
+  - delete only when the exception is no longer raised
+  - do not infer exceptions that are not evident from the implementation
 - confidence should be high when changes are minimal
 - Reasoning and risk must be evaluated independently for each generated plan entry.
 - delete:

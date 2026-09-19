@@ -217,8 +217,10 @@ def _merge_summary(
 
 
 def _merge_description(
-    plan: MergeAction[str], existing_docstring: DocstringAnalysis | None
+    plan: MergeAction[str] | None, existing_docstring: DocstringAnalysis | None
 ) -> str | None:
+    if plan is None:
+        return None
     match plan.type:
         case "preserve":
             if existing_docstring is None:

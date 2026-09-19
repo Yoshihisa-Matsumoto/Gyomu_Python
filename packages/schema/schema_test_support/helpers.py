@@ -262,6 +262,7 @@ def create_class_analysis(
     variables: tuple[ClassVariableAnalysis, ...] = tuple(),
     type_aliases: tuple[ClassTypeAliasAnalysis, ...] = tuple(),
     inner_classes: tuple[InnerClassAnalysis, ...] = tuple(),
+    bases: tuple[TypeAnalysis, ...] = tuple(),
 ) -> ClassAnalysis:
     if identity is None:
         identity = create_declaration_identity(name)
@@ -273,7 +274,7 @@ def create_class_analysis(
         dependencies=tuple(),
         indent=indent,
         kind=DeclarationKind.CLASS,
-        bases=tuple(),
+        bases=bases,
         visibility=Visibility.PUBLIC,
         location=location,
         methods=methods,

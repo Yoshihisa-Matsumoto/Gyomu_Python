@@ -59,7 +59,7 @@ def _build_class_type_aliases(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
-    option: AnalysisOption | None = None,
+    option: AnalysisOption | None,
 ) -> list[ClassTypeAliasAnalysis]:
     aliases: list[ClassTypeAliasAnalysis] = []
     for member_name, member in cls.members.items():
@@ -83,7 +83,7 @@ def _build_class_type_alias_analysis(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
-    option,
+    option: AnalysisOption | None,
 ) -> ClassTypeAliasAnalysis:
     new_member_path = (*member_path, name)
     alias_common = build_member_common(
@@ -258,7 +258,7 @@ def _build_inner_classes(
     return inner_classes
 
 
-def _is_pydantic_base_class(bases: list[TypeAnalysis]) -> bool:
+def is_base_class_pydantic(bases: list[TypeAnalysis]) -> bool:
     for base in bases:
         if (
             isinstance(base.structure, NameStructureAnalysis)
@@ -282,7 +282,7 @@ def _analyze_class_common(
         if (analyzed := analyze_type(base, context, option)) is not None
     ]
 
-    is_pydantic_base_class = _is_pydantic_base_class(bases)
+    is_pydantic_base_class = is_base_class_pydantic(bases)
 
     constructor_location: SourceLocation | None = _retrieve_constructor_location(
         cls, context, option

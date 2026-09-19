@@ -373,7 +373,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
 
         error = result.failure()
 
-        assert error.message == "fail to retrieve correct Docstring with maximum retry"
+        assert error.message == "AI Failure"
         assert error.phase == "merge-plan"
 
 

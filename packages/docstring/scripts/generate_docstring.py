@@ -1,6 +1,7 @@
 import asyncio
 from pathlib import Path
 
+from dotenv import load_dotenv
 from gyomu_docstring.update.process import process_docstring_update
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
@@ -13,10 +14,15 @@ from returns.result import Failure, Success
 async def update_with_real_llm(
     project_full_path: FullPath, source_project_relative_path: ProjectRelativePath
 ) -> None:
+    load_dotenv()
     result = initialize_project_context(
         project_root=project_full_path,
         source_root=ProjectRelativePath(Path("src")),
     )
+    if isinstance(result, Failure):
+        print(repr(result.failure()))
+        return
+
     assert isinstance(result, Success)
 
     project_context = result.unwrap()
@@ -44,12 +50,16 @@ async def update_with_real_llm(
         context=project_context, file_context=file_context, option=option
     )
     if isinstance(result, Failure):
-        print(repr(result.failure()))
+        failure = result.failure()
+        print(failure)
+        if failure.__cause__:
+            print(failure.__cause__)
     assert isinstance(result, Success)
 
 
 async def main():
-    package = FullPath(Path("../../schema").resolve())
+    package = FullPath(Path("../schema").resolve())
+    print(package)
     await update_with_real_llm(
         package,
         ProjectRelativePath(Path("src/gyomu_schema/conversation/conversation.py")),

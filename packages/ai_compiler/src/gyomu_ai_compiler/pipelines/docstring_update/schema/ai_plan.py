@@ -283,7 +283,7 @@ class Risk(BaseModel):
 class DocstringUpdateEntry(BaseModel):
     identity: DeclarationIdentity
     summary: SummaryPlan
-    description: DescriptionPlan
+    description: DescriptionPlan | None
     params: tuple[ParamUpdatePlan, ...]
     raises: tuple[RaiseUpdatePlan, ...]
     returns: ReturnUpdatePlan | None

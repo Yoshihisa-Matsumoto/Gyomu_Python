@@ -41,7 +41,7 @@ async def build_docstring_update_plan_with_retry(
         if not is_successful(plan_result):
             return Failure(
                 UpdateError(
-                    message="fail to retrieve correct Docstring with maximum retry",
+                    message="AI Failure",
                     file_path=file_context.analysis.module_name,
                     phase="merge-plan",
                     identity=None,

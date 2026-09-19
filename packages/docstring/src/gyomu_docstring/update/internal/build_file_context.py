@@ -12,6 +12,7 @@ from gyomu_ai_compiler.pipelines.docstring_update.context.declaration_context im
 from gyomu_ai_compiler.pipelines.docstring_update.context.file_context import (
     DocstringFileContext,
 )
+from gyomu_python_analysis.analysis.analyzers.cls import is_base_class_pydantic
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassBase,
@@ -28,6 +29,7 @@ from gyomu_schema.schemas.python.docstring import (
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
+from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 
 
 def build_docstring_file_context(
@@ -66,24 +68,39 @@ def build_docstring_declaration_context(
     )
 
 
+def is_documentable_child_entry(cls: ClassBase, member: MemberAnalysis) -> bool:
+    if member.location is None:
+        return False
+    is_pydantic = is_base_class_pydantic(list(cls.bases))
+    if not is_pydantic:
+        return True
+    return not (
+        member.kind == DeclarationKind.VARIABLE and member.name == "model_config"
+    )
+
+
 def build_context_entries(cls: ClassBase) -> tuple[ContextEntry, ...]:
     entries: list[ContextEntry] = []
 
     for variable in cls.variables:
-        entries.append(build_context_entry(variable))
+        if is_documentable_child_entry(cls, variable):
+            entries.append(build_context_entry(cls, variable))
     for typealias in cls.type_aliases:
-        entries.append(build_context_entry(typealias))
+        if is_documentable_child_entry(cls, typealias):
+            entries.append(build_context_entry(cls, typealias))
 
     for method in cls.methods:
-        entries.append(build_context_entry(method))
+        if is_documentable_child_entry(cls, method):
+            entries.append(build_context_entry(cls, method))
     for inner in cls.inner_classes:
-        entries.append(build_context_entry(inner))
+        if is_documentable_child_entry(cls, inner):
+            entries.append(build_context_entry(cls, inner))
 
     return tuple(entries)
 
 
-def build_context_entry(member: MemberAnalysis) -> ContextEntry:
-
+def build_context_entry(cls: ClassBase, member: MemberAnalysis) -> ContextEntry:
+    is_documentable = is_documentable_child_entry(cls, member)
     return ContextEntry(
         target=member.identity,
         member=_build_declaration_info(member),
@@ -91,7 +108,7 @@ def build_context_entry(member: MemberAnalysis) -> ContextEntry:
         if member.docstring is not None
         else None,
         documentable=DocumentableContext()
-        if member.location is not None
+        if is_documentable
         else NonDocumentableContext(reason="non-documentable-member"),
         children=build_context_entries(member)
         if isinstance(member, InnerClassAnalysis)
