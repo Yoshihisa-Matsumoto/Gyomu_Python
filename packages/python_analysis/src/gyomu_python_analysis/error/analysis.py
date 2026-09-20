@@ -3,6 +3,7 @@ from typing import Literal
 
 from gyomu_schema.error.base import BaseError
 from gyomu_schema.schemas.python.types import PythonPath
+from gyomu_schema.schemas.types import FullPath
 
 type AnalysisPhase = Literal[
     "project-load",
@@ -12,6 +13,7 @@ type AnalysisPhase = Literal[
     "jsdoc-extract",
     "analysis",
     "post-analysis",
+    "workspace-discovery",
 ]
 
 
@@ -22,7 +24,7 @@ class AnalysisError(BaseError):
         self,
         message: str,
         *,
-        file_path: PythonPath,
+        file_path: PythonPath | FullPath,
         phase: AnalysisPhase,
         context: str | None = None,
         details: Mapping[str, object] | None = None,

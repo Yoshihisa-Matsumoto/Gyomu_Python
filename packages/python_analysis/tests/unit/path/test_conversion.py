@@ -12,6 +12,7 @@ from gyomu_schema.schemas.python.types import (
     SourceRelativePath,
 )
 from gyomu_schema.schemas.types import FullPath
+from python_analysis_test_support.helpers import _default_project_config
 
 
 class TestSourceRelativePathToPythonPath:
@@ -41,9 +42,7 @@ class TestProjectRelativePath2SourceRelativePath:
         context = ProjectContext(
             project_root=FullPath(Path("/project")),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=_default_project_config,
         )
         path = ProjectRelativePath(Path("src/foo.py"))
 
@@ -55,9 +54,7 @@ class TestProjectRelativePath2SourceRelativePath:
         context = ProjectContext(
             project_root=FullPath(Path("/project")),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=_default_project_config,
         )
         path = ProjectRelativePath(Path("src/gyomu_schema/analysis/foo.py"))
 
@@ -69,9 +66,7 @@ class TestProjectRelativePath2SourceRelativePath:
         context = ProjectContext(
             project_root=FullPath(Path("/project")),
             source_root=ProjectRelativePath(Path(".")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=_default_project_config,
         )
         path = ProjectRelativePath(Path("foo.py"))
 
@@ -83,9 +78,7 @@ class TestProjectRelativePath2SourceRelativePath:
         context = ProjectContext(
             project_root=FullPath(Path("/project")),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=_default_project_config,
         )
         path = ProjectRelativePath(Path("tests/foo.py"))
 

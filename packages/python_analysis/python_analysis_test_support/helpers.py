@@ -12,7 +12,7 @@ from gyomu_python_analysis.analysis.file.source_file_context import SourceFileCo
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
@@ -21,14 +21,24 @@ from gyomu_schema.schemas.python.type_alias import TypeAliasAnalysis
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     PythonPath,
+    WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure
 
+TEST_SUPPORT_ROOT = FullPath(Path(__file__).parent)
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
+MONOREPO_FIXTURES_ROOT = FullPath(Path(__file__).parent / "monorepo_fixtures")
 
-print("LOADED PYTHON-ANALYSIS TESTS.HELPERS")
+
+_default_project_config = PyProjectConfig(
+    path=WorkspaceRelativePath(Path(".")),
+    name="test",
+    version="0.1",
+    description=None,
+    formatter_line_length=88,
+)
 
 
 def _create_context() -> ProjectContext:

@@ -1,3 +1,5 @@
+from textwrap import wrap
+
 from gyomu_schema.schemas.python.docstring import (
     DocstringCustomSection,
     DocstringExamplesSection,
@@ -21,25 +23,37 @@ from gyomu_docstring.update.docstring.line import (
 from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 
 
-def render_docstring_lines(updated: UpdatedDocstring) -> tuple[DocstringLine, ...]:
+def render_docstring_lines(
+    updated: UpdatedDocstring, formatter_line_length: int
+) -> tuple[DocstringLine, ...]:
     lines: list[DocstringLine] = []
     docstring = updated.docstring
+    target_line_length = formatter_line_length - updated.docstring.indent
+
     if docstring.summary is not None:
-        lines.append(DocstringText(text=docstring.summary))
+        for item in wrap_text(docstring.summary, target_line_length):
+            if item == "":
+                lines.append(DocstringBlank())
+            else:
+                lines.append(DocstringText(text=item))
 
     if docstring.description is not None and docstring.description != "":
         lines.append(DocstringBlank())
-        lines.append(DocstringText(text=docstring.description))
+        for item in wrap_text(docstring.description, target_line_length):
+            if item == "":
+                lines.append(DocstringBlank())
+            else:
+                lines.append(DocstringText(text=item))
 
     for section in docstring.sections:
         lines.append(DocstringBlank())
         match section.kind:
             case DocstringSectionKind.ARGS:
-                compute_args_tag(section, lines, docstring.style)
+                compute_args_tag(section, lines, docstring.style, target_line_length)
             case DocstringSectionKind.RETURNS:
-                compute_returns_tag(section, lines, docstring.style)
+                compute_returns_tag(section, lines, docstring.style, target_line_length)
             case DocstringSectionKind.RAISES:
-                compute_raises_tag(section, lines, docstring.style)
+                compute_raises_tag(section, lines, docstring.style, target_line_length)
             case DocstringSectionKind.NOTES:
                 compute_notes_tag(section, lines, docstring.style)
             case DocstringSectionKind.EXAMPLES:
@@ -95,14 +109,21 @@ def compute_notes_tag(
 
 
 def compute_raises_tag(
-    section: DocstringRaisesSection, lines: list[DocstringLine], style: DocstringStyle
+    section: DocstringRaisesSection,
+    lines: list[DocstringLine],
+    style: DocstringStyle,
+    formatter_line_length: int,
 ) -> None:
     if len(section.items) == 0:
         return
 
     lines.append(DocstringSectionItem(text=_get_raises_section_name(style)))
     for item in section.items:
-        lines.append(DocstringText(text=_compute_raises_item(item, style)))
+        for text in _compute_raises_item(item, style, formatter_line_length):
+            if text == "":
+                lines.append(DocstringBlank())
+            else:
+                lines.append(DocstringText(text=text))
 
 
 def _get_raises_section_name(style: DocstringStyle) -> str:
@@ -112,38 +133,62 @@ def _get_raises_section_name(style: DocstringStyle) -> str:
 
 
 def _compute_raises_item(
-    item: DocstringRaisesSectionItem, style: DocstringStyle
-) -> str:
+    item: DocstringRaisesSectionItem, style: DocstringStyle, formatter_line_length: int
+) -> tuple[str, ...]:
     match style:
         case DocstringStyle.GOOGLE:
             raise_type = f"{item.type}: " if item.type else ""
-            return f"    {raise_type}{item.description}"
+            return wrap_docstring_item(
+                f"{raise_type}{item.description}",
+                line_length=formatter_line_length,
+                first_line_indent=4,
+                continuation_indent=8,
+            )
 
 
 def compute_returns_tag(
-    section: DocstringReturnsSection, lines: list[DocstringLine], style: DocstringStyle
+    section: DocstringReturnsSection,
+    lines: list[DocstringLine],
+    style: DocstringStyle,
+    formatter_line_length: int,
 ) -> None:
     item = section.item
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Returns:"))
             return_type = f"{item.type}: " if item.type else ""
-            lines.append(DocstringText(text=f"    {return_type}{item.description}"))
+            for text in wrap_docstring_item(
+                f"{return_type}{item.description}",
+                line_length=formatter_line_length,
+                first_line_indent=4,
+                continuation_indent=8,
+            ):
+                if text == "":
+                    lines.append(DocstringBlank())
+                else:
+                    lines.append(DocstringText(text=text))
 
 
 def compute_args_tag(
     section: DocstringParametersSection,
     lines: list[DocstringLine],
     style: DocstringStyle,
+    formatter_line_length: int,
 ) -> None:
     if len(section.items) == 0:
         return
 
     lines.append(DocstringSectionItem(text=_get_args_section_name(style)))
     for parameter in section.items:
-        lines.append(
-            DocstringText(text=_compute_args_item(parameter=parameter, style=style))
-        )
+        for text in _compute_args_item(
+            parameter=parameter,
+            style=style,
+            formatter_line_length=formatter_line_length,
+        ):
+            if text == "":
+                lines.append(DocstringBlank())
+            else:
+                lines.append(DocstringText(text=text))
 
 
 def _get_args_section_name(style: DocstringStyle) -> str:
@@ -153,9 +198,67 @@ def _get_args_section_name(style: DocstringStyle) -> str:
 
 
 def _compute_args_item(
-    parameter: DocstringParametersSectionItem, style: DocstringStyle
-) -> str:
+    parameter: DocstringParametersSectionItem,
+    style: DocstringStyle,
+    formatter_line_length: int,
+) -> tuple[str, ...]:
     match style:
         case DocstringStyle.GOOGLE:
             param_type = f" ({parameter.type})" if parameter.type else ""
-            return f"    {parameter.name}{param_type}: {parameter.description}"
+            return wrap_docstring_item(
+                f"{parameter.name}{param_type}: {parameter.description}",
+                line_length=formatter_line_length,
+                first_line_indent=4,
+                continuation_indent=8,
+            )
+
+
+def wrap_text(
+    text: str,
+    max_length: int,
+) -> tuple[str, ...]:
+    lines: list[str] = []
+
+    for line in text.splitlines():
+        wrapped = wrap(
+            line,
+            width=max_length,
+            break_long_words=False,
+            break_on_hyphens=False,
+        )
+
+        lines.extend(wrapped or ("",))
+
+    return tuple(lines)
+
+
+def wrap_docstring_item(
+    text: str,
+    *,
+    line_length: int,
+    first_line_indent: int,
+    continuation_indent: int,
+) -> tuple[str, ...]:
+    lines: list[str] = []
+    first_line = True
+
+    for line in text.splitlines():
+        wrapped = wrap(
+            line,
+            width=line_length,
+            initial_indent=(
+                " " * first_line_indent if first_line else " " * continuation_indent
+            ),
+            subsequent_indent=" " * continuation_indent,
+            break_long_words=False,
+            break_on_hyphens=False,
+        )
+
+        if wrapped:
+            lines.extend(wrapped)
+            first_line = False
+        else:
+            lines.append("")
+            first_line = False
+
+    return tuple(lines)

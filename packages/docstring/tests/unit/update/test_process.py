@@ -9,7 +9,7 @@ from gyomu_docstring.update.docstring.rendered_symbol import (
 )
 from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 from gyomu_docstring.update.process import process_docstring_update
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_schema.option.update import (
     UpdateActionOption,
     UpdateDebugInfoOption,
@@ -28,7 +28,10 @@ from packages.schema.schema_test_support.helpers import (
 @pytest.fixture
 def context(mocker) -> ProjectContext:
     context = mocker.Mock(spec=ProjectContext)
-    context.name = "test-project"
+    config = mocker.Mock(spec=PyProjectConfig)
+    context.config = config
+    config.name = "test-project"
+    config.formatter_line_length = 88
     return context
 
 
@@ -161,7 +164,7 @@ class TestProcessDocstringUpdate:
         assert result.failure() is error
 
         build_merge_plan.assert_awaited_once_with(
-            context.name,
+            context.config.name,
             file_context=file_context,
             source=source,
             option=None,
@@ -286,7 +289,7 @@ class TestProcessDocstringUpdate:
         assert result == Success(None)
 
         build_merge_plan.assert_awaited_once_with(
-            context.name,
+            context.config.name,
             file_context=file_context,
             source=source,
             option=None,
@@ -297,9 +300,7 @@ class TestProcessDocstringUpdate:
             merge_plans,
         )
 
-        render_docstring.assert_called_once_with(
-            updated_docstrings[0],
-        )
+        render_docstring.assert_called_once_with(updated_docstrings[0], 88)
 
         build_file_update_plan.assert_called_once_with(
             file_context,

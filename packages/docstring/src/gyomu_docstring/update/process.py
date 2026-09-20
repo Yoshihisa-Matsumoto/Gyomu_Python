@@ -47,7 +47,7 @@ async def process_docstring_update(
     source = source_result.unwrap()
 
     plan_result = await build_merge_plan(
-        context.name, file_context=file_context, source=source, option=option
+        context.config.name, file_context=file_context, source=source, option=option
     )
 
     if isinstance(plan_result, Failure):
@@ -78,7 +78,8 @@ async def process_docstring_update(
         )
 
     rendered_docstrings = tuple(
-        render_docstring(updated) for updated in updated_docstrings
+        render_docstring(updated, context.config.formatter_line_length)
+        for updated in updated_docstrings
     )
 
     # debug

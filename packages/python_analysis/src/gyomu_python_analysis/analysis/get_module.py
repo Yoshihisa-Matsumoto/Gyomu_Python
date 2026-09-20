@@ -21,8 +21,10 @@ def get_module_analysis(
     file_hash: str | None = None,
     option: AnalysisOption | None = None,
 ) -> Result[ModuleAnalysis, AnalysisError]:
+
     cache_path = _get_cache_path(context, file_path)
-    if cache_path.exists():
+
+    if (option is None or not option.no_check_cache) and cache_path.exists():
         cache_result = read_json(cache_path, ModuleAnalysis)
 
         if isinstance(cache_result, Success):

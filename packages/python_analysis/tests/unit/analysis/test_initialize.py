@@ -120,10 +120,10 @@ class TestInitializeProjectContext:
         assert isinstance(result, Success)
 
         context = result.unwrap()
-
-        assert context.name == "example-project"
-        assert context.description == "Example project"
-        assert context.version == "1.2.3"
+        config = context.config
+        assert config.name == "example-project"
+        assert config.description == "Example project"
+        assert config.version == "1.2.3"
         assert context.project_root == FullPath(tmp_path)
         assert context.source_root == ProjectRelativePath(Path("src"))
         assert context.included_files == frozenset(
@@ -171,10 +171,10 @@ class TestInitializeProjectContext:
         assert isinstance(result, Success)
 
         context = result.unwrap()
-
-        assert context.name == "example-project"
-        assert context.description == "Example project"
-        assert context.version == "0.2.0"
+        config = context.config
+        assert config.name == "example-project"
+        assert config.description == "Example project"
+        assert config.version == "0.2.0"
 
     def test_initialize_project_context_returns_failure_when_pyproject_is_missing(
         self,

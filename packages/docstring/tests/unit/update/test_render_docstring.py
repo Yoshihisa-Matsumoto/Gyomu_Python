@@ -55,7 +55,7 @@ class TestRenderDocstring:
             end_offset=125,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert isinstance(result, RenderedSymbolDocstring)
         assert result.identity == updated.identity
@@ -71,7 +71,7 @@ class TestRenderDocstring:
             end_offset=100,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.identity == updated.identity
         assert result.docstring == '    """Finds a user."""\n'
@@ -86,7 +86,7 @@ class TestRenderDocstring:
             end_offset=220,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.location.start_offset == 192
 
@@ -100,7 +100,7 @@ class TestRenderDocstring:
             end_offset=220,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.location.end_offset == 220
 
@@ -112,7 +112,7 @@ class TestRenderDocstring:
             end_offset=200,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.location.end_offset == 200
 
@@ -128,7 +128,7 @@ class TestRenderDocstring:
             end_column=7,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.location.start_line == 10
         assert result.location.start_column == 4
@@ -143,6 +143,6 @@ class TestRenderDocstring:
             end_offset=125,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert isinstance(result, RenderedSymbolDocstring)

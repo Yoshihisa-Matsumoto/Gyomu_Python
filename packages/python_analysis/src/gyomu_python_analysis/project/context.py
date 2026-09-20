@@ -1,8 +1,17 @@
 from dataclasses import dataclass
 
 from griffe import GriffeLoader
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
+
+
+@dataclass
+class PyProjectConfig:
+    path: WorkspaceRelativePath
+    name: str
+    version: str
+    description: str | None
+    formatter_line_length: int
 
 
 @dataclass
@@ -11,9 +20,7 @@ class ProjectContext:
         self,
         project_root: FullPath,
         source_root: ProjectRelativePath,
-        name: str,
-        version: str,
-        description: str | None,
+        config: PyProjectConfig,
         included_files: frozenset[ProjectRelativePath] = frozenset(),
     ) -> None:
         self.project_root = project_root
@@ -22,7 +29,5 @@ class ProjectContext:
         self.loader = GriffeLoader(
             search_paths=[search_path],
         )
-        self.name = name
-        self.version = version
-        self.description = description
+        self.config = config
         self.included_files = included_files

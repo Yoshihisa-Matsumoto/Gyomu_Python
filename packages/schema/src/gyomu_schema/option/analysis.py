@@ -17,3 +17,5 @@ class AnalysisOption:
     debug_info: AnalysisDebugInfoOption = field(
         default_factory=AnalysisDebugInfoOption,
     )
+
+    no_check_cache: bool = False

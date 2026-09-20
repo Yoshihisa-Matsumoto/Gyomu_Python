@@ -5,16 +5,25 @@ from gyomu_python_analysis.analysis.get_module import (
     get_module_analysis,
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     PythonPath,
     SourceRelativePath,
+    WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
+
+config = PyProjectConfig(
+    path=WorkspaceRelativePath(Path(".")),
+    name="test",
+    version="0.1",
+    description="test",
+    formatter_line_length=88,
+)
 
 
 class TestReturnsCachePath:
@@ -24,9 +33,7 @@ class TestReturnsCachePath:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description="test",
+            config=config,
         )
         file_path = ProjectRelativePath(
             Path("src/gyomu_python_analysis/analysis/foo.py")
@@ -51,9 +58,7 @@ class TestReturnsCachePath:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path(".")),
-            name="test",
-            version="0.1",
-            description="test",
+            config=config,
         )
         file_path = ProjectRelativePath(Path("foo.py"))
 
@@ -71,9 +76,7 @@ class TestGetModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description="test",
+            config=config,
         )
         file_path = ProjectRelativePath(Path("src/foo.py"))
         expected = ModuleAnalysis(
@@ -115,9 +118,7 @@ class TestGetModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description="test",
+            config=config,
         )
         file_path = ProjectRelativePath(Path("src/foo.py"))
         expected = ModuleAnalysis(
@@ -156,9 +157,7 @@ class TestGetModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description="test",
+            config=config,
         )
         file_path = ProjectRelativePath(Path("src/foo.py"))
         expected = ModuleAnalysis(
@@ -199,9 +198,7 @@ class TestGetModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description="test",
+            config=config,
         )
         file_path = ProjectRelativePath(Path("src/foo.py"))
 
@@ -235,9 +232,7 @@ class TestGetModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description="test",
+            config=config,
         )
         file_path = ProjectRelativePath(Path("src/foo.py"))
         expected = ModuleAnalysis(

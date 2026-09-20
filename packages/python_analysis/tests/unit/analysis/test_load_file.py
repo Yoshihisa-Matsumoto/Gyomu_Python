@@ -2,17 +2,26 @@ from pathlib import Path
 
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisMetadata
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     PythonPath,
     SourceRelativePath,
+    WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
+
+config = PyProjectConfig(
+    path=WorkspaceRelativePath(Path(".")),
+    name="test",
+    version="0.1",
+    description=None,
+    formatter_line_length=88,
+)
 
 
 class TestLoadFileAnalysisContext:
@@ -24,9 +33,7 @@ class TestLoadFileAnalysisContext:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=config,
         )
         error = AnalysisError(
             message="failed to load module",
@@ -60,9 +67,7 @@ class TestLoadFileAnalysisContext:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=config,
         )
         module_analysis = ModuleAnalysis(
             path=SourceRelativePath(Path("foo.py")),

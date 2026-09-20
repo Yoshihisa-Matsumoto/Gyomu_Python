@@ -1,14 +1,20 @@
 import ast
 from pathlib import Path
 from tomllib import loads
+from typing import Any
 
 from gyomu_infra.filesystem.file_io import enumerate_files, read_text
-from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
+from gyomu_schema.schemas.python.types import (
+    ProjectRelativePath,
+    PythonPath,
+    WorkspaceRelativePath,
+)
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.workspace import WorkspaceConfig
 
 
 def initialize_project_context(
@@ -27,6 +33,49 @@ def initialize_project_context(
         )
     toml_data = loads(read_result.unwrap())
     # print(repr(toml_data))
+    config_result = analyze_project_config(
+        project_root=project_root, toml_data=toml_data
+    )
+    if isinstance(config_result, Failure):
+        return config_result
+
+    files = find_included_python_files(
+        project_root=project_root, source_root=source_root
+    )
+    return Success(
+        ProjectContext(
+            project_root=project_root,
+            source_root=source_root,
+            config=config_result.unwrap(),
+            included_files=files,
+        )
+    )
+
+
+def find_included_python_files(
+    project_root: FullPath, source_root: ProjectRelativePath
+) -> frozenset[ProjectRelativePath]:
+    source_path = project_root / source_root
+    files = enumerate_files(source_path, _is_python_source_file, project_root)
+    return frozenset(ProjectRelativePath(path) for path in files)
+
+
+def _is_python_source_file(path: Path) -> bool:
+    return path.suffix == ".py" and not _is_test_file(path)
+
+
+def _is_test_file(path: Path) -> bool:
+    return path.name.startswith("test_") or path.name.endswith("_test.py")
+
+
+def analyze_project_config(
+    project_root: FullPath,
+    toml_data: dict[str, Any],
+    project_relative_path: WorkspaceRelativePath | None = None,
+    workspace_config: WorkspaceConfig | None = None,
+) -> Result[PyProjectConfig, AnalysisError]:
+    if project_relative_path is None:
+        project_relative_path = WorkspaceRelativePath(Path("."))
     project = toml_data["project"]
     name = project.get("name", "")
     description = project.get("description", None)
@@ -50,35 +99,29 @@ def initialize_project_context(
                     return version_result
                 version = version_result.unwrap()
 
-    files = find_included_python_files(
-        project_root=project_root, source_root=source_root
-    )
+    formatter_line_length: int | None = None
+    tool = toml_data.get("tool")
+    if (
+        isinstance(tool, dict)
+        and isinstance(tool.get("ruff"), dict)
+        and "line-length" in tool["ruff"]
+    ):
+        formatter_line_length = int(tool["ruff"]["line-length"])
+    if formatter_line_length is None:
+        formatter_line_length = (
+            workspace_config.formatter_line_length
+            if workspace_config is not None
+            else 88
+        )
     return Success(
-        ProjectContext(
-            project_root=project_root,
-            source_root=source_root,
+        PyProjectConfig(
             name=name,
             description=description,
             version=str(version),
-            included_files=files,
+            formatter_line_length=formatter_line_length,
+            path=project_relative_path,
         )
     )
-
-
-def find_included_python_files(
-    project_root: FullPath, source_root: ProjectRelativePath
-) -> frozenset[ProjectRelativePath]:
-    source_path = project_root / source_root
-    files = enumerate_files(source_path, _is_python_source_file, project_root)
-    return frozenset(ProjectRelativePath(path) for path in files)
-
-
-def _is_python_source_file(path: Path) -> bool:
-    return path.suffix == ".py" and not _is_test_file(path)
-
-
-def _is_test_file(path: Path) -> bool:
-    return path.name.startswith("test_") or path.name.endswith("_test.py")
 
 
 def read_version(path: Path) -> Result[str | None, AnalysisError]:

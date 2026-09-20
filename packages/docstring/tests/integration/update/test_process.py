@@ -71,7 +71,7 @@ async def test_update(
 
     project_context = result.unwrap()
 
-    assert project_context.name == "test-fixture"
+    assert project_context.config.name == "test-fixture"
 
     file_path = ProjectRelativePath(Path("src") / "docstring" / (case + ".py"))
 

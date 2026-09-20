@@ -2,19 +2,28 @@ from pathlib import Path
 
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_schema.schemas.python.docstring import DocstringAnalysis, DocstringStyle
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     PythonPath,
     SourceRelativePath,
+    WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 from packages.schema.schema_test_support.helpers import create_location
+
+config = PyProjectConfig(
+    path=WorkspaceRelativePath(Path(".")),
+    name="test",
+    version="0.1",
+    description=None,
+    formatter_line_length=88,
+)
 
 
 class TestLoadModuleAnalysis:
@@ -36,9 +45,7 @@ class TestLoadModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(Path("/tmp/project")),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=config,
         )
 
         result = load_module_analysis(
@@ -56,9 +63,7 @@ class TestLoadModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(Path("/tmp/project")),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=config,
         )
 
         source_file = mocker.MagicMock()
@@ -131,9 +136,7 @@ class TestLoadModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=config,
         )
 
         source_file = mocker.MagicMock()
@@ -175,9 +178,7 @@ class TestLoadModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=config,
         )
 
         source_path = tmp_path / "src" / "foo.py"
@@ -280,9 +281,7 @@ class TestLoadModuleAnalysis:
         context = ProjectContext(
             project_root=FullPath(tmp_path),
             source_root=ProjectRelativePath(Path("src")),
-            name="test",
-            version="0.1",
-            description=None,
+            config=config,
         )
 
         source_path = tmp_path / "src" / "foo.py"
