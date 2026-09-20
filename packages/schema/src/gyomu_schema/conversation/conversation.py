@@ -6,9 +6,11 @@ from gyomu_schema.conversation.message import MessageRole, MessageSchema
 
 
 class ConversationSchema(BaseModel):
-    """Defines a conversation schema with system message, message history, and request state.
+    """Defines a conversation schema with system message, message history, and request
+    state.
 
-    Represents a conversation consisting of an optional system prompt, a history of messages, and an active request message.
+    Represents a conversation consisting of an optional system prompt, a history of
+    messages, and an active request message.
     """
     model_config = ConfigDict(frozen=True)
 
@@ -51,10 +53,12 @@ class ConversationSchema(BaseModel):
         self,
         response: MessageSchema,
     ) -> Self:
-        """Completes the current request with an assistant response and updates message history.
+        """Completes the current request with an assistant response and updates message
+        history.
 
         Args:
-            response (MessageSchema): The assistant response message to complete the conversation turn.
+            response (MessageSchema): The assistant response message to complete the
+                conversation turn.
 
         Returns:
             Self: A new conversation instance containing the completed turn.
