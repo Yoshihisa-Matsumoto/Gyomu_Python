@@ -160,6 +160,7 @@ async def process_docstring_update(
 
         logger.error(f"updated source file is invalid on {context.source_root}")
         logger.error(updated_source)
+        logger.error_object(validate_result.failure())
         return validate_result
 
     return Success(None)
