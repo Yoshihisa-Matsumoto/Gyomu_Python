@@ -9,9 +9,10 @@ class BaseError(Exception):
     information already provided by Python's :class:`Exception`.
 
     Args:
-        message: A human-readable description of the error.
-        context: An error context identifier.
-        details: Additional structured diagnostic information.
+        message (str): A human-readable description of the error.
+        context (str | None): An error context identifier.
+        details (Mapping[str, object] | None): Additional structured diagnostic
+            information.
 
     Attributes:
         context: The error context identifier.
@@ -48,10 +49,10 @@ class BaseError(Exception):
         """Associate an exception as the explicit cause of this error.
 
         Args:
-            cause: The underlying exception that caused this error.
+            cause (BaseException): The underlying exception that caused this error.
 
         Returns:
-            This error instance.
+            Self: This error instance.
         """
         self.__cause__ = cause
         return self

@@ -1,6 +1,7 @@
 from textwrap import wrap
 
 from gyomu_schema.schemas.python.docstring import (
+    DocstringCustomListSection,
     DocstringCustomSection,
     DocstringExamplesSection,
     DocstringGyomuContextSection,
@@ -59,13 +60,34 @@ def render_docstring_lines(
             case DocstringSectionKind.EXAMPLES:
                 compute_examples_tag(section, lines, docstring.style)
             case DocstringSectionKind.GYOMU_CONTEXT:
-                compute_gyomu_context(section, lines, docstring.style)
+                compute_gyomu_context(
+                    section, lines, docstring.style, target_line_length
+                )
             case DocstringSectionKind.CUSTOM:
-                computeCustom_tag(section, lines, docstring.style)
+                compute_custom_tag(section, lines, docstring.style)
+            case DocstringSectionKind.CUSTOM_LIST:
+                compute_custom_list_tag(section, lines, docstring.style)
+
     return tuple(lines)
 
 
-def computeCustom_tag(
+def compute_custom_list_tag(
+    section: DocstringCustomListSection,
+    lines: list[DocstringLine],
+    style: DocstringStyle,
+) -> None:
+    match style:
+        case DocstringStyle.GOOGLE:
+            lines.append(DocstringSectionItem(text=section.title + ":"))
+
+            for item in section.items:
+                if item.name:
+                    lines.append(DocstringText(text=f"    {item.name}: {item.value}"))
+                else:
+                    lines.append(DocstringText(text=f"    {item.value}"))
+
+
+def compute_custom_tag(
     section: DocstringCustomSection,
     lines: list[DocstringLine],
     style: DocstringStyle,
@@ -80,11 +102,21 @@ def compute_gyomu_context(
     section: DocstringGyomuContextSection,
     lines: list[DocstringLine],
     style: DocstringStyle,
+    formatter_line_length: int,
 ) -> None:
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Gyomu Context:"))
-            lines.append(DocstringText(text=f"    {section.value}"))
+            for text in wrap_docstring_item(
+                section.value,
+                line_length=formatter_line_length,
+                first_line_indent=4,
+                continuation_indent=4,
+            ):
+                if text == "":
+                    lines.append(DocstringBlank())
+                else:
+                    lines.append(DocstringText(text=text))
 
 
 def compute_examples_tag(

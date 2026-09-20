@@ -1,12 +1,18 @@
 from pathlib import Path
 
+import pytest
 from gyomu_python_analysis.analysis.initialize import (
     find_included_python_files,
     initialize_project_context,
+    initialize_project_from_workspace,
     read_version,
+    resolve_source_root,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.workspace import WorkspaceConfig, WorkspaceProject
+from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
+from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 
@@ -186,3 +192,84 @@ class TestInitializeProjectContext:
         )
 
         assert isinstance(result, Failure)
+
+
+class TestResolveSourceRoot:
+    @pytest.mark.parametrize(
+        ("create_src", "expected"),
+        [
+            (True, ProjectRelativePath(Path("src"))),
+            (False, ProjectRelativePath(Path("."))),
+        ],
+    )
+    def test_resolve_source_root(
+        self,
+        tmp_path: Path,
+        create_src: bool,
+        expected: ProjectRelativePath,
+    ) -> None:
+        if create_src:
+            (tmp_path / "src").mkdir()
+
+        result = resolve_source_root(FullPath(tmp_path))
+
+        assert result == expected
+
+
+class TestInitializeProjectFromWorkspace:
+    def test_initialize_project_from_workspace(
+        self,
+        tmp_path: Path,
+        mocker: MockerFixture,
+    ) -> None:
+        workspace_path = FullPath(tmp_path)
+        project_path = WorkspaceRelativePath(Path("packages/example"))
+        project_root = FullPath(tmp_path / "packages/example")
+
+        project_config = PyProjectConfig(
+            name="example",
+            description="Example project",
+            version="1.0.0",
+            path=project_path,
+            formatter_line_length=88,
+        )
+        workspace = WorkspaceConfig(
+            path=workspace_path,
+            name="workspace",
+            description="Test workspace",
+            formatter_line_length=88,
+        )
+        project = WorkspaceProject(
+            path=project_path,
+            config=project_config,
+        )
+
+        included_files = frozenset(
+            {
+                ProjectRelativePath(Path("src/example.py")),
+                ProjectRelativePath(Path("src/foo.py")),
+            }
+        )
+        find_files = mocker.patch(
+            "gyomu_python_analysis.analysis.initialize.find_included_python_files",
+            return_value=included_files,
+        )
+        mocker.patch(
+            "gyomu_python_analysis.analysis.initialize.resolve_source_root",
+            return_value=ProjectRelativePath(Path("src")),
+        )
+
+        result = initialize_project_from_workspace(workspace, project)
+
+        assert result == ProjectContext(
+            project_root=project_root,
+            source_root=ProjectRelativePath(Path("src")),
+            config=project_config,
+            included_files=included_files,
+        )
+
+        find_files.assert_called_once_with(
+            project_root=project_root,
+            source_root=ProjectRelativePath(Path("src")),
+        )
+        assert result.config is project_config

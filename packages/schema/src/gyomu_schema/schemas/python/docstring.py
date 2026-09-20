@@ -17,6 +17,7 @@ class DocstringSectionKind(StrEnum):
     EXAMPLES = "examples"
     NOTES = "notes"
     CUSTOM = "custom"
+    CUSTOM_LIST = "custom_list"
     GYOMU_CONTEXT = "gyomu_context"
     TEXT = "text"
 
@@ -79,6 +80,17 @@ class DocstringCustomSection(BaseModel):
     value: str
 
 
+class DocstringCustomNamedSectionItem(BaseModel):
+    name: str | None
+    value: str
+
+
+class DocstringCustomListSection(BaseModel):
+    kind: Literal[DocstringSectionKind.CUSTOM_LIST] = DocstringSectionKind.CUSTOM_LIST
+    title: str
+    items: tuple[DocstringCustomNamedSectionItem, ...]
+
+
 class DocstringNotesSection(BaseModel):
     kind: Literal[DocstringSectionKind.NOTES] = DocstringSectionKind.NOTES
     value: str
@@ -92,6 +104,7 @@ type DocstringSection = (
     | DocstringNotesSection
     | DocstringGyomuContextSection
     | DocstringCustomSection
+    | DocstringCustomListSection
 )
 
 

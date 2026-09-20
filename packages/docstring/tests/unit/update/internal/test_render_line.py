@@ -13,6 +13,8 @@ from gyomu_docstring.update.internal.render_line import (
 )
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
+    DocstringCustomListSection,
+    DocstringCustomNamedSectionItem,
     DocstringCustomSection,
     DocstringGyomuContextSection,
     DocstringNotesSection,
@@ -388,6 +390,41 @@ def test_renders_custom_section() -> None:
         DocstringSectionItem(text="Warning:"),
         DocstringText(
             text="    This operation may be expensive.",
+        ),
+    )
+
+
+def test_renders_custom_list_section() -> None:
+    updated = create_updated_docstring(
+        summary="Finds a user.",
+        sections=(
+            DocstringCustomListSection(
+                title="Attributes",
+                items=(
+                    DocstringCustomNamedSectionItem(
+                        name="user_id",
+                        value="The user ID.",
+                    ),
+                    DocstringCustomNamedSectionItem(
+                        name="name",
+                        value="The user name.",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    result = render_docstring_lines(updated, 88)
+
+    assert result == (
+        DocstringText(text="Finds a user."),
+        DocstringBlank(),
+        DocstringSectionItem(text="Attributes:"),
+        DocstringText(
+            text="    user_id: The user ID.",
+        ),
+        DocstringText(
+            text="    name: The user name.",
         ),
     )
 
@@ -1068,6 +1105,115 @@ def test_render_item_args(
         DocstringText(text="text"),
         DocstringBlank(),
         DocstringSectionItem(text="Args:"),
+    ]
+    for item in expected:
+        if item == "":
+            expected_value.append(DocstringBlank())
+        else:
+            expected_value.append(DocstringText(text=item))
+
+    assert result == tuple(expected_value)
+
+
+@pytest.mark.parametrize(
+    ("text", "line_length", "expected", "declaration_indent"),
+    [
+        (
+            "12345 67890",
+            20,
+            ("    12345 67890",),
+            0,
+        ),
+        (
+            "12345 67890",
+            14,
+            (
+                "    12345",
+                "    67890",
+            ),
+            0,
+        ),
+        (
+            "This is a very long description.",
+            20,
+            ("    This is a very", "    long", "    description."),
+            0,
+        ),
+        (
+            "This-is-a-very-long-word",
+            10,
+            ("    This-is-a-very-long-word",),
+            0,
+        ),
+        (
+            "This is a very long description.",
+            20,
+            (
+                "    This is a",
+                "    very long",
+                "    description.",
+            ),
+            4,
+        ),
+        (
+            "This is a very long description.",
+            20,
+            (
+                "    This is",
+                "    a very",
+                "    long",
+                "    description.",
+            ),
+            8,
+        ),
+        (
+            "First line.\nSecond line.",
+            30,
+            (
+                "    First line.",
+                "    Second line.",
+            ),
+            0,
+        ),
+        (
+            "First line.\nThis is a very long second line.",
+            30,
+            (
+                "    First line.",
+                "    This is a very long second",
+                "    line.",
+            ),
+            0,
+        ),
+        (
+            "First paragraph.\n\nSecond paragraph.",
+            30,
+            (
+                "    First paragraph.",
+                "",
+                "    Second paragraph.",
+            ),
+            0,
+        ),
+    ],
+)
+def test_render_item_gyomu_context(
+    text: str,
+    line_length: int,
+    expected: tuple[str, ...],
+    declaration_indent: int,
+) -> None:
+    updated = create_updated_docstring(
+        summary="text",
+        sections=(DocstringGyomuContextSection(value=text),),
+        indent=declaration_indent,
+    )
+
+    result = render_docstring_lines(updated, line_length)
+    expected_value: list[DocstringLine] = [
+        DocstringText(text="text"),
+        DocstringBlank(),
+        DocstringSectionItem(text="Gyomu Context:"),
     ]
     for item in expected:
         if item == "":

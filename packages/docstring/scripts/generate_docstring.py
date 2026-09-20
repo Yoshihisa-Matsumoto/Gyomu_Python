@@ -1,10 +1,21 @@
 import asyncio
+import sys
+from os import getcwd
 from pathlib import Path
 
 from dotenv import load_dotenv
 from gyomu_docstring.update.process import process_docstring_update
-from gyomu_python_analysis.analysis.initialize import initialize_project_context
+from gyomu_infra.logger import logger
+from gyomu_python_analysis.analysis.initialize import (
+    initialize_project_context,
+    initialize_project_from_workspace,
+)
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
+from gyomu_python_analysis.analysis.workspace import (
+    find_root,
+    initialize_workspace_context,
+)
+from gyomu_python_analysis.project.workspace import WorkspaceRootKind
 from gyomu_schema.option.update import (
     UpdateDebugInfoOption,
     UpdateOption,
@@ -62,11 +73,53 @@ async def update_with_real_llm(
 
 
 async def main():
-    package = FullPath(Path("../schema").resolve())
-    print(package)
+    args = sys.argv[1:]
+    current_path = FullPath(Path(getcwd()))
+    result = find_root(current_path)
+    if isinstance(result, Failure):
+        logger.error_object(result.failure())
+        return
+    workspace = result.unwrap()
+    assert workspace.kind == WorkspaceRootKind.UV_WORKSPACE
+    result = initialize_workspace_context(workspace)
+    if isinstance(result, Failure):
+        logger.error_object(result.failure())
+        return
+    workspace_context = result.unwrap()
+    target_package = next(
+        project
+        for project in workspace_context.projects
+        if project.config.name == args[0]
+    )
+    if target_package is None:
+        logger.error(f"{args[0]} Not Found")
+        return
+    package_fullpath = FullPath(workspace_context.config.path / target_package.path)
+    project_context = initialize_project_from_workspace(
+        workspace_context.config, target_package
+    )
+    target_file_path = find_included_file(project_context.included_files, args[1])
+    if target_file_path is None:
+        logger.error(f"{args[1]} Not Found on {project_context.project_root}")
+        return
+
     await update_with_real_llm(
-        package,
-        ProjectRelativePath(Path("src/gyomu_schema/conversation/conversation.py")),
+        package_fullpath,
+        target_file_path,
+    )
+
+
+def find_included_file(
+    included_files: frozenset[ProjectRelativePath],
+    path: str,
+) -> ProjectRelativePath | None:
+    return next(
+        (
+            included_file
+            for included_file in included_files
+            if included_file.match(path)
+        ),
+        None,
     )
 
 

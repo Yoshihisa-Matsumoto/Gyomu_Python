@@ -14,6 +14,8 @@ from gyomu_schema.schemas.python.dependency import (
 )
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
+    DocstringCustomListSection,
+    DocstringCustomNamedSectionItem,
     DocstringCustomSection,
     DocstringExamplesSection,
     DocstringExamplesSectionItem,
@@ -518,6 +520,19 @@ def create_gyomu_context_section(value: str) -> DocstringGyomuContextSection:
 
 def create_custom_section(title: str, value: str) -> DocstringCustomSection:
     return DocstringCustomSection(title=title, value=value)
+
+
+def create_custom_named_section_item(
+    value: str,
+    name: str | None = None,
+) -> DocstringCustomNamedSectionItem:
+    return DocstringCustomNamedSectionItem(name=name, value=value)
+
+
+def create_custom_list_section(
+    title: str, items: tuple[DocstringCustomNamedSectionItem, ...]
+) -> DocstringCustomListSection:
+    return DocstringCustomListSection(title=title, items=items)
 
 
 def create_import_dependency_analysis(id: str) -> DependencyAnalysis:

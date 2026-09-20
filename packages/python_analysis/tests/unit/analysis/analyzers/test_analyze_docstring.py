@@ -3,6 +3,8 @@ from gyomu_python_analysis.analysis.analyzers.docstring import (
 )
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.docstring import (
+    DocstringCustomListSection,
+    DocstringCustomNamedSectionItem,
     DocstringCustomSection,
     DocstringExamplesSection,
     DocstringGyomuContextSection,
@@ -535,4 +537,35 @@ class TestAnalyzeDocstring(AnalysisTestBase):
         assert isinstance(gyomu_context, DocstringGyomuContextSection)
         assert (
             gyomu_context.value == "This value is updated during user synchronization."
+        )
+
+    def test_custom_list_section(self) -> None:
+        func = self._analyze_function(
+            "15-custom-list-section",
+            "custom_list_section",
+        )
+
+        assert func.docstring is not None
+
+        docstring = func.docstring
+
+        assert docstring.summary == "Process something."
+        assert docstring.description is None
+
+        assert len(docstring.sections) == 1
+
+        attributes = docstring.sections[0]
+
+        assert isinstance(attributes, DocstringCustomListSection)
+        assert attributes.title == "Attributes"
+
+        assert attributes.items == (
+            DocstringCustomNamedSectionItem(
+                name="foo",
+                value="Foo attribute.",
+            ),
+            DocstringCustomNamedSectionItem(
+                name="bar",
+                value="Bar attribute.",
+            ),
         )

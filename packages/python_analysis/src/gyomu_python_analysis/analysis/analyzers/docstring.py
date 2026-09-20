@@ -21,6 +21,8 @@ from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.docstring import (
     DocstringAnalysis,
     DocstringCommon,
+    DocstringCustomListSection,
+    DocstringCustomNamedSectionItem,
     DocstringCustomSection,
     DocstringExamplesSection,
     DocstringExamplesSectionItem,
@@ -260,22 +262,25 @@ def analyze_docstring(
         elif isinstance(section, DocstringSectionAdmonition):
             parsed_sections.append(_analyze_admonition(section))
         else:
-            print("Unknown Section in Docstring")
-            value = section.value
-            if isinstance(value, str):
-                print(section.as_dict())
-            elif isinstance(value, list):
-                for item in value:
-                    print(f"Kind: {section.kind}, item is list")
-                    if isinstance(
-                        item,
-                        (GriffeSection, DocstringNamedElement, GriffeSectionRaises),
-                    ):
-                        print(item.as_dict())
-                    else:
-                        print(item)
-            else:
-                print(section.as_dict())
+            other_section = _parse_other_section(section)
+            if other_section:
+                parsed_sections.append(other_section)
+            # print("Unknown Section in Docstring")
+            # value = section.value
+            # if isinstance(value, str):
+            #     print(section.as_dict())
+            # elif isinstance(value, list):
+            #     for item in value:
+            #         print(f"Kind: {section.kind}, item is list")
+            #         if isinstance(
+            #             item,
+            #             (GriffeSection, DocstringNamedElement, GriffeSectionRaises),
+            #         ):
+            #             print(item.as_dict())
+            #         else:
+            #             print(item)
+            # else:
+            #     print(section.as_dict())
     if text_section:
         summary, description, sections2 = parse_text_section(text_section.value)
         return DocstringAnalysis(
@@ -294,3 +299,53 @@ def analyze_docstring(
         sections=tuple(parsed_sections),
         style=DocstringStyle.GOOGLE,
     )
+
+
+PARSEABLE_SECTIONS = [
+    DocstringSectionKind.attributes,
+    DocstringSectionKind.classes,
+    DocstringSectionKind.functions,
+    DocstringSectionKind.modules,
+    DocstringSectionKind.type_aliases,
+    DocstringSectionKind.receives,
+    DocstringSectionKind.yields,
+    DocstringSectionKind.warns,
+    DocstringSectionKind.type_parameters,
+    DocstringSectionKind.parameters,
+]
+
+
+def _parse_other_section(section: GriffeSection) -> DocstringSection | None:
+    title = section.title or section.kind.replace("_", " ").title()
+    if title is None:
+        logger.error("Unhandled Docstring Section")
+        logger.error_object(section)
+        return None
+    value = section.value
+    if section.kind not in PARSEABLE_SECTIONS:
+        logger.warning(f"{title} Not Supported")
+
+    if isinstance(value, str):
+        return DocstringCustomSection(title=title, value=value)
+    elif isinstance(value, list):
+        items: list[DocstringCustomNamedSectionItem] = []
+
+        for item in value:
+            if isinstance(
+                item,
+                (DocstringNamedElement),
+            ):
+                items.append(
+                    DocstringCustomNamedSectionItem(
+                        name=item.name, value=str(item.description)
+                    )
+                )
+            else:
+                logger.error("Unhandled Docstring Section")
+                logger.error_object(section)
+                return None
+        return DocstringCustomListSection(title=title, items=tuple(items))
+    else:
+        logger.error("Unhandled Docstring Section")
+        logger.error_object(section)
+        return None
