@@ -12,6 +12,7 @@ class ConversationSchema(BaseModel):
     Represents a conversation consisting of an optional system prompt, a history of
     messages, and an active request message.
     """
+
     model_config = ConfigDict(frozen=True)
 
     system: MessageSchema | None = None
@@ -22,7 +23,6 @@ class ConversationSchema(BaseModel):
 
     request: MessageSchema | None = None
     """Active request message awaiting completion."""
-
 
     def with_request(
         self,

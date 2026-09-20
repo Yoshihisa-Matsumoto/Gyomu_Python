@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from gyomu_python_analysis.path.conversion import (
     project_relative_path_to_source_relative_path,
+    source_relative_path_to_project_relative_path,
     source_relative_path_to_python_path,
 )
 from gyomu_python_analysis.project.context import ProjectContext
@@ -84,3 +85,37 @@ class TestProjectRelativePath2SourceRelativePath:
 
         with pytest.raises(ValueError):
             project_relative_path_to_source_relative_path(path, context)
+
+    @pytest.mark.parametrize(
+        ("source_relative_path", "source_root", "expected"),
+        [
+            (
+                SourceRelativePath(Path("example.py")),
+                ProjectRelativePath(Path("src")),
+                ProjectRelativePath(Path("src/example.py")),
+            ),
+            (
+                SourceRelativePath(Path("foo/bar.py")),
+                ProjectRelativePath(Path("src")),
+                ProjectRelativePath(Path("src/foo/bar.py")),
+            ),
+        ],
+    )
+    def test_source_relative_path_to_project_relative_path(
+        self,
+        source_relative_path: SourceRelativePath,
+        source_root: ProjectRelativePath,
+        expected: ProjectRelativePath,
+    ) -> None:
+        context = ProjectContext(
+            project_root=FullPath(Path("/project")),
+            source_root=source_root,
+            config=_default_project_config,
+        )
+
+        result = source_relative_path_to_project_relative_path(
+            source_relative_path,
+            context,
+        )
+
+        assert result == expected

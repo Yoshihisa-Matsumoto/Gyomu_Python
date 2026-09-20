@@ -441,7 +441,7 @@ def create_file_analysis_context(
     return FileAnalysisContext(
         metadata=FileAnalysisMetadata(parsed_docstring=dict(), symbols=symbols),
         analysis=ModuleAnalysis(
-            path=SourceRelativePath(Path(".")),
+            path=SourceRelativePath(Path("test.py")),
             name="test",
             module_name=PythonPath(""),
             docstring=None,

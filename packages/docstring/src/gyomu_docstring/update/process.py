@@ -1,7 +1,11 @@
 from pathlib import Path
 
 from gyomu_infra.filesystem.file_io import read_text, write_json, write_text
-from gyomu_python_analysis.path.conversion import source_relative_path_to_full_path
+from gyomu_infra.logger import logger
+from gyomu_python_analysis.path.conversion import (
+    source_relative_path_to_full_path,
+    source_relative_path_to_project_relative_path,
+)
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.update import UpdateOption
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
@@ -16,6 +20,7 @@ from gyomu_docstring.update.docstring.file_update_plan import FileUpdatePlan
 from gyomu_docstring.update.docstring.rendered_symbol import RenderedSymbolDocstring
 from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 from gyomu_docstring.update.render_docstring import render_docstring
+from gyomu_docstring.update.validation import validate_source
 
 
 async def process_docstring_update(
@@ -135,5 +140,26 @@ async def process_docstring_update(
                 identity=None,
             ).chain(write_result.failure())
         )
+
+    validate_result = validate_source(
+        source_path=source_relative_path_to_project_relative_path(
+            file_context.analysis.path, context
+        ),
+        project_root=context.project_root,
+        file_context=file_context,
+    )
+
+    if isinstance(validate_result, Failure):
+        rollback_result = write_text(
+            source_path,
+            source,
+        )
+        if isinstance(rollback_result, Failure):
+            logger.error("fail to rollback updated source file")
+            logger.error(str(rollback_result.failure()))
+
+        logger.error(f"updated source file is invalid on {context.source_root}")
+        logger.error(updated_source)
+        return validate_result
 
     return Success(None)

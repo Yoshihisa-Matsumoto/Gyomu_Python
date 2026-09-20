@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
@@ -9,13 +10,20 @@ from gyomu_docstring.update.docstring.rendered_symbol import (
 )
 from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 from gyomu_docstring.update.process import process_docstring_update
+from gyomu_python_analysis.path.conversion import (
+    source_relative_path_to_full_path,
+    source_relative_path_to_project_relative_path,
+)
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.option.update import (
     UpdateActionOption,
     UpdateDebugInfoOption,
     UpdateOption,
 )
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
+from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 
 from packages.schema.schema_test_support.helpers import (
@@ -32,6 +40,8 @@ def context(mocker) -> ProjectContext:
     context.config = config
     config.name = "test-project"
     config.formatter_line_length = 88
+    context.project_root = FullPath(Path("/tmp"))
+    context.source_root = ProjectRelativePath(Path("src"))
     return context
 
 
@@ -280,7 +290,10 @@ class TestProcessDocstringUpdate:
             "gyomu_docstring.update.process.write_text",
             return_value=Success(None),
         )
-
+        validate_source = mocker.patch(
+            "gyomu_docstring.update.process.validate_source",
+            return_value=Success(None),
+        )
         result = await process_docstring_update(
             context,
             file_context,
@@ -316,6 +329,14 @@ class TestProcessDocstringUpdate:
         write_text.assert_called_once_with(
             source_path,
             updated_source,
+        )
+
+        validate_source.assert_called_once_with(
+            source_path=source_relative_path_to_project_relative_path(
+                file_context.analysis.path, context
+            ),
+            project_root=context.project_root,
+            file_context=file_context,
         )
 
     @pytest.mark.asyncio
@@ -518,3 +539,191 @@ class TestProcessDocstringUpdate:
         assert result == Success(None)
 
         assert write_json.call_count == 3
+
+    @pytest.mark.asyncio
+    async def test_process_docstring_update_succeeds_after_validation(
+        self,
+        mocker,
+        context: ProjectContext,
+        file_context: FileAnalysisContext,
+    ) -> None:
+        source = "def hello():\n    pass\n"
+        updated_source = 'def hello():\n    """Hello."""\n    pass\n'
+        file_update_plan = mocker.Mock(spec=FileUpdatePlan)
+
+        mocker.patch(
+            "gyomu_docstring.update.process.read_text",
+            return_value=Success(source),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.build_merge_plan",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.apply_merge_plans",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.build_file_update_plan",
+            return_value=Success(file_update_plan),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.apply_file_update_plan",
+            return_value=updated_source,
+        )
+        write_text = mocker.patch(
+            "gyomu_docstring.update.process.write_text",
+            return_value=Success(None),
+        )
+        validate_source = mocker.patch(
+            "gyomu_docstring.update.process.validate_source",
+            return_value=Success(None),
+        )
+
+        result = await process_docstring_update(context, file_context)
+
+        assert isinstance(result, Success)
+
+        validate_source.assert_called_once()
+        write_text.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_process_docstring_update_rolls_back_when_validation_fails(
+        self,
+        mocker,
+        context: ProjectContext,
+        file_context: FileAnalysisContext,
+    ) -> None:
+        source_path = source_relative_path_to_full_path(
+            file_context.analysis.path,
+            context,
+        )
+        source = "def hello():\n    pass\n"
+        updated_source = 'def hello():\n    """Hello."""\n    pass\n'
+        file_update_plan = mocker.Mock(spec=FileUpdatePlan)
+
+        mocker.patch(
+            "gyomu_docstring.update.process.read_text",
+            return_value=Success(source),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.build_merge_plan",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.apply_merge_plans",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.build_file_update_plan",
+            return_value=Success(file_update_plan),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.apply_file_update_plan",
+            return_value=updated_source,
+        )
+        # ...
+
+        write_text = mocker.patch(
+            "gyomu_docstring.update.process.write_text",
+            side_effect=[
+                Success(None),  # updated source
+                Success(None),  # rollback
+            ],
+        )
+
+        validation_error = UpdateError(
+            "ruff check failed",
+            file_path=file_context.analysis.module_name,
+            phase="post-update",
+            identity=None,
+        )
+
+        validate_source = mocker.patch(
+            "gyomu_docstring.update.process.validate_source",
+            return_value=Failure(validation_error),
+        )
+
+        result = await process_docstring_update(context, file_context)
+
+        assert isinstance(result, Failure)
+        assert result.failure() is validation_error
+
+        validate_source.assert_called_once()
+
+        assert write_text.call_count == 2
+        assert write_text.call_args_list[0].args == (
+            source_path,
+            updated_source,
+        )
+        assert write_text.call_args_list[1].args == (
+            source_path,
+            source,
+        )
+
+    @pytest.mark.asyncio
+    async def test_process_docstring_update_logs_when_rollback_fails(
+        self,
+        mocker,
+        context: ProjectContext,
+        file_context: FileAnalysisContext,
+    ) -> None:
+        source = "original source\n"
+        updated_source = "updated source\n"
+
+        file_update_plan = mocker.Mock(spec=FileUpdatePlan)
+
+        mocker.patch(
+            "gyomu_docstring.update.process.read_text",
+            return_value=Success(source),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.build_merge_plan",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.apply_merge_plans",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.build_file_update_plan",
+            return_value=Success(file_update_plan),
+        )
+        mocker.patch(
+            "gyomu_docstring.update.process.apply_file_update_plan",
+            return_value=updated_source,
+        )
+
+        rollback_error = GyomuIOError(
+            "rollback failed", layer=IOLayer.FILESYSTEM, operation=IOOperation.WRITE
+        )
+
+        mocker.patch(
+            "gyomu_docstring.update.process.write_text",
+            side_effect=[
+                Success(None),  # update
+                Failure(rollback_error),  # rollback
+            ],
+        )
+
+        validation_error = UpdateError(
+            "ruff check failed",
+            file_path=file_context.analysis.module_name,
+            phase="post-update",
+            identity=None,
+        )
+
+        mocker.patch(
+            "gyomu_docstring.update.process.validate_source",
+            return_value=Failure(validation_error),
+        )
+
+        logger = mocker.patch("gyomu_docstring.update.process.logger")
+
+        result = await process_docstring_update(context, file_context)
+
+        assert isinstance(result, Failure)
+        assert result.failure() is validation_error
+
+        logger.error.assert_any_call("fail to rollback updated source file")
+        logger.error.assert_any_call(str(rollback_error))

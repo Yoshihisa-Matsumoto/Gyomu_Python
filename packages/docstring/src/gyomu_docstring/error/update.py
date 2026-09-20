@@ -5,7 +5,7 @@ from gyomu_schema.error.base import BaseError
 from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
 
 type UpdatePhase = Literal[
-    "context-build", "update-plan", "merge-plan", "apply-merge", "update"
+    "context-build", "update-plan", "merge-plan", "apply-merge", "update", "post-update"
 ]
 
 

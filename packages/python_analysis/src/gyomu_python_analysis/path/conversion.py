@@ -15,6 +15,13 @@ def project_relative_path_to_source_relative_path(
     return SourceRelativePath(path.relative_to(context.source_root))
 
 
+def source_relative_path_to_project_relative_path(
+    path: SourceRelativePath,
+    context: ProjectContext,
+) -> ProjectRelativePath:
+    return ProjectRelativePath(context.source_root / path)
+
+
 def source_relative_path_to_python_path(
     path: SourceRelativePath,
 ) -> PythonPath:
