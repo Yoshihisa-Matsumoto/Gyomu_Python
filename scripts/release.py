@@ -111,7 +111,7 @@ def dist_files() -> list[str]:
         for path in sorted(DIST_DIR.iterdir())
         if path.is_file()
         and path.suffix in {".whl", ".gz"}
-        and path.name.startswith("gyomu-")
+        and path.name.startswith("gyomu")
     ]
 
 
