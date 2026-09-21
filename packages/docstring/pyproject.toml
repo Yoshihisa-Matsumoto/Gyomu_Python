@@ -8,7 +8,8 @@ dependencies = [
     "gyomu-schema",
     "gyomu-infra",
     "gyomu-python-analysis",
-    "returns>=0.29.0",
+    "gyomu-ai-compiler",
+    "returns",
 ]
 
 [build-system]
@@ -20,6 +21,7 @@ build-backend = "hatchling.build"
 gyomu-schema = { workspace = true }
 gyomu-infra = { workspace = true }
 gyomu-python-analysis = { workspace = true }
+gyomu-ai-compiler = {workspace = true}
 
 [tool.hatch.version]
 path = "../../version/__about__.py"

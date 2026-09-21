@@ -19,7 +19,7 @@ class TestRenderDocstringString:
 
     def test_renders_single_line_docstring_without_indent(self) -> None:
         result = render_docstring_string(
-            lines=(DocstringText("Finds a user."),),
+            lines=(DocstringText(text="Finds a user."),),
             is_added=False,
             indent=0,
         )
@@ -28,7 +28,7 @@ class TestRenderDocstringString:
 
     def test_renders_single_line_docstring_with_indent(self) -> None:
         result = render_docstring_string(
-            lines=(DocstringText("Finds a user."),),
+            lines=(DocstringText(text="Finds a user."),),
             is_added=False,
             indent=4,
         )
@@ -48,7 +48,7 @@ class TestRenderDocstringString:
         result = render_docstring_string(
             lines=(
                 DocstringBlank(),
-                DocstringSectionItem("Args:"),
+                DocstringSectionItem(text="Args:"),
             ),
             is_added=False,
             indent=4,
@@ -58,7 +58,7 @@ class TestRenderDocstringString:
 
     def test_renders_multiline_text(self) -> None:
         result = render_docstring_string(
-            lines=(DocstringText("first line\nsecond line"),),
+            lines=(DocstringText(text="first line\nsecond line"),),
             is_added=False,
             indent=4,
         )
@@ -70,7 +70,7 @@ class TestRenderDocstringString:
             lines=(
                 DocstringBlank(),
                 DocstringSectionItem(
-                    "Args:\n    user_id: User identifier.",
+                    text="Args:\n    user_id: User identifier.",
                 ),
             ),
             is_added=False,
@@ -84,13 +84,13 @@ class TestRenderDocstringString:
     def test_renders_multiple_lines(self) -> None:
         result = render_docstring_string(
             lines=(
-                DocstringText("Finds a user."),
+                DocstringText(text="Finds a user."),
                 DocstringBlank(),
-                DocstringSectionItem("Args:"),
-                DocstringText("    user_id (int): User identifier."),
+                DocstringSectionItem(text="Args:"),
+                DocstringText(text="    user_id (int): User identifier."),
                 DocstringBlank(),
-                DocstringSectionItem("Returns:"),
-                DocstringText("    User: The matching user."),
+                DocstringSectionItem(text="Returns:"),
+                DocstringText(text="    User: The matching user."),
             ),
             is_added=False,
             indent=4,
@@ -98,10 +98,10 @@ class TestRenderDocstringString:
 
         assert result == (
             '    """Finds a user.\n'
-            "    \n"
+            "\n"
             "    Args:\n"
             "        user_id (int): User identifier.\n"
-            "    \n"
+            "\n"
             "    Returns:\n"
             "        User: The matching user.\n"
             '    """'
@@ -111,8 +111,8 @@ class TestRenderDocstringString:
         result = render_docstring_string(
             lines=(
                 DocstringBlank(),
-                DocstringSectionItem("Args:"),
-                DocstringText("    user_id (int): User identifier."),
+                DocstringSectionItem(text="Args:"),
+                DocstringText(text="    user_id (int): User identifier."),
             ),
             is_added=False,
             indent=4,
@@ -125,21 +125,21 @@ class TestRenderDocstringString:
     def test_renders_summary_and_description(self) -> None:
         result = render_docstring_string(
             lines=(
-                DocstringText("Finds a user."),
+                DocstringText(text="Finds a user."),
                 DocstringBlank(),
-                DocstringText("Searches the repository."),
+                DocstringText(text="Searches the repository."),
             ),
             is_added=False,
             indent=4,
         )
 
         assert result == (
-            '    """Finds a user.\n    \n    Searches the repository.\n    """'
+            '    """Finds a user.\n\n    Searches the repository.\n    """'
         )
 
     def test_adds_trailing_newline_when_added(self) -> None:
         result = render_docstring_string(
-            lines=(DocstringText("Finds a user."),),
+            lines=(DocstringText(text="Finds a user."),),
             is_added=True,
             indent=4,
         )
@@ -148,7 +148,7 @@ class TestRenderDocstringString:
 
     def test_does_not_add_trailing_newline_when_existing(self) -> None:
         result = render_docstring_string(
-            lines=(DocstringText("Finds a user."),),
+            lines=(DocstringText(text="Finds a user."),),
             is_added=False,
             indent=4,
         )
@@ -170,7 +170,7 @@ class TestRenderDocstringString:
         expected_prefix: str,
     ) -> None:
         result = render_docstring_string(
-            lines=(DocstringText("first\nsecond"),),
+            lines=(DocstringText(text="first\nsecond"),),
             is_added=False,
             indent=indent,
         )

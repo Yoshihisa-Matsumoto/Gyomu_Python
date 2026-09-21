@@ -26,3 +26,7 @@ class ImportedSymbolDependency(BaseModel):
 class DependencyAnalysis(BaseModel):
     source: DeclarationIdentity
     target: LocalFileDependency | ImportedSymbolDependency
+
+
+class DependencySummary(BaseModel):
+    target: LocalFileDependency | ImportedSymbolDependency

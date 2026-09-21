@@ -86,6 +86,40 @@ class TestLoggerImpl:
         assert "[ERROR] error" in captured.err
         assert "[CRITICAL] critical" in captured.err
 
+    def test_debug_object(
+        self,
+        capsys,
+        gyomu_logger: None,
+    ) -> None:
+        logger = LoggerImpl(
+            LoggerConfig(
+                level=LogLevel.DEBUG,
+            )
+        )
+
+        logger.debug_object({"message": "debug object"})
+
+        captured = capsys.readouterr()
+
+        assert "[DEBUG] {'message': 'debug object'}" in captured.err
+
+    def test_error_object(
+        self,
+        capsys,
+        gyomu_logger: None,
+    ) -> None:
+        logger = LoggerImpl(
+            LoggerConfig(
+                level=LogLevel.ERROR,
+            )
+        )
+
+        logger.error_object({"message": "error object"})
+
+        captured = capsys.readouterr()
+
+        assert "[ERROR] {'message': 'error object'}" in captured.err
+
     def test_string_formatting(self, gyomu_logger: None, capsys) -> None:
         logger = LoggerImpl(
             LoggerConfig(),

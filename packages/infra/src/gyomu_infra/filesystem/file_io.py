@@ -1,9 +1,9 @@
+from collections.abc import Callable
 from pathlib import Path
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.utility.serialization import dump_json, validate_json
-from pydantic import BaseModel
 from returns.result import Failure, Result, Success
 
 
@@ -67,7 +67,7 @@ def write_text(
         )
 
 
-def read_json[T: BaseModel](
+def read_json[T](
     path: Path,
     model_type: type[T],
 ) -> Result[T, GyomuIOError | ValidationError]:
@@ -79,9 +79,24 @@ def read_json[T: BaseModel](
     return validate_json(model_type, text_result.unwrap())
 
 
-def write_json(
-    path: Path,
-    value: BaseModel,
+def write_json[T](
+    path: Path, value: T, value_type: type[T], indent: int | None = 2
 ) -> Result[None, GyomuIOError]:
-    content = dump_json(value)
+    content = dump_json(value, value_type, indent=indent)
     return write_text(path, content)
+
+
+def enumerate_files(
+    path: Path,
+    filter: Callable[[Path], bool] | None = None,
+    relative_to: Path | None = None,
+) -> frozenset[Path]:
+    files = (file for file in path.rglob("*") if file.is_file())
+
+    if filter is not None:
+        files = (file for file in files if filter(file))
+
+    if relative_to:
+        return frozenset(file.relative_to(relative_to) for file in files)
+
+    return frozenset(files)

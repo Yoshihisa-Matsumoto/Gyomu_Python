@@ -1,0 +1,48 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.no_return::log_message",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Log a message."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 0.99
+      },
+      "params": [
+        {
+          "name": "message",
+          "sort_order": 0,
+          "action": {
+            "type": "replace",
+            "value": {
+              "type": "str",
+              "description": "The message to log."
+            }
+          },
+          "confidence": 0.99
+        }
+      ],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "The function logs the given message.",
+        "param_mapping": "The message parameter contains the text to log.",
+        "return_mapping": "The function has no return annotation and does not document a return value."
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

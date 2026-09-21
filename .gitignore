@@ -17,3 +17,13 @@ __pycache__/
 .ruff_cache/
 htmlcov/
 *.egg-info/
+log/
+
+
+# gyomu ai related
+**/.gyomu/cache
+**/.gyomu/snapshot
+**/.gyomu/checkpoint
+
+# snapshot
+__snapshots__

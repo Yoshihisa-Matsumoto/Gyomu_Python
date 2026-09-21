@@ -1,4 +1,3 @@
-from docstring_test_support.helpers import _default_identity, create_location
 from gyomu_docstring.update.docstring.rendered_symbol import (
     RenderedSymbolDocstring,
 )
@@ -9,6 +8,9 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringSection,
     DocstringStyle,
 )
+
+from packages.docstring.docstring_test_support.helper import _default_identity
+from packages.schema.schema_test_support.helpers import create_location
 
 
 def make_updated_docstring(
@@ -53,7 +55,7 @@ class TestRenderDocstring:
             end_offset=125,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert isinstance(result, RenderedSymbolDocstring)
         assert result.identity == updated.identity
@@ -69,12 +71,12 @@ class TestRenderDocstring:
             end_offset=100,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.identity == updated.identity
         assert result.docstring == '    """Finds a user."""\n'
-        assert result.location.start_offset == 96
-        assert result.location.end_offset == 96
+        assert result.location.start_offset == 100
+        assert result.location.end_offset == 100
 
     def test_adjusts_start_offset_by_indent(self) -> None:
         updated = make_updated_docstring(
@@ -84,7 +86,7 @@ class TestRenderDocstring:
             end_offset=220,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.location.start_offset == 192
 
@@ -98,7 +100,7 @@ class TestRenderDocstring:
             end_offset=220,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.location.end_offset == 220
 
@@ -110,9 +112,9 @@ class TestRenderDocstring:
             end_offset=200,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
-        assert result.location.end_offset == 192
+        assert result.location.end_offset == 200
 
     def test_preserves_other_location_fields(self) -> None:
         updated = make_updated_docstring(
@@ -126,7 +128,7 @@ class TestRenderDocstring:
             end_column=7,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert result.location.start_line == 10
         assert result.location.start_column == 4
@@ -141,6 +143,6 @@ class TestRenderDocstring:
             end_offset=125,
         )
 
-        result = render_docstring(updated)
+        result = render_docstring(updated, 88)
 
         assert isinstance(result, RenderedSymbolDocstring)

@@ -1,0 +1,69 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.no_update::add",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Add two integers."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 0.99
+      },
+      "params": [
+        {
+          "name": "a",
+          "sort_order": 0,
+          "action": {
+            "type": "replace",
+            "value": {
+              "type": "int",
+              "description": "The first integer."
+            }
+          },
+          "confidence": 0.99
+        },
+        {
+          "name": "b",
+          "sort_order": 1,
+          "action": {
+            "type": "replace",
+            "value": {
+              "type": "int",
+              "description": "The second integer."
+            }
+          },
+          "confidence": 0.99
+        }
+      ],
+      "raises": [],
+      "returns": {
+        "action": {
+          "type": "replace",
+          "value": {
+            "return_type": "int",
+            "description": "The sum of the two integers."
+          }
+        },
+        "confidence": 0.99
+      },
+      "reasoning": {
+        "summary": "The function adds two integer values.",
+        "param_mapping": "The parameters a and b are the two integer values being added.",
+        "return_mapping": "The function returns the sum of a and b."
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

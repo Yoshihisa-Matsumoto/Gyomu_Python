@@ -7,6 +7,7 @@ from pathlib import Path
 
 from gyomu_schema.logger.config import LoggerConfig
 from gyomu_schema.logger.logger import Logger
+from gyomu_schema.utility.fromatting import format_object
 
 
 class LoggerImpl(Logger):
@@ -33,6 +34,9 @@ class LoggerImpl(Logger):
             self._format_message(message, extra),
             *args,
         )
+
+    def debug_object(self, value: object) -> None:
+        self.debug(format_object(value))
 
     def info(
         self,
@@ -66,6 +70,9 @@ class LoggerImpl(Logger):
             self._format_message(message, extra),
             *args,
         )
+
+    def error_object(self, value: object) -> None:
+        self.error(format_object(value))
 
     def critical(
         self,

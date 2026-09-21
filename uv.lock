@@ -10,10 +10,16 @@ resolution-markers = [
 [manifest]
 members = [
     "gyomu-ai",
+    "gyomu-ai-compiler",
     "gyomu-docstring",
     "gyomu-infra",
     "gyomu-python-analysis",
     "gyomu-schema",
+]
+constraints = [
+    { name = "pydantic", specifier = ">=2,<3" },
+    { name = "python-dotenv", specifier = ">=1.2.3,<2" },
+    { name = "returns", specifier = ">=0.29.0,<1" },
 ]
 
 [manifest.dependency-groups]
@@ -798,13 +804,32 @@ requires-dist = [
     { name = "gyomu-schema", editable = "packages/schema" },
     { name = "pydantic-ai", specifier = ">=2.31.1" },
     { name = "pydantic-ai-slim", extras = ["google"], specifier = ">=2.31.1" },
-    { name = "returns", specifier = ">=0.29.0" },
+    { name = "returns" },
+]
+
+[[package]]
+name = "gyomu-ai-compiler"
+source = { editable = "packages/ai_compiler" }
+dependencies = [
+    { name = "gyomu-ai" },
+    { name = "gyomu-infra" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gyomu-ai", editable = "packages/ai" },
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-schema", editable = "packages/schema" },
+    { name = "returns" },
 ]
 
 [[package]]
 name = "gyomu-docstring"
 source = { editable = "packages/docstring" }
 dependencies = [
+    { name = "gyomu-ai-compiler" },
     { name = "gyomu-infra" },
     { name = "gyomu-python-analysis" },
     { name = "gyomu-schema" },
@@ -813,10 +838,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "gyomu-ai-compiler", editable = "packages/ai_compiler" },
     { name = "gyomu-infra", editable = "packages/infra" },
-    { name = "gyomu-python-analysis", editable = "packages/python-analysis" },
+    { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
     { name = "gyomu-schema", editable = "packages/schema" },
-    { name = "returns", specifier = ">=0.29.0" },
+    { name = "returns" },
 ]
 
 [[package]]
@@ -844,12 +870,12 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "gyomu-schema", editable = "packages/schema" },
-    { name = "pydantic", specifier = ">=2.13.4" },
+    { name = "pydantic" },
     { name = "pyodbc", specifier = ">=5,<6" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-    { name = "python-dotenv", specifier = ">=1.2.3" },
+    { name = "python-dotenv" },
     { name = "pyyaml", specifier = ">=6.0.3" },
-    { name = "returns", specifier = ">=0.29.0" },
+    { name = "returns" },
     { name = "sqlalchemy", specifier = ">=2,<3" },
     { name = "uuid6", specifier = ">=2025.0.1" },
 ]
@@ -863,7 +889,7 @@ dev = [
 
 [[package]]
 name = "gyomu-python-analysis"
-source = { editable = "packages/python-analysis" }
+source = { editable = "packages/python_analysis" }
 dependencies = [
     { name = "docstring-parser" },
     { name = "griffelib" },
@@ -878,7 +904,7 @@ requires-dist = [
     { name = "griffelib", specifier = ">=2.2.0" },
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-schema", editable = "packages/schema" },
-    { name = "returns", specifier = ">=0.29.0" },
+    { name = "returns" },
 ]
 
 [[package]]
@@ -891,8 +917,8 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pydantic", specifier = ">=2,<3" },
-    { name = "returns", specifier = ">=0.29.0" },
+    { name = "pydantic" },
+    { name = "returns" },
 ]
 
 [[package]]

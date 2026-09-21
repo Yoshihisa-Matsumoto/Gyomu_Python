@@ -7,6 +7,7 @@ from returns.result import Failure, Success
 
 from gyomu_infra.filesystem.file_io import (
     ensure_directory,
+    enumerate_files,
     read_json,
     read_text,
     write_json,
@@ -143,7 +144,7 @@ class TestWriteJson:
         path = tmp_path / "example.json"
         value = ExampleModel(name="example", value=42)
 
-        result = write_json(path, value)
+        result = write_json(path, value, ExampleModel)
 
         assert result == Success(None)
         assert path.exists()
@@ -158,7 +159,7 @@ class TestWriteJson:
         path = tmp_path / "cache" / "nested" / "example.json"
         value = ExampleModel(name="example", value=42)
 
-        result = write_json(path, value)
+        result = write_json(path, value, ExampleModel)
 
         assert result == Success(None)
         assert path.exists()
@@ -166,15 +167,9 @@ class TestWriteJson:
     def test_overwrites_existing_file(self, tmp_path: Path) -> None:
         path = tmp_path / "example.json"
 
-        write_json(
-            path,
-            ExampleModel(name="old", value=1),
-        )
+        write_json(path, ExampleModel(name="old", value=1), ExampleModel)
 
-        result = write_json(
-            path,
-            ExampleModel(name="new", value=2),
-        )
+        result = write_json(path, ExampleModel(name="new", value=2), ExampleModel)
 
         assert result == Success(None)
         assert ExampleModel.model_validate_json(
@@ -222,9 +217,74 @@ class TestReadJson:
         path = tmp_path / "example.json"
         value = ExampleModel(name="example", value=42)
 
-        write_result = write_json(path, value)
+        write_result = write_json(path, value, ExampleModel)
         assert write_result == Success(None)
 
         read_result = read_json(path, ExampleModel)
 
         assert read_result == Success(value)
+
+
+class TestEnumerateFiles:
+    def test_enumerate_files(self, tmp_path: Path) -> None:
+        (tmp_path / "foo.py").write_text("", encoding="utf-8")
+        (tmp_path / "bar.txt").write_text("", encoding="utf-8")
+        (tmp_path / "package").mkdir()
+        (tmp_path / "package" / "baz.py").write_text("", encoding="utf-8")
+        (tmp_path / "package" / "nested").mkdir()
+        (tmp_path / "package" / "nested" / "qux.py").write_text(
+            "",
+            encoding="utf-8",
+        )
+
+        result = enumerate_files(tmp_path)
+
+        assert result == frozenset(
+            {
+                tmp_path / "foo.py",
+                tmp_path / "bar.txt",
+                tmp_path / "package" / "baz.py",
+                tmp_path / "package" / "nested" / "qux.py",
+            }
+        )
+
+    def test_enumerate_files_with_filter(self, tmp_path: Path) -> None:
+        py_file = tmp_path / "foo.py"
+        txt_file = tmp_path / "bar.txt"
+        py_file.write_text("", encoding="utf-8")
+        txt_file.write_text("", encoding="utf-8")
+
+        result = enumerate_files(
+            tmp_path,
+            filter=lambda path: path.suffix == ".py",
+        )
+
+        assert result == frozenset({py_file})
+
+    def test_enumerate_files_returns_relative_paths(self, tmp_path: Path) -> None:
+        foo = tmp_path / "foo.py"
+        baz = tmp_path / "package" / "baz.py"
+
+        foo.write_text("", encoding="utf-8")
+        baz.parent.mkdir()
+        baz.write_text("", encoding="utf-8")
+
+        result = enumerate_files(
+            tmp_path,
+            relative_to=tmp_path,
+        )
+
+        assert result == frozenset(
+            {
+                Path("foo.py"),
+                Path("package") / "baz.py",
+            }
+        )
+
+    def test_enumerate_files_returns_empty_for_empty_directory(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        result = enumerate_files(tmp_path)
+
+        assert result == frozenset()

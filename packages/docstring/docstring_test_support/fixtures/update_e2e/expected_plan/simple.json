@@ -1,0 +1,70 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.simple::add",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Add two integers."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "replace",
+          "value": ""
+        },
+        "confidence": 0.99
+      },
+      "params": [
+        {
+          "name": "a",
+          "sort_order": 0,
+          "action": {
+            "type": "replace",
+            "value": {
+              "type": "int",
+              "description": "First integer."
+            }
+          },
+          "confidence": 0.99
+        },
+        {
+          "name": "b",
+          "sort_order": 1,
+          "action": {
+            "type": "replace",
+            "value": {
+              "type": "int",
+              "description": "Second integer."
+            }
+          },
+          "confidence": 0.99
+        }
+      ],
+      "raises": [],
+      "returns": {
+        "action": {
+          "type": "replace",
+          "value": {
+            "return_type": "int",
+            "description": "The sum of the two integers."
+          }
+        },
+        "confidence": 0.99
+      },
+      "reasoning": {
+        "summary": "The function adds two integer parameters and returns their sum.",
+        "param_mapping": "The parameters a and b are integer inputs used directly in the addition.",
+        "return_mapping": "The function returns the result of adding a and b, which is an integer."
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

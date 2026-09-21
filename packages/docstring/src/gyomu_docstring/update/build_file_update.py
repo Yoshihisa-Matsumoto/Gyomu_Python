@@ -1,7 +1,6 @@
 import io
 import tokenize
 
-from gyomu_python_analysis.error.update import UpdateError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis, InnerClassAnalysis
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
@@ -10,6 +9,7 @@ from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
 from returns.result import Failure, Result, Success
 
+from gyomu_docstring.error.update import UpdateError
 from gyomu_docstring.update.docstring.file_update_plan import (
     FileUpdatePlan,
     FileUpdatePlanEntry,

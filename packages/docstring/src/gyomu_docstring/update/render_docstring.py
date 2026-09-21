@@ -6,8 +6,10 @@ from gyomu_docstring.update.internal.render_line import render_docstring_lines
 from gyomu_docstring.update.internal.render_string import render_docstring_string
 
 
-def render_docstring(updated: UpdatedDocstring) -> RenderedSymbolDocstring:
-    lines = render_docstring_lines(updated)
+def render_docstring(
+    updated: UpdatedDocstring, formatter_line_length: int
+) -> RenderedSymbolDocstring:
+    lines = render_docstring_lines(updated, formatter_line_length)
 
     document = render_docstring_string(
         lines,
@@ -22,10 +24,11 @@ def render_docstring(updated: UpdatedDocstring) -> RenderedSymbolDocstring:
 
     location = updated.docstring.location.model_copy()
 
-    location.start_offset -= updated.docstring.indent
+    if not is_added:
+        location.start_offset -= updated.docstring.indent
 
     if is_added:
-        location.end_offset -= updated.docstring.indent
+        location.end_offset = location.start_offset
 
     return RenderedSymbolDocstring(
         identity=updated.identity,
@@ -35,6 +38,8 @@ def render_docstring(updated: UpdatedDocstring) -> RenderedSymbolDocstring:
 
 
 def render_docstrings(
-    updated_list: tuple[UpdatedDocstring, ...],
+    updated_list: tuple[UpdatedDocstring, ...], formatter_line_length: int
 ) -> tuple[RenderedSymbolDocstring, ...]:
-    return tuple(render_docstring(updated) for updated in updated_list)
+    return tuple(
+        render_docstring(updated, formatter_line_length) for updated in updated_list
+    )
