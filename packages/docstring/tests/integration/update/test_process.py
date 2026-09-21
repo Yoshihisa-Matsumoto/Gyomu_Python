@@ -3,6 +3,9 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
+from gyomu_ai.provider.pydantic_ai.google import (
+    create_default_pydantic_ai_model_registry,
+)
 from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
     DocstringUpdatePlan,
 )
@@ -10,6 +13,7 @@ from gyomu_docstring.update.process import process_docstring_update
 from gyomu_infra.filesystem.file_io import read_json
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
+from gyomu_schema.error.config import ConfigError
 from gyomu_schema.option.update import (
     UpdateActionOption,
     UpdateDebugInfoOption,
@@ -136,7 +140,13 @@ async def test_update(
 @pytest.mark.asyncio
 async def test_update_with_real_llm(
     project_path: Path,
+    project_dot_env: Path,
 ) -> None:
+    try:
+        create_default_pydantic_ai_model_registry(project_dot_env)
+    except ConfigError:
+        pytest.skip("GEMINI_API_KEY is not configured")
+
     result = initialize_project_context(
         project_root=FullPath(project_path),
         source_root=ProjectRelativePath(Path("src")),
