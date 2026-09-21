@@ -51,7 +51,7 @@ def project_path(
         "raises",
         "delete",
         "no_return",
-        "class",
+        "cls",
         "method",
         "multiple_symbols",
         "no_update",

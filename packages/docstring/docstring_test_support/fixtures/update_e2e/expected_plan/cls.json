@@ -2,7 +2,7 @@
   "entries": [
     {
       "identity": {
-        "symbol_id": "docstring.class::User",
+        "symbol_id": "docstring.cls::User",
         "declaration_id": "."
       },
       "summary": {

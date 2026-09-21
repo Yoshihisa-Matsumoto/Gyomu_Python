@@ -230,7 +230,9 @@ class TestGenerateDocstringUpdatePlan:
 
         assert conversation.request is not None
         # assert conversation.request.content == context.model_dump_json(indent=2)
-        dump_json.assert_called_once_with(context, indent=2)
+        dump_json.assert_called_once_with(
+            context, indent=2, model_type=DocstringFileContext
+        )
         assert conversation.request.parts[0].text == serialized_context
 
         assert isinstance(params, GenerateObjectParams)
