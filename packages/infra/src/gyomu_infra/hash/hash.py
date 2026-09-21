@@ -10,6 +10,10 @@ def sha256(value: str | bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def short_sha256(value: str | bytes) -> str:
+    return sha256(value)[:12]
+
+
 def hash_file(path: Path) -> Result[str, GyomuIOError]:
     try:
         hasher = hashlib.sha256()

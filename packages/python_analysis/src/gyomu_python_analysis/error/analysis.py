@@ -14,6 +14,7 @@ type AnalysisPhase = Literal[
     "analysis",
     "post-analysis",
     "workspace-discovery",
+    "snapshot",
 ]
 
 
