@@ -32,8 +32,8 @@ def analyze_function(
     context: SymbolContext,
     option: AnalysisOption | None = None,
 ) -> FunctionAnalysis:
-    for dec in func.decorators:
-        print(dec.as_dict())
+    # for dec in func.decorators:
+    #     print(dec.as_dict())
     parameters: list[ParameterAnalysis] = []
     for param in func.parameters:
         parameters.append(

@@ -25,7 +25,7 @@ def analyze_type(
         return TypeAnalysis(text=annotation)
     if isinstance(annotation, Expr):
         text = str(annotation)
-        print(annotation.as_dict())
+        # print(annotation.as_dict())
         return TypeAnalysis(
             text=text, structure=analyze_expression(annotation, context, option)
         )

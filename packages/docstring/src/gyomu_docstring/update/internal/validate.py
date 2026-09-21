@@ -30,8 +30,8 @@ def validate_docstring_update_plan(
 ) -> ValidationResult:
     context_identities = get_docstring_identities_from_context(context)
     plan_identities = get_docstring_signature_from_update_plan(plan)
-    print(context_identities)
-    print(plan_identities)
+    # print(context_identities)
+    # print(plan_identities)
     diff = tuple(context_identities - plan_identities)
 
     if diff:

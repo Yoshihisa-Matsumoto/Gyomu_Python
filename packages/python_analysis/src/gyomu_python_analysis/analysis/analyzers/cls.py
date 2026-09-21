@@ -1,5 +1,4 @@
 from griffe import Attribute, Class, Function, TypeAlias
-from gyomu_infra.logger import logger
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
@@ -151,15 +150,15 @@ def _build_class_variable_analysis(
         else None
     )
     pydantic: PydanticFieldAnalysis | None = None
-    logger.info(f"pydantic_base:{is_pydantic_base_class}")
+    # logger.info(f"pydantic_base:{is_pydantic_base_class}")
     if (
         value_expression
         and variable_type
         and variable_type.structure
         and is_pydantic_base_class
     ):
-        print(repr(variable_type.structure))
-        print(repr(value_expression))
+        # print(repr(variable_type.structure))
+        # print(repr(value_expression))
         pydantic = analyze_pydantic(variable_type.structure, value_expression)
 
     return ClassVariableAnalysis(

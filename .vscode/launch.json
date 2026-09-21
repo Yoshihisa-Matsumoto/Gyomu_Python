@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug test.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/packages/docstring/scripts/generate_docstring.py",
+      "console": "integratedTerminal",
+      "args": ["gyomu-schema", "error/base.py"],
+      "cwd": "${workspaceFolder}/packages/docstring"
+    }
+  ]
+}

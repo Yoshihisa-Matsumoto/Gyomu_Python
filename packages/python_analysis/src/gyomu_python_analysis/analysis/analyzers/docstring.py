@@ -109,7 +109,7 @@ def _analyze_returns(
         )
 
     return_item = section.value[0]
-    print(return_item.as_dict())
+    # print(return_item.as_dict())
     return_type = analyze_type(return_item.annotation, context, option)
 
     return DocstringReturnsSection(

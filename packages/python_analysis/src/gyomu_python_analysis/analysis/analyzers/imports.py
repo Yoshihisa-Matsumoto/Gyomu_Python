@@ -9,7 +9,7 @@ def analyze_import(
 ) -> ImportAnalysis:
     target_path = alias.target_path
     attr = alias.as_dict()
-    print(attr)
+    # print(attr)
     # print(f"path: {alias.path}")
     # print(f"target-path: {alias.target_path}")
     # print(f"canonical_path: {alias.canonical_path}")
