@@ -27,7 +27,9 @@ def read_text(
     path: Path,
 ) -> Result[str, GyomuIOError]:
     try:
-        return Success(path.read_text(encoding="utf-8"))
+        with path.open("r", newline="", encoding="utf-8") as file:
+            source = file.read()
+            return Success(source)
     except OSError as error:
         return Failure(
             GyomuIOError(
@@ -53,7 +55,9 @@ def write_text(
             return directory_result
 
     try:
-        path.write_text(content, encoding="utf-8")
+        with path.open("w", encoding="utf-8", newline="\n") as file:
+            file.write(content)
+
         return Success(None)
     except OSError as error:
         return Failure(
