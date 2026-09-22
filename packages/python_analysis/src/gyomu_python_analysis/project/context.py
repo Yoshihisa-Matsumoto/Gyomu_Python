@@ -14,7 +14,6 @@ class PyProjectConfig:
     formatter_line_length: int
 
 
-@dataclass
 class ProjectContext:
     def __init__(
         self,

@@ -35,8 +35,8 @@ class LoggerImpl(Logger):
             *args,
         )
 
-    def debug_object(self, value: object) -> None:
-        self.debug(format_object(value))
+    def debug_object(self, value: object, depth: int = 3) -> None:
+        self.debug(format_object(value, depth=depth))
 
     def info(
         self,
@@ -71,8 +71,8 @@ class LoggerImpl(Logger):
             *args,
         )
 
-    def error_object(self, value: object) -> None:
-        self.error(format_object(value))
+    def error_object(self, value: object, depth: int = 3) -> None:
+        self.error(format_object(value, depth=depth))
 
     def critical(
         self,
