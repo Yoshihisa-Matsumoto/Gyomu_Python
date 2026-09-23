@@ -1,6 +1,10 @@
 from pathlib import Path
 
-from gyomu_infra.filesystem.file_io import read_text, write_json, write_text
+from gyomu_infra.filesystem.file_io import (
+    read_source_text,
+    write_json,
+    write_text,
+)
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.path.conversion import (
     source_relative_path_to_full_path,
@@ -37,7 +41,7 @@ async def process_docstring_update(
         context,
     )
 
-    source_result = read_text(source_path)
+    source_result = read_source_text(source_path)
 
     if isinstance(source_result, Failure):
         return Failure(

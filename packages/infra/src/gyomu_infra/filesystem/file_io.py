@@ -4,6 +4,7 @@ from pathlib import Path
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
+from gyomu_schema.schemas.types import FullPath
 from gyomu_schema.utility.serialization import dump_json, validate_json
 from returns.result import Failure, Result, Success
 
@@ -41,6 +42,31 @@ def read_text(
                 reason=str(error),
             )
         )
+
+
+def read_source_text(
+    path: FullPath,
+) -> Result[str, GyomuIOError]:
+    """
+    Gyomu Context:
+        Normalize line endings to LF (\n) when reading Python source files.
+
+        Gyomu uses line, column, and offset information
+        when analyzing and updating source code.
+        If source files use different line ending styles,
+        such as CRLF (\r\n) and LF (\n), the calculated offsets
+        may no longer match the actual positions in the source text.
+        Therefore, Python source files are normalized to LF when they are read,
+        and all subsequent analysis and source update operations assume LF line endings.
+
+        This behavior is specific to Python source files and
+        should not be applied to arbitrary text files.
+        Therefore, read_source_text() is provided separately
+        from the generic read_text() function.
+    """
+    return read_text(path).map(
+        lambda source: source.replace("\r\n", "\n").replace("\r", "\n")
+    )
 
 
 def write_text(

@@ -1,0 +1,132 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.existing_docstring2::CONFIG_NAME",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Name of the configuration value."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "replace",
+          "value": ""
+        },
+        "confidence": 0.99
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "The variable stores the name of the configuration.",
+        "param_mapping": "",
+        "return_mapping": ""
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.existing_docstring2::CONFIG_OPTIONS",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Mapping of available configuration options."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "replace",
+          "value": ""
+        },
+        "confidence": 0.99
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "The variable stores configuration options as a string mapping.",
+        "param_mapping": "",
+        "return_mapping": ""
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.existing_docstring2::ConfigValue",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Value type supported by the configuration."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "replace",
+          "value": ""
+        },
+        "confidence": 0.99
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "The type alias represents the primitive values supported by the configuration.",
+        "param_mapping": "",
+        "return_mapping": ""
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.existing_docstring2::ConfigMapping",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "replace",
+          "value": "Mapping from configuration names to values."
+        },
+        "confidence": 0.99
+      },
+      "description": {
+        "action": {
+          "type": "replace",
+          "value": ""
+        },
+        "confidence": 0.99
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "The type alias represents a mapping from configuration names to supported values.",
+        "param_mapping": "",
+        "return_mapping": ""
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

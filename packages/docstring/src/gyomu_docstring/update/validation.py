@@ -46,6 +46,8 @@ def _run_ruff(
         command,
         cwd=project_root,
     )
+    print(command)
+    print(project_root)
 
     return result.alt(
         lambda error: UpdateError(

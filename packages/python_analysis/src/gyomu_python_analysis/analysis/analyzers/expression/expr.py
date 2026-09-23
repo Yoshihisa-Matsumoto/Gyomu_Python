@@ -238,6 +238,9 @@ def analyze_dictionary(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DictionaryStructureAnalysis:
+    if len(expression.keys) == 0:
+        return DictionaryStructureAnalysis(keys=None, values=None)
+
     assert len(expression.keys) == 1
     assert expression.keys[0]
     assert len(expression.values) == 1
@@ -252,8 +255,11 @@ def _analyze_dictionary_from_subscript(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DictionaryStructureAnalysis:
-    assert isinstance(slice, ExprTuple)
-    assert len(slice.elements) == 2
+    if not isinstance(slice, ExprTuple) or len(slice.elements) != 2:
+        return DictionaryStructureAnalysis(keys=None, values=None)
+
+    # assert isinstance(slice, ExprTuple)
+    # assert len(slice.elements) == 2
     return DictionaryStructureAnalysis(
         keys=analyze_type_expression(slice.elements[0], context, option),
         values=analyze_type_expression(slice.elements[1], context, option),

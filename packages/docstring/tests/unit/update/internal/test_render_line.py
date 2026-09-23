@@ -9,6 +9,7 @@ from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 from gyomu_docstring.update.internal.render_line import (
     render_docstring_lines,
     wrap_docstring_item,
+    wrap_docstring_summary,
     wrap_text,
 )
 from gyomu_schema.schemas.python.docstring import (
@@ -578,25 +579,25 @@ def test_wrap_docstring_item(
 @pytest.mark.parametrize(
     ("text", "line_length", "expected", "declaration_indent"),
     [
-        ("12345 67890", 11, ("12345 67890",), 0),
+        ("12345 67890", 11, ("12345", "67890"), 0),
         ("12345 67890", 10, ("12345", "67890"), 0),
         (
             "This is a very long description.",
             15,
-            ("This is a very", "long", "description."),
+            ("This is a", "very long", "description."),
             0,
         ),
         ("This-is-a-very-long-word", 10, ("This-is-a-very-long-word",), 0),
         (
             "This is a very long description.",
             15,
-            ("This is a", "very long", "description."),
+            ("This is", "a very long", "description."),
             4,
         ),
         (
             "This is a very long description.",
             15,
-            ("This is", "a very", "long", "description."),
+            ("This", "is a", "very", "long", "description."),
             8,
         ),
         (
@@ -1222,3 +1223,41 @@ def test_render_item_gyomu_context(
             expected_value.append(DocstringText(text=item))
 
     assert result == tuple(expected_value)
+
+
+@pytest.mark.parametrize(
+    ("summary", "line_length", "expected"),
+    [
+        (
+            "123456789012345 7",
+            20,
+            ("123456789012345 7",),
+        ),
+        (
+            "1234567890123456 8",
+            20,
+            ("1234567890123456", "8"),
+        ),
+        (
+            "This is a summary that is long enough to wrap.",
+            20,
+            (
+                "This is a summary",
+                "that is long enough",
+                "to wrap.",
+            ),
+        ),
+    ],
+)
+def test_wrap_docstring_summary(
+    summary: str,
+    line_length: int,
+    expected: tuple[str, ...],
+) -> None:
+    assert (
+        wrap_docstring_summary(
+            summary,
+            line_length=line_length,
+        )
+        == expected
+    )

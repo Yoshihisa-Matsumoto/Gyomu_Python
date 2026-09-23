@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from enum import Enum
 from typing import Literal
 
@@ -35,3 +35,5 @@ value_tuple_nested3: tuple[tuple[int, ...], ...]
 # Set
 value_set: set[str]
 value_set_nested: set[tuple[str, int]]
+
+CONFIG_OPTIONS: Mapping[str, str] = {}

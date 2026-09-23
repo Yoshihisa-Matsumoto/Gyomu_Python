@@ -54,8 +54,8 @@ class ArrayStructureAnalysis(BaseModel):
 
 class DictionaryStructureAnalysis(BaseModel):
     kind: TypeStructureKind = TypeStructureKind.DICTIONARY
-    keys: TypeExpression
-    values: TypeExpression
+    keys: TypeExpression | None
+    values: TypeExpression | None
 
 
 class CallableStructureAnalysis(BaseModel):

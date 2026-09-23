@@ -3,6 +3,7 @@ from pathlib import Path
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.python.docstring import DocstringAnalysis, DocstringStyle
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import (
@@ -12,6 +13,7 @@ from gyomu_schema.schemas.python.types import (
     WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.types import FullPath
+from gyomu_schema.utility.fromatting import format_object
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
@@ -93,7 +95,10 @@ class TestLoadModuleAnalysis:
         build_common_mock = mocker.patch(
             "gyomu_python_analysis.analysis.load_module.build_docstring_common",
         )
-        mocker.patch("pathlib.Path.read_text", return_value="")
+        mocker.patch(
+            "gyomu_python_analysis.analysis.load_module.read_source_text",
+            return_value=Success(""),
+        )
 
         result = load_module_analysis(
             context,
@@ -108,9 +113,9 @@ class TestLoadModuleAnalysis:
             name="foo",
             docstring=None,
         )
-        # if isinstance(result, Failure):
-        #     failure = result.failure()
-        #     print(repr(failure))
+        if isinstance(result, Failure):
+            failure = result.failure()
+            print(format_object(failure))
         assert result == Success(expected)
 
         load_mock.assert_called_once_with(context, PythonPath("foo"))
@@ -146,8 +151,12 @@ class TestLoadModuleAnalysis:
         source_file.module.docstring = None
 
         read_mock = mocker.patch(
-            "pathlib.Path.read_text",
-            side_effect=OSError("failed to read source file"),
+            "gyomu_python_analysis.analysis.load_module.read_source_text",
+            return_value=Failure(
+                GyomuIOError(
+                    "message", layer=IOLayer.FILESYSTEM, operation=IOOperation.READ
+                )
+            ),
         )
 
         mocker.patch(
@@ -168,7 +177,7 @@ class TestLoadModuleAnalysis:
         assert error.file_path == PythonPath("foo")
         assert error.phase == "symbol-extract"
 
-        read_mock.assert_called_once_with(encoding="utf-8")
+        read_mock.assert_called_once_with(tmp_path / "src" / "foo.py")
 
     def test_analyzes_module_with_docstring(
         self,

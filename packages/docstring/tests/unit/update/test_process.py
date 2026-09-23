@@ -70,7 +70,7 @@ class TestProcessDocstringUpdate:
         file_context = create_file_analysis_context()
 
         read_text = mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
         )
         build_merge_plan = mocker.patch(
             "gyomu_docstring.update.process.build_merge_plan",
@@ -107,7 +107,7 @@ class TestProcessDocstringUpdate:
         )
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Failure(error),
         )
 
@@ -152,7 +152,7 @@ class TestProcessDocstringUpdate:
         )
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
 
@@ -202,7 +202,7 @@ class TestProcessDocstringUpdate:
         )
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
 
@@ -257,7 +257,7 @@ class TestProcessDocstringUpdate:
         )
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
 
@@ -364,7 +364,7 @@ class TestProcessDocstringUpdate:
         )
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
 
@@ -429,7 +429,7 @@ class TestProcessDocstringUpdate:
         )
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
 
@@ -501,7 +501,7 @@ class TestProcessDocstringUpdate:
             return_value=mocker.Mock(),
         )
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
         mocker.patch(
@@ -552,7 +552,7 @@ class TestProcessDocstringUpdate:
         file_update_plan = mocker.Mock(spec=FileUpdatePlan)
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
         mocker.patch(
@@ -603,7 +603,7 @@ class TestProcessDocstringUpdate:
         file_update_plan = mocker.Mock(spec=FileUpdatePlan)
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
         mocker.patch(
@@ -674,7 +674,7 @@ class TestProcessDocstringUpdate:
         file_update_plan = mocker.Mock(spec=FileUpdatePlan)
 
         mocker.patch(
-            "gyomu_docstring.update.process.read_text",
+            "gyomu_docstring.update.process.read_source_text",
             return_value=Success(source),
         )
         mocker.patch(

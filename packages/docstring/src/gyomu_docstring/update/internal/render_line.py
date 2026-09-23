@@ -32,7 +32,10 @@ def render_docstring_lines(
     target_line_length = formatter_line_length - updated.docstring.indent
 
     if docstring.summary is not None:
-        for item in wrap_text(docstring.summary, target_line_length):
+        for item in wrap_docstring_summary(
+            docstring.summary,
+            line_length=target_line_length,
+        ):
             if item == "":
                 lines.append(DocstringBlank())
             else:
@@ -260,6 +263,45 @@ def wrap_text(
         )
 
         lines.extend(wrapped or ("",))
+
+    return tuple(lines)
+
+
+def wrap_docstring_summary(
+    summary: str,
+    *,
+    line_length: int,
+) -> tuple[str, ...]:
+    first_line_indent = " " * len('"""')
+    lines: list[str] = []
+    is_first_output_line = True
+
+    for line in summary.splitlines():
+        if is_first_output_line:
+            wrapped = wrap(
+                line,
+                width=line_length,
+                initial_indent=first_line_indent,
+                subsequent_indent="",
+                break_long_words=False,
+                break_on_hyphens=False,
+            )
+
+            if wrapped:
+                lines.append(wrapped[0][len(first_line_indent) :])
+                lines.extend(wrapped[1:])
+                is_first_output_line = False
+            else:
+                lines.append("")
+        else:
+            wrapped = wrap(
+                line,
+                width=line_length,
+                break_long_words=False,
+                break_on_hyphens=False,
+            )
+
+            lines.extend(wrapped or ("",))
 
     return tuple(lines)
 
