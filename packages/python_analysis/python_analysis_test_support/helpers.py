@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from griffe import Attribute, Class, Function, TypeAlias
@@ -13,6 +14,15 @@ from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.snapshot.models import (
+    AnalyzeProjectChangesResult,
+    FileAdded,
+    FileChange,
+    FileDeleted,
+    FileSnapshot,
+    FileUpdated,
+    ProjectSnapshot,
+)
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
@@ -47,180 +57,61 @@ def _create_context() -> ProjectContext:
     ).unwrap()
 
 
-# def create_declaration_identity(id: str) -> DeclarationIdentity:
-#     return DeclarationIdentity(
-#         symbol_id=SymbolId(id),
-#         declaration_id=DeclarationId("."),
-#     )
+def create_test_file_snapshot(
+    project_relative_path: ProjectRelativePath,
+    raw_hash: str = "ABCDE",
+) -> FileSnapshot:
+    modified_at: datetime = datetime.now()
+    return FileSnapshot(
+        project_relative_path=project_relative_path,
+        raw_hash=raw_hash,
+        modified_at=modified_at,
+    )
 
 
-# def create_location(
-#     start_offset: int = 0,
-#     end_offset: int = 0,
-#     start_line: int = 1,
-#     start_column: int = 0,
-#     end_line: int = 1,
-#     end_column: int = 0,
-# ) -> SourceLocation:
-#     return SourceLocation(
-#         start_line=start_line,
-#         start_offset=start_offset,
-#         end_line=end_line,
-#         end_offset=end_offset,
-#         start_column=start_column,
-#         end_column=end_column,
-#     )
+def create_file_added(current: FileSnapshot) -> FileAdded:
+    return FileAdded(
+        project_relative_path=current.project_relative_path, current=current
+    )
 
 
-# _default_identity = DeclarationIdentity(
-#     symbol_id=SymbolId("test.User"),
-#     declaration_id=DeclarationId("."),
-# )
+def create_file_updated(current: FileSnapshot, previous: FileSnapshot) -> FileUpdated:
+    return FileUpdated(
+        project_relative_path=current.project_relative_path,
+        current=current,
+        previous=previous,
+    )
 
 
-# def create_type_alias_analysis(
-#     indent: int,
-#     location: SourceLocation,
-#     name: str = "test_func",
-#     identity: DeclarationIdentity | None = None,
-# ) -> TypeAliasAnalysis:
-#     if identity is None:
-#         identity = create_declaration_identity(name)
-#     return TypeAliasAnalysis(
-#         name=name,
-#         docstring=None,
-#         identity=identity,
-#         decorators=tuple(),
-#         dependencies=tuple(),
-#         indent=indent,
-#         kind=DeclarationKind.TYPEALIAS,
-#         visibility=Visibility.PUBLIC,
-#         location=location,
-#         alias_type=None,
-#     )
+def create_file_deleted(previous: FileSnapshot) -> FileDeleted:
+    return FileDeleted(
+        project_relative_path=previous.project_relative_path, previous=previous
+    )
 
 
-# def create_variable_analysis(
-#     indent: int,
-#     location: SourceLocation,
-#     name: str = "test_func",
-#     identity: DeclarationIdentity | None = None,
-# ) -> VariableAnalysis:
-#     if identity is None:
-#         identity = create_declaration_identity(name)
-#     return VariableAnalysis(
-#         name=name,
-#         docstring=None,
-#         identity=identity,
-#         decorators=tuple(),
-#         dependencies=tuple(),
-#         indent=indent,
-#         kind=DeclarationKind.VARIABLE,
-#         visibility=Visibility.PUBLIC,
-#         location=location,
-#         type=None,
-#         value_source=None,
-#         value_expression=None,
-#         pydantic=None,
-#     )
+def create_project_snapshot(
+    files: tuple[FileSnapshot, ...] = tuple(),
+    project_root: WorkspaceRelativePath = WorkspaceRelativePath(
+        Path("projects/project_a")
+    ),
+) -> ProjectSnapshot:
+    return ProjectSnapshot(project_root=project_root, files=files)
 
 
-# def create_function_analysis(
-#     indent: int,
-#     location: SourceLocation,
-#     name: str = "test_func",
-#     identity: DeclarationIdentity | None = None,
-# ) -> FunctionAnalysis:
-#     if identity is None:
-#         identity = create_declaration_identity(name)
-#     return FunctionAnalysis(
-#         name=name,
-#         docstring=None,
-#         identity=identity,
-#         decorators=tuple(),
-#         dependencies=tuple(),
-#         indent=indent,
-#         is_async=False,
-#         kind=DeclarationKind.FUNCTION,
-#         parameters=tuple(),
-#         return_type=None,
-#         visibility=Visibility.PUBLIC,
-#         location=location,
-#     )
-
-
-# def create_method_analysis(
-#     indent: int | None,
-#     location: SourceLocation | None,
-#     name: str = "test_func",
-#     identity: DeclarationIdentity | None = None,
-# ) -> MethodAnalysis:
-#     if identity is None:
-#         identity = create_declaration_identity(name)
-#     return MethodAnalysis(
-#         name=name,
-#         docstring=None,
-#         identity=identity,
-#         decorators=tuple(),
-#         indent=indent,
-#         is_async=False,
-#         kind=DeclarationKind.METHOD,
-#         parameters=tuple(),
-#         return_type=None,
-#         visibility=Visibility.PUBLIC,
-#         location=location,
-#     )
-
-
-# def create_class_analysis(
-#     indent: int,
-#     location: SourceLocation,
-#     name: str = "test_class",
-#     identity: DeclarationIdentity | None = None,
-# ) -> ClassAnalysis:
-#     if identity is None:
-#         identity = create_declaration_identity(name)
-#     return ClassAnalysis(
-#         name=name,
-#         docstring=None,
-#         identity=identity,
-#         decorators=tuple(),
-#         dependencies=tuple(),
-#         indent=indent,
-#         kind=DeclarationKind.CLASS,
-#         bases=tuple(),
-#         visibility=Visibility.PUBLIC,
-#         location=location,
-#         methods=tuple(),
-#         variables=tuple(),
-#         type_aliases=tuple(),
-#         inner_classes=tuple(),
-#     )
-
-
-# def create_file_analysis_context(
-#     symbol: SymbolAnalysis | MemberAnalysis | None = None,
-#     symbol2: SymbolAnalysis | MemberAnalysis | None = None,
-#     symbol3: SymbolAnalysis | MemberAnalysis | None = None,
-# ) -> FileAnalysisContext:
-#     symbols: dict[DeclarationIdentity, SymbolAnalysis | MemberAnalysis]
-#     symbols = dict([(symbol.identity, symbol)]) if symbol else dict()
-
-#     if symbol2:
-#         symbols[symbol2.identity] = symbol2
-#     if symbol3:
-#         symbols[symbol3.identity] = symbol3
-#     return FileAnalysisContext(
-#         metadata=FileAnalysisMetadata(parsed_docstring=dict(), symbols=symbols),
-#         analysis=ModuleAnalysis(
-#             path=SourceRelativePath(Path(".")),
-#             name="test",
-#             module_name=PythonPath(""),
-#             docstring=None,
-#             imports=tuple(),
-#             symbols=(),
-#         ),
-#     )
+def create_analyze_project_change(
+    current_snapshot: ProjectSnapshot,
+    project_id: str = "ABC",
+    snapshot_path: FullPath = FullPath(Path("/tmp")),
+    previous_snapshot: ProjectSnapshot | None = None,
+    diff: tuple[FileChange, ...] = tuple(),
+) -> AnalyzeProjectChangesResult:
+    return AnalyzeProjectChangesResult(
+        project_id=project_id,
+        snapshot_path=snapshot_path,
+        previous_snapshot=previous_snapshot,
+        current_snapshot=current_snapshot,
+        diff=diff,
+    )
 
 
 @dataclass

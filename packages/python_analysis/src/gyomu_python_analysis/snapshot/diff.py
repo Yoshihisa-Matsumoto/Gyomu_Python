@@ -1,3 +1,5 @@
+from gyomu_schema.schemas.python.types import ProjectRelativePath
+
 from gyomu_python_analysis.snapshot.models import (
     FileAdded,
     FileChange,
@@ -6,7 +8,6 @@ from gyomu_python_analysis.snapshot.models import (
     FileUpdated,
     ProjectSnapshot,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath
 
 
 def to_map(

@@ -17,6 +17,7 @@ class IOOperation(StrEnum):
     OPEN = "open"
     CLOSE = "close"
     TRANSFORM = "transform"
+    DELETE = "delete"
 
 
 class GyomuIOError(BaseError):

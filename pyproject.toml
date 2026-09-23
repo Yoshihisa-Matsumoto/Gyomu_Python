@@ -26,7 +26,8 @@ members = [
     "packages/python_analysis",
     "packages/ai_compiler",
     "packages/docstring",
-    "apps/cli"
+    "packages/workflow",
+    "apps/cli",
 ]
 
 

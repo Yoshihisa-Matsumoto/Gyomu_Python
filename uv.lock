@@ -16,6 +16,7 @@ members = [
     "gyomu-infra",
     "gyomu-python-analysis",
     "gyomu-schema",
+    "gyomu-workflow",
 ]
 constraints = [
     { name = "pydantic", specifier = ">=2,<3" },
@@ -839,20 +840,18 @@ requires-dist = [
 name = "gyomu-cli"
 source = { editable = "apps/cli" }
 dependencies = [
-    { name = "gyomu-docstring" },
     { name = "gyomu-infra" },
-    { name = "gyomu-python-analysis" },
     { name = "gyomu-schema" },
+    { name = "gyomu-workflow" },
     { name = "returns" },
     { name = "typer" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "gyomu-docstring", editable = "packages/docstring" },
     { name = "gyomu-infra", editable = "packages/infra" },
-    { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
     { name = "gyomu-schema", editable = "packages/schema" },
+    { name = "gyomu-workflow", editable = "packages/workflow" },
     { name = "returns" },
     { name = "typer", specifier = ">=0.27.2" },
 ]
@@ -952,6 +951,26 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "pydantic" },
+    { name = "returns" },
+]
+
+[[package]]
+name = "gyomu-workflow"
+source = { editable = "packages/workflow" }
+dependencies = [
+    { name = "gyomu-docstring" },
+    { name = "gyomu-infra" },
+    { name = "gyomu-python-analysis" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gyomu-docstring", editable = "packages/docstring" },
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
+    { name = "gyomu-schema", editable = "packages/schema" },
     { name = "returns" },
 ]
 

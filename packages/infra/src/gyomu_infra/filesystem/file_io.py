@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from os import remove
 from pathlib import Path
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
@@ -104,3 +105,19 @@ def enumerate_files(
         return frozenset(file.relative_to(relative_to) for file in files)
 
     return frozenset(files)
+
+
+def delete_file(path: Path) -> Result[None, GyomuIOError]:
+    try:
+        remove(path)
+        return Success(None)
+    except OSError as error:
+        return Failure(
+            GyomuIOError(
+                "Failed to delete file.",
+                layer=IOLayer.FILESYSTEM,
+                operation=IOOperation.DELETE,
+                target=str(path),
+                reason=str(error),
+            )
+        )

@@ -13,7 +13,7 @@ from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
-from gyomu_cli.snapshot.models import SnapshotExecutionOption, SnapshotRequest
+from gyomu_workflow.snapshot.models import SnapshotExecutionOption, SnapshotRequest
 
 
 def translate_snapshot_request(

@@ -1,9 +1,14 @@
 import typer
 from gyomu_infra.logger import logger
+from gyomu_workflow.snapshot.models import (
+    DocstringExecutionOption,
+    FileFilter,
+    SnapshotActionOption,
+    SnapshotExecutionOption,
+    SnapshotTargetOption,
+)
+from gyomu_workflow.snapshot.translate import translate_snapshot_request
 from returns.result import Failure
-
-from gyomu_cli.snapshot.models import FileFilter, SnapshotExecutionOption
-from gyomu_cli.snapshot.translate import translate_snapshot_request
 
 app = typer.Typer()
 
@@ -30,30 +35,42 @@ def greet3(name: str = "World") -> None:
 @app.command()
 def snapshot(
     package: str,
-    no_docstring: bool = False,
+    docstring: bool = True,
     all: bool = False,
-    no_commit: bool = False,
+    commit: bool = True,
     filter: str | None = None,
     log_keyword: str | None = None,
 ) -> None:
 
     option = SnapshotExecutionOption(
-        commit=not no_commit,
-        docstring=not no_docstring,
-        all=all,
-        file_filter=(FileFilter(pattern=filter) if filter is not None else None),
-        log_keyword=log_keyword,
+        commit=commit,
+        target=SnapshotTargetOption(
+            all=all,
+            file_filter=FileFilter(pattern=filter) if filter is not None else None,
+        ),
+        action=SnapshotActionOption(
+            docstring=DocstringExecutionOption(
+                enabled=docstring, log_keyword=log_keyword
+            ),
+        ),
     )
-    request = translate_snapshot_request(package, option)
-    if isinstance(request, Failure):
-        logger.error_object(request.failure())
+    result = translate_snapshot_request(package, option)
+    if isinstance(result, Failure):
+        logger.error_object(result.failure())
         return
+    request = result.unwrap()
+    print(
+        f"commit: {request.option.commit}, "
+        f"docstring:{request.option.action.docstring.enabled}, "
+        f"all={request.option.target.all}"
+    )
+    if filter:
+        assert option.target.file_filter
+        print(f"filter: {option.target.file_filter.pattern}")
+    if log_keyword:
+        print(f"log_keyword: {request.option.action.docstring.log_keyword}")
 
-    # value = request.unwrap()
-
-    # logger.error_object(value.project_context)
-    # logger.error(f"project_root={value.project_context.project_root!r}")
-    logger.error_object(request.unwrap(), 4)
+    # logger.error_object(request.unwrap(), 3)
 
 
 if __name__ == "__main__":
