@@ -43,6 +43,7 @@ files = [
     "packages/python_analysis/src",
     "packages/docstring/src",
     "packages/ai_compiler/src",
+    "apps/cli/src"
 ]
 
 [tool.ruff]
@@ -75,7 +76,7 @@ markers = [
     "package: tests requiring independent venv while installing built packages"
 ]
 testpaths = [
-    "packages",
+    "packages","apps"
 ]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib"

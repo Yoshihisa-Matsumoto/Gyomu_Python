@@ -1,3 +1,5 @@
+import asyncio
+
 import typer
 from gyomu_infra.logger import logger
 from gyomu_workflow.snapshot.models import (
@@ -7,7 +9,9 @@ from gyomu_workflow.snapshot.models import (
     SnapshotExecutionOption,
     SnapshotTargetOption,
 )
+from gyomu_workflow.snapshot.run import run_snapshot
 from gyomu_workflow.snapshot.translate import translate_snapshot_request
+from gyomu_workflow.snapshot.validate import validate_snapshot_request
 from returns.result import Failure
 
 app = typer.Typer()
@@ -59,17 +63,28 @@ def snapshot(
         logger.error_object(result.failure())
         return
     request = result.unwrap()
-    print(
+    logger.info(
         f"commit: {request.option.commit}, "
         f"docstring:{request.option.action.docstring.enabled}, "
         f"all={request.option.target.all}"
     )
     if filter:
         assert option.target.file_filter
-        print(f"filter: {option.target.file_filter.pattern}")
+        logger.info(f"filter: {option.target.file_filter.pattern}")
     if log_keyword:
-        print(f"log_keyword: {request.option.action.docstring.log_keyword}")
+        logger.info(f"log_keyword: {request.option.action.docstring.log_keyword}")
 
+    result = validate_snapshot_request(request)
+    if isinstance(result, Failure):
+        logger.error_object(result.failure())
+        return
+
+    result = asyncio.run(run_snapshot(request))
+    if isinstance(result, Failure):
+        logger.error_object(result.failure())
+        return
+
+    logger.info("Done")
     # logger.error_object(request.unwrap(), 3)
 
 

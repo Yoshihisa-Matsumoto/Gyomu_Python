@@ -8,7 +8,7 @@ from gyomu_python_analysis.analysis.initialize import (
     read_version,
     resolve_source_root,
 )
-from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.context import PyProjectConfig
 from gyomu_python_analysis.project.workspace import WorkspaceConfig, WorkspaceProject
 from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
@@ -261,12 +261,10 @@ class TestInitializeProjectFromWorkspace:
 
         result = initialize_project_from_workspace(workspace, project)
 
-        assert result == ProjectContext(
-            project_root=project_root,
-            source_root=ProjectRelativePath(Path("src")),
-            config=project_config,
-            included_files=included_files,
-        )
+        assert result.project_root == project_root
+        assert result.source_root == ProjectRelativePath(Path("src"))
+        assert result.config == project_config
+        assert result.included_files == included_files
 
         find_files.assert_called_once_with(
             project_root=project_root,
