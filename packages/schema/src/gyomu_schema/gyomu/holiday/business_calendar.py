@@ -3,6 +3,10 @@ from typing import Protocol
 
 
 class BusinessCalendar(Protocol):
+    """Defines a business calendar protocol for checking business days, calculating
+    offsets, and retrieving holidays.
+    """
+
     def is_business_day(
         self,
         target_date: date,

@@ -79,12 +79,12 @@ def build_docstring_declaration_context(
 def is_documentable_child_entry(cls: ClassBase, member: MemberAnalysis) -> bool:
     if member.location is None:
         return False
+
+    if member.kind == DeclarationKind.METHOD and member.is_ellipsis_only:
+        return False
     is_pydantic = is_base_class_pydantic(list(cls.bases))
     if not is_pydantic:
         return True
-    if member.kind == DeclarationKind.METHOD and member.is_ellipsis_only:
-        return False
-
     return not (
         member.kind == DeclarationKind.VARIABLE and member.name == "model_config"
     )

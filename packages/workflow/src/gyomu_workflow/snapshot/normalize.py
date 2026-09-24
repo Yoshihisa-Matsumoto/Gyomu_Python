@@ -2,7 +2,7 @@ from gyomu_workflow.snapshot.models import SnapshotTargetOption
 
 
 def normalize_filter(option: SnapshotTargetOption) -> None:
-    if not option.file_filter:
+    if option.file_filter is None:
         return
     option.file_filter.pattern = _normalize_snapshot_filter(option.file_filter.pattern)
 

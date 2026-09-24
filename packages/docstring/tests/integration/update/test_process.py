@@ -51,18 +51,18 @@ def project_path(
 @pytest.mark.parametrize(
     "case",
     [
-        # "simple",
-        # "existing_docstring",
-        # "preserve",
-        # "raises",
-        # "delete",
-        # "no_return",
-        # "cls",
-        # "method",
-        # "multiple_symbols",
-        # "no_update",
-        # "existing_docstring2",
-        "config_loader_option"
+        "simple",
+        "existing_docstring",
+        "preserve",
+        "raises",
+        "delete",
+        "no_return",
+        "cls",
+        "method",
+        "multiple_symbols",
+        "no_update",
+        "existing_docstring2",
+        "config_loader_option",
     ],
 )
 @pytest.mark.asyncio

@@ -68,6 +68,28 @@ class TestFilterIncludedFiles:
 
         assert result == frozenset()
 
+    def test_file_match(self) -> None:
+        included_files = frozenset(
+            {
+                ProjectRelativePath(
+                    Path("src/gyomu_schema/schemas/python/import_analysis.py")
+                ),
+                ProjectRelativePath(
+                    Path("src/gyomu_schema/gyomu/holiday/business_calendar.py")
+                ),
+            }
+        )
+        result = filter_included_files(
+            included_files, "gyomu/holiday/business_calendar.py"
+        )
+        assert result == frozenset(
+            {
+                ProjectRelativePath(
+                    Path("src/gyomu_schema/gyomu/holiday/business_calendar.py")
+                ),
+            }
+        )
+
 
 class TestResolveSnapshotTarget:
     def test_resolve_snapshot_target_from_diff(

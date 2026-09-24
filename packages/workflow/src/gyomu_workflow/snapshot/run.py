@@ -1,3 +1,4 @@
+from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.delete_cache import delete_module_cache
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_python_analysis.snapshot.commit import commit_project_changes
@@ -15,17 +16,19 @@ from gyomu_workflow.snapshot.target import resolve_snapshot_target
 
 
 async def run_snapshot(request: SnapshotRequest) -> Result[None, GyomuError]:
-    request.option.target.file_filter = normalize_filter(request.option.target)
+    normalize_filter(request.option.target)
+    logger.debug(f"file_filter: {repr(request.option.target.file_filter)}")
     target_result = resolve_snapshot_target(
         repository_root_path=request.repository_root_path,
         project_context=request.project_context,
         option=request.option.target,
     )
-
     if isinstance(target_result, Failure):
         return target_result
 
     target = target_result.unwrap()
+
+    logger.debug(repr(target.files))
     current_snapshot = target.snapshot
 
     action_result = await run_actions(request=request, target=target)

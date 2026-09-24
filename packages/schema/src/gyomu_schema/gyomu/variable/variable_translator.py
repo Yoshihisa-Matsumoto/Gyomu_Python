@@ -9,6 +9,7 @@ from gyomu_schema.error.validation import ValidationError
 
 class VariableTranslator(Protocol):
     """
+
     Gyomu Context:
       Translates variable expressions embedded in strings.
 
@@ -84,6 +85,7 @@ class VariableTranslator(Protocol):
         market: str,
     ) -> Result[str, DatabaseError | ValidationError]:
         """
+
         Gyomu Context:
         Translates variable expressions enclosed by ``{%`` and ``%}``
         within the input string.
@@ -100,6 +102,7 @@ class VariableTranslator(Protocol):
         market: str,
     ) -> Result[date, DatabaseError | ValidationError]:
         """
+
         Gyomu Context:
         Translates a date keyword expression into a date.
 

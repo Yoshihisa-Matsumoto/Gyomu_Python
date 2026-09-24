@@ -36,29 +36,29 @@ class DeclarationIdentity(BaseModel, Hashable):
     """Represents a unique identity for a declaration within Gyomu context.
 
     For example:
-            gyomu_schema.schemas.python.user::User
+        gyomu_schema.schemas.python.user::User
 
-        For a class Symbol, the same symbol_id is used for its variables,
-          methods, nested classes, method parameters, and return values.
+    For a class Symbol, the same symbol_id is used for its variables,
+      methods, nested classes, method parameters, and return values.
 
-        - declaration_id identifies a declaration within the Symbol.
-        It starts with the "." and then
-        represents the declaration's access path.
+    - declaration_id identifies a declaration within the Symbol.
+    It starts with the "." and then
+    represents the declaration's access path.
 
-        Normal declarations are represented directly as an access path:
-            .
-            .::name
-            .::get_name
-            .::Address
-            .::Address::to_string
+    Normal declarations are represented directly as an access path:
+        .
+        .::name
+        .::get_name
+        .::Address
+        .::Address::to_string
 
-        Special declarations whose meaning cannot be expressed unambiguously by a normal
-        access path use a "$" marker:
-            .::get_name::$parameter::user_id
-            .::get_name::$return
+    Special declarations whose meaning cannot be expressed unambiguously by a normal
+    access path use a "$" marker:
+        .::get_name::$parameter::user_id
+        .::get_name::$return
 
-        The "$" marker is used only for such special declaration kinds, not for every
-        path segment.
+    The "$" marker is used only for such special declaration kinds, not for every
+    path segment.
     """
 
     symbol_id: SymbolId

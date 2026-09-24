@@ -1247,6 +1247,7 @@ def test_render_item_gyomu_context(
                 "to wrap.",
             ),
         ),
+        ("", 20, ("",)),
     ],
 )
 def test_wrap_docstring_summary(

@@ -40,6 +40,8 @@ def render_docstring_lines(
                 lines.append(DocstringBlank())
             else:
                 lines.append(DocstringText(text=item))
+    else:
+        lines.append(DocstringBlank())
 
     if docstring.description is not None and docstring.description != "":
         lines.append(DocstringBlank())
@@ -276,32 +278,35 @@ def wrap_docstring_summary(
     lines: list[str] = []
     is_first_output_line = True
 
-    for line in summary.splitlines():
-        if is_first_output_line:
-            wrapped = wrap(
-                line,
-                width=line_length,
-                initial_indent=first_line_indent,
-                subsequent_indent="",
-                break_long_words=False,
-                break_on_hyphens=False,
-            )
+    if summary == "":
+        lines.append("")
+    else:
+        for line in summary.splitlines():
+            if is_first_output_line:
+                wrapped = wrap(
+                    line,
+                    width=line_length,
+                    initial_indent=first_line_indent,
+                    subsequent_indent="",
+                    break_long_words=False,
+                    break_on_hyphens=False,
+                )
 
-            if wrapped:
-                lines.append(wrapped[0][len(first_line_indent) :])
-                lines.extend(wrapped[1:])
-                is_first_output_line = False
+                if wrapped:
+                    lines.append(wrapped[0][len(first_line_indent) :])
+                    lines.extend(wrapped[1:])
+                    is_first_output_line = False
+                else:
+                    lines.append("")
             else:
-                lines.append("")
-        else:
-            wrapped = wrap(
-                line,
-                width=line_length,
-                break_long_words=False,
-                break_on_hyphens=False,
-            )
+                wrapped = wrap(
+                    line,
+                    width=line_length,
+                    break_long_words=False,
+                    break_on_hyphens=False,
+                )
 
-            lines.extend(wrapped or ("",))
+                lines.extend(wrapped or ("",))
 
     return tuple(lines)
 
