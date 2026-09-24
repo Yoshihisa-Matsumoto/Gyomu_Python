@@ -34,21 +34,39 @@ class FileInfo:
 
 class FileFilterType(Enum):
     FILE_NAME = "file_name"
+    """Filter by file name."""
+
     CREATE_TIME_UTC = "create_time_utc"
+    """Filter by create time in UTC."""
+
     LAST_ACCESS_TIME_UTC = "last_access_time_utc"
+    """Filter by last access time in UTC."""
+
     LAST_WRITE_TIME_UTC = "last_write_time_utc"
+    """Filter by last write time in UTC."""
 
 
 class FileCompareType(Enum):
     EQUAL = "equal"
+    """Equal comparison operator."""
+
     LARGER = "larger"
+    """Larger comparison operator."""
+
     LESS = "less"
+    """Less comparison operator."""
+
     LARGER_OR_EQUAL = "larger_or_equal"
+    """Larger than or equal comparison operator."""
+
     LESS_OR_EQUAL = "less_or_equal"
+    """Less than or equal comparison operator."""
 
 
 class FileFilterInfo:
     name_filter: str
+    """Filter string for file name matching."""
+
     target_date: datetime
 
     def __init__(
@@ -74,31 +92,52 @@ class FileFilterInfo:
 
 
 class FileTransportInfo:
+    """Base        Sdir    Sname   Ddir    Dname           (S)full+base        (S)Full
+    (S)path (S)name (D)full         (D)path (D)name
+    x           x           x       x       x               base/SDir/Sname
+    SDir/Sname  SDir    Sname   Ddir/Dname      Ddir    Dname
+    x           x       x           x                   base/SDir/Sname     SDir/Sname
+    SDir    Sname   Ddir/Sname      Ddir    Sname
+    x           x           x                   x               base/SDir/Sname
+    SDir/Sname  SDir    Sname   SDir/Dname      Sdir    Dname
+    x           x           x                           base/SDir/Sname     SDir/Sname
+    SDir    Sname   SDir/Sname      SDir    Sname
+    x           x               x                       base/SDir                 SDir
+    SDir                      Ddir          Ddir
+    x           x                                                       base/SDir
+    SDir        SDir                      SDir          SDir
+    x                                                                   base
+    x                           x                               base
+    Ddir              Ddir
+    x                   x       x       x               base/Sname              Sname
+    Sname         Ddir/Dname    Ddir      Dname
+    x                   x           x                           base/Sname
+    Sname                       Sname         Ddir/Sname    Ddir      Sname
+    x                   x                       x               base/Sname
+    Sname                       Sname         Dname                     Dname
+    x                   x                                       base/Sname
+    Sname                       Sname         Sname                     Sname
+          x     x       x           x                             SDir/Sname    SDir
+    Sname   Ddir/Dname    Ddir      Dname
+          x         x       x
+    SDir/Sname    SDir      Sname   Ddir/Sname    Ddir      Sname
+          x         x                   x
+    SDir/Sname        SDir      Sname   SDir/Dname    SDir      Dname
+          x         x
+    SDir/Sname        SDir      Sname   SDir/Sname    SDir      Sname
+          x                     x
+    SDir        SDir                  Ddir              Ddir
+          x
+    SDir        SDir                      SDir          SDir
+                x           x       x                                         Sname
+    Sname         Ddir/Dname    Ddir      Dname
+                x           x                                                     Sname
+    Sname         Ddir/Sname    Ddir      Sname
+                x                       x
+    Sname                         Sname         Dname                     Dname
+                x
+    Sname                         Sname         Sname                     Sname
     """
-    Base	Sdir	Sname	Ddir	Dname		(S)full+base	    (S)Full	    (S)path (S)name (D)full	    (D)path (D)name
-    x   	x	    x	    x	    x		    base/SDir/Sname	    SDir/Sname	SDir    Sname   Ddir/Dname	Ddir    Dname
-    x   	x   	x	    x	    	    	base/SDir/Sname	    SDir/Sname	SDir    Sname   Ddir/Sname	Ddir    Sname
-    x   	x	    x   	    	x	    	base/SDir/Sname	    SDir/Sname	SDir    Sname   SDir/Dname	Sdir    Dname
-    x   	x	    x	    	    	    	base/SDir/Sname	    SDir/Sname	SDir    Sname   SDir/Sname	SDir    Sname
-    x   	x   	    	x   	    		base/SDir	          SDir	      SDir		        Ddir	      Ddir
-    x   	x	                				base/SDir	          SDir	      SDir		        SDir	      SDir
-    x                   						base
-    x	            		x	        		base				                                    Ddir	      Ddir
-    x   	    	x   	x   	x	    	base/Sname	        Sname		            Sname	  Ddir/Dname	Ddir	  Dname
-    x   	    	x	    x	        		base/Sname	        Sname		            Sname	  Ddir/Sname	Ddir	  Sname
-    x       		x	        	x	    	base/Sname	        Sname		            Sname	  Dname		            Dname
-    x	        	x	            			base/Sname	        Sname		            Sname	  Sname		            Sname
-          x   	x   	x	    x	                          SDir/Sname	SDir	  Sname	  Ddir/Dname	Ddir	  Dname
-          x	    x	    x				                          SDir/Sname	SDir	  Sname	  Ddir/Sname	Ddir	  Sname
-          x	    x		        x			                      SDir/Sname	SDir	  Sname	  SDir/Dname	SDir	  Dname
-          x	    x					                              SDir/Sname	SDir	  Sname	  SDir/Sname	SDir	  Sname
-          x	        	x				                          SDir	      SDir	    	    Ddir	      Ddir
-          x						                                  SDir	      SDir		        SDir	      SDir
-                x	    x	    x			                      Sname		            Sname	  Ddir/Dname	Ddir	  Dname
-                x	    x				                          Sname		            Sname	  Ddir/Sname	Ddir	  Sname
-                x		        x			                      Sname		            Sname	  Dname		            Dname
-                x					                              Sname		            Sname	  Sname		            Sname
-    """  # noqa: E501
 
     __source_filename: str
     __source_folder_name: str
@@ -113,15 +152,21 @@ class FileTransportInfo:
     def is_source_directory(self) -> bool:
         return not self.source_filename
 
+    """Gets a value indicating whether the source is a directory."""
+
     @property
     def is_destination_directory(self) -> bool:
         return not self.destination_filename
+
+    """Gets a value indicating whether the destination is a directory."""
 
     @property
     def is_destination_root(self) -> bool:
         return bool(
             not self.__source_folder_name and not self.__destination_folder_name
         )
+
+    """Gets a value indicating whether the destination is at the root."""
 
     @property
     def source_fullname(self) -> str:
@@ -130,6 +175,8 @@ class FileTransportInfo:
         if not self.__source_filename:
             return self.__source_folder_name
         return str(PurePosixPath(self.__source_folder_name) / self.__source_filename)
+
+    """Gets the full source path."""
 
     @property
     def source_fullname_with_basepath(self) -> str:
@@ -141,13 +188,19 @@ class FileTransportInfo:
             else str(PurePosixPath(self.__base_path) / self.source_fullname)
         )
 
+    """Gets the full source path including the base path."""
+
     @property
     def source_path(self) -> str:
         return self.__source_folder_name
 
+    """Gets the source folder path."""
+
     @property
     def source_filename(self) -> str:
         return self.__source_filename
+
+    """Gets the source filename."""
 
     @property
     def destination_filename(self) -> str:
@@ -157,6 +210,8 @@ class FileTransportInfo:
             else self.__destination_filename
         )
 
+    """Gets the destination filename."""
+
     @property
     def destination_path(self) -> str:
         return (
@@ -165,6 +220,8 @@ class FileTransportInfo:
             else self.__destination_folder_name
         )
 
+    """Gets the destination folder path."""
+
     @property
     def destination_fullname(self) -> str:
         if not self.destination_path:
@@ -172,6 +229,8 @@ class FileTransportInfo:
         if not self.destination_filename:
             return self.destination_path
         return str(PurePosixPath(self.destination_path) / self.destination_filename)
+
+    """Gets the full destination path."""
 
     def __init__(
         self,
@@ -206,8 +265,19 @@ class FileTransportInfo:
 
 class FileArchiveType(Enum):
     ZIP = ("zip",)
+    """ZIP archive format."""
+
     TGZ = ("tgz",)
+    """TGZ archive format."""
+
     BZIP2 = ("bz2",)
+    """BZIP2 archive format."""
+
     GZIP = ("gz",)
+    """GZIP archive format."""
+
     TAR = ("tar",)
+    """TAR archive format."""
+
     GuessFromFileName = "unknown"
+    """Guess archive type from the file name."""

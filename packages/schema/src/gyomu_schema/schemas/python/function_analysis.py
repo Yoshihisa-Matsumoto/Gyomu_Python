@@ -5,4 +5,7 @@ from gyomu_schema.schemas.python.symbol_base import DeclarationKind, SymbolAnaly
 
 
 class FunctionAnalysis(SymbolAnalysisBase, CallableAnalysisBase):
+    """Represents the analysis of a Python function."""
+
     kind: Literal[DeclarationKind.FUNCTION] = DeclarationKind.FUNCTION
+    """The declaration kind, fixed to FUNCTION."""

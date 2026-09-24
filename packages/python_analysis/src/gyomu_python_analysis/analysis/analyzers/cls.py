@@ -1,3 +1,5 @@
+import ast
+
 from griffe import Attribute, Class, Function, TypeAlias
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import (
@@ -11,9 +13,16 @@ from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
+from gyomu_schema.schemas.python.type.expression import StatementAnalysis
 from gyomu_schema.schemas.python.type.structure import NameStructureAnalysis
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
+from gyomu_schema.utility.fromatting import format_object
 
+from gyomu_python_analysis.analysis.analyzers.ast.statement import analyze_statement
+from gyomu_python_analysis.analysis.analyzers.ast.symbol import (
+    AstClassFunctionKey,
+    build_class_function_index,
+)
 from gyomu_python_analysis.analysis.analyzers.context import (
     MemberPath,
     SymbolContext,
@@ -24,6 +33,7 @@ from gyomu_python_analysis.analysis.analyzers.expression.expr import (
 )
 from gyomu_python_analysis.analysis.analyzers.functions import (
     _get_function_parameter_kind,
+    check_ellipsis_only,
 )
 from gyomu_python_analysis.analysis.analyzers.internal.common import (
     build_member_common,
@@ -181,6 +191,7 @@ def _build_class_method_analysis(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
+    ast_function: ast.FunctionDef | ast.AsyncFunctionDef,
     option: AnalysisOption | None,
 ) -> MethodAnalysis:
     new_member_path = (*member_path, name)
@@ -202,6 +213,11 @@ def _build_class_method_analysis(
         option=option,
     )
 
+    statements: list[StatementAnalysis] = [
+        analyze_statement(statement, context, option, False)
+        for statement in ast_function.body
+    ]
+    is_ellipsis_only = check_ellipsis_only(statements)
     return MethodAnalysis(
         **method_common,
         parameters=tuple(method_parameters),
@@ -210,6 +226,8 @@ def _build_class_method_analysis(
         identity=build_declaration_identity(
             context=context, member_path=new_member_path
         ),
+        is_ellipsis_only=is_ellipsis_only,
+        statements=tuple(statements),
     )
 
 
@@ -218,11 +236,30 @@ def _build_class_methods(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
+    ast_symbols: dict[
+        AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+    ],
     option: AnalysisOption | None,
 ) -> list[MethodAnalysis]:
     methods: list[MethodAnalysis] = []
     for member_name, member in cls.members.items():
-        if isinstance(member, Function):
+        if (
+            isinstance(member, Function)
+            and member.endlineno is not None
+            and member.endlineno != 0
+        ):
+            # if member.endlineno is None:
+            #     print(f"{cls.name} inside {member.name}")
+            #     print(member.name)
+
+            ast_function = ast_symbols.get(
+                AstClassFunctionKey(name=member_name, end_line=member.endlineno)
+            )
+            if ast_function is None:
+                print(f"{member_name} not found on {cls.name}")
+                print(format_object(member))
+            # print(repr(ast_symbols.keys()))
+            assert isinstance(ast_function, (ast.FunctionDef, ast.AsyncFunctionDef))
             methods.append(
                 _build_class_method_analysis(
                     member=member,
@@ -230,6 +267,7 @@ def _build_class_methods(
                     parent_location=parent_location,
                     context=context,
                     member_path=member_path,
+                    ast_function=ast_function,
                     option=option,
                 )
             )
@@ -240,17 +278,26 @@ def _build_inner_classes(
     cls: Class,
     context: SymbolContext,
     member_path: MemberPath,
+    ast_symbols: dict[
+        AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+    ],
     option: AnalysisOption | None,
 ) -> list[InnerClassAnalysis]:
     inner_classes: list[InnerClassAnalysis] = []
     for member_name, member in cls.members.items():
         if isinstance(member, Class):
+            assert member.endlineno
+            ast_class = ast_symbols.get(
+                AstClassFunctionKey(name=member_name, end_line=member.endlineno)
+            )
+            assert isinstance(ast_class, ast.ClassDef)
             inner_classes.append(
                 _analyze_inner_class(
                     cls=member,
                     name=member_name,
                     context=context,
                     member_path=member_path,
+                    ast_class=ast_class,
                     option=option,
                 )
             )
@@ -273,8 +320,11 @@ def _analyze_class_common(
     name: str,
     context: SymbolContext,
     member_path: MemberPath,
+    ast_class: ast.ClassDef,
     option: AnalysisOption | None = None,
 ) -> ClassCommon:
+    ast_symbols = build_class_function_index(ast_class)
+
     bases: list[TypeAnalysis] = [
         analyzed
         for base in cls.bases
@@ -301,6 +351,7 @@ def _analyze_class_common(
         parent_location=constructor_location,
         context=context,
         member_path=member_path,
+        ast_symbols=ast_symbols,
         option=option,
     )
 
@@ -313,7 +364,11 @@ def _analyze_class_common(
     )
 
     inner_classes: list[InnerClassAnalysis] = _build_inner_classes(
-        cls=cls, context=context, member_path=member_path, option=option
+        cls=cls,
+        context=context,
+        member_path=member_path,
+        ast_symbols=ast_symbols,
+        option=option,
     )
 
     return {
@@ -330,11 +385,17 @@ def _analyze_inner_class(
     name: str,
     context: SymbolContext,
     member_path: MemberPath,
+    ast_class: ast.ClassDef,
     option: AnalysisOption | None = None,
 ) -> InnerClassAnalysis:
     new_member_path = (*member_path, name)
     class_common = _analyze_class_common(
-        cls, name, context, member_path=new_member_path, option=option
+        cls,
+        name,
+        context,
+        member_path=new_member_path,
+        ast_class=ast_class,
+        option=option,
     )
     # pprint(cls.as_dict())
     base_common = build_member_common(
@@ -353,10 +414,11 @@ def analyze_class(
     cls: Class,
     name: str,
     context: SymbolContext,
+    ast: ast.ClassDef,
     option: AnalysisOption | None = None,
 ) -> ClassAnalysis:
     member_path: MemberPath = ()
-    class_common = _analyze_class_common(cls, name, context, member_path, option)
+    class_common = _analyze_class_common(cls, name, context, member_path, ast, option)
     # pprint(cls.as_dict())
     base_common = build_symbol_common(
         symbol=cls, name=name, context=context, option=option

@@ -41,6 +41,7 @@ from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
+from gyomu_schema.schemas.python.type.expression import StatementAnalysis
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
     NameStructureAnalysis,
@@ -51,11 +52,11 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     CallableStructureAnalysis,
     CallStructureAnalysis,
     DictionaryStructureAnalysis,
-    ExpressionAnalysis,
     GenericsStructureAnalysis,
     KeywordStructureAnalysis,
     LiteralStructureAnalysis,
     SetStructureAnalysis,
+    StructureAnalysis,
     TupleStructureAnalysis,
     TypeAnalysis,
     TypeExpression,
@@ -212,6 +213,8 @@ def create_function_analysis(
     identity: DeclarationIdentity | None = None,
     docstring: DocstringAnalysis | None = None,
     dependencies: tuple[DependencyAnalysis, ...] = tuple(),
+    is_ellipsis_only: bool = False,
+    statements: tuple[StatementAnalysis, ...] = tuple(),
 ) -> FunctionAnalysis:
     if identity is None:
         identity = create_declaration_identity(name)
@@ -228,6 +231,8 @@ def create_function_analysis(
         return_type=None,
         visibility=Visibility.PUBLIC,
         location=location,
+        is_ellipsis_only=is_ellipsis_only,
+        statements=statements,
     )
 
 
@@ -237,6 +242,8 @@ def create_method_analysis(
     name: str = "test_func",
     identity: DeclarationIdentity | None = None,
     docstring: DocstringAnalysis | None = None,
+    is_ellipsis_only: bool = False,
+    statements: tuple[StatementAnalysis, ...] = tuple(),
 ) -> MethodAnalysis:
     if identity is None:
         identity = create_declaration_identity(name)
@@ -252,6 +259,8 @@ def create_method_analysis(
         return_type=None,
         visibility=Visibility.PUBLIC,
         location=location,
+        is_ellipsis_only=is_ellipsis_only,
+        statements=statements,
     )
 
 
@@ -335,7 +344,7 @@ def create_name_structure(name: str) -> NameStructureAnalysis:
 
 
 def create_type_analysis(
-    text: str, structure: ExpressionAnalysis | None = None
+    text: str, structure: StructureAnalysis | None = None
 ) -> TypeAnalysis:
     return TypeAnalysis(text=text, structure=structure)
 
@@ -382,7 +391,7 @@ def create_callable_structure(
 
 
 def create_call_structure(
-    function: ExpressionAnalysis, arguments: tuple[TypeExpression, ...]
+    function: StructureAnalysis, arguments: tuple[TypeExpression, ...]
 ) -> CallStructureAnalysis:
     return CallStructureAnalysis(function=function, arguments=arguments)
 

@@ -22,15 +22,17 @@ def commit_project_changes(
     project_path = WorkspaceRelativePath(
         project_context.project_root.relative_to(repository_root_path)
     )
-    result = ensure_project_workspace(repository_root_path, project_path)
-    if isinstance(result, Failure):
-        return result
-    project = result.unwrap()
+    workspace_result = ensure_project_workspace(repository_root_path, project_path)
+    if isinstance(workspace_result, Failure):
+        return workspace_result
+    project = workspace_result.unwrap()
 
-    result = create_snapshot(project_context=project_context, project_path=project_path)
-    if isinstance(result, Failure):
-        return result
-    current_snapshot = result.unwrap()
+    snapshot_result = create_snapshot(
+        project_context=project_context, project_path=project_path
+    )
+    if isinstance(snapshot_result, Failure):
+        return snapshot_result
+    current_snapshot = snapshot_result.unwrap()
 
     diff = diff_snapshot(previous=expected_snapshot, current=current_snapshot)
     if diff:

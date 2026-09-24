@@ -1,9 +1,17 @@
+import ast
+
 from griffe import Function
 from griffe import ParameterKind as GriffeParameterKind
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
+from gyomu_schema.schemas.python.type.expression import (
+    EllipsisExpressionAnalysis,
+    ExpressionStatementAnalysis,
+    StatementAnalysis,
+)
 
+from gyomu_python_analysis.analysis.analyzers.ast.statement import analyze_statement
 from gyomu_python_analysis.analysis.analyzers.context import (
     SymbolContext,
 )
@@ -26,10 +34,19 @@ def _get_function_parameter_kind(kind: GriffeParameterKind | None) -> ParameterK
     raise ValueError(f"Invalid Parameter Kind: {str(kind)}")
 
 
+def check_ellipsis_only(statements: list[StatementAnalysis]) -> bool:
+    return (
+        len(statements) == 1
+        and isinstance(statements[0], ExpressionStatementAnalysis)
+        and isinstance(statements[0].value, EllipsisExpressionAnalysis)
+    )
+
+
 def analyze_function(
     func: Function,
     name: str,
     context: SymbolContext,
+    ast: ast.FunctionDef | ast.AsyncFunctionDef,
     option: AnalysisOption | None = None,
 ) -> FunctionAnalysis:
     # for dec in func.decorators:
@@ -44,6 +61,12 @@ def analyze_function(
                 default=None,
             )
         )
+
+    statements: list[StatementAnalysis] = [
+        analyze_statement(statement, context, option, False) for statement in ast.body
+    ]
+    is_ellipsis_only = check_ellipsis_only(statements)
+
     # pprint(func.as_dict())
     func_common = build_symbol_common(
         symbol=func, name=name, context=context, option=option
@@ -56,4 +79,6 @@ def analyze_function(
         is_async="async" in func.labels,
         return_type=return_type,
         identity=context.declaration,
+        is_ellipsis_only=is_ellipsis_only,
+        statements=tuple(statements),
     )

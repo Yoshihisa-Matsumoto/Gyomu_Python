@@ -5,30 +5,37 @@ from typing import NewType
 from pydantic import BaseModel, ConfigDict
 
 DirectoryRelativePath = NewType("DirectoryRelativePath", Path)
+"""Represents a directory-relative path."""
+
 
 ProjectRelativePath = NewType("ProjectRelativePath", Path)
+"""Represents a project-relative path."""
+
 
 SourceRelativePath = NewType("SourceRelativePath", Path)
+"""Represents a source-relative path."""
+
 
 PythonPath = NewType("PythonPath", str)
+"""Represents a Python path string."""
+
 
 WorkspaceRelativePath = NewType("WorkspaceRelativePath", Path)
+"""Represents a workspace-relative path."""
+
 
 DeclarationId = NewType("DeclarationId", str)
+"""Represents a declaration identifier string."""
+
 
 SymbolId = NewType("SymbolId", str)
+"""Represents a symbol identifier string."""
 
 
 class DeclarationIdentity(BaseModel, Hashable):
-    """
-    Gyomu Context:
-        - symbol_id identifies the externally referenceable Symbol
-        that owns the declaration.
-        It uses the format "<module_name>::<symbol_name>" and
-        is shared by all declarations
-        belonging to the same Symbol.
+    """Represents a unique identity for a declaration within Gyomu context.
 
-        For example:
+    For example:
             gyomu_schema.schemas.python.user::User
 
         For a class Symbol, the same symbol_id is used for its variables,
@@ -55,15 +62,32 @@ class DeclarationIdentity(BaseModel, Hashable):
     """
 
     symbol_id: SymbolId
+    """The symbol ID component of the declaration identity."""
+
     declaration_id: DeclarationId
+    """The declaration ID component of the declaration identity."""
 
     model_config = ConfigDict(frozen=True)
 
     def __hash__(self) -> int:
+        """Computes the hash of the declaration identity.
+
+        Returns:
+            int: Hash value of the declaration identity.
+        """
         return hash((self.symbol_id, self.declaration_id))
 
 
 def is_declaration_identity_equal(
     a: DeclarationIdentity, b: DeclarationIdentity
 ) -> bool:
+    """Checks whether two declaration identities are equal.
+
+    Args:
+        a (DeclarationIdentity): First declaration identity to compare.
+        b (DeclarationIdentity): Second declaration identity to compare.
+
+    Returns:
+        bool: True if both declaration identities are equal, false otherwise.
+    """
     return a.symbol_id == b.symbol_id and a.declaration_id == b.declaration_id

@@ -6,15 +6,15 @@ from gyomu_schema.schemas.python.type.structure import (
 )
 from gyomu_schema.schemas.python.type.type_analysis import (
     CallStructureAnalysis,
-    ExpressionAnalysis,
     GenericsStructureAnalysis,
     KeywordStructureAnalysis,
+    StructureAnalysis,
     TypeExpression,
     UnionStructureAnalysis,
 )
 
 
-def _is_field_required(field_type: ExpressionAnalysis) -> bool:
+def _is_field_required(field_type: StructureAnalysis) -> bool:
     if isinstance(field_type, NoneStructureAnalysis):
         return False
     if isinstance(field_type, UnionStructureAnalysis):
@@ -31,7 +31,7 @@ def retrieve_str_value(value: TypeExpression) -> str | None:
 
 
 def analyze_pydantic(
-    field_type: ExpressionAnalysis, expression: TypeExpression
+    field_type: StructureAnalysis, expression: TypeExpression
 ) -> PydanticFieldAnalysis | None:
     is_required = _is_field_required(field_type)
 

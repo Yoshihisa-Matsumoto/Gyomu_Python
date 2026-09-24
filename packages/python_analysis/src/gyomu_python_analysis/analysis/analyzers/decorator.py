@@ -9,8 +9,8 @@ from gyomu_schema.schemas.python.type.structure import (
 from gyomu_schema.schemas.python.type.type_analysis import (
     AttributeStructureAnalysis,
     CallStructureAnalysis,
-    ExpressionAnalysis,
     KeywordStructureAnalysis,
+    StructureAnalysis,
     TypeExpression,
 )
 
@@ -57,20 +57,20 @@ def analyze_decorator(
 
 
 def _retrieve_expression_name(
-    expression: ExpressionAnalysis,
+    structure: StructureAnalysis,
 ) -> tuple[str, list[DecoratorArgument]]:
-    if isinstance(expression, NameStructureAnalysis):
-        return expression.name, []
-    elif isinstance(expression, AttributeStructureAnalysis):
-        return ".".join(_retrieve_attribute_names(expression)), []
-    elif isinstance(expression, CallStructureAnalysis):
-        name, _ = _retrieve_expression_name(expression.function)
+    if isinstance(structure, NameStructureAnalysis):
+        return structure.name, []
+    elif isinstance(structure, AttributeStructureAnalysis):
+        return ".".join(_retrieve_attribute_names(structure)), []
+    elif isinstance(structure, CallStructureAnalysis):
+        name, _ = _retrieve_expression_name(structure.function)
         arguments: list[DecoratorArgument] = []
-        for arg in expression.arguments:
+        for arg in structure.arguments:
             arguments.append(_retrieve_expression_argument(arg))
         return name, arguments
     else:
-        logger.error(f"Unsupported Expression: {expression.kind}")
+        logger.error(f"Unsupported Expression: {structure.kind}")
         return "", []
 
 

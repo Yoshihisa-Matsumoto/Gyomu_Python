@@ -43,10 +43,14 @@ def load_module_analysis(
         read_result = read_source_text(source_full_path)
         if isinstance(read_result, Failure):
             raise read_result.failure()
-        source_lines = read_result.unwrap().splitlines(keepends=True)
+        source = read_result.unwrap()
+        source_lines = source.splitlines(keepends=True)
 
         symbols = extract_symbols(
-            source_file=source_file, source_lines=source_lines, option=option
+            source_file=source_file,
+            source=source,
+            source_lines=source_lines,
+            option=option,
         )
         module_name = PythonPath(source_file.module.path)
         module_context = initialize_symbol_context(

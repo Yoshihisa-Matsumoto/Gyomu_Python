@@ -81,7 +81,7 @@ async def process_docstring_update(
         and option.debug_info.updated_symbol_docstring
     ):
         write_json(
-            Path("log") / "DocstringUpdateContext.json",
+            Path("log") / "UpdatedDocstrings.json",
             updated_docstrings,
             tuple[UpdatedDocstring, ...],
         )

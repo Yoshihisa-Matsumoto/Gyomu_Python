@@ -1,8 +1,10 @@
+import ast
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 from griffe import Attribute, Class, Function, TypeAlias
+from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
 from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
@@ -91,7 +93,7 @@ def create_file_deleted(previous: FileSnapshot) -> FileDeleted:
 
 def create_project_snapshot(
     files: tuple[FileSnapshot, ...] = tuple(),
-    project_root: WorkspaceRelativePath = WorkspaceRelativePath(
+    project_root: WorkspaceRelativePath = WorkspaceRelativePath(  # noqa: B008
         Path("projects/project_a")
     ),
 ) -> ProjectSnapshot:
@@ -101,7 +103,7 @@ def create_project_snapshot(
 def create_analyze_project_change(
     current_snapshot: ProjectSnapshot,
     project_id: str = "ABC",
-    snapshot_path: FullPath = FullPath(Path("/tmp")),
+    snapshot_path: FullPath = FullPath(Path("/tmp")),  # noqa: B008
     previous_snapshot: ProjectSnapshot | None = None,
     diff: tuple[FileChange, ...] = tuple(),
 ) -> AnalyzeProjectChangesResult:
@@ -132,7 +134,7 @@ class AnalysisTestBase:
     def _analyze_typealias_bases(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> TypeAliasAnalysis:
-        symbol, source_lines = self._analyze_symbol(
+        symbol, source_lines, source = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, TypeAlias)
@@ -147,22 +149,29 @@ class AnalysisTestBase:
     def _analyze_function_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> FunctionAnalysis:
-        symbol, source_lines = self._analyze_symbol(
+        symbol, source_lines, index = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Function)
+        assert symbol.lineno
+        ast_symbol = index.get(symbol.name)
+        # print(index.keys())
+        # print(symbol.name)
+        # print(repr(ast_symbol))
+        assert isinstance(ast_symbol, ast.FunctionDef | ast.AsyncFunctionDef)
         return analyze_function(
             func=symbol,
             name=symbol_name,
             context=initialize_symbol_context(
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
+            ast=ast_symbol,
         )
 
     def _analyze_variable_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> VariableAnalysis:
-        symbol, source_lines = self._analyze_symbol(
+        symbol, source_lines, index = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Attribute)
@@ -177,21 +186,29 @@ class AnalysisTestBase:
     def _analyze_class_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> ClassAnalysis:
-        symbol, source_lines = self._analyze_symbol(
+        symbol, source_lines, index = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Class)
+        assert symbol.lineno
+        ast_symbol = index.get(symbol.name)
+        assert isinstance(ast_symbol, ast.ClassDef)
         return analyze_class(
             cls=symbol,
             name=symbol_name,
             context=initialize_symbol_context(
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
+            ast=ast_symbol,
         )
 
     def _analyze_symbol(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
-    ) -> tuple[SymbolAnalysis, list[str]]:
+    ) -> tuple[
+        SymbolAnalysis,
+        list[str],
+        dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef],
+    ]:
         module_name = file_name
         context = self._read_module_fixture(module_name)
         module = context.source.module
@@ -205,11 +222,32 @@ class AnalysisTestBase:
             / context.project.source_root
             / context.source.path
         )
-        source_lines = source_full_path.read_text(
-            encoding="utf-8",
-        ).splitlines(keepends=True)
+        read_result = read_source_text(source_full_path)
+        if isinstance(read_result, Failure):
+            raise read_result.failure()
+        source = read_result.unwrap()
+        source_lines = source.splitlines(keepends=True)
+        tree = ast.parse(source=source, filename=module_name)
+        # index = _analyze_ast_module(source=source, source_path=module_name)
+        index: dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef] = (
+            self._build_class_function_index(tree)
+        )
 
-        return symbol, source_lines
+        return symbol, source_lines, index
+
+    def _build_class_function_index(
+        self,
+        tree: ast.Module | ast.ClassDef,
+        index: dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef] = {},
+    ) -> dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]:
+
+        for child in ast.iter_child_nodes(tree):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                key = child.name
+                index[key] = child
+            if isinstance(child, ast.ClassDef):
+                self._build_class_function_index(child, index)
+        return index
 
     def _read_module_fixture(self, module_path: PythonPath) -> BaseContext:
         context = _create_context()

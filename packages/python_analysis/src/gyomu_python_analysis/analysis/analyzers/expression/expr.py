@@ -29,11 +29,11 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     CallableStructureAnalysis,
     CallStructureAnalysis,
     DictionaryStructureAnalysis,
-    ExpressionAnalysis,
     GenericsStructureAnalysis,
     KeywordStructureAnalysis,
     LiteralStructureAnalysis,
     SetStructureAnalysis,
+    StructureAnalysis,
     TupleStructureAnalysis,
     TypeExpression,
     UnionStructureAnalysis,
@@ -48,7 +48,7 @@ def analyze_expression(
     context: SymbolContext,
     option: AnalysisOption | None,
     need_registration_dependency: bool = True,
-) -> ExpressionAnalysis:
+) -> StructureAnalysis:
     if isinstance(expression, ExprName):
         return analyze_expression_name(
             expression, context, need_registration_dependency
@@ -189,7 +189,7 @@ def analyze_subscript(
     expression: ExprSubscript,
     context: SymbolContext,
     option: AnalysisOption | None,
-) -> ExpressionAnalysis:
+) -> StructureAnalysis:
     # print(expression.as_dict())
     # print(f"canonical_name  : {expression.canonical_name}")
     # print(f"canonical_path  : {expression.canonical_path}")

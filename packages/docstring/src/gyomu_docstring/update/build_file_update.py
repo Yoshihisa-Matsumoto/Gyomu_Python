@@ -73,8 +73,9 @@ def _build_file_update_plan_entries(
 
         if isinstance(result, Failure):
             return result
-
-        entries.append(result.unwrap())
+        entry = result.unwrap()
+        if entry:
+            entries.append(entry)
 
     return Success(tuple(entries))
 
@@ -124,7 +125,7 @@ def build_file_update_plan_entry(
     source: str,
     context: FileAnalysisContext,
     rendered: RenderedSymbolDocstring,
-) -> Result[FileUpdatePlanEntry, ValidationError]:
+) -> Result[FileUpdatePlanEntry | None, ValidationError]:
     analysis = context.metadata.symbols.get(rendered.identity)
 
     if analysis is None:
@@ -167,8 +168,10 @@ def build_addition_entry(
     source: str,
     analysis: SymbolAnalysis | MemberAnalysis,
     rendered: RenderedSymbolDocstring,
-) -> Result[FileUpdatePlanEntry, ValidationError]:
-    assert rendered.docstring
+) -> Result[FileUpdatePlanEntry | None, ValidationError]:
+    if not rendered.docstring:
+        return Success(None)
+
     assert analysis.location
 
     # TODO: 追加するdocstringはシンボルの直前ではなく、

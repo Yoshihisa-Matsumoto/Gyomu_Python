@@ -18,3 +18,5 @@ def parameters(
 
 async def test_async() -> str:
     return "a"
+
+async def abstract()->str:...

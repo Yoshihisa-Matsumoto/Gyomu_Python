@@ -9,10 +9,10 @@ class ExecutionTimer:
     """Measures execution duration and completion timestamps."""
 
     started_at: datetime
-    """   The datetime when the timer was started."""
+    """The datetime when the timer was started."""
 
     _started_monotonic: float
-    """   The monotonic timestamp when the timer was started."""
+    """The monotonic timestamp when the timer was started."""
 
     @classmethod
     def start(cls) -> Self:

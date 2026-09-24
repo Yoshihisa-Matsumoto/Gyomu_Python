@@ -9,11 +9,13 @@ from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.models import SnapshotRequest, SnapshotTarget
+from gyomu_workflow.snapshot.normalize import normalize_filter
 from gyomu_workflow.snapshot.run_docstring import run_docstring_action
 from gyomu_workflow.snapshot.target import resolve_snapshot_target
 
 
 async def run_snapshot(request: SnapshotRequest) -> Result[None, GyomuError]:
+    request.option.target.file_filter = normalize_filter(request.option.target)
     target_result = resolve_snapshot_target(
         repository_root_path=request.repository_root_path,
         project_context=request.project_context,

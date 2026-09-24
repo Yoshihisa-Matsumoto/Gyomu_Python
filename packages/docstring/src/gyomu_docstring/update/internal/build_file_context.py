@@ -27,6 +27,7 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringSection,
 )
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
+from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
@@ -46,9 +47,16 @@ def build_docstring_file_context(
                 source=source,
             )
             for symbol in file_context.analysis.symbols
+            if is_docstring_target(symbol)
         ),
         retry=None,
     )
+
+
+def is_docstring_target(symbol: SymbolAnalysis) -> bool:
+    if isinstance(symbol, FunctionAnalysis):
+        return not symbol.is_ellipsis_only
+    return True
 
 
 def build_docstring_declaration_context(
@@ -74,6 +82,9 @@ def is_documentable_child_entry(cls: ClassBase, member: MemberAnalysis) -> bool:
     is_pydantic = is_base_class_pydantic(list(cls.bases))
     if not is_pydantic:
         return True
+    if member.kind == DeclarationKind.METHOD and member.is_ellipsis_only:
+        return False
+
     return not (
         member.kind == DeclarationKind.VARIABLE and member.name == "model_config"
     )

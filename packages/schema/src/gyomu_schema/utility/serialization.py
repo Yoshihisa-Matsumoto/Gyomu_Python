@@ -5,7 +5,7 @@ from returns.result import Failure, Result, Success
 from gyomu_schema.error.validation import ValidationError
 
 type JsonableType = BaseModel | list[BaseModel] | tuple[BaseModel, ...]
-"""   Type alias representing a Pydantic BaseModel or a collection of BaseModels."""
+"""Type alias representing a Pydantic BaseModel or a collection of BaseModels."""
 
 
 def dump_json[T](

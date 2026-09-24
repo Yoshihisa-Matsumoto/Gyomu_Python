@@ -169,7 +169,7 @@ def test_analyze_project_changes_read_snapshot_failure(mocker, tmp_path):
 
     project_root.mkdir(parents=True)
 
-    project_path = WorkspaceRelativePath(Path("packages/example"))
+    WorkspaceRelativePath(Path("packages/example"))
 
     snapshot_path = FullPath(
         repository_root / ".gyomu" / "snapshot" / "project-id" / "file-hashes.json"

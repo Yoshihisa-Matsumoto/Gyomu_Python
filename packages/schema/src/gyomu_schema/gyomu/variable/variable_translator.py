@@ -82,34 +82,34 @@ class VariableTranslator(Protocol):
         input_string: str,
         target_date: date,
         market: str,
-    ) -> Result[str, DatabaseError | ValidationError]: ...
+    ) -> Result[str, DatabaseError | ValidationError]:
+        """
+        Gyomu Context:
+        Translates variable expressions enclosed by ``{%`` and ``%}``
+        within the input string.
 
-    """
-    Gyomu Context:
-      Translates variable expressions enclosed by ``{%`` and ``%}``
-      within the input string.
-
-      Example:
-          ``"Date: {%JP$2$NEXTBUS$yyyyMMdd%}"``
-    """
+        Example:
+            ``"Date: {%JP$2$NEXTBUS$yyyyMMdd%}"``
+        """
+        ...
 
     def parse_date(
         self,
         keyword: str,
         target_date: date,
         market: str,
-    ) -> Result[date, DatabaseError | ValidationError]: ...
+    ) -> Result[date, DatabaseError | ValidationError]:
+        """
+        Gyomu Context:
+        Translates a date keyword expression into a date.
 
-    """
-    Gyomu Context:
-      Translates a date keyword expression into a date.
+        The expression does not include the ``{%`` and ``%}`` delimiters.
 
-      The expression does not include the ``{%`` and ``%}`` delimiters.
+        The syntax is::
 
-      The syntax is::
+            <Market>$<Factor Index>$<Keyword>
+            <Market>$<Keyword>
 
-          <Market>$<Factor Index>$<Keyword>
-          <Market>$<Keyword>
-
-      ``<Factor Index>`` must immediately precede ``<Keyword>``.
-    """
+        ``<Factor Index>`` must immediately precede ``<Keyword>``.
+        """
+        ...
