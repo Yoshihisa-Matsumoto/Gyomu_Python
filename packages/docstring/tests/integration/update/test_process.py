@@ -3,9 +3,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
-from gyomu_ai.provider.pydantic_ai.google import (
-    create_default_pydantic_ai_model_registry,
-)
+from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
 from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
     DocstringUpdatePlan,
 )
@@ -25,6 +23,7 @@ from gyomu_schema.utility.fromatting import format_object
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
+from packages.ai.ai_test_support.helper import register_test_google_routing
 from packages.docstring.docstring_test_support.helper import (
     FIXTURES_ROOT,
     assert_text_file_equals,
@@ -151,7 +150,7 @@ async def test_update_with_real_llm(
     project_dot_env: Path,
 ) -> None:
     try:
-        create_default_pydantic_ai_model_registry(project_dot_env)
+        register_test_google_routing(project_dot_env, [DocstringRouteId])
     except ConfigError:
         pytest.skip("GEMINI_API_KEY is not configured")
 

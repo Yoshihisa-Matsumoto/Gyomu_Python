@@ -40,9 +40,19 @@ class SourceLocation(BaseModel):
     """
 
     start_line: int
+    """Starting line number (1-based)."""
+
     start_column: int
+    """Starting column offset (0-based)."""
+
     start_offset: int
+    """Starting character offset in the source string (0-based)."""
 
     end_line: int
+    """Ending line number (1-based)."""
+
     end_column: int
+    """Ending column offset (0-based)."""
+
     end_offset: int
+    """Ending character offset in the source string (0-based)."""

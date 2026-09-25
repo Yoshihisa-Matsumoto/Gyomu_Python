@@ -34,7 +34,7 @@ def resolve_snapshot_target(
         )
     change_result = result.unwrap()
 
-    if not option.file_filter:
+    if option.file_filter is None:
         diff = change_result.diff
         return Success(
             SnapshotTarget(

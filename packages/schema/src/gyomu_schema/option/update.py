@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 
 from gyomu_schema.option.analysis import AnalysisDebugInfoOption, AnalysisOption
 from gyomu_schema.option.execution import ExecutionOption
-from gyomu_schema.option.retry import RetryOption
 
 
 @dataclass(frozen=True)
@@ -50,8 +49,5 @@ class UpdateOption(AnalysisOption):
     action: UpdateActionOption = field(
         default_factory=UpdateActionOption,
     )
-    """
-    """
-    retry_option: RetryOption | None = None
     """
     """

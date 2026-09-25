@@ -100,6 +100,7 @@ def test_renders_blank_when_summary_is_none() -> None:
 
     assert result == (
         DocstringBlank(),
+        DocstringBlank(),
         DocstringSectionItem(text="Args:"),
         DocstringText(text="    user_id (int): User identifier."),
     )
@@ -632,13 +633,20 @@ def test_wrap_docstring_item(
 def test_render_item_summary(
     text: str, line_length: int, expected: tuple[str, ...], declaration_indent: int
 ) -> None:
-    updated = create_updated_docstring(summary=text, indent=declaration_indent)
+    updated = create_updated_docstring(
+        summary=text, indent=declaration_indent, description="test"
+    )
 
     result = render_docstring_lines(updated, line_length)
-    expected_value: tuple[DocstringLine, ...] = tuple(
+    description_items: list[DocstringLine] = [
+        DocstringBlank(),
+        DocstringText(text="test"),
+    ]
+    summary_items: list[DocstringLine] = [
         DocstringBlank() if item == "" else DocstringText(text=item)
         for item in expected
-    )
+    ]
+    expected_value: tuple[DocstringLine, ...] = tuple(summary_items + description_items)
     assert result == expected_value
 
 
@@ -1256,9 +1264,57 @@ def test_wrap_docstring_summary(
     expected: tuple[str, ...],
 ) -> None:
     assert (
+        wrap_docstring_summary(summary, line_length=line_length, no_other_section=False)
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    ("summary", "line_length", "no_other_section", "expected"),
+    [
+        (
+            "Short summary.",
+            30,
+            True,
+            ("Short summary.",),
+        ),
+        (
+            "This is a summary.",
+            25,
+            True,
+            ("This is a summary.",),
+        ),
+        (
+            "This is a summary.",
+            23,
+            True,
+            ("This is a", "summary."),
+        ),
+        (
+            "This is a summary.",
+            25,
+            False,
+            ("This is a summary.",),
+        ),
+        (
+            "This is a very long summary.",
+            20,
+            True,
+            ("This is a very", "long summary."),
+        ),
+    ],
+)
+def test_wrap_docstring_summary2(
+    summary: str,
+    line_length: int,
+    no_other_section: bool,
+    expected: tuple[str, ...],
+) -> None:
+    assert (
         wrap_docstring_summary(
             summary,
             line_length=line_length,
+            no_other_section=no_other_section,
         )
         == expected
     )

@@ -35,7 +35,6 @@ async def build_docstring_update_plan_with_retry(
     for attempt in range(5):
         plan_result = await generate_docstring_update_plan(
             current_context,
-            option.retry_option if option else None,
         )
 
         if not is_successful(plan_result):

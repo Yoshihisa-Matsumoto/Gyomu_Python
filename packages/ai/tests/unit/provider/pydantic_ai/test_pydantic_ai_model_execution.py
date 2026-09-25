@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, call
 
 import pytest
 from gyomu_ai.execution.context import AiExecutionContext, AiModelContext
+from gyomu_ai.execution.observer import register_retry_observer
 from gyomu_ai.execution.parameter import (
     AiEmbeddingMode,
     EmbedParams,
@@ -71,6 +72,9 @@ def model_registry() -> PydanticAiModelRegistry:
     )
 
 
+_retry_option = RetryOption(max_attempts=0)
+
+
 class TestPydanticAiModelExecution_SelectModel:
     @pytest.mark.parametrize(
         ("key", "factory_name"),
@@ -87,7 +91,7 @@ class TestPydanticAiModelExecution_SelectModel:
         factory_name: str,
         model_registry: PydanticAiModelRegistry,
     ) -> None:
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         context = MagicMock(spec=AiModelContext)
 
@@ -101,7 +105,7 @@ class TestPydanticAiModelExecution_SelectModel:
         self,
         model_registry: PydanticAiModelRegistry,
     ) -> None:
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         with pytest.raises(ValueError, match="Embedding model cannot be used"):
             execution._select_model(
@@ -110,9 +114,7 @@ class TestPydanticAiModelExecution_SelectModel:
             )
 
 
-dummy_execution_context = AiExecutionContext(
-    retry_option=RetryOption(max_attempts=0, observer=None)
-)
+dummy_execution_context = AiExecutionContext(retry_option=RetryOption(max_attempts=0))
 
 
 class TestPydanticAiModelExecution_GenerateText:
@@ -175,7 +177,7 @@ class TestPydanticAiModelExecution_GenerateText:
             MagicMock(return_value=mapped_result),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema().with_request(
             MessageSchema.user_text("request")
@@ -256,7 +258,7 @@ class TestPydanticAiModelExecution_GenerateText:
             create_agent,
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema().with_request(
             MessageSchema.user_text("request")
@@ -326,7 +328,7 @@ class TestPydanticAiModelExecution_GenerateText:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema().with_request(
             MessageSchema.user_text("Add two numbers.")
@@ -405,7 +407,7 @@ class TestPydanticAiModelExecution_GenerateText:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema().with_request(
             MessageSchema.user_text("Add two numbers.")
@@ -490,7 +492,7 @@ class TestPydanticAiModelExecution_GenerateText:
             MagicMock(return_value=mapped_result),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, RetryOption(2))
 
         conversation = ConversationSchema().with_request(
             MessageSchema.user_text("request")
@@ -501,7 +503,6 @@ class TestPydanticAiModelExecution_GenerateText:
             execution=AiExecutionContext(
                 retry_option=RetryOption(
                     max_attempts=1,
-                    observer=None,
                 ),
             ),
         )
@@ -577,7 +578,7 @@ class TestPydanticAiModelExecution_GenerateObject:
             MagicMock(return_value=mapped_result),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema()
 
@@ -658,7 +659,7 @@ class TestPydanticAiModelExecution_GenerateObject:
             create_agent,
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema()
 
@@ -728,7 +729,7 @@ class TestPydanticAiModelExecution_GenerateObject:
             tools=[tool],
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema().with_request(
             MessageSchema.user_text("Use the add tool to calculate a value.")
@@ -820,7 +821,7 @@ class TestPydanticAiModelExecution_StreamText:
             create_agent,
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema()
 
@@ -907,7 +908,7 @@ class TestPydanticAiModelExecution_StreamText:
             create_agent,
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema()
 
@@ -1024,7 +1025,7 @@ class TestPydanticAiModelExecution_StreamText:
             tools=[tool],
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         conversation = ConversationSchema()
 
@@ -1086,7 +1087,7 @@ class TestPydanticAiModelExecution_Embed:
             MagicMock(return_value=mapped_result),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         params = EmbedParams(
             execution=dummy_execution_context,
@@ -1142,7 +1143,7 @@ class TestPydanticAiModelExecution_Embed:
             embedding=embedding_factory,
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
 
         params = EmbedParams(
             execution=dummy_execution_context,
@@ -1301,6 +1302,10 @@ class TestPydanticAiToolCall:
         assert result.output is not None
 
 
+_retry_three_option = RetryOption(3)
+_retry_two_option = RetryOption(2)
+
+
 class TestPydanticAiModelExecution_ExecuteWithRetry:
     @pytest.mark.asyncio
     async def test_success(self) -> None:
@@ -1313,7 +1318,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_three_option)
         action = AsyncMock(return_value="success")
 
         result = await execution._execute_with_retry(
@@ -1321,7 +1326,6 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             model="test-model",
             model_key="test",
             action=action,
-            execution=AiExecutionContext(),
         )
 
         assert isinstance(result, Success)
@@ -1341,7 +1345,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_three_option)
         sleep = AsyncMock()
         monkeypatch.setattr(
             "gyomu_ai.provider.pydantic_ai.execution.asyncio.sleep",
@@ -1369,19 +1373,11 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
 
         monkeypatch.setattr(execution, "_execute", execute)
 
-        execution_context = AiExecutionContext(
-            retry_option=RetryOption(
-                max_attempts=1,
-                observer=None,
-            ),
-        )
-
         result = await execution._execute_with_retry(
             operation=AiOperation.GENERATE,
             model="test-model",
             model_key="test",
             action=AsyncMock(),
-            execution=execution_context,
         )
 
         assert isinstance(result, Success)
@@ -1398,7 +1394,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
         error = AiError(
             "temporary error",
@@ -1420,19 +1416,11 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
 
         monkeypatch.setattr(execution, "_execute", execute)
 
-        execution_context = AiExecutionContext(
-            retry_option=RetryOption(
-                max_attempts=2,
-                observer=None,
-            ),
-        )
-
         result = await execution._execute_with_retry(
             operation=AiOperation.GENERATE,
             model="test-model",
             model_key="test",
             action=AsyncMock(),
-            execution=execution_context,
         )
 
         assert isinstance(result, Success)
@@ -1452,7 +1440,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_two_option)
 
         error = AiError(
             "rate limit",
@@ -1475,19 +1463,11 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
 
         monkeypatch.setattr(execution, "_execute", execute)
 
-        execution_context = AiExecutionContext(
-            retry_option=RetryOption(
-                max_attempts=2,
-                observer=None,
-            ),
-        )
-
         result = await execution._execute_with_retry(
             operation=AiOperation.GENERATE,
             model="test-model",
             model_key="test",
             action=AsyncMock(),
-            execution=execution_context,
         )
 
         assert isinstance(result, Failure)
@@ -1507,7 +1487,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
         error = AiError(
             "invalid api key",
@@ -1524,19 +1504,11 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
 
         monkeypatch.setattr(execution, "_execute", execute)
 
-        execution_context = AiExecutionContext(
-            retry_option=RetryOption(
-                max_attempts=3,
-                observer=None,
-            ),
-        )
-
         result = await execution._execute_with_retry(
             operation=AiOperation.GENERATE,
             model="test-model",
             model_key="test",
             action=AsyncMock(),
-            execution=execution_context,
         )
 
         assert isinstance(result, Failure)
@@ -1556,7 +1528,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
         error = AiError(
             "rate limit",
@@ -1584,19 +1556,11 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             sleep,
         )
 
-        execution_context = AiExecutionContext(
-            retry_option=RetryOption(
-                max_attempts=1,
-                observer=None,
-            ),
-        )
-
         result = await execution._execute_with_retry(
             operation=AiOperation.GENERATE,
             model="test-model",
             model_key="test",
             action=AsyncMock(),
-            execution=execution_context,
         )
 
         assert isinstance(result, Success)
@@ -1618,7 +1582,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
         error = AiError(
             "temporary error",
@@ -1648,19 +1612,11 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             sleep,
         )
 
-        execution_context = AiExecutionContext(
-            retry_option=RetryOption(
-                max_attempts=3,
-                observer=None,
-            ),
-        )
-
         result = await execution._execute_with_retry(
             operation=AiOperation.GENERATE,
             model="test-model",
             model_key="test",
             action=AsyncMock(),
-            execution=execution_context,
         )
 
         assert isinstance(result, Success)
@@ -1686,7 +1642,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
             embedding=lambda _: MagicMock(),
         )
 
-        execution = PydanticAiModelExecution(model_registry)
+        execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
         error = AiError(
             "rate limit",
@@ -1716,20 +1672,13 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         )
 
         observer = MagicMock()
-
-        execution_context = AiExecutionContext(
-            retry_option=RetryOption(
-                max_attempts=2,
-                observer=observer,
-            ),
-        )
+        register_retry_observer(observer)
 
         result = await execution._execute_with_retry(
             operation=AiOperation.GENERATE,
             model="test-model",
             model_key="test",
             action=AsyncMock(),
-            execution=execution_context,
         )
 
         assert isinstance(result, Success)

@@ -30,6 +30,7 @@ class ExpressionKind(StrEnum):
     AWAIT = "await"
     DICTIONARYCOMPARE = "dict_compare"
     LISTCOMPARE = "list_compare"
+    STARRED = "starred"
 
 
 class UnknownExpressionAnalysis(BaseModel):
@@ -118,7 +119,13 @@ type ExpressionAnalysis = (
     | DictionaryCompareExpressionAnalysis
     | ListCompareExpressionAnalysis
     | UnaryOpExpressionAnalysis
+    | StarredExpressionAnalysis
 )
+
+
+class StarredExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.STARRED
+    value: ExpressionAnalysis
 
 
 class KeywordAnalysis(BaseModel):

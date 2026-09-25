@@ -5,8 +5,14 @@ from pathlib import Path, PurePosixPath
 
 
 class FileInfo:
+    """Represents file metadata and attributes including path, size, extension, and
+    timestamps.
+    """
+
     @staticmethod
     def epoch_to_datetimeutc(epoch: float) -> datetime:
+        """Converts an epoch timestamp to a UTC datetime object."""
+
         return datetime.fromtimestamp(epoch, tz=UTC)
 
     file_name: str
@@ -33,6 +39,8 @@ class FileInfo:
 
 
 class FileFilterType(Enum):
+    """Defines file filtering criteria types such as file name and timestamps."""
+
     FILE_NAME = "file_name"
     """Filter by file name."""
 
@@ -47,6 +55,8 @@ class FileFilterType(Enum):
 
 
 class FileCompareType(Enum):
+    """Defines comparison operators for file filtering."""
+
     EQUAL = "equal"
     """Equal comparison operator."""
 
@@ -64,6 +74,10 @@ class FileCompareType(Enum):
 
 
 class FileFilterInfo:
+    """Holds filter configuration details including filter type, comparison operator,
+    and target values or dates.
+    """
+
     name_filter: str
     """Filter string for file name matching."""
 
@@ -92,51 +106,8 @@ class FileFilterInfo:
 
 
 class FileTransportInfo:
-    """Base        Sdir    Sname   Ddir    Dname           (S)full+base        (S)Full
-    (S)path (S)name (D)full         (D)path (D)name
-    x           x           x       x       x               base/SDir/Sname
-    SDir/Sname  SDir    Sname   Ddir/Dname      Ddir    Dname
-    x           x       x           x                   base/SDir/Sname     SDir/Sname
-    SDir    Sname   Ddir/Sname      Ddir    Sname
-    x           x           x                   x               base/SDir/Sname
-    SDir/Sname  SDir    Sname   SDir/Dname      Sdir    Dname
-    x           x           x                           base/SDir/Sname     SDir/Sname
-    SDir    Sname   SDir/Sname      SDir    Sname
-    x           x               x                       base/SDir                 SDir
-    SDir                      Ddir          Ddir
-    x           x                                                       base/SDir
-    SDir        SDir                      SDir          SDir
-    x                                                                   base
-    x                           x                               base
-    Ddir              Ddir
-    x                   x       x       x               base/Sname              Sname
-    Sname         Ddir/Dname    Ddir      Dname
-    x                   x           x                           base/Sname
-    Sname                       Sname         Ddir/Sname    Ddir      Sname
-    x                   x                       x               base/Sname
-    Sname                       Sname         Dname                     Dname
-    x                   x                                       base/Sname
-    Sname                       Sname         Sname                     Sname
-          x     x       x           x                             SDir/Sname    SDir
-    Sname   Ddir/Dname    Ddir      Dname
-          x         x       x
-    SDir/Sname    SDir      Sname   Ddir/Sname    Ddir      Sname
-          x         x                   x
-    SDir/Sname        SDir      Sname   SDir/Dname    SDir      Dname
-          x         x
-    SDir/Sname        SDir      Sname   SDir/Sname    SDir      Sname
-          x                     x
-    SDir        SDir                  Ddir              Ddir
-          x
-    SDir        SDir                      SDir          SDir
-                x           x       x                                         Sname
-    Sname         Ddir/Dname    Ddir      Dname
-                x           x                                                     Sname
-    Sname         Ddir/Sname    Ddir      Sname
-                x                       x
-    Sname                         Sname         Dname                     Dname
-                x
-    Sname                         Sname         Sname                     Sname
+    """Holds information for file transport operations including source, destination,
+    and filter conditions.
     """
 
     __source_filename: str
@@ -154,9 +125,13 @@ class FileTransportInfo:
 
     """Gets a value indicating whether the source is a directory."""
 
+    """Gets a value indicating whether the source is a directory."""
+
     @property
     def is_destination_directory(self) -> bool:
         return not self.destination_filename
+
+    """Gets a value indicating whether the destination is a directory."""
 
     """Gets a value indicating whether the destination is a directory."""
 
@@ -168,6 +143,8 @@ class FileTransportInfo:
 
     """Gets a value indicating whether the destination is at the root."""
 
+    """Gets a value indicating whether the destination is at the root."""
+
     @property
     def source_fullname(self) -> str:
         if not self.__source_folder_name:
@@ -175,6 +152,8 @@ class FileTransportInfo:
         if not self.__source_filename:
             return self.__source_folder_name
         return str(PurePosixPath(self.__source_folder_name) / self.__source_filename)
+
+    """Gets the full source path."""
 
     """Gets the full source path."""
 
@@ -190,15 +169,21 @@ class FileTransportInfo:
 
     """Gets the full source path including the base path."""
 
+    """Gets the full source path including the base path."""
+
     @property
     def source_path(self) -> str:
         return self.__source_folder_name
 
     """Gets the source folder path."""
 
+    """Gets the source folder path."""
+
     @property
     def source_filename(self) -> str:
         return self.__source_filename
+
+    """Gets the source filename."""
 
     """Gets the source filename."""
 
@@ -212,6 +197,8 @@ class FileTransportInfo:
 
     """Gets the destination filename."""
 
+    """Gets the destination filename."""
+
     @property
     def destination_path(self) -> str:
         return (
@@ -222,6 +209,8 @@ class FileTransportInfo:
 
     """Gets the destination folder path."""
 
+    """Gets the destination folder path."""
+
     @property
     def destination_fullname(self) -> str:
         if not self.destination_path:
@@ -229,6 +218,8 @@ class FileTransportInfo:
         if not self.destination_filename:
             return self.destination_path
         return str(PurePosixPath(self.destination_path) / self.destination_filename)
+
+    """Gets the full destination path."""
 
     """Gets the full destination path."""
 
@@ -264,6 +255,8 @@ class FileTransportInfo:
 
 
 class FileArchiveType(Enum):
+    """Defines supported archive formats and auto-detection options."""
+
     ZIP = ("zip",)
     """ZIP archive format."""
 

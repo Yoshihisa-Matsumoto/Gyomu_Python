@@ -17,6 +17,7 @@ from gyomu_ai.tool.ai_tool import (
 )
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
+from gyomu_schema.option.retry import RetryOption
 from pydantic import BaseModel
 from returns.result import Success
 
@@ -35,7 +36,7 @@ class GetValueConfig(BaseModel):
 @pytest.mark.asyncio
 async def test_stream_text(registry: PydanticAiModelRegistry) -> None:
 
-    execution = PydanticAiModelExecution(registry)
+    execution = PydanticAiModelExecution(registry, RetryOption(3))
 
     conversation = ConversationSchema().with_request(
         MessageSchema.user_text("3000文字ぐらいの小説を書いて")
@@ -61,7 +62,7 @@ async def test_stream_text(registry: PydanticAiModelRegistry) -> None:
 @pytest.mark.asyncio
 async def test_stream_text_with_tool(registry: PydanticAiModelRegistry) -> None:
 
-    execution = PydanticAiModelExecution(registry)
+    execution = PydanticAiModelExecution(registry, RetryOption(3))
 
     async def get_value(
         input: GetValueInput,

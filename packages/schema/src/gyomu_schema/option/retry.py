@@ -31,6 +31,3 @@ class RetryOption:
 
     max_attempts: int | None
     """The maximum number of retry attempts allowed."""
-
-    observer: RetryObserver | None
-    """The retry observer instance for tracking retry events."""

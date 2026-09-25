@@ -270,11 +270,10 @@ class TestGenerateDocstringUpdatePlan:
             return_value=execution,
         )
 
-        retry_option = RetryOption(max_attempts=3, observer=None)
+        retry_option = RetryOption(max_attempts=3)
 
         await generate_docstring_update_plan(
             context,
-            retry_option=retry_option,
         )
 
         assert execution.generate_object.await_args

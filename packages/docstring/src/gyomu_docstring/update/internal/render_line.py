@@ -27,21 +27,10 @@ from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 def render_docstring_lines(
     updated: UpdatedDocstring, formatter_line_length: int
 ) -> tuple[DocstringLine, ...]:
+    summary_lines: list[DocstringLine] = []
     lines: list[DocstringLine] = []
     docstring = updated.docstring
     target_line_length = formatter_line_length - updated.docstring.indent
-
-    if docstring.summary is not None:
-        for item in wrap_docstring_summary(
-            docstring.summary,
-            line_length=target_line_length,
-        ):
-            if item == "":
-                lines.append(DocstringBlank())
-            else:
-                lines.append(DocstringText(text=item))
-    else:
-        lines.append(DocstringBlank())
 
     if docstring.description is not None and docstring.description != "":
         lines.append(DocstringBlank())
@@ -73,7 +62,21 @@ def render_docstring_lines(
             case DocstringSectionKind.CUSTOM_LIST:
                 compute_custom_list_tag(section, lines, docstring.style)
 
-    return tuple(lines)
+    if docstring.summary is not None:
+        for item in wrap_docstring_summary(
+            docstring.summary,
+            line_length=target_line_length,
+            no_other_section=len(lines) == 0,
+        ):
+            if item == "":
+                summary_lines.append(DocstringBlank())
+            else:
+                summary_lines.append(DocstringText(text=item))
+    else:
+        if len(lines) > 0:
+            summary_lines.append(DocstringBlank())
+
+    return tuple(summary_lines + lines)
 
 
 def compute_custom_list_tag(
@@ -270,11 +273,11 @@ def wrap_text(
 
 
 def wrap_docstring_summary(
-    summary: str,
-    *,
-    line_length: int,
+    summary: str, *, line_length: int, no_other_section: bool
 ) -> tuple[str, ...]:
-    first_line_indent = " " * len('"""')
+    first_line_indent = '"""'
+    first_line_width = line_length - (len('"""') if no_other_section else 0)
+
     lines: list[str] = []
     is_first_output_line = True
 
@@ -285,7 +288,7 @@ def wrap_docstring_summary(
             if is_first_output_line:
                 wrapped = wrap(
                     line,
-                    width=line_length,
+                    width=first_line_width,
                     initial_indent=first_line_indent,
                     subsequent_indent="",
                     break_long_words=False,

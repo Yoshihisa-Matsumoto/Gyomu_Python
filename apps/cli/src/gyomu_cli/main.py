@@ -1,7 +1,19 @@
 import asyncio
 
 import typer
+from gyomu_ai.provider.pydantic_ai.google import (
+    create_default_pydantic_ai_model_registry,
+)
+from gyomu_ai.provider.pydantic_ai.route_registry import AiConfiguration, initialize_ai
+from gyomu_ai.provider.pydantic_ai.routing import (
+    ModelRoute,
+    ModelRouteId,
+    ModelRoutes,
+    RouteNode,
+)
+from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
 from gyomu_infra.logger import logger
+from gyomu_schema.option.retry import RetryObserver
 from gyomu_workflow.snapshot.models import (
     DocstringExecutionOption,
     FileFilter,
@@ -36,6 +48,21 @@ def greet3(name: str = "World") -> None:
     print(f"Hello, {name}!")
 
 
+def register_google_routing(
+    route_id_list: list[ModelRouteId],
+    retry_observer: RetryObserver | None = None,
+):
+    route: RouteNode = RouteNode(registry=create_default_pydantic_ai_model_registry())
+    routes: dict[ModelRouteId, ModelRoute] = {}
+    for route_id in route_id_list:
+        routes[route_id] = ModelRoute((route,))
+    initialize_ai(
+        AiConfiguration(
+            model_routes=ModelRoutes(routes=routes), retry_observer=retry_observer
+        )
+    )
+
+
 @app.command()
 def snapshot(
     package: str,
@@ -45,7 +72,7 @@ def snapshot(
     filter: str | None = None,
     log_keyword: str | None = None,
 ) -> None:
-
+    register_google_routing(route_id_list=[DocstringRouteId])
     option = SnapshotExecutionOption(
         commit=commit,
         target=SnapshotTargetOption(

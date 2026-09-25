@@ -13,10 +13,11 @@ from gyomu_ai.execution.result import (
     AiTextStream,
 )
 from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
+from gyomu_ai.provider.pydantic_ai.route_registry import _get_model_route
 from gyomu_ai.provider.pydantic_ai.routing import (
     ModelRouteId,
     ModelRouteTableId,
-    _get_model_route,
+    RouteNode,
 )
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.error.ai import AiError, AiFallbackResolution
@@ -32,6 +33,18 @@ class PydanticAiRoutingExecution:
     ) -> None:
         self.route = _get_model_route(route_id=route_id, route_table_id=route_table_id)
 
+    async def run_node[A](
+        self,
+        node: RouteNode,
+        execute: Callable[
+            [PydanticAiModelExecution],
+            Awaitable[Result[A, AiError]],
+        ],
+    ) -> Result[A, AiError]:
+        return await execute(
+            PydanticAiModelExecution(node.registry, retry_option=node.retry_option)
+        )
+
     async def run_with_model_route[A](
         self,
         execute: Callable[
@@ -42,7 +55,7 @@ class PydanticAiRoutingExecution:
         last_error: AiError | None = None
 
         for node in self.route.nodes:
-            result = await execute(PydanticAiModelExecution(node.registry))
+            result = await self.run_node(node, execute)
 
             if isinstance(result, Success):
                 return result
@@ -89,4 +102,5 @@ class PydanticAiRoutingExecution:
         self,
         params: EmbedParams[T],
     ) -> Result[AiEmbeddingResult, AiError]:
-        return await self.run_with_model_route(lambda service: service.embed(params))
+        default_node = self.route.nodes[0]
+        return await self.run_node(default_node, lambda service: service.embed(params))

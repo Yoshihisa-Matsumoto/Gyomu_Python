@@ -37,6 +37,7 @@ from gyomu_schema.schemas.python.type.expression import (
     NoneExpressionAnalysis,
     RaiseStatementAnalysis,
     ReturnStatementAnalysis,
+    StarredExpressionAnalysis,
     StatementAnalysis,
     SubscriptExpressionAnalysis,
     TryStatementAnalysis,
@@ -134,6 +135,8 @@ def analyze_expression(
         )
     if isinstance(expr, ast.UnaryOp):
         return _analyze_unaryop(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.Starred):
+        return _analyze_starred(expr, context, option, need_registration_dependency)
     logger.debug(f"unsupported expression: {repr(expr)}")
     return UnknownExpressionAnalysis()
 
@@ -707,6 +710,20 @@ def _analyze_expression(
     return ExpressionStatementAnalysis(
         value=analyze_expression(
             expression.value, context, option, need_registration_dependency
+        )
+    )
+
+
+def _analyze_starred(
+    starred: ast.Starred,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> StarredExpressionAnalysis:
+
+    return StarredExpressionAnalysis(
+        value=analyze_expression(
+            starred.value, context, option, need_registration_dependency
         )
     )
 

@@ -1,7 +1,8 @@
 import asyncio
 from collections.abc import Awaitable, Callable
 
-from gyomu_ai.execution.context import AiExecutionContext, AiModelContext
+from gyomu_ai.execution.context import AiModelContext
+from gyomu_ai.execution.observer import _get_retry_observer
 from gyomu_ai.execution.parameter import (
     EmbedParams,
     GenerateObjectParams,
@@ -39,7 +40,7 @@ from gyomu_schema.error.ai import (
     AiRetryResolution,
     AiRetryStrategy,
 )
-from gyomu_schema.option.retry import RetryParameter
+from gyomu_schema.option.retry import RetryOption, RetryParameter
 from gyomu_schema.utility.execution_timer import ExecutionTimer
 from pydantic import BaseModel
 from pydantic_ai import Embedder, EmbeddingModel
@@ -49,10 +50,10 @@ from returns.result import Failure, Result, Success
 
 class PydanticAiModelExecution:
     def __init__(
-        self,
-        registry: PydanticAiModelRegistry,
+        self, registry: PydanticAiModelRegistry, retry_option: RetryOption
     ) -> None:
         self._registry = registry
+        self._retry_option = retry_option
 
     def _select_model(self, key: AiModelKey, context: AiModelContext | None) -> Model:
         match key:
@@ -89,9 +90,8 @@ class PydanticAiModelExecution:
         model: str | None,
         model_key: str | None,
         action: Callable[[], Awaitable[T]],
-        execution: AiExecutionContext | None,
     ) -> Result[T, AiError]:
-        retry_option = execution.retry_option if execution is not None else None
+        retry_option = self._retry_option
 
         max_attempts = (
             retry_option.max_attempts
@@ -124,8 +124,9 @@ class PydanticAiModelExecution:
                 error.resolution.strategy, retry_count
             )
 
-            if retry_option is not None and retry_option.observer is not None:
-                retry_option.observer.on_retry(
+            observer = _get_retry_observer()
+            if observer is not None:
+                observer.on_retry(
                     RetryParameter(
                         error=error,
                         attempt=retry_count,
@@ -151,10 +152,13 @@ class PydanticAiModelExecution:
                 return int(delay_second * 1000)
 
             case AiRetryExponential():
+                delay: int = 1000 * 2**attempt
                 return min(
-                    1000 * 2**attempt,
+                    delay,
                     60_000,
                 )
+            case _:
+                raise ValueError(f"Unsupported strategy: {type(strategy).__name__}")
 
     def _calculate_exponential_retry_delay(
         self,
@@ -196,7 +200,6 @@ class PydanticAiModelExecution:
                 conversation,
                 params,
             ),
-            execution=params.execution,
         )
 
     async def _stream_text(
@@ -238,7 +241,6 @@ class PydanticAiModelExecution:
                 conversation,
                 params,
             ),
-            execution=params.execution,
         )
 
     async def _generate_object[T: BaseModel](
@@ -278,7 +280,6 @@ class PydanticAiModelExecution:
                 conversation,
                 params,
             ),
-            execution=params.execution,
         )
 
     async def _embed[T](
@@ -312,5 +313,4 @@ class PydanticAiModelExecution:
                 embedder,
                 params,
             ),
-            execution=params.execution,
         )
