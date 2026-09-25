@@ -29,6 +29,8 @@ async def run_snapshot(request: SnapshotRequest) -> Result[None, GyomuError]:
     target = target_result.unwrap()
 
     logger.debug(repr(target.files))
+    if len(target.files) == 0:
+        logger.debug_object(target.snapshot.files)
     current_snapshot = target.snapshot
 
     action_result = await run_actions(request=request, target=target)
@@ -67,9 +69,11 @@ async def run_actions(
 
     for deleted in target.deleted_files:
         if is_source_file(deleted, request.project_context.source_root):
-            result = delete_module_cache(request.project_context, file_path=deleted)
-            if isinstance(result, Failure):
-                return result.alt(
+            delete_result = delete_module_cache(
+                request.project_context, file_path=deleted
+            )
+            if isinstance(delete_result, Failure):
+                return delete_result.alt(
                     lambda error: GyomuError(
                         "fail to delete unnecessary module cache",
                         domain="snapshot",
@@ -83,13 +87,13 @@ async def run_actions(
     for file in target.files:
         if is_source_file(file, request.project_context.source_root):
             if request.option.action.docstring.enabled:
-                result = await run_docstring_action(
+                docstring_action_result = await run_docstring_action(
                     project_context=project_context,
                     source_project_relative_path=file,
                     option=option,
                 )
-                if isinstance(result, Failure):
-                    return result
+                if isinstance(docstring_action_result, Failure):
+                    return docstring_action_result
             if request.option.action.unit_test:
                 pass
 

@@ -12,6 +12,6 @@ def _normalize_snapshot_filter(
 ) -> str:
 
     if filter.endswith("/*"):
-        return f"{filter[:-2]}/**/*"
+        return f"**/{filter[:-2]}/**"
 
     return filter

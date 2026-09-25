@@ -58,11 +58,11 @@ def snapshot(
             ),
         ),
     )
-    result = translate_snapshot_request(package, option)
-    if isinstance(result, Failure):
-        logger.error_object(result.failure())
+    request_result = translate_snapshot_request(package, option)
+    if isinstance(request_result, Failure):
+        logger.error_object(request_result.failure())
         return
-    request = result.unwrap()
+    request = request_result.unwrap()
     logger.info(
         f"commit: {request.option.commit}, "
         f"docstring:{request.option.action.docstring.enabled}, "
@@ -74,14 +74,14 @@ def snapshot(
     if log_keyword:
         logger.info(f"log_keyword: {request.option.action.docstring.log_keyword}")
 
-    result = validate_snapshot_request(request)
-    if isinstance(result, Failure):
-        logger.error_object(result.failure())
+    validation_result = validate_snapshot_request(request)
+    if isinstance(validation_result, Failure):
+        logger.error_object(validation_result.failure())
         return
 
-    result = asyncio.run(run_snapshot(request))
-    if isinstance(result, Failure):
-        logger.error_object(result.failure())
+    snapshot_result = asyncio.run(run_snapshot(request))
+    if isinstance(snapshot_result, Failure):
+        logger.error_object(snapshot_result.failure())
         return
 
     logger.info("Done")

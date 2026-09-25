@@ -90,6 +90,22 @@ class TestFilterIncludedFiles:
             }
         )
 
+    def test_file_match2(self) -> None:
+        included_files = frozenset(
+            {
+                ProjectRelativePath(Path("src/gyomu_schema/option/execution.py")),
+                ProjectRelativePath(
+                    Path("src/gyomu_schema/gyomu/holiday/business_calendar.py")
+                ),
+            }
+        )
+        result = filter_included_files(included_files, "**/option/**")
+        assert result == frozenset(
+            {
+                ProjectRelativePath(Path("src/gyomu_schema/option/execution.py")),
+            }
+        )
+
 
 class TestResolveSnapshotTarget:
     def test_resolve_snapshot_target_from_diff(

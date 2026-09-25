@@ -17,11 +17,11 @@ async def run_docstring_action(
     file_path = source_project_relative_path
     context = caller_context()
 
-    result = load_file_analysis_context(
+    file_analysis_result = load_file_analysis_context(
         context=project_context, file_path=file_path, option=option
     )
-    if isinstance(result, Failure):
-        return result.alt(
+    if isinstance(file_analysis_result, Failure):
+        return file_analysis_result.alt(
             lambda error: GyomuError(
                 "fail to analyze source file",
                 domain="snapshot",
@@ -32,12 +32,12 @@ async def run_docstring_action(
             ).chain(error)
         )
 
-    file_context = result.unwrap()
-    result = await process_docstring_update(
+    file_context = file_analysis_result.unwrap()
+    docstring_update_result = await process_docstring_update(
         context=project_context, file_context=file_context, option=option
     )
-    if isinstance(result, Failure):
-        return result.alt(
+    if isinstance(docstring_update_result, Failure):
+        return docstring_update_result.alt(
             lambda error: GyomuError(
                 "fail to update docstring",
                 domain="snapshot",

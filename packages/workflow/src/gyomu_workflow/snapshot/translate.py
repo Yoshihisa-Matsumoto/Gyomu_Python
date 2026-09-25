@@ -21,17 +21,17 @@ def translate_snapshot_request(
 ) -> Result[SnapshotRequest, AnalysisError | GyomuError]:
 
     current_path = FullPath(Path(getcwd()))
-    result = find_root(current_path)
-    if isinstance(result, Failure):
-        logger.error_object(result.failure())
-        return result
-    workspace = result.unwrap()
+    root_result = find_root(current_path)
+    if isinstance(root_result, Failure):
+        logger.error_object(root_result.failure())
+        return root_result
+    workspace = root_result.unwrap()
     assert workspace.kind == WorkspaceRootKind.UV_WORKSPACE
-    result = initialize_workspace_context(workspace)
-    if isinstance(result, Failure):
-        logger.error_object(result.failure())
-        return result
-    workspace_context = result.unwrap()
+    workspace_result = initialize_workspace_context(workspace)
+    if isinstance(workspace_result, Failure):
+        logger.error_object(workspace_result.failure())
+        return workspace_result
+    workspace_context = workspace_result.unwrap()
     target_package = next(
         project
         for project in workspace_context.projects
