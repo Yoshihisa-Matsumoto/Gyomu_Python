@@ -65,6 +65,6 @@ class AiEmbeddingMode(StrEnum):
 
 @dataclass(frozen=True)
 class EmbedParams[T]:
-    execution: AiExecutionContext
     value: T
     mode: AiEmbeddingMode
+    execution: AiExecutionContext | None = None

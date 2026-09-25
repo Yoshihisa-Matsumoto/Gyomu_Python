@@ -1,6 +1,7 @@
+import asyncio
 from collections.abc import Awaitable, Callable
 
-from gyomu_ai.execution.context import AiModelContext
+from gyomu_ai.execution.context import AiExecutionContext, AiModelContext
 from gyomu_ai.execution.parameter import (
     EmbedParams,
     GenerateObjectParams,
@@ -29,7 +30,16 @@ from gyomu_ai.provider.pydantic_ai.map_result import (
 from gyomu_ai.provider.pydantic_ai.model_settings import build_model_settings
 from gyomu_ai.provider.pydantic_ai.stream import PydanticAiTextStream
 from gyomu_schema.conversation.conversation import ConversationSchema
-from gyomu_schema.error.ai import AiError, AiOperation
+from gyomu_schema.error.ai import (
+    AiError,
+    AiOperation,
+    AiRetryAfter,
+    AiRetryExponential,
+    AiRetryImmediate,
+    AiRetryResolution,
+    AiRetryStrategy,
+)
+from gyomu_schema.option.retry import RetryParameter
 from gyomu_schema.utility.execution_timer import ExecutionTimer
 from pydantic import BaseModel
 from pydantic_ai import Embedder, EmbeddingModel
@@ -73,6 +83,85 @@ class PydanticAiModelExecution:
                 )
             )
 
+    async def _execute_with_retry[T](
+        self,
+        operation: AiOperation,
+        model: str | None,
+        model_key: str | None,
+        action: Callable[[], Awaitable[T]],
+        execution: AiExecutionContext | None,
+    ) -> Result[T, AiError]:
+        retry_option = execution.retry_option if execution is not None else None
+
+        max_attempts = (
+            retry_option.max_attempts
+            if retry_option is not None and retry_option.max_attempts is not None
+            else 3
+        )
+
+        retry_count = 0
+
+        while True:
+            result = await self._execute(
+                operation,
+                model=model,
+                model_key=model_key,
+                action=action,
+            )
+
+            if isinstance(result, Success):
+                return result
+
+            error = result.failure()
+
+            if not isinstance(error.resolution, AiRetryResolution):
+                return Failure(error)
+
+            if retry_count >= max_attempts:
+                return Failure(error)
+
+            delay_milliseconds = self._calculate_retry_delay_milliseconds(
+                error.resolution.strategy, retry_count
+            )
+
+            if retry_option is not None and retry_option.observer is not None:
+                retry_option.observer.on_retry(
+                    RetryParameter(
+                        error=error,
+                        attempt=retry_count,
+                        delay_milliseconds=delay_milliseconds,
+                    )
+                )
+
+            if delay_milliseconds > 0:
+                await asyncio.sleep(delay_milliseconds / 1000)
+
+            retry_count += 1
+
+    def _calculate_retry_delay_milliseconds(
+        self,
+        strategy: AiRetryStrategy,
+        attempt: int,
+    ) -> int:
+        match strategy:
+            case AiRetryImmediate():
+                return 0
+
+            case AiRetryAfter(delay_second=delay_second):
+                return int(delay_second * 1000)
+
+            case AiRetryExponential():
+                return min(
+                    1000 * 2**attempt,
+                    60_000,
+                )
+
+    def _calculate_exponential_retry_delay(
+        self,
+        retry_count: int,
+    ) -> float:
+        return float(2**retry_count)
+
     async def _generate_text(
         self,
         model: Model,
@@ -98,7 +187,7 @@ class PydanticAiModelExecution:
         params: GenerateTextParams,
     ) -> Result[AiGenerateTextResult, AiError]:
         model = self._select_model(params.key, params.execution)
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.GENERATE,
             model=model.model_name,
             model_key=params.key,
@@ -107,6 +196,7 @@ class PydanticAiModelExecution:
                 conversation,
                 params,
             ),
+            execution=params.execution,
         )
 
     async def _stream_text(
@@ -139,7 +229,7 @@ class PydanticAiModelExecution:
         params: StreamTextParams,
     ) -> Result[AiTextStream, AiError]:
         model = self._select_model(params.key, params.execution)
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.STREAM,
             model=model.model_name,
             model_key=params.key,
@@ -148,6 +238,7 @@ class PydanticAiModelExecution:
                 conversation,
                 params,
             ),
+            execution=params.execution,
         )
 
     async def _generate_object[T: BaseModel](
@@ -178,7 +269,7 @@ class PydanticAiModelExecution:
         params: GenerateObjectParams[T],
     ) -> Result[AiGenerateObjectResult[T], AiError]:
         model = self._select_model(params.key, params.execution)
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.GENERATE,
             model=model.model_name,
             model_key=params.key,
@@ -187,6 +278,7 @@ class PydanticAiModelExecution:
                 conversation,
                 params,
             ),
+            execution=params.execution,
         )
 
     async def _embed[T](
@@ -212,7 +304,7 @@ class PydanticAiModelExecution:
             model_name = embedder.model.model_name
         else:
             model_name = embedder.model
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.EMBEDDING,
             model=model_name,
             model_key=AiModelKey.EMBEDDING,
@@ -220,4 +312,5 @@ class PydanticAiModelExecution:
                 embedder,
                 params,
             ),
+            execution=params.execution,
         )

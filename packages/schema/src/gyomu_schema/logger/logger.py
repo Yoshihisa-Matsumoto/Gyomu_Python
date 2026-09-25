@@ -3,6 +3,8 @@ from typing import Protocol
 
 
 class Logger(Protocol):
+    """Protocol defining a standard logging interface."""
+
     def debug(
         self,
         message: str,
