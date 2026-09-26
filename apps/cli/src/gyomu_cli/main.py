@@ -51,7 +51,7 @@ def greet3(name: str = "World") -> None:
 def register_google_routing(
     route_id_list: list[ModelRouteId],
     retry_observer: RetryObserver | None = None,
-):
+) -> None:
     route: RouteNode = RouteNode(registry=create_default_pydantic_ai_model_registry())
     routes: dict[ModelRouteId, ModelRoute] = {}
     for route_id in route_id_list:

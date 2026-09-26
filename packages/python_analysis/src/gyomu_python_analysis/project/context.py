@@ -69,7 +69,7 @@ class PyProjectConfig:
         if value is None:
             return None
 
-        adapter = TypeAdapter(return_type)
+        adapter: TypeAdapter[T] = TypeAdapter(return_type)
 
         return adapter.validate_python(value)
 
