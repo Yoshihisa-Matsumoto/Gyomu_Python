@@ -143,6 +143,7 @@ def analyze_project_config(
             version=str(version),
             formatter_line_length=formatter_line_length,
             path=project_relative_path,
+            _toml_data=toml_data,
         )
     )
 

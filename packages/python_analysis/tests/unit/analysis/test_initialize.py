@@ -232,6 +232,7 @@ class TestInitializeProjectFromWorkspace:
             version="1.0.0",
             path=project_path,
             formatter_line_length=88,
+            _toml_data={},
         )
         workspace = WorkspaceConfig(
             path=workspace_path,
@@ -271,3 +272,62 @@ class TestInitializeProjectFromWorkspace:
             source_root=ProjectRelativePath(Path("src")),
         )
         assert result.config is project_config
+
+    def test_initialize_project_context_loads_toml_attributes(
+        self,
+        tmp_path: Path,
+        mocker: MockerFixture,
+    ) -> None:
+        project_root = FullPath(tmp_path)
+        source_root = ProjectRelativePath(Path("src"))
+
+        (tmp_path / "pyproject.toml").write_text(
+            """
+    [project]
+    name = "example"
+    version = "1.0.0"
+    description = "Example project"
+
+    [tool.ruff]
+    line-length = 100
+    exclude = [
+        "src/generated",
+        "tests/resources",
+    ]
+
+    [tool.gyomu]
+    exclude = [
+        "src/gyomu_infra/db/model/generated",
+    ]
+    """,
+            encoding="utf-8",
+        )
+
+        mocker.patch(
+            "gyomu_python_analysis.analysis.initialize.find_included_python_files",
+            return_value=frozenset(),
+        )
+
+        result = initialize_project_context(
+            project_root=project_root,
+            source_root=source_root,
+        )
+
+        assert isinstance(result, Success)
+
+        config = result.unwrap().config
+
+        assert config.get_attribute(
+            "tool.gyomu.exclude",
+            list[str],
+        ) == [
+            "src/gyomu_infra/db/model/generated",
+        ]
+
+        assert config.get_attribute(
+            "tool.ruff.exclude",
+            list[str],
+        ) == [
+            "src/generated",
+            "tests/resources",
+        ]
