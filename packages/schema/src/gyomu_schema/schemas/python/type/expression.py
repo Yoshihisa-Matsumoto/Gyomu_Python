@@ -31,6 +31,13 @@ class ExpressionKind(StrEnum):
     DICTIONARYCOMPARE = "dict_compare"
     LISTCOMPARE = "list_compare"
     STARRED = "starred"
+    LAMBDA = "lambda"
+    YIELDFROM = "yield_from"
+    YIELD = "yield"
+    IFEXP = "if_exp"
+    GENERATOREXP = "generator_exp"
+    SLICE = "slice"
+    NAMED = "named"
 
 
 class UnknownExpressionAnalysis(BaseModel):
@@ -120,7 +127,21 @@ type ExpressionAnalysis = (
     | ListCompareExpressionAnalysis
     | UnaryOpExpressionAnalysis
     | StarredExpressionAnalysis
+    | SetExpressionAnalysis
+    | LambdaExpressionAnalysis
+    | YieldExpressionAnalysis
+    | YieldFromExpressionAnalysis
+    | IfExpressionAnalysis
+    | GeneratorExpressionAnalysis
+    | SliceExpressionAnalysis
+    | NamedExpressionAnalysis
 )
+
+
+class NamedExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.NAMED
+    target: NameExpressionAnalysis
+    value: ExpressionAnalysis
 
 
 class StarredExpressionAnalysis(BaseModel):
@@ -227,11 +248,75 @@ class DictionaryExpressionAnalysis(BaseModel):
     entries: tuple[DictionaryEntryAnalysis, ...]
 
 
+class SetExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.SET
+    elts: tuple[ExpressionAnalysis, ...]
+
+
 class CallExpressionAnalysis(BaseModel):
     kind: ExpressionKind = ExpressionKind.CALL
     func: ExpressionAnalysis
     args: tuple[ExpressionAnalysis, ...]
     keywords: tuple[KeywordAnalysis, ...]
+
+
+class ArgumentAnalysis(BaseModel):
+    arg: str
+    annotation: ExpressionAnalysis
+    type_comment: str | None
+
+
+class ArgumentsAnalysis(BaseModel):
+    posonlyargs: tuple[ArgumentAnalysis, ...]
+    args: tuple[ArgumentAnalysis, ...]
+    vararg: ArgumentAnalysis | None
+    kwonlyargs: tuple[ArgumentAnalysis, ...]
+    kw_defaults: tuple[ExpressionAnalysis, ...]
+    kwarg: ArgumentAnalysis | None
+    defaults: tuple[ExpressionAnalysis, ...]
+
+
+class LambdaExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.LAMBDA
+    args: ArgumentsAnalysis
+    body: ExpressionAnalysis
+
+
+class IfExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.IFEXP
+    test: ExpressionAnalysis
+    body: ExpressionAnalysis
+    orelse: ExpressionAnalysis
+
+
+class YieldFromExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.YIELDFROM
+    value: ExpressionAnalysis
+
+
+class YieldExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.YIELD
+    value: ExpressionAnalysis
+
+
+class ComprehensionAnalysis(BaseModel):
+    target: ExpressionAnalysis
+    iter: ExpressionAnalysis
+    ifs: tuple[ExpressionAnalysis, ...]
+    is_async: bool
+
+
+class GeneratorExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.GENERATOREXP
+    elt: ExpressionAnalysis
+    generators: tuple[ComprehensionAnalysis, ...]
+
+
+class SliceExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.SLICE
+    lower: ExpressionAnalysis
+    upper: ExpressionAnalysis
+    step: ExpressionAnalysis
 
 
 class StatementKind(StrEnum):
@@ -244,6 +329,14 @@ class StatementKind(StrEnum):
     IF = "if"
     ASSERT = "assert"
     RAISE = "raise"
+    FOR = "for"
+    WITH = "with"
+    PASS = "pass"
+    AUGASSIGN = "augassign"
+    MATCH = "match"
+    BREAK = "break"
+    CONTINUE = "continue"
+    FUNCTIONDEF = "functiondef"
 
 
 class AnnotationAssignStatementAnalysis(BaseModel):
@@ -257,6 +350,13 @@ class RaiseStatementAnalysis(BaseModel):
     kind: StatementKind = StatementKind.RAISE
     exc: ExpressionAnalysis
     cause: ExpressionAnalysis
+
+
+class AugAssignStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.AUGASSIGN
+    target: ExpressionAnalysis
+    op: BinaryOperator
+    value: ExpressionAnalysis
 
 
 class AssignStatementAnalysis(BaseModel):
@@ -279,6 +379,18 @@ class UnknownStatementAnalysis(BaseModel):
     kind: StatementKind = StatementKind.UNKNOWN
 
 
+class PassStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.PASS
+
+
+class ContinueStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.CONTINUE
+
+
+class BreakStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.BREAK
+
+
 class AssertStatementAnalysis(BaseModel):
     kind: StatementKind = StatementKind.ASSERT
     test: ExpressionAnalysis
@@ -296,7 +408,128 @@ type StatementAnalysis = (
     | AssertStatementAnalysis
     | RaiseStatementAnalysis
     | AnnotationAssignStatementAnalysis
+    | WithStatementAnalysis
+    | ForStatementAnalysis
+    | PassStatementAnalysis
+    | ContinueStatementAnalysis
+    | BreakStatementAnalysis
+    | MatchStatementAnalysis
+    | AugAssignStatementAnalysis
+    | FunctionDefStatementAnalysis
 )
+
+type TypeParameter = TypeVarAnalysis | ParamSpecAnalysis | TypeVarTupleAnalysis
+
+
+class TypeVarAnalysis(BaseModel):
+    name: str
+    bound: ExpressionAnalysis
+    default_value: ExpressionAnalysis
+
+
+class ParamSpecAnalysis(BaseModel):
+    name: str
+    default_value: ExpressionAnalysis
+
+
+class TypeVarTupleAnalysis(BaseModel):
+    name: str
+    default_value: ExpressionAnalysis
+
+
+class FunctionDefStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.FUNCTIONDEF
+    name: str
+    args: ArgumentsAnalysis
+    body: tuple[StatementAnalysis, ...]
+    decorator_list: tuple[ExpressionAnalysis, ...]
+    returns: ExpressionAnalysis
+    type_comment: str | None
+    type_params: tuple[TypeParameter, ...]
+    is_async: bool
+
+
+type PatternAnalysis = (
+    MatchValue
+    | MatchSingleton
+    | MatchSequence
+    | MatchMapping
+    | MatchClass
+    | MatchStar
+    | MatchAs
+    | MatchOr
+)
+
+
+class MatchValue(BaseModel):
+    value: ExpressionAnalysis
+
+
+class MatchSingleton(BaseModel):
+    value: bool | None
+
+
+class MatchSequence(BaseModel):
+    patterns: tuple[PatternAnalysis, ...]
+
+
+class MatchMapping(BaseModel):
+    keys: tuple[ExpressionAnalysis, ...]
+    patterns: tuple[PatternAnalysis, ...]
+    rest: str | None
+
+
+class MatchClass(BaseModel):
+    cls: ExpressionAnalysis
+    patterns: tuple[PatternAnalysis, ...]
+    kwd_attrs: tuple[str, ...]
+    kwd_patterns: tuple[PatternAnalysis, ...]
+
+
+class MatchStar(BaseModel):
+    name: str | None
+
+
+class MatchAs(BaseModel):
+    pattern: PatternAnalysis | None
+    name: str | None
+
+
+class MatchOr(BaseModel):
+    patterns: tuple[PatternAnalysis, ...]
+
+
+class MatchCaseAnalysis(BaseModel):
+    pattern: PatternAnalysis
+    guard: ExpressionAnalysis
+    body: tuple[StatementAnalysis, ...]
+
+
+class MatchStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.MATCH
+    subject: ExpressionAnalysis
+    cases: tuple[MatchCaseAnalysis, ...]
+
+
+class ForStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.FOR
+    target: ExpressionAnalysis
+    iter: ExpressionAnalysis
+    body: tuple[StatementAnalysis, ...]
+    orelse: tuple[StatementAnalysis, ...]
+    type_comment: str | None
+
+
+class WithItemAnalysis(BaseModel):
+    context_expr: ExpressionAnalysis
+    optional_vars: ExpressionAnalysis
+
+
+class WithStatementAnalysis(BaseModel):
+    kind: StatementKind = StatementKind.WITH
+    items: tuple[WithItemAnalysis, ...]
+    body: tuple[StatementAnalysis, ...]
+    type_comment: str | None
 
 
 class IfStatementAnalysis(BaseModel):

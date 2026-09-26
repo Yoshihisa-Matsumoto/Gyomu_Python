@@ -11,8 +11,10 @@ from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
     DocstringUpdatePlan,
 )
 from gyomu_infra.filesystem.file_io import write_json
+from gyomu_infra.logger import logger
 from gyomu_schema.option.update import UpdateOption
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
+from gyomu_schema.utility.fromatting import format_object
 from returns.pipeline import is_successful
 from returns.result import Failure, Result, Success
 
@@ -74,6 +76,7 @@ async def build_docstring_update_plan_with_retry(
 
         original_plan = override_plan
 
+        logger.debug(f"missing identity: {format_object(validation.diff)}")
         current_context = current_context.model_copy(
             update={
                 "retry": DocstringRetryOption(

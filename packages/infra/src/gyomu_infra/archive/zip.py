@@ -23,6 +23,16 @@ class _StreamingWriter:
         self._chunks: deque[bytes] = deque()
 
     def write(self, data: bytes) -> int:
+        """Write data bytes to the writer.
+
+        Writes data chunks to the internal buffer.
+
+        Args:
+            data (bytes): The data bytes to write.
+
+        Returns:
+            int: The number of bytes written.
+        """
         self._chunks.append(data)
         return len(data)
 
@@ -33,20 +43,58 @@ class _StreamingWriter:
         pass
 
     def pop_chunks(self) -> Iterator[bytes]:
+        """Pop and yield accumulated data chunks.
+
+        Yields and removes accumulated chunks from the buffer.
+
+        Returns:
+            Iterator[bytes]: An iterator over accumulated byte chunks.
+        """
         while self._chunks:
             yield self._chunks.popleft()
 
 
 @dataclass(frozen=True)
 class ZipEntry:
+    """Defines metadata for an entry in a ZIP archive.
+
+    A data class representing metadata for an entry within a ZIP archive.
+    """
+
     index: int
+    """Entry index.
+
+    The zero-based index of the entry in the archive.
+    """
     path: str
+    """Entry path.
+
+    The file or directory path within the archive.
+    """
     crc32: int
+    """Entry CRC-32 checksum.
+
+    The CRC-32 checksum of the uncompressed data.
+    """
     uncompressed_size: int
+    """Uncompressed data size.
+
+    The size of the uncompressed data in bytes.
+    """
     is_directory: bool
+    """Directory flag.
+
+    Indicates whether the entry represents a directory.
+    """
 
 
 class Zip:
+    """Provides methods for managing and extracting ZIP archives.
+
+    Provides utility methods for creating, inspecting, reading, and extracting ZIP
+    archives.
+    """
+
     def __init__(self, zip_file: Path) -> None:
         self._zip_file = zip_file
 
@@ -54,6 +102,17 @@ class Zip:
     def create(
         transfer_information_list: Sequence[FileTransportInfo],
     ) -> Iterator[bytes]:
+        """Create a streaming ZIP archive.
+
+        Creates a ZIP archive stream from the given file transport information list.
+
+        Args:
+            transfer_information_list (Sequence[FileTransportInfo]): Sequence of file
+                transport information to archive.
+
+        Returns:
+            Iterator[bytes]: An iterator yielding compressed ZIP file chunks.
+        """
         writer = _StreamingWriter()
 
         with zipfile.ZipFile(
@@ -84,6 +143,17 @@ class Zip:
     def _find_files(
         transfer_information: FileTransportInfo,
     ) -> list[FileInfo]:
+        """Find files for transport information.
+
+        Finds files matching the transport information specification.
+
+        Args:
+            transfer_information (FileTransportInfo): The file transport information
+                specifying source and filters.
+
+        Returns:
+            list[FileInfo]: A list of matching FileInfo objects.
+        """
         source = Path(transfer_information.source_fullname_with_basepath)
 
         filter_conditions = (
@@ -116,6 +186,17 @@ class Zip:
         transfer_information: FileTransportInfo,
         file_info: FileInfo,
     ) -> str:
+        """Get the archive entry path for a file.
+
+        Determines the archive entry path for a given file.
+
+        Args:
+            transfer_information (FileTransportInfo): The file transport information.
+            file_info (FileInfo): The file info object.
+
+        Returns:
+            str: The relative entry path within the archive.
+        """
         source = PurePosixPath(transfer_information.source_fullname)
 
         if transfer_information.is_source_directory:
@@ -128,6 +209,13 @@ class Zip:
         return source.as_posix()
 
     def entries(self) -> Iterator[ZipEntry]:
+        """Iterate over ZIP entries.
+
+        Iterates over all entries contained in the ZIP archive.
+
+        Returns:
+            Iterator[ZipEntry]: An iterator over ZIP entries.
+        """
         with zipfile.ZipFile(self._zip_file, mode="r") as zip_file:
             for index, info in enumerate(zip_file.infolist()):
                 yield ZipEntry(
@@ -139,6 +227,19 @@ class Zip:
                 )
 
     def read_entry(self, entry: ZipEntry) -> bytes:
+        """Read the content of a ZIP entry.
+
+        Reads the binary content of a specific ZIP entry.
+
+        Args:
+            entry (ZipEntry): The ZIP entry to read.
+
+        Returns:
+            bytes: The binary content of the entry.
+
+        Raises:
+            ValueError: If the entry index is invalid or no longer matches the archive.
+        """
         with zipfile.ZipFile(self._zip_file, mode="r") as zip_file:
             info = self._get_info(zip_file, entry)
             return zip_file.read(info)
@@ -148,12 +249,33 @@ class Zip:
         entry: ZipEntry,
         encoding: str = "utf-8",
     ) -> str:
+        """Read the text content of a ZIP entry.
+
+        Reads the text content of a specific ZIP entry using the specified encoding.
+
+        Args:
+            entry (ZipEntry): The ZIP entry to read.
+            encoding (str): The text encoding to use (default utf-8).
+
+        Returns:
+            str: The decoded text content.
+        """
         return self.read_entry(entry).decode(encoding)
 
     def read_entry_stream(
         self,
         entry: ZipEntry,
     ) -> Iterator[bytes]:
+        """Stream the content of a ZIP entry.
+
+        Streams the content of a specific ZIP entry in chunks.
+
+        Args:
+            entry (ZipEntry): The ZIP entry to stream.
+
+        Returns:
+            Iterator[bytes]: An iterator yielding chunks of entry data.
+        """
         with zipfile.ZipFile(self._zip_file, mode="r") as zip_file:
             info = self._get_info(zip_file, entry)
 
@@ -166,6 +288,14 @@ class Zip:
         entry: ZipEntry,
         destination: Path,
     ) -> None:
+        """Extract a ZIP entry to a destination.
+
+        Extracts a specific ZIP entry to the given destination path.
+
+        Args:
+            entry (ZipEntry): The ZIP entry to extract.
+            destination (Path): The destination directory path.
+        """
         with zipfile.ZipFile(self._zip_file, mode="r") as zip_file:
             info = self._get_info(zip_file, entry)
 
@@ -191,6 +321,13 @@ class Zip:
         self,
         destination: Path,
     ) -> None:
+        """Extract all entries from the archive.
+
+        Extracts all entries from the ZIP archive to the given destination path.
+
+        Args:
+            destination (Path): The destination directory path.
+        """
         for entry in self.entries():
             self.extract(entry, destination)
 
@@ -199,6 +336,22 @@ class Zip:
         zip_file: zipfile.ZipFile,
         entry: ZipEntry,
     ) -> zipfile.ZipInfo:
+        """Get and validate ZipInfo for an entry.
+
+        Retrieves the ZipInfo object for a given entry, validating its index and
+        metadata.
+
+        Args:
+            zip_file (zipfile.ZipFile): The zipfile object.
+            entry (ZipEntry): The ZIP entry to look up.
+
+        Returns:
+            zipfile.ZipInfo: The corresponding ZipInfo object.
+
+        Raises:
+            ValueError: If the entry index is out of bounds or entry metadata no longer
+                matches.
+        """
         infos = zip_file.infolist()
 
         if entry.index < 0 or entry.index >= len(infos):
@@ -221,6 +374,21 @@ class Zip:
         destination: Path,
         entry_path: str,
     ) -> Path:
+        """Validate and compute the extraction path.
+
+        Safely constructs and validates the extraction path for a ZIP entry.
+
+        Args:
+            destination (Path): The destination directory path.
+            entry_path (str): The entry path from the archive.
+
+        Returns:
+            Path: The validated extraction Path.
+
+        Raises:
+            ValueError: If the entry path is empty, absolute, or contains path traversal
+                sequences.
+        """
         if not entry_path:
             raise ValueError("ZIP entry path is empty")
 

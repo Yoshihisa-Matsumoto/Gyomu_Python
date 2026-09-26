@@ -7,18 +7,24 @@ from gyomu_python_analysis.analysis.analyzers.dependency import register_depende
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.type.expression import (
     AnnotationAssignStatementAnalysis,
+    ArgumentAnalysis,
+    ArgumentsAnalysis,
     AssertStatementAnalysis,
     AssignStatementAnalysis,
     AttributeExpressionAnalysis,
+    AugAssignStatementAnalysis,
     AwaitExpressionAnalysis,
     BinaryOperator,
     BinOpExpressionAnalysis,
     BoolOperator,
     BoolOpExpressionAnalysis,
+    BreakStatementAnalysis,
     CallExpressionAnalysis,
     CompareExpressionAnalysis,
     ComparehensionAnalysis,
     CompareOperator,
+    ComprehensionAnalysis,
+    ContinueStatementAnalysis,
     DictionaryCompareExpressionAnalysis,
     DictionaryEntryAnalysis,
     DictionaryExpressionAnalysis,
@@ -28,25 +34,50 @@ from gyomu_schema.schemas.python.type.expression import (
     ExpressionStatementAnalysis,
     FormattedConversion,
     FormattedValueExpressionAnalysis,
+    ForStatementAnalysis,
+    FunctionDefStatementAnalysis,
+    GeneratorExpressionAnalysis,
+    IfExpressionAnalysis,
     IfStatementAnalysis,
     JoinedStrExpressionAnalysis,
     KeywordAnalysis,
+    LambdaExpressionAnalysis,
     ListCompareExpressionAnalysis,
     ListExpressionAnalysis,
+    MatchCaseAnalysis,
+    MatchClass,
+    MatchMapping,
+    MatchSequence,
+    MatchSingleton,
+    MatchStatementAnalysis,
+    MatchValue,
+    NamedExpressionAnalysis,
     NameExpressionAnalysis,
     NoneExpressionAnalysis,
+    ParamSpecAnalysis,
+    PassStatementAnalysis,
+    PatternAnalysis,
     RaiseStatementAnalysis,
     ReturnStatementAnalysis,
+    SetExpressionAnalysis,
+    SliceExpressionAnalysis,
     StarredExpressionAnalysis,
     StatementAnalysis,
     SubscriptExpressionAnalysis,
     TryStatementAnalysis,
     TupleExpressionAnalysis,
+    TypeParameter,
+    TypeVarAnalysis,
+    TypeVarTupleAnalysis,
     UnaryOperator,
     UnaryOpExpressionAnalysis,
     UnknownExpressionAnalysis,
     UnknownStatementAnalysis,
     WhileStatementAnalysis,
+    WithItemAnalysis,
+    WithStatementAnalysis,
+    YieldExpressionAnalysis,
+    YieldFromExpressionAnalysis,
 )
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
@@ -81,6 +112,27 @@ def analyze_statement(
         return _analyze_annotation_assign(
             statement, context, option, need_registration_dependency
         )
+    if isinstance(statement, ast.For):
+        return _analyze_for(statement, context, option, need_registration_dependency)
+    if isinstance(statement, ast.With):
+        return _analyze_with(statement, context, option, need_registration_dependency)
+    if isinstance(statement, ast.Pass):
+        return PassStatementAnalysis()
+    if isinstance(statement, ast.Break):
+        return BreakStatementAnalysis()
+    if isinstance(statement, ast.Continue):
+        return ContinueStatementAnalysis()
+    if isinstance(statement, ast.AugAssign):
+        return _analyze_augassign(
+            statement, context, option, need_registration_dependency
+        )
+    if isinstance(statement, ast.Match):
+        return _analyze_match(statement, context, option, need_registration_dependency)
+    if isinstance(statement, ast.FunctionDef | ast.AsyncFunctionDef):
+        return _analyze_function(
+            statement, context, option, need_registration_dependency
+        )
+
     logger.debug(f"unsupported statement: {repr(statement)}")
     return UnknownStatementAnalysis()
 
@@ -137,6 +189,25 @@ def analyze_expression(
         return _analyze_unaryop(expr, context, option, need_registration_dependency)
     if isinstance(expr, ast.Starred):
         return _analyze_starred(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.Set):
+        return analyze_set(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.Lambda):
+        return _analyze_lambda(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.YieldFrom):
+        return _analyze_yieldfrom(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.IfExp):
+        return _analyze_ifexp(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.Yield):
+        return _analyze_yield(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.GeneratorExp):
+        return _analyze_generator_expression(
+            expr, context, option, need_registration_dependency
+        )
+    if isinstance(expr, ast.Slice):
+        return analyze_slice(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.NamedExpr):
+        return _analyze_named(expr, context, option, need_registration_dependency)
+
     logger.debug(f"unsupported expression: {repr(expr)}")
     return UnknownExpressionAnalysis()
 
@@ -348,6 +419,163 @@ def _analyze_subscript(
     )
 
 
+def _analyze_argument(
+    expression: ast.arg,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> ArgumentAnalysis:
+    if expression is None:
+        return None
+    return ArgumentAnalysis(
+        arg=expression.arg,
+        type_comment=expression.type_comment,
+        annotation=analyze_expression(
+            expression.annotation, context, option, need_registration_dependency
+        ),
+    )
+
+
+def _analyze_arguments(
+    args: ast.arguments,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> ArgumentsAnalysis:
+    return ArgumentsAnalysis(
+        kw_defaults=tuple(
+            [
+                analyze_expression(child, context, option, need_registration_dependency)
+                for child in args.kw_defaults
+            ]
+        ),
+        defaults=tuple(
+            [
+                analyze_expression(child, context, option, need_registration_dependency)
+                for child in args.defaults
+            ]
+        ),
+        vararg=_analyze_argument(
+            args.vararg, context, option, need_registration_dependency
+        )
+        if args.vararg is not None
+        else None,
+        kwarg=_analyze_argument(
+            args.kwarg, context, option, need_registration_dependency
+        )
+        if args.kwarg is not None
+        else None,
+        posonlyargs=tuple(
+            [
+                _analyze_argument(child, context, option, need_registration_dependency)
+                for child in args.posonlyargs
+            ]
+        ),
+        args=tuple(
+            [
+                _analyze_argument(child, context, option, need_registration_dependency)
+                for child in args.args
+            ]
+        ),
+        kwonlyargs=tuple(
+            [
+                _analyze_argument(child, context, option, need_registration_dependency)
+                for child in args.kwonlyargs
+            ]
+        ),
+    )
+
+
+def _analyze_lambda(
+    expression: ast.Lambda,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> LambdaExpressionAnalysis:
+
+    return LambdaExpressionAnalysis(
+        args=_analyze_arguments(
+            expression.args, context, option, need_registration_dependency
+        ),
+        body=analyze_expression(
+            expression.body, context, option, need_registration_dependency
+        ),
+    )
+
+
+def _analyze_comprehension(
+    comprehension: ast.comprehension,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> ComprehensionAnalysis:
+    return ComprehensionAnalysis(
+        target=analyze_expression(
+            comprehension.target, context, option, need_registration_dependency
+        ),
+        iter=analyze_expression(
+            comprehension.iter, context, option, need_registration_dependency
+        ),
+        ifs=tuple(
+            [
+                analyze_expression(child, context, option, need_registration_dependency)
+                for child in comprehension.ifs
+            ]
+        ),
+        is_async=comprehension.is_async == 1,
+    )
+
+
+def _analyze_generator_expression(
+    generator: ast.GeneratorExp,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> GeneratorExpressionAnalysis:
+
+    return GeneratorExpressionAnalysis(
+        elt=analyze_expression(
+            generator.elt, context, option, need_registration_dependency
+        ),
+        generators=tuple(
+            [
+                _analyze_comprehension(
+                    child, context, option, need_registration_dependency
+                )
+                for child in generator.generators
+            ]
+        ),
+    )
+
+
+def _analyze_yield(
+    unaryop: ast.Yield,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> YieldExpressionAnalysis:
+
+    return YieldExpressionAnalysis(
+        value=analyze_expression(
+            unaryop.value, context, option, need_registration_dependency
+        )
+    )
+
+
+def _analyze_yieldfrom(
+    unaryop: ast.YieldFrom,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> YieldFromExpressionAnalysis:
+
+    return YieldFromExpressionAnalysis(
+        value=analyze_expression(
+            unaryop.value, context, option, need_registration_dependency
+        )
+    )
+
+
 def _analyze_unaryop(
     unaryop: ast.UnaryOp,
     context: SymbolContext,
@@ -513,6 +741,253 @@ def _analyze_call(
     )
 
 
+def _analyze_with_item(
+    item: ast.withitem,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> WithItemAnalysis:
+    return WithItemAnalysis(
+        context_expr=analyze_expression(
+            item.context_expr, context, option, need_registration_dependency
+        ),
+        optional_vars=analyze_expression(
+            item.optional_vars, context, option, need_registration_dependency
+        ),
+    )
+
+
+def _analyze_with(
+    statement: ast.With,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> WithStatementAnalysis:
+
+    return WithStatementAnalysis(
+        body=tuple(
+            [
+                analyze_statement(child, context, option, need_registration_dependency)
+                for child in statement.body
+            ]
+        ),
+        items=tuple(
+            [
+                _analyze_with_item(child, context, option, need_registration_dependency)
+                for child in statement.items
+            ]
+        ),
+        type_comment=statement.type_comment,
+    )
+
+
+def _analyze_type_params(
+    param: ast.type_param,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> TypeParameter:
+    if isinstance(param, ast.TypeVar):
+        return TypeVarAnalysis(
+            name=param.name,
+            bound=analyze_expression(
+                param.bound, context, option, need_registration_dependency
+            ),
+            default_value=analyze_expression(
+                param.default_value, context, option, need_registration_dependency
+            ),
+        )
+    if isinstance(param, ast.ParamSpec):
+        return ParamSpecAnalysis(
+            name=param.name,
+            default_value=analyze_expression(
+                param.default_value, context, option, need_registration_dependency
+            ),
+        )
+    if isinstance(param, ast.TypeVarTuple):
+        return TypeVarTupleAnalysis(
+            name=param.name,
+            default_value=analyze_expression(
+                param.default_value, context, option, need_registration_dependency
+            ),
+        )
+    raise ValueError(f"Unsupported type parameter: {type(param).__name__}")
+
+
+def _analyze_function(
+    statement: ast.FunctionDef | ast.AsyncFunctionDef,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> FunctionDefStatementAnalysis:
+    is_async = isinstance(statement, ast.AsyncFunctionDef)
+
+    return FunctionDefStatementAnalysis(
+        name=statement.name,
+        is_async=is_async,
+        args=_analyze_arguments(
+            statement.args, context, option, need_registration_dependency
+        ),
+        body=tuple(
+            [
+                analyze_statement(child, context, option, need_registration_dependency)
+                for child in statement.body
+            ]
+        ),
+        decorator_list=tuple(
+            [
+                analyze_expression(child, context, option, need_registration_dependency)
+                for child in statement.decorator_list
+            ]
+        ),
+        returns=analyze_expression(
+            statement.returns, context, option, need_registration_dependency
+        ),
+        type_comment=statement.type_comment,
+        type_params=tuple(
+            [
+                _analyze_type_params(
+                    child, context, option, need_registration_dependency
+                )
+                for child in statement.type_params
+            ]
+        ),
+    )
+
+
+def _analyze_pattern(
+    pattern: ast.pattern,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> PatternAnalysis:
+    if isinstance(pattern, ast.MatchValue):
+        return MatchValue(
+            value=analyze_expression(
+                pattern.value, context, option, need_registration_dependency
+            )
+        )
+    if isinstance(pattern, ast.MatchSingleton):
+        return MatchSingleton(value=pattern.value)
+    if isinstance(pattern, ast.MatchSequence):
+        return MatchSequence(
+            patterns=tuple(
+                [
+                    _analyze_pattern(
+                        child, context, option, need_registration_dependency
+                    )
+                    for child in pattern.patterns
+                ]
+            ),
+        )
+    if isinstance(pattern, ast.MatchMapping):
+        return MatchMapping(
+            keys=tuple(
+                [
+                    analyze_expression(
+                        child, context, option, need_registration_dependency
+                    )
+                    for child in pattern.keys
+                ]
+            ),
+            patterns=tuple(
+                [
+                    _analyze_pattern(
+                        child, context, option, need_registration_dependency
+                    )
+                    for child in pattern.patterns
+                ]
+            ),
+            rest=pattern.rest,
+        )
+
+    if isinstance(pattern, ast.MatchClass):
+        return MatchClass(
+            cls=analyze_expression(
+                pattern.cls, context, option, need_registration_dependency
+            ),
+            patterns=tuple(
+                [
+                    _analyze_pattern(
+                        child, context, option, need_registration_dependency
+                    )
+                    for child in pattern.patterns
+                ]
+            ),
+            kwd_patterns=tuple(
+                [
+                    _analyze_pattern(
+                        child, context, option, need_registration_dependency
+                    )
+                    for child in pattern.kwd_patterns
+                ]
+            ),
+            kwd_attrs=tuple(pattern.kwd_attrs),
+        )
+
+    raise ValueError(f"Unsupported match case pattern: {type(pattern).__name__}")
+
+
+def _analyze_matchcase(
+    match_case: ast.match_case,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> MatchCaseAnalysis:
+    return MatchCaseAnalysis(
+        guard=analyze_expression(
+            match_case.guard, context, option, need_registration_dependency
+        ),
+        body=tuple(
+            [
+                analyze_statement(child, context, option, need_registration_dependency)
+                for child in match_case.body
+            ]
+        ),
+        pattern=_analyze_pattern(
+            match_case.pattern, context, option, need_registration_dependency
+        ),
+    )
+
+
+def _analyze_match(
+    statement: ast.Match,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> MatchStatementAnalysis:
+
+    return MatchStatementAnalysis(
+        cases=tuple(
+            [
+                _analyze_matchcase(child, context, option, need_registration_dependency)
+                for child in statement.cases
+            ]
+        ),
+        subject=analyze_expression(
+            statement.subject, context, option, need_registration_dependency
+        ),
+    )
+
+
+def _analyze_augassign(
+    statement: ast.AugAssign,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> AugAssignStatementAnalysis:
+
+    return AugAssignStatementAnalysis(
+        target=analyze_expression(
+            statement.target, context, option, need_registration_dependency
+        ),
+        op=_convert_binop_operator(statement.op),
+        value=analyze_expression(
+            statement.value, context, option, need_registration_dependency
+        ),
+    )
+
+
 def _analyze_assign(
     assign: ast.Assign,
     context: SymbolContext,
@@ -595,6 +1070,25 @@ def _analyze_assert(
     )
 
 
+def _analyze_ifexp(
+    statement: ast.IfExp,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> IfExpressionAnalysis:
+    return IfExpressionAnalysis(
+        test=analyze_expression(
+            statement.test, context, option, need_registration_dependency
+        ),
+        body=analyze_expression(
+            statement.body, context, option, need_registration_dependency
+        ),
+        orelse=analyze_expression(
+            statement.orelse, context, option, need_registration_dependency
+        ),
+    )
+
+
 def _analyze_if(
     statement: ast.If,
     context: SymbolContext,
@@ -617,6 +1111,35 @@ def _analyze_if(
                 for child in statement.orelse
             ]
         ),
+    )
+
+
+def _analyze_for(
+    statement: ast.For,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> ForStatementAnalysis:
+    return ForStatementAnalysis(
+        target=analyze_expression(
+            statement.target, context, option, need_registration_dependency
+        ),
+        iter=analyze_expression(
+            statement.iter, context, option, need_registration_dependency
+        ),
+        body=tuple(
+            [
+                analyze_statement(child, context, option, need_registration_dependency)
+                for child in statement.body
+            ]
+        ),
+        orelse=tuple(
+            [
+                analyze_statement(child, context, option, need_registration_dependency)
+                for child in statement.orelse
+            ]
+        ),
+        type_comment=statement.type_comment,
     )
 
 
@@ -728,12 +1251,28 @@ def _analyze_starred(
     )
 
 
+def _analyze_named(
+    expression: ast.NamedExpr,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> NamedExpressionAnalysis:
+    return NamedExpressionAnalysis(
+        target=analyze_expression_name(
+            expression.target, context, option, need_registration_dependency
+        ),
+        value=analyze_expression(
+            expression.value, context, option, need_registration_dependency
+        ),
+    )
+
+
 def analyze_expression_name(
     expression: ast.Name,
     context: SymbolContext,
     option: AnalysisOption | None,
     need_registration_dependency: bool,
-) -> NameExpressionAnalysis | NoneExpressionAnalysis:
+) -> NameExpressionAnalysis:
 
     if need_registration_dependency:
         register_dependency(context.declaration, expression.id, context)
@@ -754,6 +1293,40 @@ def analyze_tuple(
     ]
 
     return TupleExpressionAnalysis(elements=tuple(elements))
+
+
+def analyze_slice(
+    expression: ast.Slice,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> SliceExpressionAnalysis:
+
+    return SliceExpressionAnalysis(
+        lower=analyze_expression(
+            expression.lower, context, option, need_registration_dependency
+        ),
+        upper=analyze_expression(
+            expression.upper, context, option, need_registration_dependency
+        ),
+        step=analyze_expression(
+            expression.step, context, option, need_registration_dependency
+        ),
+    )
+
+
+def analyze_set(
+    expression: ast.Set,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> SetExpressionAnalysis:
+    elements: list[ExpressionAnalysis] = [
+        analyze_expression(item, context, option, need_registration_dependency)
+        for item in expression.elts
+    ]
+
+    return SetExpressionAnalysis(elts=tuple(elements))
 
 
 def analyze_array(

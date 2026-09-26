@@ -8,6 +8,7 @@ from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKi
 from gyomu_schema.schemas.python.type.expression import (
     EllipsisExpressionAnalysis,
     ExpressionStatementAnalysis,
+    PassStatementAnalysis,
     StatementAnalysis,
 )
 
@@ -39,7 +40,7 @@ def check_ellipsis_only(statements: list[StatementAnalysis]) -> bool:
         len(statements) == 1
         and isinstance(statements[0], ExpressionStatementAnalysis)
         and isinstance(statements[0].value, EllipsisExpressionAnalysis)
-    )
+    ) or (len(statements) == 1 and isinstance(statements[0], PassStatementAnalysis))
 
 
 def analyze_function(

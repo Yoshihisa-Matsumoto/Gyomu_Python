@@ -6,6 +6,8 @@ from returns.result import Result
 
 
 class MarketHolidayRepository(Protocol):
+    """Repository protocol for managing and querying market holiday data."""
+
     def find_by_market(
         self,
         market: str,

@@ -1,6 +1,13 @@
+from pathlib import Path
+
+from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_schema.schemas.python.types import ProjectRelativePath
 from returns.result import Failure, Result, Success
 
-from gyomu_workflow.snapshot.error import SnapshotRequestValidationError
+from gyomu_workflow.snapshot.error import (
+    PyProjectStructureValidationError,
+    SnapshotRequestValidationError,
+)
 from gyomu_workflow.snapshot.models import SnapshotRequest
 
 
@@ -18,3 +25,38 @@ def validate_snapshot_request(
             )
         )
     return Success(None)
+
+
+def validate_python_package_structure(
+    project_context: ProjectContext,
+) -> Result[None, PyProjectStructureValidationError]:
+    source_root_full_path = project_context.project_root / project_context.source_root
+
+    def validate_directory(
+        path: Path,
+    ) -> Result[None, PyProjectStructureValidationError]:
+        entries = tuple(path.iterdir())
+
+        has_python_file = any(
+            entry.is_file() and entry.suffix == ".py" for entry in entries
+        )
+
+        if has_python_file and not (path / "__init__.py").is_file():
+            return Failure(
+                PyProjectStructureValidationError(
+                    "__init__.py does not exist",
+                    path=ProjectRelativePath(
+                        path.relative_to(project_context.project_root)
+                    ),
+                )
+            )
+
+        for entry in entries:
+            if entry.is_dir():
+                result = validate_directory(entry)
+                if isinstance(result, Failure):
+                    return result
+
+        return Success(None)
+
+    return validate_directory(source_root_full_path)

@@ -1,6 +1,7 @@
 from collections.abc import Mapping
 
 from gyomu_schema.error.base import BaseError
+from gyomu_schema.schemas.python.types import ProjectRelativePath
 
 
 class SnapshotRequestValidationError(BaseError):
@@ -26,3 +27,20 @@ class SnapshotRequestValidationError(BaseError):
         self.field = field
         self.expected = expected
         self.actual = actual
+
+
+class PyProjectStructureValidationError(BaseError):
+    def __init__(
+        self,
+        message: str,
+        *,
+        path: ProjectRelativePath,
+        context: str | None = None,
+        details: Mapping[str, object] | None = None,
+    ) -> None:
+        super().__init__(
+            message,
+            context=context,
+            details=details,
+        )
+        self.path = path

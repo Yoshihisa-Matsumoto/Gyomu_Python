@@ -37,6 +37,16 @@ class LoggerFactory:
 
     @classmethod
     def get(cls, dot_env_path: Path | None = None) -> Logger:
+        """Get the application-wide logger instance.
+
+        Args:
+            dot_env_path,sort_order:0}],raises:[],reasoning:{param_mapping: (Path |
+                None): Optional path to an explicit .env file.
+
+        Returns:
+            Logger: The application-wide logger instance.
+        """
+
         if cls._logger is None:
             cls._logger = cls._create(dot_env_path)
 

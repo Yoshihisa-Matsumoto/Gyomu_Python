@@ -13,6 +13,19 @@ def execute(
     *,
     cwd: Path | None = None,
 ) -> Result[ProcessResult, ProcessError]:
+    """Execute a command and return its result.
+
+    Executes a command and returns a Result containing either the ProcessResult on
+    success or a ProcessError on failure.
+
+    Args:
+        command (Sequence[str]): The command and its arguments to execute.
+        cwd (Path | None): The working directory in which to execute the command.
+
+    Returns:
+        Result[ProcessResult, ProcessError]: A Result containing a ProcessResult on
+            success or a ProcessError on failure.
+    """
     command_tuple = tuple(command)
 
     try:

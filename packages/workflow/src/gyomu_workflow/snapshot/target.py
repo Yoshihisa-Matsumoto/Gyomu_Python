@@ -1,3 +1,4 @@
+from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_python_analysis.snapshot.models import FileDeleted
@@ -8,6 +9,7 @@ from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.models import SnapshotTarget, SnapshotTargetOption
+from gyomu_workflow.snapshot.validate import validate_python_package_structure
 
 
 def resolve_snapshot_target(
@@ -15,6 +17,19 @@ def resolve_snapshot_target(
     project_context: ProjectContext,
     option: SnapshotTargetOption,
 ) -> Result[SnapshotTarget, GyomuError]:
+    validation_result = validate_python_package_structure(project_context)
+    context = caller_context()
+
+    if isinstance(validation_result, Failure):
+        return validation_result.alt(
+            lambda error: GyomuError(
+                message="fail to validate project structure",
+                domain="snapshot",
+                operation="resolve_snapshot_target",
+                reason="external_failure",
+                context=context,
+            ).chain(error)
+        )
 
     result = analyze_project_changes(
         repository_root_path=repository_root_path,
@@ -22,7 +37,6 @@ def resolve_snapshot_target(
         include_all=option.all,
     )
     if isinstance(result, Failure):
-        context = caller_context()
         return result.alt(
             lambda error: GyomuError(
                 message="fail to analyze project change",
@@ -33,7 +47,7 @@ def resolve_snapshot_target(
             ).chain(error)
         )
     change_result = result.unwrap()
-
+    logger.debug_object(change_result.diff)
     if option.file_filter is None:
         diff = change_result.diff
         return Success(

@@ -32,6 +32,8 @@ VariableDateParameter = Literal[
     "BBOY",
     "BOY",
 ]
+"""Type alias representing supported variable date parameter keywords."""
+
 VARIABLE_DATE_PARAMETERS: tuple[VariableDateParameter, ...] = (
     "TODAY",
     "BBOM",
@@ -50,23 +52,41 @@ VARIABLE_DATE_PARAMETERS: tuple[VariableDateParameter, ...] = (
     "BBOY",
     "BOY",
 )
+"""Tuple containing all supported variable date parameter keywords."""
 
 
 def _is_variable_date_parameter(
     value: str,
 ) -> TypeGuard[VariableDateParameter]:
+    """Check if a given string value is a valid VariableDateParameter."""
+
     return value in VARIABLE_DATE_PARAMETERS
 
 
 class VariableType(Enum):
+    """Enumeration of variable types supported by the translator."""
+
     Date = (1,)
+    """Date variable type."""
+
     ParamMaster = (2,)
+    """Parameter master variable type."""
+
     ParamMasterStringDictionary = (3,)
+    """Parameter master string dictionary variable type."""
+
     Argument = (4,)
+    """Argument variable type."""
+
     ArgumentFile = 5
+    """Argument file variable type."""
 
 
 class VariableTranslatorImpl:
+    """Implementation of the variable translator for resolving date and parameter
+    placeholders.
+    """
+
     def __init__(
         self,
         market_holiday: MarketHolidayRepository,
@@ -97,6 +117,8 @@ class VariableTranslatorImpl:
     def parse_date(
         self, keyword: str, target_date: date
     ) -> Result[date, GyomuIOError | ValidationError]:
+        """Parse a date keyword into a concrete date based on a target date."""
+
         parts = keyword.split("$")
         factor_index = 1
 
@@ -141,6 +163,8 @@ class VariableTranslatorImpl:
         date_parameter: VariableDateParameter,
         factor_index: int,
     ) -> date:
+        """Translate a specific date parameter with offset into a concrete date."""
+
         match date_parameter:
             case "TODAY":
                 return target_date
@@ -217,6 +241,9 @@ class VariableTranslatorImpl:
     def parse(
         self, input_string: str, target_date: date
     ) -> Result[str, GyomuIOError | ValidationError]:
+        """Recursively parse and replace variable placeholders within an input
+        string.
+        """
 
         support_market_result = self.market_holiday.get_supported_market()
         if isinstance(support_market_result, Failure):
@@ -246,6 +273,8 @@ class VariableTranslatorImpl:
         target_date: date,
         arguments: list[str] | None = None,
     ) -> Result[str, GyomuIOError | ValidationError]:
+        """Translate a single variable keyword into its resolved string value."""
+
         parts = keyword.split("$")
         factor_index = 1
         variable_type = VariableType.Date

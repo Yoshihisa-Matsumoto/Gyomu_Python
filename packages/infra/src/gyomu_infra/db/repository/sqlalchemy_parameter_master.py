@@ -26,16 +26,25 @@ from gyomu_infra.db.transaction.transaction_manager import TransactionManager
 
 
 class SqlAlchemyParameterMasterRepository:
+    """SQLAlchemy implementation of the parameter master repository."""
+
     def __init__(self, session: Session) -> None:
         self._session = session
 
     def transaction(self) -> TransactionManager:
+        """Creates and returns a transaction manager for the session."""
+
         return SqlAlchemyTransactionManager(self._session, None)
 
     def find_by_item_key(
         self,
         item_key: str,
     ) -> Result[list[ParameterMaster], DatabaseError]:
+        """Finds parameter master records matching the specified item key.
+
+        Args:
+            item_key (str):
+        """
         return self._find_by_item_key(item_key).alt(
             to_database_error,
         )
@@ -45,6 +54,11 @@ class SqlAlchemyParameterMasterRepository:
         self,
         item_key: str,
     ) -> list[ParameterMaster]:
+        """Internal helper to query parameter master records by item key.
+
+        Args:
+            item_key (str):
+        """
         statement = select(GyomuParamMaster).where(
             GyomuParamMaster.item_key == item_key
         )
@@ -57,6 +71,11 @@ class SqlAlchemyParameterMasterRepository:
         self,
         parameter: ParameterMasterCreate,
     ) -> Result[ParameterMaster, DatabaseError]:
+        """Inserts a new parameter master record.
+
+        Args:
+            parameter (ParameterMasterCreate):
+        """
         return self._execute_insert(parameter).alt(
             to_database_error,
         )
@@ -66,6 +85,11 @@ class SqlAlchemyParameterMasterRepository:
         self,
         parameter: ParameterMasterCreate,
     ) -> ParameterMaster:
+        """Internal helper to execute parameter master record insertion.
+
+        Args:
+            parameter (ParameterMasterCreate):
+        """
         model = to_model_for_insert(parameter)
         statement = insert(GyomuParamMaster).values(model).returning(GyomuParamMaster)
 
@@ -77,6 +101,11 @@ class SqlAlchemyParameterMasterRepository:
         self,
         parameter: ParameterMasterUpdate,
     ) -> Result[ParameterMaster, DatabaseError | ValidationError]:
+        """Updates an existing parameter master record.
+
+        Args:
+            parameter (ParameterMasterUpdate):
+        """
         values_result = to_model_for_update(parameter)
 
         if isinstance(values_result, Failure):
@@ -97,6 +126,12 @@ class SqlAlchemyParameterMasterRepository:
         id: UUID,
         values: dict[str, object],
     ) -> ParameterMaster:
+        """Internal helper to execute parameter master record update.
+
+        Args:
+            id (UUID):
+            values (dict[str, object]):
+        """
         statement = (
             update(GyomuParamMaster)
             .where(GyomuParamMaster.id == id)
@@ -113,6 +148,11 @@ class SqlAlchemyParameterMasterRepository:
         self,
         id: UUID,
     ) -> ParameterMaster:
+        """Internal helper to find a parameter master record by its unique ID.
+
+        Args:
+            id (UUID):
+        """
         statement = select(GyomuParamMaster).where(GyomuParamMaster.id == id)
 
         result = self._session.execute(statement).scalar_one()
@@ -123,6 +163,11 @@ class SqlAlchemyParameterMasterRepository:
         self,
         id: UUID,
     ) -> Result[None, DatabaseError]:
+        """Deletes a parameter master record by its unique ID.
+
+        Args:
+            id (UUID):
+        """
 
         delete_result = self._execute_delete(id).alt(
             to_database_error,
@@ -136,6 +181,11 @@ class SqlAlchemyParameterMasterRepository:
         self,
         id: UUID,
     ) -> None:
+        """Internal helper to execute parameter master record deletion.
+
+        Args:
+            id (UUID):
+        """
 
         statement = delete(GyomuParamMaster).where(GyomuParamMaster.id == id)
         self._session.execute(statement)

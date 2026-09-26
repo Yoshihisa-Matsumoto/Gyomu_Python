@@ -20,10 +20,21 @@ from gyomu_infra.db.repository.sqlalchemy_parameter_master import (
 
 
 class ParameterAccessImpl:
+    """Provides parameter access operations using a parameter master repository."""
+
     def __init__(self, repository: ParameterMasterRepository) -> None:
         self.repository = repository
 
     def _get_item_key(self, key: str, user: User | None = None) -> str:
+        """Formats and returns a parameter item key, optionally scoped by user.
+
+        Args:
+            key (str): Parameter key name
+            user (User | None): Optional user to scope the parameter key
+
+        Returns:
+            str: Formatted item key string
+        """
         if user is not None:
             key = user.user_id + "_" + key
         return key
@@ -34,6 +45,19 @@ class ParameterAccessImpl:
         user: User | None = None,
         target_date: date | None = None,
     ) -> Result[str, DatabaseError]:
+        """Retrieves a parameter string value by key, optional user, and optional target
+        date.
+
+        Args:
+            key (str): Parameter key
+            user (User | None): Optional user context
+            target_date (date | None): Optional target date for date-sensitive
+                parameters
+
+        Returns:
+            Result[str, DatabaseError]: Result containing the parameter value or a
+                DatabaseError
+        """
         item_key = self._get_item_key(key, user)
         load_data_result = self.repository.find_by_item_key(item_key)
 
@@ -104,6 +128,19 @@ class ParameterAccessImpl:
         user: User | None = None,
         target_date: date | None = None,
     ) -> Result[bool, DatabaseError]:
+        """Retrieves a parameter boolean value by key, optional user, and optional
+        target date.
+
+        Args:
+            key (str): Parameter key
+            user (User | None): Optional user context
+            target_date (date | None): Optional target date for date-sensitive
+                parameters
+
+        Returns:
+            Result[bool, DatabaseError]: Result containing the boolean value or a
+                DatabaseError
+        """
         return self.get_value(key, user, target_date).map(
             lambda value: value.lower() == "true"
         )
@@ -114,6 +151,19 @@ class ParameterAccessImpl:
         user: User | None = None,
         target_date: date | None = None,
     ) -> Result[int, DatabaseError | ValidationError]:
+        """Retrieves a parameter integer value by key, optional user, and optional
+        target date.
+
+        Args:
+            key (str): Parameter key
+            user (User | None): Optional user context
+            target_date (date | None): Optional target date for date-sensitive
+                parameters
+
+        Returns:
+            Result[int, DatabaseError | ValidationError]: Result containing the integer
+                value or DatabaseError/ValidationError
+        """
         result = self.get_value(key, user, target_date)
 
         if isinstance(result, Failure):
@@ -126,6 +176,19 @@ class ParameterAccessImpl:
         user: User | None = None,
         target_date: date | None = None,
     ) -> Result[Decimal, DatabaseError | ValidationError]:
+        """Retrieves a parameter Decimal value by key, optional user, and optional
+        target date.
+
+        Args:
+            key (str): Parameter key
+            user (User | None): Optional user context
+            target_date (date | None): Optional target date for date-sensitive
+                parameters
+
+        Returns:
+            Result[Decimal, DatabaseError | ValidationError]: Result containing the
+                Decimal value or DatabaseError/ValidationError
+        """
         result = self.get_value(key, user, target_date)
 
         if isinstance(result, Failure):
@@ -135,6 +198,16 @@ class ParameterAccessImpl:
     def key_exists(
         self, key: str, user: User | None = None
     ) -> Result[bool, DatabaseError]:
+        """Checks whether a parameter key exists for the given key and optional user.
+
+        Args:
+            key (str): Parameter key
+            user (User | None): Optional user context
+
+        Returns:
+            Result[bool, DatabaseError]: Result containing a boolean indicating whether
+                the key exists or DatabaseError
+        """
         item_key = self._get_item_key(key, user)
         record_result = self.repository.find_by_item_key(item_key)
         if isinstance(record_result, Failure):
@@ -145,6 +218,18 @@ class ParameterAccessImpl:
     def set_value(
         self, key: str, value: str, user: User | None = None
     ) -> Result[None, DatabaseError | ValidationError]:
+        """Sets or updates a parameter value for the given key, value, and optional
+        user.
+
+        Args:
+            key (str): Parameter key
+            value (str): Parameter value to set
+            user (User | None): Optional user context
+
+        Returns:
+            Result[None, DatabaseError | ValidationError]: Result containing None or
+                DatabaseError/ValidationError
+        """
         item_key = self._get_item_key(key, user)
 
         with self.repository.transaction() as trn:
@@ -195,6 +280,15 @@ class ParameterAccessImpl:
 
 
 def _parse_int(value: str) -> Result[int, ValidationError]:
+    """Parses a string value into an integer result.
+
+    Args:
+        value (str): String value to parse
+
+    Returns:
+        Result[int, ValidationError]: Result containing the parsed integer or a
+            ValidationError
+    """
     try:
         return Success(int(value))
     except ValueError:
@@ -204,6 +298,15 @@ def _parse_int(value: str) -> Result[int, ValidationError]:
 
 
 def _parse_decimal(value: str) -> Result[Decimal, ValidationError]:
+    """Parses a string value into a Decimal result.
+
+    Args:
+        value (str): String value to parse
+
+    Returns:
+        Result[Decimal, ValidationError]: Result containing the parsed Decimal or a
+            ValidationError
+    """
     try:
         return Success(Decimal(value))
     except decimal.InvalidOperation:
@@ -215,5 +318,13 @@ def _parse_decimal(value: str) -> Result[Decimal, ValidationError]:
 def create_parameter_access(
     session: Session,
 ) -> ParameterAccess:
+    """Factory function to create a ParameterAccess instance using a database session.
+
+    Args:
+        session (Session): Database session
+
+    Returns:
+        ParameterAccess: Created ParameterAccess instance
+    """
     repository = SqlAlchemyParameterMasterRepository(session)
     return ParameterAccessImpl(repository)

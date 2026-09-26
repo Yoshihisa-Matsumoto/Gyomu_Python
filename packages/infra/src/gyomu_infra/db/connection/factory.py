@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from gyomu_infra.config.loader import ConfigLoader
 
 GYOMU_COMMON_MAINDB_CONNECTION = "GYOMU_COMMON_MAINDB_CONNECTION"
+"""Defines the environment variable name for the common main database connection."""
 
 
 class DbConnectionFactory:
@@ -27,7 +28,7 @@ class DbConnectionFactory:
         """Create a SQLAlchemy Engine from the database configuration.
 
         Returns:
-            A configured SQLAlchemy Engine.
+            Engine: A configured SQLAlchemy Engine.
 
         Raises:
             ConfigError: If the database connection configuration is missing

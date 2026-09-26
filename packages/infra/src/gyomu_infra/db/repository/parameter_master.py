@@ -14,6 +14,8 @@ from gyomu_infra.db.transaction.transaction_manager import TransactionManager
 
 
 class ParameterMasterRepository(Protocol):
+    """Repository protocol for managing parameter master records."""
+
     def find_by_item_key(
         self,
         item_key: str,

@@ -10,11 +10,15 @@ from gyomu_infra.db.repository.market_holiday import MarketHolidayRepository
 
 
 class BusinessCalendarImpl:
+    """Implements business calendar calculations based on a given set of holidays."""
+
     def __init__(self, holidays: list[date]) -> None:
         self._holidays = holidays
         self._holiday_set = set(holidays)
 
     def is_business_day(self, target_date: date) -> bool:
+        """Checks whether a given date is a business day."""
+
         if target_date.isoweekday() > 5:
             return False
 
@@ -25,6 +29,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Calculates a business day offset from a target date."""
+
         if day_offset == 0:
             return self._get_next_business_day(
                 self._get_previous_business_day(target_date, 1),
@@ -47,6 +53,8 @@ class BusinessCalendarImpl:
         start_date: date,
         end_date: date,
     ) -> list[date]:
+        """Retrieves holidays within a specified date range."""
+
         return [
             holiday for holiday in self._holidays if start_date <= holiday <= end_date
         ]
@@ -56,6 +64,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Gets the next business day after a given offset."""
+
         business_day = target_date
 
         while day_offset > 0:
@@ -71,6 +81,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Gets the previous business day before a given offset."""
+
         business_day = target_date
 
         while day_offset > 0:
@@ -86,6 +98,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int = 1,
     ) -> date:
+        """Gets a business day near the beginning of the month with an offset."""
+
         business_day = target_date.replace(day=1)
 
         if self.is_business_day(business_day):
@@ -107,6 +121,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int = 1,
     ) -> date:
+        """Gets a business day near the beginning of the next month with an offset."""
+
         if target_date.month == 12:
             business_day = date(
                 target_date.year + 1,
@@ -142,6 +158,9 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int = 1,
     ) -> date:
+        """Gets a business day near the beginning of the previous month with an
+        offset.
+        """
         if target_date.month == 1:
             business_day = date(
                 target_date.year - 1,
@@ -177,6 +196,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Gets a business day near the end of the month with an offset."""
+
         if target_date.month == 12:
             business_day = date(
                 target_date.year + 1,
@@ -203,6 +224,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Gets a business day near the end of the next month with an offset."""
+
         if target_date.month == 12:
             business_day = date(
                 target_date.year + 1,
@@ -250,6 +273,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Gets a business day near the end of the previous month with an offset."""
+
         business_day = date(
             target_date.year,
             target_date.month,
@@ -269,6 +294,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Gets a business day near the beginning of the year with an offset."""
+
         business_day = date(
             target_date.year,
             1,
@@ -291,6 +318,8 @@ class BusinessCalendarImpl:
         target_date: date,
         day_offset: int,
     ) -> date:
+        """Gets a business day near the end of the year with an offset."""
+
         business_day = date(
             target_date.year + 1,
             1,
@@ -307,6 +336,10 @@ class BusinessCalendarImpl:
 
 
 class BusinessCalendarService:
+    """Provides business calendar instances retrieved from a market holiday
+    repository with caching.
+    """
+
     def __init__(
         self,
         repository: MarketHolidayRepository,
@@ -319,6 +352,8 @@ class BusinessCalendarService:
         self,
         market: str,
     ) -> Result[BusinessCalendar, DatabaseError]:
+        """Retrieves or loads a business calendar for a specific market."""
+
         with self._lock:
             cached = self._cache.get(market)
 
@@ -339,6 +374,8 @@ class BusinessCalendarService:
         market: str,
         holidays: list[MarketHoliday],
     ) -> BusinessCalendar:
+        """Creates a business calendar instance and caches it."""
+
         calendar = BusinessCalendarImpl(
             [holiday.holiday for holiday in holidays],
         )
