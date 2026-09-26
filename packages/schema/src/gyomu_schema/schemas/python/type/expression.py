@@ -38,6 +38,7 @@ class ExpressionKind(StrEnum):
     GENERATOREXP = "generator_exp"
     SLICE = "slice"
     NAMED = "named"
+    SETCOMPARE = "set_compare"
 
 
 class UnknownExpressionAnalysis(BaseModel):
@@ -135,6 +136,7 @@ type ExpressionAnalysis = (
     | GeneratorExpressionAnalysis
     | SliceExpressionAnalysis
     | NamedExpressionAnalysis
+    | SetCompareExpressionAnalysis
 )
 
 
@@ -171,6 +173,12 @@ class DictionaryCompareExpressionAnalysis(BaseModel):
     kind: ExpressionKind = ExpressionKind.DICTIONARYCOMPARE
     key: ExpressionAnalysis
     value: ExpressionAnalysis
+    generators: tuple[ComparehensionAnalysis, ...]
+
+
+class SetCompareExpressionAnalysis(BaseModel):
+    kind: ExpressionKind = ExpressionKind.SETCOMPARE
+    elt: ExpressionAnalysis
     generators: tuple[ComparehensionAnalysis, ...]
 
 
@@ -337,6 +345,11 @@ class StatementKind(StrEnum):
     BREAK = "break"
     CONTINUE = "continue"
     FUNCTIONDEF = "functiondef"
+    GLOBAL = "global"
+
+
+class GlobalStatementAnalysis(BaseModel):
+    names: tuple[str, ...]
 
 
 class AnnotationAssignStatementAnalysis(BaseModel):
@@ -416,6 +429,7 @@ type StatementAnalysis = (
     | MatchStatementAnalysis
     | AugAssignStatementAnalysis
     | FunctionDefStatementAnalysis
+    | GlobalStatementAnalysis
 )
 
 type TypeParameter = TypeVarAnalysis | ParamSpecAnalysis | TypeVarTupleAnalysis

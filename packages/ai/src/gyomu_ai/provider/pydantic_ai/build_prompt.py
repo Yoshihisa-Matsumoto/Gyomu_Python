@@ -24,12 +24,33 @@ from pydantic_ai.agent.abstract import AgentInstructions
 
 @dataclass(frozen=True)
 class PydanticAiMessages:
+    """Encapsulates instructions, user prompt, and message history formatted for
+    Pydantic AI.
+    """
+
     instructions: AgentInstructions
+    """Agent instructions for the conversation."""
+
     user_prompt: Sequence[UserContent]
+    """User prompt content sequence."""
+
     message_history: Sequence[ModelMessage] | None
+    """Optional sequence of previous model messages."""
 
 
 def build_prompt(conversation: ConversationSchema) -> PydanticAiMessages:
+    """Builds PydanticAI messages from a conversation schema.
+
+    Args:
+        conversation (ConversationSchema): The conversation schema containing request,
+            system instructions, and history.
+
+    Returns:
+        PydanticAiMessages: Formatted PydanticAI messages structure.
+
+    Raises:
+        ValueError: Raised if conversation request is missing.
+    """
     if not conversation.request:
         raise ValueError("messages must has user input")
 
@@ -56,6 +77,14 @@ def build_prompt(conversation: ConversationSchema) -> PydanticAiMessages:
 
 
 def _MessageSchema2ModelResponse(message: MessageSchema) -> ModelResponse:
+    """Converts a message schema to a model response.
+
+    Args:
+        message (MessageSchema): The message schema to convert.
+
+    Returns:
+        ModelResponse: Converted ModelResponse object.
+    """
     return ModelResponse(
         parts=list(map(_MessagePart2ModelResponsePart, message.parts)),
         timestamp=message.created_at,
@@ -63,6 +92,14 @@ def _MessageSchema2ModelResponse(message: MessageSchema) -> ModelResponse:
 
 
 def _MessageSchema2ModelRequest(message: MessageSchema) -> ModelRequest:
+    """Converts a message schema to a model request.
+
+    Args:
+        message (MessageSchema): The message schema to convert.
+
+    Returns:
+        ModelRequest: Converted ModelRequest object.
+    """
 
     return ModelRequest(
         parts=list(map(_MessagePart2ModelRequestPart, message.parts)),
@@ -71,6 +108,17 @@ def _MessageSchema2ModelRequest(message: MessageSchema) -> ModelRequest:
 
 
 def _MessagePart2ModelResponsePart(message_part: MessagePart) -> ModelResponsePart:
+    """Converts a message part to a model response part.
+
+    Args:
+        message_part (MessagePart): The message part to convert.
+
+    Returns:
+        ModelResponsePart: Converted model response part.
+
+    Raises:
+        ValueError: Raised if the message part type is not supported.
+    """
     if isinstance(message_part, AiTextPart):
         return TextPart(
             message_part.text,
@@ -80,6 +128,17 @@ def _MessagePart2ModelResponsePart(message_part: MessagePart) -> ModelResponsePa
 
 
 def _MessagePart2ModelRequestPart(message_part: MessagePart) -> ModelRequestPart:
+    """Converts a message part to a model request part.
+
+    Args:
+        message_part (MessagePart): The message part to convert.
+
+    Returns:
+        ModelRequestPart: Converted model request part.
+
+    Raises:
+        ValueError: Raised if the message part type is not supported.
+    """
     if isinstance(message_part, AiTextPart):
         return UserPromptPart(
             message_part.text,
@@ -89,6 +148,17 @@ def _MessagePart2ModelRequestPart(message_part: MessagePart) -> ModelRequestPart
 
 
 def _MessagePart2UserContent(message_part: MessagePart) -> UserContent:
+    """Converts a message part to user content.
+
+    Args:
+        message_part (MessagePart): The message part to convert.
+
+    Returns:
+        UserContent: Converted user content.
+
+    Raises:
+        ValueError: Raised if the message part type is not supported.
+    """
     if isinstance(message_part, AiTextPart):
         return TextContent(
             message_part.text,

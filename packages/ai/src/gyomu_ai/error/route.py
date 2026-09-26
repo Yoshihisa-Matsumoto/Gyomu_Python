@@ -1,10 +1,13 @@
 from collections.abc import Mapping
 
-from gyomu_ai.provider.pydantic_ai.routing import ModelRouteId, ModelRouteTableId
 from gyomu_schema.error.base import BaseError
+
+from gyomu_ai.provider.pydantic_ai.routing import ModelRouteId, ModelRouteTableId
 
 
 class RoutingError(BaseError):
+    """Raised when a model routing or route table operation fails."""
+
     def __init__(
         self,
         message: str,

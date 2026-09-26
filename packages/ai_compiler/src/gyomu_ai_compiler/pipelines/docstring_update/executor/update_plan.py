@@ -24,6 +24,19 @@ from gyomu_ai_compiler.prompts.load import (
 async def generate_docstring_update_plan(
     context: DocstringFileContext,
 ) -> Result[DocstringUpdatePlan, GyomuIOError | AiError]:
+    """Generate a docstring update plan for a given file context.
+
+    Generate a docstring update plan from the provided file context using AI routing.
+
+    Args:
+        context (DocstringFileContext): The file context containing the code and symbols
+            to update.
+
+    Returns:
+        Result[DocstringUpdatePlan, GyomuIOError | AiError]: A Result containing the
+            generated DocstringUpdatePlan on success, or a GyomuIOError or AiError on
+            failure.
+    """
     prompt = load_docstring_update_base_prompt()
     if isinstance(prompt, Failure):
         return prompt

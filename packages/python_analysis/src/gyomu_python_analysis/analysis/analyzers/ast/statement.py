@@ -37,6 +37,7 @@ from gyomu_schema.schemas.python.type.expression import (
     ForStatementAnalysis,
     FunctionDefStatementAnalysis,
     GeneratorExpressionAnalysis,
+    GlobalStatementAnalysis,
     IfExpressionAnalysis,
     IfStatementAnalysis,
     JoinedStrExpressionAnalysis,
@@ -44,9 +45,11 @@ from gyomu_schema.schemas.python.type.expression import (
     LambdaExpressionAnalysis,
     ListCompareExpressionAnalysis,
     ListExpressionAnalysis,
+    MatchAs,
     MatchCaseAnalysis,
     MatchClass,
     MatchMapping,
+    MatchOr,
     MatchSequence,
     MatchSingleton,
     MatchStatementAnalysis,
@@ -59,6 +62,7 @@ from gyomu_schema.schemas.python.type.expression import (
     PatternAnalysis,
     RaiseStatementAnalysis,
     ReturnStatementAnalysis,
+    SetCompareExpressionAnalysis,
     SetExpressionAnalysis,
     SliceExpressionAnalysis,
     StarredExpressionAnalysis,
@@ -132,6 +136,8 @@ def analyze_statement(
         return _analyze_function(
             statement, context, option, need_registration_dependency
         )
+    if isinstance(statement, ast.Global):
+        return _analyze_global(statement)
 
     logger.debug(f"unsupported statement: {repr(statement)}")
     return UnknownStatementAnalysis()
@@ -191,6 +197,8 @@ def analyze_expression(
         return _analyze_starred(expr, context, option, need_registration_dependency)
     if isinstance(expr, ast.Set):
         return analyze_set(expr, context, option, need_registration_dependency)
+    if isinstance(expr, ast.SetComp):
+        return _analyze_set_compare(expr, context, option, need_registration_dependency)
     if isinstance(expr, ast.Lambda):
         return _analyze_lambda(expr, context, option, need_registration_dependency)
     if isinstance(expr, ast.YieldFrom):
@@ -259,6 +267,28 @@ def _analyze_comparehension(
             ]
         ),
         is_async=comprehension.is_async == 1,
+    )
+
+
+def _analyze_set_compare(
+    compare: ast.SetComp,
+    context: SymbolContext,
+    option: AnalysisOption | None,
+    need_registration_dependency: bool,
+) -> SetCompareExpressionAnalysis:
+
+    return SetCompareExpressionAnalysis(
+        elt=analyze_expression(
+            compare.elt, context, option, need_registration_dependency
+        ),
+        generators=tuple(
+            [
+                _analyze_comparehension(
+                    child, context, option, need_registration_dependency
+                )
+                for child in compare.generators
+            ]
+        ),
     )
 
 
@@ -924,7 +954,26 @@ def _analyze_pattern(
             ),
             kwd_attrs=tuple(pattern.kwd_attrs),
         )
-
+    if isinstance(pattern, ast.MatchAs):
+        return MatchAs(
+            pattern=_analyze_pattern(
+                pattern.pattern, context, option, need_registration_dependency
+            )
+            if pattern.pattern is not None
+            else None,
+            name=pattern.name,
+        )
+    if isinstance(pattern, ast.MatchOr):
+        return MatchOr(
+            patterns=tuple(
+                [
+                    _analyze_pattern(
+                        child, context, option, need_registration_dependency
+                    )
+                    for child in pattern.patterns
+                ]
+            ),
+        )
     raise ValueError(f"Unsupported match case pattern: {type(pattern).__name__}")
 
 
@@ -1052,6 +1101,12 @@ def _analyze_raise(
             statement.cause, context, option, need_registration_dependency
         ),
     )
+
+
+def _analyze_global(
+    statement: ast.Global,
+) -> GlobalStatementAnalysis:
+    return GlobalStatementAnalysis(names=tuple(statement.names))
 
 
 def _analyze_assert(

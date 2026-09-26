@@ -1,5 +1,10 @@
 from collections.abc import Awaitable, Callable
 
+from gyomu_schema.conversation.conversation import ConversationSchema
+from gyomu_schema.error.ai import AiError, AiFallbackResolution
+from pydantic import BaseModel
+from returns.result import Failure, Result, Success
+
 from gyomu_ai.execution.parameter import (
     EmbedParams,
     GenerateObjectParams,
@@ -19,13 +24,11 @@ from gyomu_ai.provider.pydantic_ai.routing import (
     ModelRouteTableId,
     RouteNode,
 )
-from gyomu_schema.conversation.conversation import ConversationSchema
-from gyomu_schema.error.ai import AiError, AiFallbackResolution
-from pydantic import BaseModel
-from returns.result import Failure, Result, Success
 
 
 class PydanticAiRoutingExecution:
+    """Executes AI operations using configured model routes and fallback logic."""
+
     def __init__(
         self,
         route_id: ModelRouteId,
@@ -41,6 +44,8 @@ class PydanticAiRoutingExecution:
             Awaitable[Result[A, AiError]],
         ],
     ) -> Result[A, AiError]:
+        """Executes an operation on a single route node."""
+
         return await execute(
             PydanticAiModelExecution(node.registry, retry_option=node.retry_option)
         )
@@ -52,6 +57,9 @@ class PydanticAiRoutingExecution:
             Awaitable[Result[A, AiError]],
         ],
     ) -> Result[A, AiError]:
+        """Executes an operation across nodes in the model route with fallback
+        support.
+        """
         last_error: AiError | None = None
 
         for node in self.route.nodes:
@@ -73,6 +81,7 @@ class PydanticAiRoutingExecution:
         conversation: ConversationSchema,
         params: GenerateTextParams,
     ) -> Result[AiGenerateTextResult, AiError]:
+        """Generates text using the configured model route."""
 
         return await self.run_with_model_route(
             lambda service: service.generate_text(conversation, params)
@@ -83,6 +92,7 @@ class PydanticAiRoutingExecution:
         conversation: ConversationSchema,
         params: StreamTextParams,
     ) -> Result[AiTextStream, AiError]:
+        """Streams text using the configured model route."""
 
         return await self.run_with_model_route(
             lambda service: service.stream_text(conversation, params)
@@ -93,6 +103,7 @@ class PydanticAiRoutingExecution:
         conversation: ConversationSchema,
         params: GenerateObjectParams[T],
     ) -> Result[AiGenerateObjectResult[T], AiError]:
+        """Generates a structured object using the configured model route."""
 
         return await self.run_with_model_route(
             lambda service: service.generate_object(conversation, params)
@@ -102,5 +113,7 @@ class PydanticAiRoutingExecution:
         self,
         params: EmbedParams[T],
     ) -> Result[AiEmbeddingResult, AiError]:
+        """Generates embeddings using the default node of the model route."""
+
         default_node = self.route.nodes[0]
         return await self.run_node(default_node, lambda service: service.embed(params))
