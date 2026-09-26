@@ -35,7 +35,10 @@ def snapshot_request(mocker: MockerFixture) -> SnapshotRequest:
 
 
 def test_snapshot_success(mocker: MockerFixture, snapshot_request: SnapshotRequest):
-
+    mocker.patch(
+        "gyomu_cli.main.register_google_routing",
+        return_value=None,
+    )
     mocker.patch(
         "gyomu_cli.main.translate_snapshot_request",
         return_value=Success(snapshot_request),
@@ -70,6 +73,7 @@ def test_snapshot_success(mocker: MockerFixture, snapshot_request: SnapshotReque
 def test_snapshot_translate_failure(
     mocker: MockerFixture,
 ):
+
     error = GyomuError(
         message="translate failed",
         domain="test",
@@ -77,6 +81,10 @@ def test_snapshot_translate_failure(
         reason="invalid_input",
     )
 
+    mocker.patch(
+        "gyomu_cli.main.register_google_routing",
+        return_value=None,
+    )
     mocker.patch(
         "gyomu_cli.main.translate_snapshot_request",
         return_value=Failure(error),
@@ -114,6 +122,10 @@ def test_snapshot_validation_failure(
     )
 
     mocker.patch(
+        "gyomu_cli.main.register_google_routing",
+        return_value=None,
+    )
+    mocker.patch(
         "gyomu_cli.main.translate_snapshot_request",
         return_value=Success(snapshot_request),
     )
@@ -146,7 +158,10 @@ def test_snapshot_run_failure(mocker: MockerFixture, snapshot_request: SnapshotR
         operation="run",
         reason="invalid_input",
     )
-
+    mocker.patch(
+        "gyomu_cli.main.register_google_routing",
+        return_value=None,
+    )
     mocker.patch(
         "gyomu_cli.main.translate_snapshot_request",
         return_value=Success(snapshot_request),
