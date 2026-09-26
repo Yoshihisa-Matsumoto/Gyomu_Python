@@ -24,6 +24,12 @@ def build_file_update_plan(
     rendered_docstrings: tuple[RenderedSymbolDocstring, ...],
     source: str,
 ) -> Result[FileUpdatePlan, UpdateError]:
+    """Builds a file update plan from rendered symbol docstrings for a given file.
+
+    Returns:
+        Result[FileUpdatePlan, UpdateError]: A Result containing the generated
+            FileUpdatePlan or an UpdateError.
+    """
     entries_result = _build_file_update_plan_entries(
         context=context,
         rendered_docstrings=rendered_docstrings,
@@ -62,6 +68,12 @@ def _build_file_update_plan_entries(
     rendered_docstrings: tuple[RenderedSymbolDocstring, ...],
     source: str,
 ) -> Result[tuple[FileUpdatePlanEntry, ...], ValidationError]:
+    """Builds individual file update plan entries from rendered symbol docstrings.
+
+    Returns:
+        Result[tuple[FileUpdatePlanEntry, ...], ValidationError]: A Result containing a
+            tuple of file update plan entries or a ValidationError.
+    """
     entries: list[FileUpdatePlanEntry] = []
 
     for rendered in rendered_docstrings:
@@ -83,6 +95,13 @@ def _build_file_update_plan_entries(
 def validate_file_update_plan_entries(
     entries: tuple[FileUpdatePlanEntry, ...],
 ) -> Result[None, ValidationError]:
+    """Validates file update plan entries to ensure ranges are non-overlapping and
+    valid.
+
+    Returns:
+        Result[None, ValidationError]: A Result indicating success or a ValidationError
+            if ranges are invalid or overlapping.
+    """
     sorted_entries = sorted(
         entries,
         key=lambda entry: entry.location.start_offset,
@@ -126,6 +145,13 @@ def build_file_update_plan_entry(
     context: FileAnalysisContext,
     rendered: RenderedSymbolDocstring,
 ) -> Result[FileUpdatePlanEntry | None, ValidationError]:
+    """Builds a single file update plan entry corresponding to a rendered symbol
+    docstring.
+
+    Returns:
+        Result[FileUpdatePlanEntry | None, ValidationError]: A Result containing the
+            file update plan entry, None, or a ValidationError.
+    """
     analysis = context.metadata.symbols.get(rendered.identity)
 
     if analysis is None:
@@ -169,6 +195,12 @@ def build_addition_entry(
     analysis: SymbolAnalysis | MemberAnalysis,
     rendered: RenderedSymbolDocstring,
 ) -> Result[FileUpdatePlanEntry | None, ValidationError]:
+    """Builds a file update plan entry for adding a new docstring to a symbol.
+
+    Returns:
+        Result[FileUpdatePlanEntry | None, ValidationError]: A Result containing the
+            addition plan entry, None, or a ValidationError.
+    """
     if not rendered.docstring:
         return Success(None)
 
@@ -200,6 +232,12 @@ def _get_declaration_definition_end_offset(
     source: str,
     analysis: ClassAnalysis | FunctionAnalysis | InnerClassAnalysis | MethodAnalysis,
 ) -> Result[int, ValidationError]:
+    """Computes the end offset of a declaration definition header in source code.
+
+    Returns:
+        Result[int, ValidationError]: A Result containing the end offset integer or a
+            ValidationError.
+    """
     assert analysis.location
 
     declaration_source = source[
@@ -250,6 +288,12 @@ def _get_line_offset(
     source: str,
     position: tuple[int, int],
 ) -> int:
+    """Computes the character offset for a specific line and column position in source
+    text.
+
+    Returns:
+        int: The computed character offset.
+    """
     row, column = position
 
     lines = source.splitlines(keepends=True)
@@ -260,6 +304,11 @@ def _get_line_offset(
 def build_deletion_entry(
     source: str, rendered: RenderedSymbolDocstring
 ) -> FileUpdatePlanEntry:
+    """Builds a file update plan entry to delete an existing docstring.
+
+    Returns:
+        FileUpdatePlanEntry: The file update plan entry for docstring deletion.
+    """
     location = rendered.location.model_copy()
 
     start = location.start_offset
@@ -281,6 +330,11 @@ def build_deletion_entry(
 
 
 def build_replacement_entry(rendered: RenderedSymbolDocstring) -> FileUpdatePlanEntry:
+    """Builds a file update plan entry to replace an existing docstring.
+
+    Returns:
+        FileUpdatePlanEntry: The file update plan entry for docstring replacement.
+    """
     assert rendered.docstring
     return FileUpdatePlanEntry(
         identity=rendered.identity,

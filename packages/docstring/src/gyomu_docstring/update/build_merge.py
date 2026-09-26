@@ -28,6 +28,20 @@ async def build_merge_plan(
     source: str,
     option: UpdateOption | None = None,
 ) -> Result[tuple[MergePlan, ...], UpdateError]:
+    """Builds a merge plan for updating docstrings in a file.
+
+    Builds a merge plan for updating docstrings within a project file context.
+
+    Args:
+        project_name (str): Name of the project
+        file_context (FileAnalysisContext): Context for file analysis
+        source (str): Source code content
+        option (UpdateOption | None): Optional update configuration options
+
+    Returns:
+        Result[tuple[MergePlan, ...], UpdateError]: Result containing a tuple of merge
+            plans on success or an update error on failure
+    """
     docstring_context = build_docstring_file_context(
         project_name,
         file_context,

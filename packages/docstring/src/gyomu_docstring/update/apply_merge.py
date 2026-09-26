@@ -34,6 +34,8 @@ from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 def apply_merge_plans(
     context: FileAnalysisContext, plans: tuple[MergePlan, ...]
 ) -> Result[tuple[UpdatedDocstring, ...], UpdateError]:
+    """Applies a sequence of merge plans and returns the updated docstrings."""
+
     results: list[UpdatedDocstring] = []
 
     for plan in plans:
@@ -50,6 +52,9 @@ def apply_merge_plans(
 def apply_merge_plan(
     context: FileAnalysisContext, plan: MergePlan
 ) -> Result[UpdatedDocstring, UpdateError]:
+    """Applies a single merge plan to the file analysis context and returns the
+    updated docstring.
+    """
     existing_docstring = context.metadata.parsed_docstring.get(plan.identity)
     existing_symbol_or_method = context.metadata.symbols.get(plan.identity)
 
@@ -160,6 +165,8 @@ def _merge_sections(
     returns: DocstringReturnsSectionItem | None,
     raises: tuple[DocstringRaisesSectionItem, ...],
 ) -> tuple[DocstringSection, ...]:
+    """Merges docstring sections from an existing docstring and new section items."""
+
     existing_sections = (
         existing_docstring.sections if existing_docstring is not None else ()
     )
@@ -205,6 +212,9 @@ def _merge_sections(
 def _merge_summary(
     plan: MergeAction[str], existing_docstring: DocstringAnalysis | None
 ) -> str | None:
+    """Merges the summary based on the provided merge action plan and existing
+    docstring.
+    """
     match plan.type:
         case "preserve":
             if existing_docstring is None:
@@ -219,6 +229,9 @@ def _merge_summary(
 def _merge_description(
     plan: MergeAction[str] | None, existing_docstring: DocstringAnalysis | None
 ) -> str | None:
+    """Merges the description based on the provided merge action plan and existing
+    docstring.
+    """
     if plan is None:
         return None
     match plan.type:
@@ -235,6 +248,8 @@ def _merge_description(
 def _find_section[T: DocstringSection](
     existing_docstring: DocstringAnalysis | None, section_type: type[T]
 ) -> T | None:
+    """Finds and returns a specific section within an existing docstring analysis."""
+
     if existing_docstring is None:
         return None
     existing_parameters = next(
@@ -257,6 +272,9 @@ def _merge_arguments(
     tuple[DocstringParametersSectionItem, ...],
     UpdateError,
 ]:
+    """Merges argument section items based on parameter merge plans and existing
+    docstring parameters.
+    """
     parameters_section = _find_section(existing_docstring, DocstringParametersSection)
     existing_parameters_by_name = (
         {item.name: item for item in parameters_section.items}
@@ -325,6 +343,9 @@ def _merge_returns(
     plan: MergeAction[ReturnActionValue] | None,
     existing_docstring: DocstringAnalysis | None,
 ) -> DocstringReturnsSectionItem | None:
+    """Merges return section items based on the return merge plan and existing
+    docstring returns.
+    """
     if plan is None:
         return None
     returns_section = _find_section(existing_docstring, DocstringReturnsSection)
@@ -361,6 +382,9 @@ def _merge_raises(
     tuple[DocstringRaisesSectionItem, ...],
     UpdateError,
 ]:
+    """Merges raises section items based on exception merge plans and existing
+    docstring raises.
+    """
     raises_section = _find_section(existing_docstring, DocstringRaisesSection)
     existing_raises_by_type = (
         {item.type: item for item in raises_section.items}

@@ -5,6 +5,18 @@ def apply_file_update_plan(
     source: str,
     plan: FileUpdatePlan,
 ) -> str:
+    """Apply a file update plan to source code.
+
+    Applies a file update plan to source code by replacing text segments in reverse
+    order of their offsets.
+
+    Args:
+        source (str): The original source code text.
+        plan (FileUpdatePlan): The file update plan containing items to apply.
+
+    Returns:
+        str: The updated source code string.
+    """
     result = source
 
     for item in sorted(

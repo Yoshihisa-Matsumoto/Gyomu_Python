@@ -19,6 +19,16 @@ from gyomu_workflow.snapshot.models import SnapshotExecutionOption, SnapshotRequ
 def translate_snapshot_request(
     project_name: str, option: SnapshotExecutionOption
 ) -> Result[SnapshotRequest, AnalysisError | GyomuError]:
+    """Translate a project name and snapshot execution option into a snapshot request.
+
+    Args:
+        project_name (str): Name of the project to translate into a snapshot request.
+        option (SnapshotExecutionOption): Snapshot execution options.
+
+    Returns:
+        Result[SnapshotRequest, AnalysisError | GyomuError]: A Result containing either
+            the generated SnapshotRequest or an error.
+    """
 
     current_path = FullPath(Path(getcwd()))
     root_result = find_root(current_path)

@@ -27,6 +27,9 @@ from gyomu_docstring.update.docstring.updated_docstring import UpdatedDocstring
 def render_docstring_lines(
     updated: UpdatedDocstring, formatter_line_length: int
 ) -> tuple[DocstringLine, ...]:
+    """Renders docstring lines from an updated docstring object and formatter line
+    length.
+    """
     summary_lines: list[DocstringLine] = []
     lines: list[DocstringLine] = []
     docstring = updated.docstring
@@ -84,6 +87,8 @@ def compute_custom_list_tag(
     lines: list[DocstringLine],
     style: DocstringStyle,
 ) -> None:
+    """Computes and appends a custom list tag section to the docstring lines."""
+
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text=section.title + ":"))
@@ -100,6 +105,8 @@ def compute_custom_tag(
     lines: list[DocstringLine],
     style: DocstringStyle,
 ) -> None:
+    """Computes and appends a custom tag section to the docstring lines."""
+
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text=section.title + ":"))
@@ -112,6 +119,8 @@ def compute_gyomu_context(
     style: DocstringStyle,
     formatter_line_length: int,
 ) -> None:
+    """Computes and appends the Gyomu context section to the docstring lines."""
+
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Gyomu Context:"))
@@ -130,6 +139,7 @@ def compute_gyomu_context(
 def compute_examples_tag(
     section: DocstringExamplesSection, lines: list[DocstringLine], style: DocstringStyle
 ) -> None:
+    """Computes and appends the examples section to the docstring lines."""
 
     match style:
         case DocstringStyle.GOOGLE:
@@ -142,6 +152,8 @@ def compute_examples_tag(
 def compute_notes_tag(
     section: DocstringNotesSection, lines: list[DocstringLine], style: DocstringStyle
 ) -> None:
+    """Computes and appends the notes section to the docstring lines."""
+
     match style:
         case DocstringStyle.GOOGLE:
             lines.append(DocstringSectionItem(text="Notes:"))
@@ -154,6 +166,8 @@ def compute_raises_tag(
     style: DocstringStyle,
     formatter_line_length: int,
 ) -> None:
+    """Computes and appends the raises section to the docstring lines."""
+
     if len(section.items) == 0:
         return
 
@@ -167,6 +181,8 @@ def compute_raises_tag(
 
 
 def _get_raises_section_name(style: DocstringStyle) -> str:
+    """Returns the section name for raises according to the specified style."""
+
     match style:
         case DocstringStyle.GOOGLE:
             return "Raises:"
@@ -175,6 +191,8 @@ def _get_raises_section_name(style: DocstringStyle) -> str:
 def _compute_raises_item(
     item: DocstringRaisesSectionItem, style: DocstringStyle, formatter_line_length: int
 ) -> tuple[str, ...]:
+    """Computes the formatted lines for a raises section item."""
+
     match style:
         case DocstringStyle.GOOGLE:
             raise_type = f"{item.type}: " if item.type else ""
@@ -192,6 +210,8 @@ def compute_returns_tag(
     style: DocstringStyle,
     formatter_line_length: int,
 ) -> None:
+    """Computes and appends the returns section to the docstring lines."""
+
     item = section.item
     match style:
         case DocstringStyle.GOOGLE:
@@ -215,6 +235,8 @@ def compute_args_tag(
     style: DocstringStyle,
     formatter_line_length: int,
 ) -> None:
+    """Computes and appends the arguments section to the docstring lines."""
+
     if len(section.items) == 0:
         return
 
@@ -232,6 +254,8 @@ def compute_args_tag(
 
 
 def _get_args_section_name(style: DocstringStyle) -> str:
+    """Returns the section name for arguments according to the specified style."""
+
     match style:
         case DocstringStyle.GOOGLE:
             return "Args:"
@@ -242,6 +266,8 @@ def _compute_args_item(
     style: DocstringStyle,
     formatter_line_length: int,
 ) -> tuple[str, ...]:
+    """Computes the formatted lines for a parameter argument item."""
+
     match style:
         case DocstringStyle.GOOGLE:
             param_type = f" ({parameter.type})" if parameter.type else ""
@@ -257,6 +283,8 @@ def wrap_text(
     text: str,
     max_length: int,
 ) -> tuple[str, ...]:
+    """Wraps text lines to a maximum length."""
+
     lines: list[str] = []
 
     for line in text.splitlines():
@@ -275,6 +303,8 @@ def wrap_text(
 def wrap_docstring_summary(
     summary: str, *, line_length: int, no_other_section: bool
 ) -> tuple[str, ...]:
+    """Wraps a docstring summary considering line length and section layout."""
+
     first_line_indent = '"""'
     first_line_width = line_length - (len('"""') if no_other_section else 0)
 
@@ -321,6 +351,8 @@ def wrap_docstring_item(
     first_line_indent: int,
     continuation_indent: int,
 ) -> tuple[str, ...]:
+    """Wraps a docstring item with specified initial and continuation indents."""
+
     lines: list[str] = []
     first_line = True
 

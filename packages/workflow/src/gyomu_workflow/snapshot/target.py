@@ -17,6 +17,20 @@ def resolve_snapshot_target(
     project_context: ProjectContext,
     option: SnapshotTargetOption,
 ) -> Result[SnapshotTarget, GyomuError]:
+    """Resolve snapshot target files and current snapshot.
+
+    Resolves the snapshot target files and current snapshot based on project changes and
+    options.
+
+    Args:
+        repository_root_path (FullPath): Root path of the repository.
+        project_context (ProjectContext): Project context information.
+        option (SnapshotTargetOption): Options for snapshot target resolution.
+
+    Returns:
+        Result[SnapshotTarget, GyomuError]: A Result containing the resolved
+            SnapshotTarget or a GyomuError.
+    """
     validation_result = validate_python_package_structure(project_context)
     context = caller_context()
 
@@ -82,6 +96,19 @@ def filter_included_files(
     included_files: frozenset[ProjectRelativePath],
     path: str,
 ) -> frozenset[ProjectRelativePath]:
+    """Filter included files by a path pattern.
+
+    Filters included files matching the given pattern path.
+
+    Args:
+        included_files (frozenset[ProjectRelativePath]): Set of included project
+            relative files.
+        path (str): Pattern string to match against.
+
+    Returns:
+        frozenset[ProjectRelativePath]: A frozenset of project relative paths matching
+            the pattern.
+    """
     return frozenset(
         (
             included_file

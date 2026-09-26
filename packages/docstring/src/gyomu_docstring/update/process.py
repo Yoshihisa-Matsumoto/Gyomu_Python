@@ -32,6 +32,18 @@ async def process_docstring_update(
     file_context: FileAnalysisContext,
     option: UpdateOption | None = None,
 ) -> Result[None, UpdateError]:
+    """Processes docstring updates for a given file context within a project.
+
+    Args:
+        context (ProjectContext): Project context configuration
+        file_context (FileAnalysisContext): File analysis context containing metadata
+            and symbols
+        option (UpdateOption | None): Optional update configuration options
+
+    Returns:
+        Result[None, UpdateError]: A Result containing None on success or an UpdateError
+            on failure.
+    """
 
     if not file_context.metadata.symbols:
         return Success(None)

@@ -11,6 +11,11 @@ def render_docstring_string(
     is_added: bool,
     indent: int,
 ) -> str | None:
+    """Render a sequence of docstring lines into a formatted docstring string.
+
+    Returns:
+        str | None: The rendered docstring string, or None if lines is empty.
+    """
     if not lines:
         return None
 
@@ -42,6 +47,11 @@ def compute_docstring_line(
     line: DocstringLine,
     prefix: str,
 ) -> str:
+    """Format an individual docstring line with the specified indentation prefix.
+
+    Returns:
+        str: The formatted line string.
+    """
     match line:
         case DocstringBlank():
             return ""
@@ -56,6 +66,11 @@ def compute_docstring_line(
 def _is_single_line_docstring(
     lines: tuple[DocstringLine, ...],
 ) -> bool:
+    """Check whether the given lines form a single-line docstring.
+
+    Returns:
+        bool: True if it is a single-line docstring, False otherwise.
+    """
     return (
         len(lines) == 1
         and isinstance(lines[0], DocstringText)

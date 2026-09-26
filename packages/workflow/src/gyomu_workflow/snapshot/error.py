@@ -30,6 +30,11 @@ class SnapshotRequestValidationError(BaseError):
 
 
 class PyProjectStructureValidationError(BaseError):
+    """Raised when a pyproject structure validation error occurs.
+
+    Raised when the pyproject structure validation fails.
+    """
+
     def __init__(
         self,
         message: str,

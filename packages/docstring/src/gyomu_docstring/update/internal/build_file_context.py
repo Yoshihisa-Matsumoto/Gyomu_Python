@@ -38,6 +38,8 @@ def build_docstring_file_context(
     file_context: FileAnalysisContext,
     source: str,
 ) -> DocstringFileContext:
+    """Builds a docstring file context from file analysis data."""
+
     return DocstringFileContext(
         project_name=project_name,
         source_relative_path=file_context.analysis.path,
@@ -54,6 +56,8 @@ def build_docstring_file_context(
 
 
 def is_docstring_target(symbol: SymbolAnalysis) -> bool:
+    """Determines whether a symbol is a valid target for docstring processing."""
+
     if isinstance(symbol, FunctionAnalysis):
         return not symbol.is_ellipsis_only
     return True
@@ -62,6 +66,8 @@ def is_docstring_target(symbol: SymbolAnalysis) -> bool:
 def build_docstring_declaration_context(
     analysis: SymbolAnalysis, source: str
 ) -> DocstringDeclarationContext:
+    """Builds a docstring declaration context from symbol analysis and source code."""
+
     return DocstringDeclarationContext(
         target=analysis.identity,
         symbol=_build_declaration_info(analysis),
@@ -77,6 +83,8 @@ def build_docstring_declaration_context(
 
 
 def is_documentable_child_entry(cls: ClassBase, member: MemberAnalysis) -> bool:
+    """Determines whether a class member is eligible for documentation."""
+
     if member.location is None:
         return False
 
@@ -91,6 +99,8 @@ def is_documentable_child_entry(cls: ClassBase, member: MemberAnalysis) -> bool:
 
 
 def build_context_entries(cls: ClassBase) -> tuple[ContextEntry, ...]:
+    """Builds context entries for documentable members of a class."""
+
     entries: list[ContextEntry] = []
 
     for variable in cls.variables:
@@ -111,6 +121,8 @@ def build_context_entries(cls: ClassBase) -> tuple[ContextEntry, ...]:
 
 
 def build_context_entry(cls: ClassBase, member: MemberAnalysis) -> ContextEntry:
+    """Builds a context entry for a class member analysis."""
+
     is_documentable = is_documentable_child_entry(cls, member)
     return ContextEntry(
         target=member.identity,
@@ -130,18 +142,26 @@ def build_context_entry(cls: ClassBase, member: MemberAnalysis) -> ContextEntry:
 def build_dependencies(
     dependencies: tuple[DependencyAnalysis, ...],
 ) -> tuple[DependencySummary, ...]:
+    """Builds a tuple of dependency summaries from dependency analyses."""
+
     return tuple(DependencySummary(target=item.target) for item in dependencies)
 
 
 def _build_declaration_info(target: SymbolAnalysis | MemberAnalysis) -> DeclarationInfo:
+    """Builds declaration info from a symbol or member analysis."""
+
     return DeclarationInfo(name=target.name, kind=target.kind.value)
 
 
 def _build_code(source: str, location: SourceLocation) -> str:
+    """Extracts source code snippet based on a source location."""
+
     return source[location.start_offset : location.end_offset]
 
 
 def build_existing_docstring(docstring: DocstringAnalysis) -> ExistingDocstring:
+    """Builds an existing docstring structure from docstring analysis."""
+
     parameter_section = _find_section(docstring, DocstringParametersSection)
     parameters = (
         tuple()
@@ -186,6 +206,7 @@ def build_existing_docstring(docstring: DocstringAnalysis) -> ExistingDocstring:
 def _find_section[T: DocstringSection](
     existing_docstring: DocstringAnalysis, section_type: type[T]
 ) -> T | None:
+    """Finds a specific section within an existing docstring analysis."""
 
     return next(
         (

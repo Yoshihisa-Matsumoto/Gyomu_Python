@@ -16,6 +16,15 @@ from gyomu_workflow.snapshot.target import resolve_snapshot_target
 
 
 async def run_snapshot(request: SnapshotRequest) -> Result[None, GyomuError]:
+    """Run the snapshot workflow based on the provided request.
+
+    Args:
+        request (SnapshotRequest): The snapshot request configuration and context.
+
+    Returns:
+        Result[None, GyomuError]: A Result indicating success with None or failure with
+            GyomuError.
+    """
     normalize_filter(request.option.target)
     logger.debug(f"file_filter: {repr(request.option.target.file_filter)}")
     target_result = resolve_snapshot_target(
@@ -62,6 +71,16 @@ async def run_snapshot(request: SnapshotRequest) -> Result[None, GyomuError]:
 async def run_actions(
     request: SnapshotRequest, target: SnapshotTarget
 ) -> Result[ProjectSnapshot, GyomuError]:
+    """Execute requested actions on the snapshot target files.
+
+    Args:
+        request (SnapshotRequest): The snapshot request configuration.
+        target (SnapshotTarget): The target snapshot data and file lists.
+
+    Returns:
+        Result[ProjectSnapshot, GyomuError]: A Result containing the updated
+            ProjectSnapshot or a GyomuError.
+    """
     current_snapshot = target.snapshot
     context = caller_context()
     option = build_docstring_update_option(request.option.action.docstring.log_keyword)
@@ -125,6 +144,14 @@ async def run_actions(
 def build_docstring_update_option(
     log_keyword: str | None,
 ) -> UpdateOption:
+    """Construct the docstring update option configuration.
+
+    Args:
+        log_keyword (str | None): Optional keyword for logging.
+
+    Returns:
+        UpdateOption: The constructed UpdateOption configuration.
+    """
     return UpdateOption(
         debug_info=UpdateDebugInfoOption(
             dump_to_file=True,
@@ -142,4 +169,13 @@ def build_docstring_update_option(
 def is_source_file(
     file_path: ProjectRelativePath, source_root: ProjectRelativePath
 ) -> bool:
+    """Check whether a file path is a source file.
+
+    Args:
+        file_path (ProjectRelativePath): Path of the file to check.
+        source_root (ProjectRelativePath): Root directory path of the source files.
+
+    Returns:
+        bool: True if the file is a source file, False otherwise.
+    """
     return file_path.is_relative_to(source_root)

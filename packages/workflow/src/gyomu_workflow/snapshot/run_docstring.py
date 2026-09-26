@@ -15,6 +15,20 @@ def is_source_docstring_target(
     project_context: ProjectContext,
     source_project_relative_path: ProjectRelativePath,
 ) -> bool:
+    """Determine if a source path is a target for docstring processing.
+
+    Determines whether a source file is a target for docstring generation based on
+    project exclusion configurations.
+
+    Args:
+        project_context (ProjectContext): The project context containing configuration
+            settings.
+        source_project_relative_path (ProjectRelativePath): The relative path of the
+            source file within the project.
+
+    Returns:
+        bool: True if the source file is a docstring target, otherwise False.
+    """
     exclude_path_list = project_context.config.get_attribute(
         "tool.gyomu.exclude", list[str]
     )
@@ -31,6 +45,22 @@ async def run_docstring_action(
     source_project_relative_path: ProjectRelativePath,
     option: UpdateOption,
 ) -> Result[None, GyomuError]:
+    """Run the docstring update action for a specified source file.
+
+    Executes the docstring update action for a given source file within the project.
+
+    Args:
+        project_context (ProjectContext): The project context containing configuration
+            and analysis settings.
+        source_project_relative_path (ProjectRelativePath): The relative path of the
+            source file to process.
+        option (UpdateOption): The update options controlling analysis and modification
+            behavior.
+
+    Returns:
+        Result[None, GyomuError]: A Result indicating success with None or a GyomuError
+            on failure.
+    """
     if not is_source_docstring_target(project_context, source_project_relative_path):
         logger.info(f"Not Scope of Docstring:{source_project_relative_path}")
         return Success(None)

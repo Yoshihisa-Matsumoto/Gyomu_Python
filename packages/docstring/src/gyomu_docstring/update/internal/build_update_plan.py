@@ -31,6 +31,19 @@ async def build_docstring_update_plan_with_retry(
     file_context: FileAnalysisContext,
     option: UpdateOption | None = None,
 ) -> Result[DocstringUpdatePlan, UpdateError]:
+    """Builds a docstring update plan with retry capabilities upon validation failures.
+
+    Builds a docstring update plan with retry attempts on validation failure.
+
+    Args:
+        context (DocstringFileContext): The docstring file context.
+        file_context (FileAnalysisContext): The file analysis context.
+        option (UpdateOption | None): Optional update options.
+
+    Returns:
+        Result[DocstringUpdatePlan, UpdateError]: A Result containing the
+            DocstringUpdatePlan or an UpdateError.
+    """
     current_context = context
     original_plan: DocstringUpdatePlan | None = None
 
@@ -102,6 +115,21 @@ def override_docstring_update_plan(
     plan: DocstringUpdatePlan,
     original_plan: DocstringUpdatePlan | None,
 ) -> DocstringUpdatePlan:
+    """Overrides or filters a docstring update plan based on the execution context and
+    retry state.
+
+    Overrides or filters a docstring update plan based on context and retry missing
+    identities.
+
+    Args:
+        context (DocstringFileContext): The docstring file context.
+        plan (DocstringUpdatePlan): The current docstring update plan.
+        original_plan (DocstringUpdatePlan | None): The optional original docstring
+            update plan.
+
+    Returns:
+        DocstringUpdatePlan: The overridden DocstringUpdatePlan.
+    """
     if original_plan is None or context.retry is None:
         context_identities = get_docstring_identities_from_context(context)
 
