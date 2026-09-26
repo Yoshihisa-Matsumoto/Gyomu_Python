@@ -236,10 +236,16 @@ class AnalysisTestBase:
 
         return symbol, source_lines, index
 
+    _default_index: dict[
+        str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+    ] = {}
+
     def _build_class_function_index(
         self,
         tree: ast.Module | ast.ClassDef,
-        index: dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef] = {},
+        index: dict[
+            str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+        ] = _default_index,
     ) -> dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]:
 
         for child in ast.iter_child_nodes(tree):

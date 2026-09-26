@@ -18,7 +18,6 @@ from gyomu_schema.error.ai import (
     AiFailResolution,
     AiOperation,
 )
-from gyomu_schema.option.retry import RetryOption
 from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
@@ -199,7 +198,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
 
-        retry_option = RetryOption(max_attempts=2)
+        # retry_option = RetryOption(max_attempts=2)
 
         option = UpdateOption()
 
