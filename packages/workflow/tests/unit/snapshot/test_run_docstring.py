@@ -2,12 +2,16 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.update import UpdateOption
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
+from gyomu_schema.schemas.types import FullPath
 from gyomu_workflow.snapshot.run import build_docstring_update_option
-from gyomu_workflow.snapshot.run_docstring import run_docstring_action
+from gyomu_workflow.snapshot.run_docstring import (
+    is_source_docstring_target,
+    run_docstring_action,
+)
 from returns.result import Failure, Success
 
 from packages.python_analysis.python_analysis_test_support.helpers import (
@@ -158,3 +162,113 @@ async def test_success(
         file_context=file_context,
         option=update_option,
     )
+
+
+async def test_run_docstring_action_skips_excluded_source(
+    mocker,
+    project_context: ProjectContext,
+    source_project_relative_path: ProjectRelativePath,
+    update_option: UpdateOption,
+) -> None:
+    mocker.patch(
+        "gyomu_workflow.snapshot.run_docstring.is_source_docstring_target",
+        return_value=False,
+    )
+    process_docstring_update = mocker.patch(
+        "gyomu_workflow.snapshot.run_docstring.process_docstring_update",
+    )
+
+    result = await run_docstring_action(
+        project_context=project_context,
+        source_project_relative_path=source_project_relative_path,
+        option=update_option,
+    )
+
+    assert isinstance(result, Success)
+    assert result.unwrap() is None
+
+    process_docstring_update.assert_not_awaited()
+
+
+class TestIsSourceDocstringTarget:
+    @pytest.mark.parametrize(
+        ("exclude_path_list", "source_path", "expected"),
+        [
+            # exclude が未設定
+            (
+                None,
+                "src/example.py",
+                True,
+            ),
+            # ファイルを直接除外
+            (
+                ["src/example.py"],
+                "src/example.py",
+                False,
+            ),
+            # 除外対象ではないファイル
+            (
+                ["src/example.py"],
+                "src/other.py",
+                True,
+            ),
+            # ディレクトリ配下を除外
+            (
+                ["src/generated"],
+                "src/generated/example.py",
+                False,
+            ),
+            # 除外ディレクトリそのもの
+            (
+                ["src/generated"],
+                "src/generated",
+                False,
+            ),
+            # 除外ディレクトリと同名の別階層
+            (
+                ["src/generated"],
+                "src/other/generated.py",
+                True,
+            ),
+            # 複数の除外パスのうち1つに該当
+            (
+                ["src/generated", "tests/resources"],
+                "tests/resources/example.py",
+                False,
+            ),
+        ],
+    )
+    def test_is_source_docstring_target(
+        self,
+        exclude_path_list: list[str] | None,
+        source_path: str,
+        expected: bool,
+    ) -> None:
+        config = PyProjectConfig(
+            path=WorkspaceRelativePath(Path("")),
+            name="example",
+            version="1.0.0",
+            description=None,
+            formatter_line_length=88,
+            _toml_data={
+                "tool": {
+                    "gyomu": {
+                        "exclude": exclude_path_list,
+                    },
+                },
+            },
+        )
+        project_context = ProjectContext(
+            project_root=FullPath(Path("/tmp")),
+            source_root=ProjectRelativePath(Path("src")),
+            config=config,
+            included_files=frozenset(),
+        )
+
+        assert (
+            is_source_docstring_target(
+                project_context,
+                ProjectRelativePath(Path(source_path)),
+            )
+            is expected
+        )

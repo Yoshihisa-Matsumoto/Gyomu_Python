@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from gyomu_docstring.update.process import process_docstring_update
+from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.error.gyomu import GyomuError
@@ -8,11 +11,29 @@ from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 
+def is_source_docstring_target(
+    project_context: ProjectContext,
+    source_project_relative_path: ProjectRelativePath,
+) -> bool:
+    exclude_path_list = project_context.config.get_attribute(
+        "tool.gyomu.exclude", list[str]
+    )
+    if exclude_path_list is None:
+        return True
+    return not any(
+        source_project_relative_path.is_relative_to(Path(exclude_path))
+        for exclude_path in exclude_path_list
+    )
+
+
 async def run_docstring_action(
     project_context: ProjectContext,
     source_project_relative_path: ProjectRelativePath,
     option: UpdateOption,
 ) -> Result[None, GyomuError]:
+    if not is_source_docstring_target(project_context, source_project_relative_path):
+        logger.info(f"Not Scope of Docstring:{source_project_relative_path}")
+        return Success(None)
 
     file_path = source_project_relative_path
     context = caller_context()

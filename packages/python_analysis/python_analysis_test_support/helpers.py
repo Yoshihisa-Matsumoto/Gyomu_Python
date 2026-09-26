@@ -50,6 +50,7 @@ _default_project_config = PyProjectConfig(
     version="0.1",
     description=None,
     formatter_line_length=88,
+    _toml_data={},
 )
 
 
