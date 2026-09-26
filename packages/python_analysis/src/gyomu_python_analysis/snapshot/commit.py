@@ -19,6 +19,23 @@ def commit_project_changes(
     project_context: ProjectContext,
     expected_snapshot: ProjectSnapshot,
 ) -> Result[None, AnalysisError]:
+    """Validates the project snapshot and commits changes.
+
+    Validates the current project snapshot against an expected snapshot and commits
+    changes by writing the snapshot file.
+
+    Args:
+        repository_root_path (FullPath): The root path of the repository.
+        project_context (ProjectContext): The context containing project configuration
+            and root information.
+        expected_snapshot (ProjectSnapshot): The expected project snapshot before
+            changes.
+
+    Returns:
+        Result[None, AnalysisError]: Returns a Result indicating success with None or
+            failure with an AnalysisError if a snapshot diff is detected or if writing
+            the snapshot fails.
+    """
     project_path = WorkspaceRelativePath(
         project_context.project_root.relative_to(repository_root_path)
     )

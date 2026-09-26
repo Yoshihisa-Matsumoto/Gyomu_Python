@@ -17,6 +17,19 @@ def analyze_type_alias(
     context: SymbolContext,
     option: AnalysisOption | None = None,
 ) -> TypeAliasAnalysis:
+    """Analyze a type alias.
+
+    Analyzes a Python type alias and returns its analysis results.
+
+    Args:
+        alias (TypeAlias): The TypeAlias object to analyze.
+        name (str): The name of the type alias.
+        context (SymbolContext): The current symbol context.
+        option (AnalysisOption | None): Optional analysis options.
+
+    Returns:
+        TypeAliasAnalysis: The analysis results for the type alias.
+    """
     member_path: MemberPath = ()
     alias_common = build_symbol_common(
         symbol=alias, name=name, context=context, option=option

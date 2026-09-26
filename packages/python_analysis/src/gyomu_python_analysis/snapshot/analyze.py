@@ -20,6 +20,20 @@ def analyze_project_changes(
     *,
     include_all: bool = False,
 ) -> Result[AnalyzeProjectChangesResult, AnalysisError]:
+    """Analyzes project changes by comparing previous and current snapshots.
+
+    Args:
+        repository_root_path (FullPath): The absolute path to the repository root
+            directory.
+        project_context (ProjectContext): The project context containing configuration
+            and paths.
+        include_all (bool): Whether to include all files regardless of existing
+            snapshots.
+
+    Returns:
+        Result[AnalyzeProjectChangesResult, AnalysisError]: A Result containing
+            AnalyzeProjectChangesResult on success, or AnalysisError on failure.
+    """
     project_path = WorkspaceRelativePath(
         project_context.project_root.relative_to(repository_root_path)
     )

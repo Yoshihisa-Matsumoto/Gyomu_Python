@@ -24,6 +24,8 @@ def build_symbol_common(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> SymbolCommon:
+    """Build common symbol analysis data."""
+
     location = calculate_symbol_location(symbol=symbol, context=context)
     docstring = (
         analyze_docstring(
@@ -57,6 +59,8 @@ def build_member_common(
     option: AnalysisOption | None,
     parent_location: SourceLocation | None = None,
 ) -> MemberCommon:
+    """Build common member analysis data."""
+
     location = calculate_member_location(
         symbol=symbol,
         context=context,
@@ -89,6 +93,8 @@ def build_member_common(
 
 
 def build_docstring_common(doc: Docstring, context: SymbolContext) -> DocstringCommon:
+    """Build common docstring analysis data."""
+
     location = calculate_docstring_location(doc=doc, context=context)
     return {
         "location": location,

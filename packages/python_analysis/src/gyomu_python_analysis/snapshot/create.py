@@ -17,6 +17,18 @@ def create_snapshot(
     project_path: WorkspaceRelativePath,
     project_context: ProjectContext,
 ) -> Result[ProjectSnapshot, AnalysisError]:
+    """Creates a project snapshot by enumerating target files and generating file
+    snapshots.
+
+    Args:
+        project_path (WorkspaceRelativePath): Workspace-relative path of the project
+        project_context (ProjectContext): Project context containing configuration and
+            root paths
+
+    Returns:
+        Result[ProjectSnapshot, AnalysisError]: A Result containing the ProjectSnapshot
+            on success or AnalysisError on failure
+    """
     files: list[FileSnapshot] = []
     for entry in sorted(enumerate_target_files(project_context=project_context)):
         result = create_file_snapshot(project_context.project_root, entry)
@@ -34,6 +46,17 @@ def create_snapshot(
 def enumerate_target_files(
     project_context: ProjectContext,
 ) -> frozenset[ProjectRelativePath]:
+    """Enumerates target files including included files, pyproject.toml, and knowledge
+    files.
+
+    Args:
+        project_context (ProjectContext): Project context containing configuration and
+            root paths
+
+    Returns:
+        frozenset[ProjectRelativePath]: A frozenset of project-relative paths for
+            targeted files
+    """
     files = set(project_context.included_files)
     files.add(ProjectRelativePath(Path("pyproject.toml")))
     concept_files = FileSearch.search(
@@ -59,6 +82,16 @@ def enumerate_target_files(
 def create_file_snapshot(
     project_full_path: FullPath, source_path: ProjectRelativePath
 ) -> Result[FileSnapshot, AnalysisError]:
+    """Creates a file snapshot containing its hash and modification timestamp.
+
+    Args:
+        project_full_path (FullPath): Full path to the project root directory
+        source_path (ProjectRelativePath): Project-relative path of the source file
+
+    Returns:
+        Result[FileSnapshot, AnalysisError]: A Result containing the FileSnapshot on
+            success or AnalysisError on failure
+    """
     file_full_path = project_full_path / source_path
     result = hash_file(file_full_path).alt(
         lambda err: AnalysisError(

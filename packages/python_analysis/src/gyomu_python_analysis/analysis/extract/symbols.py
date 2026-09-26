@@ -31,8 +31,13 @@ from gyomu_python_analysis.analysis.file.source_file_context import SourceFileCo
 
 @dataclass
 class SymbolExtractContext:
+    """Holds extracted symbol and import analysis context."""
+
     imported: tuple[ImportAnalysis, ...]
+    """Import analysis results."""
+
     symbols: tuple[SymbolAnalysis, ...]
+    """Extracted symbol analysis results."""
 
 
 def extract_symbols(
@@ -41,6 +46,17 @@ def extract_symbols(
     source: str,
     option: AnalysisOption | None = None,
 ) -> SymbolExtractContext:
+    """Extracts symbols and imports from a source file.
+
+    Args:
+        source_file (SourceFileContext): Source file context being analyzed.
+        source_lines (list[str]): Lines of source code.
+        source (str): Source code string.
+        option (AnalysisOption | None): Optional analysis configuration options.
+
+    Returns:
+        SymbolExtractContext: Extracted symbol and import context.
+    """
     imported: list[ImportAnalysis] = _extract_imports(source_file.module, source_lines)
     symbols: list[SymbolAnalysis] = _extract_symbols_internal(
         source_file, source, source_lines, imported, option
@@ -54,6 +70,15 @@ def _extract_imports(
     module: Module,
     source_lines: list[str],
 ) -> list[ImportAnalysis]:
+    """Extracts import statements from a module.
+
+    Args:
+        module (Module): Module to extract imports from.
+        source_lines (list[str]): Lines of source code.
+
+    Returns:
+        list[ImportAnalysis]: List of extracted import analyses.
+    """
     imported: list[ImportAnalysis] = []
     for symbol_name, value in module.members.items():
         if isinstance(value, Alias):
@@ -68,6 +93,23 @@ def _extract_symbols_internal(
     imported: list[ImportAnalysis],
     option: AnalysisOption | None = None,
 ) -> list[SymbolAnalysis]:
+    """Internal helper to extract and analyze symbols from a source file module.
+
+    Args:
+        source_file (SourceFileContext): Source file context being analyzed.
+        source (str): Source code string.
+        source_lines (list[str]): Lines of source code.
+        imported (list[ImportAnalysis]): Extracted import analyses.
+        option (AnalysisOption | None): Optional analysis configuration options.
+
+    Returns:
+        list[SymbolAnalysis]: List of extracted symbol analyses with resolved
+            dependencies.
+
+    Raises:
+        ValueError: Raised when a symbol identity cannot be found in the extracted
+            symbols map.
+    """
     symbols: list[SymbolAnalysis] = []
     dependencies: list[DependencyInformation] = []
     module_name: PythonPath = PythonPath(source_file.module.path)

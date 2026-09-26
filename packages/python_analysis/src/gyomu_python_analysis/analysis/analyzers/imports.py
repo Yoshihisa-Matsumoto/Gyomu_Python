@@ -7,6 +7,16 @@ def analyze_import(
     name: str,
     source_lines: list[str],
 ) -> ImportAnalysis:
+    """Analyzes an import statement and returns its details.
+
+    Args:
+        alias (Alias): Import alias information
+        name (str): Local name of the imported symbol
+        source_lines (list[str]): Source code lines
+
+    Returns:
+        ImportAnalysis: Resulting import analysis details
+    """
     target_path = alias.target_path
     attr = alias.as_dict()
     # print(attr)

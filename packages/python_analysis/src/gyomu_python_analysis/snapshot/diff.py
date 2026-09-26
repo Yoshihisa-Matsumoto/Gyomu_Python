@@ -13,12 +13,23 @@ from gyomu_python_analysis.snapshot.models import (
 def to_map(
     snapshot: ProjectSnapshot,
 ) -> dict[ProjectRelativePath, FileSnapshot]:
+    """Convert a project snapshot into a dictionary mapping paths to file snapshots.
+
+    Returns:
+        dict[ProjectRelativePath, FileSnapshot]: A dictionary mapping project relative
+            paths to file snapshots.
+    """
     return {file.project_relative_path: file for file in snapshot.files}
 
 
 def diff_snapshot(
     previous: ProjectSnapshot, current: ProjectSnapshot
 ) -> tuple[FileChange, ...]:
+    """Compute the differences between a previous and current project snapshot.
+
+    Returns:
+        tuple[FileChange, ...]: A sorted tuple of file changes between the snapshots.
+    """
     previous_files = to_map(previous)
     current_files = to_map(current)
 

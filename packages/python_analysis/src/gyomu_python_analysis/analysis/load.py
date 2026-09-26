@@ -13,6 +13,24 @@ from gyomu_python_analysis.project.context import ProjectContext
 def load_module(
     context: ProjectContext, module_path: PythonPath
 ) -> Result[SourceFileContext, AnalysisError]:
+    """Load a Python module and return its source file context.
+
+    Loads a Python module given its project context and path, returning a
+    SourceFileContext on success or an AnalysisError on failure.
+
+    Args:
+        context (ProjectContext): The project context containing loader and root
+            configurations.
+        module_path (PythonPath): The relative python path of the module to load.
+
+    Returns:
+        Result[SourceFileContext, AnalysisError]: A Result containing the
+            SourceFileContext on success or an AnalysisError on failure.
+
+    Raises:
+        ValueError: Raised when the loaded object is not a valid Module or lacks a valid
+            filepath.
+    """
 
     def load_griffe() -> SourceFileContext:
 

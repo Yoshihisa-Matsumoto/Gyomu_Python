@@ -1,4 +1,3 @@
-from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_python_analysis.snapshot.models import FileDeleted
@@ -61,7 +60,7 @@ def resolve_snapshot_target(
             ).chain(error)
         )
     change_result = result.unwrap()
-    logger.debug_object(change_result.diff)
+    # logger.debug_object(change_result.diff)
     if option.file_filter is None:
         diff = change_result.diff
         return Success(

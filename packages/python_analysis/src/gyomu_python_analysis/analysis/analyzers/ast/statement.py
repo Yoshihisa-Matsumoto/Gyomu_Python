@@ -2,8 +2,6 @@ import ast
 from types import EllipsisType
 
 from gyomu_infra.logger import logger
-from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
-from gyomu_python_analysis.analysis.analyzers.dependency import register_dependency
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.type.expression import (
     AnnotationAssignStatementAnalysis,
@@ -86,6 +84,9 @@ from gyomu_schema.schemas.python.type.expression import (
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
 )
+
+from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
+from gyomu_python_analysis.analysis.analyzers.dependency import register_dependency
 
 
 def analyze_statement(
@@ -539,6 +540,8 @@ def _analyze_comprehension(
     option: AnalysisOption | None,
     need_registration_dependency: bool,
 ) -> ComprehensionAnalysis:
+    """Analyze an AST comprehension node and return its structured representation."""
+
     return ComprehensionAnalysis(
         target=analyze_expression(
             comprehension.target, context, option, need_registration_dependency

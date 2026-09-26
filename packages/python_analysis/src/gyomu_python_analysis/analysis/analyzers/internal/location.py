@@ -7,6 +7,8 @@ from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
 def _calculate_location(
     target: Object | Docstring | Decorator, context: SymbolContext
 ) -> SourceLocation:
+    """Calculate the source location for a target object, docstring, or decorator."""
+
     # source_full_path = project.project_root / project.source_root / source_file.path
     start_line_no = target.lineno
     end_line_no = target.endlineno
@@ -37,6 +39,8 @@ def calculate_symbol_location(
     symbol: Object,
     context: SymbolContext,
 ) -> SourceLocation:
+    """Calculate the source location for a symbol."""
+
     return _calculate_location(symbol, context)
 
 
@@ -45,6 +49,9 @@ def calculate_member_location(
     context: SymbolContext,
     parent_location: SourceLocation | None,
 ) -> SourceLocation | None:
+    """Calculate the source location for a member symbol, returning None if it falls
+    within the parent location.
+    """
     location = calculate_symbol_location(symbol=symbol, context=context)
     if parent_location is not None and (
         location.start_line >= parent_location.start_line
@@ -58,6 +65,8 @@ def calculate_docstring_location(
     doc: Docstring,
     context: SymbolContext,
 ) -> SourceLocation:
+    """Calculate the source location for a docstring."""
+
     return _calculate_location(target=doc, context=context)
 
 
@@ -65,4 +74,6 @@ def calculate_decorator_location(
     decorator: Decorator,
     context: SymbolContext,
 ) -> SourceLocation:
+    """Calculate the source location for a decorator."""
+
     return _calculate_location(target=decorator, context=context)

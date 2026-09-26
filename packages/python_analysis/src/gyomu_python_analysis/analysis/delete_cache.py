@@ -12,6 +12,18 @@ def delete_module_cache(
     project_context: ProjectContext,
     file_path: ProjectRelativePath,
 ) -> Result[None, AnalysisError]:
+    """Deletes the analysis cache for a specified module.
+
+    Deletes the analysis cache file for a given project module if it exists.
+
+    Args:
+        project_context (ProjectContext): The project context.
+        file_path (ProjectRelativePath): The relative path of the project file.
+
+    Returns:
+        Result[None, AnalysisError]: A Result indicating success with None or an
+            AnalysisError on failure.
+    """
     cache_path = _get_cache_path(project_context, file_path)
     if cache_path.exists():
         context = caller_context()

@@ -48,6 +48,8 @@ def _retrieve_constructor_location(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> SourceLocation | None:
+    """Retrieve the source location of the class constructor if present."""
+
     constructor_location: SourceLocation | None = None
     if "__init__" in cls.members:
         init_member = cls.members["__init__"]
@@ -70,6 +72,8 @@ def _build_class_type_aliases(
     member_path: MemberPath,
     option: AnalysisOption | None,
 ) -> list[ClassTypeAliasAnalysis]:
+    """Build type alias analyses for members defined within a class."""
+
     aliases: list[ClassTypeAliasAnalysis] = []
     for member_name, member in cls.members.items():
         if isinstance(member, TypeAlias):
@@ -94,6 +98,8 @@ def _build_class_type_alias_analysis(
     member_path: MemberPath,
     option: AnalysisOption | None,
 ) -> ClassTypeAliasAnalysis:
+    """Analyze a single class type alias member."""
+
     new_member_path = (*member_path, name)
     alias_common = build_member_common(
         symbol=member,
@@ -119,6 +125,8 @@ def _build_class_variables(
     is_pydantic_base_class: bool,
     option: AnalysisOption | None,
 ) -> list[ClassVariableAnalysis]:
+    """Build variable analyses for attributes defined within a class."""
+
     variables: list[ClassVariableAnalysis] = []
     for member_name, member in cls.members.items():
         if isinstance(member, Attribute):
@@ -145,6 +153,8 @@ def _build_class_variable_analysis(
     is_pydantic_base_class: bool,
     option: AnalysisOption | None,
 ) -> ClassVariableAnalysis:
+    """Analyze a single class variable or attribute member."""
+
     new_member_path = (*member_path, name)
     variable_common = build_member_common(
         symbol=member,
@@ -194,6 +204,8 @@ def _build_class_method_analysis(
     ast_function: ast.FunctionDef | ast.AsyncFunctionDef,
     option: AnalysisOption | None,
 ) -> MethodAnalysis:
+    """Analyze a single class method member."""
+
     new_member_path = (*member_path, name)
     method_parameters: list[ParameterAnalysis] = []
     for param in member.parameters:
@@ -241,6 +253,8 @@ def _build_class_methods(
     ],
     option: AnalysisOption | None,
 ) -> list[MethodAnalysis]:
+    """Build method analyses for functions defined within a class."""
+
     methods: list[MethodAnalysis] = []
     for member_name, member in cls.members.items():
         if (
@@ -283,6 +297,8 @@ def _build_inner_classes(
     ],
     option: AnalysisOption | None,
 ) -> list[InnerClassAnalysis]:
+    """Build inner class analyses for classes defined within a class."""
+
     inner_classes: list[InnerClassAnalysis] = []
     for member_name, member in cls.members.items():
         if isinstance(member, Class):
@@ -305,6 +321,8 @@ def _build_inner_classes(
 
 
 def is_base_class_pydantic(bases: list[TypeAnalysis]) -> bool:
+    """Determine whether any of the base classes inherit from Pydantic's BaseModel."""
+
     for base in bases:
         if (
             isinstance(base.structure, NameStructureAnalysis)
@@ -323,6 +341,8 @@ def _analyze_class_common(
     ast_class: ast.ClassDef,
     option: AnalysisOption | None = None,
 ) -> ClassCommon:
+    """Analyze common structure and members of a class."""
+
     ast_symbols = build_class_function_index(ast_class)
 
     bases: list[TypeAnalysis] = [
@@ -388,6 +408,8 @@ def _analyze_inner_class(
     ast_class: ast.ClassDef,
     option: AnalysisOption | None = None,
 ) -> InnerClassAnalysis:
+    """Analyze an inner class definition within a parent class."""
+
     new_member_path = (*member_path, name)
     class_common = _analyze_class_common(
         cls,
@@ -417,6 +439,9 @@ def analyze_class(
     ast: ast.ClassDef,
     option: AnalysisOption | None = None,
 ) -> ClassAnalysis:
+    """Analyze a Python class definition and return its complete class analysis
+    representation.
+    """
     member_path: MemberPath = ()
     class_common = _analyze_class_common(cls, name, context, member_path, ast, option)
     # pprint(cls.as_dict())

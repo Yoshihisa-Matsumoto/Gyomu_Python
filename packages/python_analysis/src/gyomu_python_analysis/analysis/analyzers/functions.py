@@ -21,6 +21,11 @@ from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 
 def _get_function_parameter_kind(kind: GriffeParameterKind | None) -> ParameterKind:
+    """Converts a Griffe parameter kind to a schema ParameterKind.
+
+    Returns:
+        ParameterKind: The corresponding schema ParameterKind.
+    """
     match kind:
         case GriffeParameterKind.keyword_only:
             return ParameterKind.KEYWORD_ONLY
@@ -36,6 +41,11 @@ def _get_function_parameter_kind(kind: GriffeParameterKind | None) -> ParameterK
 
 
 def check_ellipsis_only(statements: list[StatementAnalysis]) -> bool:
+    """Checks whether the statements consist solely of an ellipsis or a pass statement.
+
+    Returns:
+        bool: True if the statements contain only an ellipsis or pass, false otherwise.
+    """
     return (
         len(statements) == 1
         and isinstance(statements[0], ExpressionStatementAnalysis)
@@ -50,6 +60,11 @@ def analyze_function(
     ast: ast.FunctionDef | ast.AsyncFunctionDef,
     option: AnalysisOption | None = None,
 ) -> FunctionAnalysis:
+    """Analyzes a function definition and returns its detailed analysis structure.
+
+    Returns:
+        FunctionAnalysis: The analyzed function representation.
+    """
     # for dec in func.decorators:
     #     print(dec.as_dict())
     parameters: list[ParameterAnalysis] = []

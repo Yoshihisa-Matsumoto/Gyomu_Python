@@ -20,6 +20,16 @@ from gyomu_python_analysis.project.context import ProjectContext
 
 
 def read_source(path: Path) -> str:
+    """Read the source text from a file.
+
+    Read the source text from a file with normalized line endings.
+
+    Args:
+        path (Path): Path to the source file
+
+    Returns:
+        str: Normalized source file content as a string
+    """
     with path.open("r", encoding="utf-8", newline="") as file:
         source = file.read()
 
@@ -31,6 +41,19 @@ def load_module_analysis(
     module_path: PythonPath,
     option: AnalysisOption | None = None,
 ) -> Result[ModuleAnalysis, AnalysisError]:
+    """Load and analyze a python module.
+
+    Loads and analyzes a python module within the project context.
+
+    Args:
+        context (ProjectContext): Project context information
+        module_path (PythonPath): Python module path to analyze
+        option (AnalysisOption | None): Optional analysis configuration option
+
+    Returns:
+        Result[ModuleAnalysis, AnalysisError]: Result containing the ModuleAnalysis on
+            success or AnalysisError on failure
+    """
     source_file_result = load_module(context, module_path)
 
     if isinstance(source_file_result, Failure):

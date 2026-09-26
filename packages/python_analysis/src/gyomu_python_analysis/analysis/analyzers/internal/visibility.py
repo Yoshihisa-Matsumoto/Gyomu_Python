@@ -15,9 +15,24 @@ _SPECIAL_NAMES = frozenset(
         "__spec__",
     }
 )
+"""Set of special Python module and class names.
+
+Set of special Python module and class names.
+"""
 
 
 def calculate_visibility(name: str) -> Visibility:
+    """Calculate the visibility of a symbol name.
+
+    Determines the visibility of a given name based on naming conventions and special
+    name lists.
+
+    Args:
+        name (str): The name to check.
+
+    Returns:
+        Visibility: The calculated visibility level.
+    """
     if name in _SPECIAL_NAMES:
         return Visibility.SPECIAL
 
