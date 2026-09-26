@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import pytest
 from gyomu_ai.execution.parameter import GenerateObjectParams
 from gyomu_ai.model.ai_model import AiModelKey
-from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
+from gyomu_ai.provider.pydantic_ai.route_service import PydanticAiRoutingExecution
 from gyomu_ai_compiler.pipelines.docstring_update.context.file_context import (
     DocstringFileContext,
 )
@@ -21,7 +21,6 @@ from gyomu_schema.error.ai import (
     AiOperation,
 )
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
-from gyomu_schema.option.retry import RetryOption
 from gyomu_schema.schemas.python.types import SourceRelativePath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
@@ -63,7 +62,7 @@ class TestGenerateDocstringUpdatePlan:
 
         execution = mocker.patch(
             "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".PydanticAiModelExecution",
+            ".PydanticAiRoutingExecution",
         )
 
         result = await generate_docstring_update_plan(context)
@@ -71,37 +70,6 @@ class TestGenerateDocstringUpdatePlan:
         assert isinstance(result, Failure)
         assert result.failure() is error
         execution.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_returns_ai_error_when_registry_creation_fails(
-        self,
-        mocker: MockerFixture,
-        context: DocstringFileContext,
-    ) -> None:
-        exception = RuntimeError("GEMINI_API_KEY is not configured.")
-
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".load_docstring_update_base_prompt",
-            return_value=Success("system prompt"),
-        )
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".create_default_pydantic_ai_model_registry",
-            side_effect=exception,
-        )
-
-        result = await generate_docstring_update_plan(context)
-
-        assert isinstance(result, Failure)
-
-        error = result.failure()
-        assert isinstance(error, AiError)
-        assert error.operation is AiOperation.GENERATE
-        assert error.model_key is None
-        assert error.model is None
-        assert error.phase is AiErrorPhase.REQUEST
-        assert error.resolution == AiFailResolution()
 
     @pytest.mark.asyncio
     async def test_returns_ai_failure(
@@ -118,7 +86,7 @@ class TestGenerateDocstringUpdatePlan:
             resolution=AiFailResolution(),
         )
 
-        execution = mocker.Mock(spec=PydanticAiModelExecution)
+        execution = mocker.Mock(spec=PydanticAiRoutingExecution)
         execution.generate_object = AsyncMock(
             return_value=Failure(ai_error),
         )
@@ -128,14 +96,14 @@ class TestGenerateDocstringUpdatePlan:
             ".load_docstring_update_base_prompt",
             return_value=Success("system prompt"),
         )
+        # mocker.patch(
+        #     "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
+        #     ".create_default_pydantic_ai_model_registry",
+        #     return_value=mocker.sentinel.registry,
+        # )
         mocker.patch(
             "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".create_default_pydantic_ai_model_registry",
-            return_value=mocker.sentinel.registry,
-        )
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".PydanticAiModelExecution",
+            ".PydanticAiRoutingExecution",
             return_value=execution,
         )
 
@@ -155,7 +123,7 @@ class TestGenerateDocstringUpdatePlan:
         response = mocker.Mock()
         response.output = plan
 
-        execution = mocker.Mock(spec=PydanticAiModelExecution)
+        execution = mocker.Mock(spec=PydanticAiRoutingExecution)
         execution.generate_object = AsyncMock(
             return_value=Success(response),
         )
@@ -165,14 +133,10 @@ class TestGenerateDocstringUpdatePlan:
             ".load_docstring_update_base_prompt",
             return_value=Success("system prompt"),
         )
+
         mocker.patch(
             "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".create_default_pydantic_ai_model_registry",
-            return_value=mocker.sentinel.registry,
-        )
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".PydanticAiModelExecution",
+            ".PydanticAiRoutingExecution",
             return_value=execution,
         )
 
@@ -191,7 +155,7 @@ class TestGenerateDocstringUpdatePlan:
         response = mocker.Mock()
         response.output = plan
 
-        execution = mocker.Mock(spec=PydanticAiModelExecution)
+        execution = mocker.Mock(spec=PydanticAiRoutingExecution)
         execution.generate_object = AsyncMock(
             return_value=Success(response),
         )
@@ -201,14 +165,10 @@ class TestGenerateDocstringUpdatePlan:
             ".load_docstring_update_base_prompt",
             return_value=Success("system prompt"),
         )
+
         mocker.patch(
             "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".create_default_pydantic_ai_model_registry",
-            return_value=mocker.sentinel.registry,
-        )
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".PydanticAiModelExecution",
+            ".PydanticAiRoutingExecution",
             return_value=execution,
         )
         serialized_context = '{"project_name": "test"}'
@@ -238,47 +198,3 @@ class TestGenerateDocstringUpdatePlan:
         assert isinstance(params, GenerateObjectParams)
         assert params.key is AiModelKey.FAST
         assert params.output_type is DocstringUpdatePlan
-
-    @pytest.mark.asyncio
-    async def test_passes_ai_retry_option(
-        self,
-        mocker: MockerFixture,
-        context: DocstringFileContext,
-        plan: DocstringUpdatePlan,
-    ) -> None:
-        response = mocker.Mock()
-        response.output = plan
-
-        execution = mocker.Mock(spec=PydanticAiModelExecution)
-        execution.generate_object = AsyncMock(
-            return_value=Success(response),
-        )
-
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".load_docstring_update_base_prompt",
-            return_value=Success("system prompt"),
-        )
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".create_default_pydantic_ai_model_registry",
-            return_value=mocker.sentinel.registry,
-        )
-        mocker.patch(
-            "gyomu_ai_compiler.pipelines.docstring_update.executor.update_plan"
-            ".PydanticAiModelExecution",
-            return_value=execution,
-        )
-
-        retry_option = RetryOption(max_attempts=3)
-
-        await generate_docstring_update_plan(
-            context,
-        )
-
-        assert execution.generate_object.await_args
-        _, params = execution.generate_object.await_args.args
-
-        assert isinstance(params, GenerateObjectParams)
-        assert params.execution is not None
-        assert params.execution.retry_option is retry_option

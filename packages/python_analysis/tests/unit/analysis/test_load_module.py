@@ -25,6 +25,7 @@ config = PyProjectConfig(
     version="0.1",
     description=None,
     formatter_line_length=88,
+    _toml_data={},
 )
 
 
@@ -121,7 +122,7 @@ class TestLoadModuleAnalysis:
         load_mock.assert_called_once_with(context, PythonPath("foo"))
 
         extract_mock.assert_called_once_with(
-            source_file=source_file, source_lines=[], option=None
+            source_file=source_file, source_lines=[], option=None, source=""
         )
 
         initialize_mock.assert_called_once_with(
@@ -197,8 +198,9 @@ class TestLoadModuleAnalysis:
             "\n",
             "x = 1\n",
         ]
+        source = "".join(source_lines)
         source_path.write_text(
-            "".join(source_lines),
+            source,
             encoding="utf-8",
         )
 
@@ -264,7 +266,10 @@ class TestLoadModuleAnalysis:
         assert result == Success(expected)
 
         extract_mock.assert_called_once_with(
-            source_file=source_file, source_lines=source_lines, option=None
+            source_file=source_file,
+            source_lines=source_lines,
+            option=None,
+            source=source,
         )
 
         initialize_mock.assert_called_once_with(
