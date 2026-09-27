@@ -43,6 +43,7 @@ from gyomu_python_analysis.analysis.analyzers.context import SymbolContext
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
 _CUSTOM_SECTION_PATTERN = re.compile(r"^(?P<name>[A-Za-z][A-Za-z0-9 _-]*):\s*$")
+"""Regular expression pattern for matching custom docstring sections."""
 
 
 def _analyze_parameters(
@@ -50,6 +51,11 @@ def _analyze_parameters(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DocstringParametersSection:
+    """Analyzes and parses the parameters section of a docstring.
+
+    Returns:
+        DocstringParametersSection: The parsed parameters section.
+    """
     parameters: list[DocstringParametersSectionItem] = []
     for parameter in section.value:
         param_type = analyze_type(parameter.annotation, context, option)
@@ -68,6 +74,11 @@ def _analyze_raises(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DocstringRaisesSection:
+    """Analyzes and parses the raises section of a docstring.
+
+    Returns:
+        DocstringRaisesSection: The parsed raises section.
+    """
     raises: list[DocstringRaisesSectionItem] = []
     for raiseItem in section.value:
         raise_type = analyze_type(raiseItem.annotation, context, option)
@@ -81,6 +92,11 @@ def _analyze_raises(
 
 
 def _analyze_examples(section: GriffeSectionExamples) -> DocstringExamplesSection:
+    """Analyzes and parses the examples section of a docstring.
+
+    Returns:
+        DocstringExamplesSection: The parsed examples section.
+    """
     examples: list[DocstringExamplesSectionItem] = []
     for exampleItem in section.value:
         for item in exampleItem:
@@ -100,6 +116,11 @@ def _analyze_returns(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DocstringReturnsSection:
+    """Analyzes and parses the returns section of a docstring.
+
+    Returns:
+        DocstringReturnsSection: The parsed returns section.
+    """
     # Gyomu models a Returns section as a single item.
     # Google-style docstrings are expected to contain at most one return item.
     if len(section.value) > 1:
@@ -121,6 +142,11 @@ def _analyze_returns(
 
 
 def _extract_return_description(description: str) -> str:
+    """Extracts and cleans the description from a return item text.
+
+    Returns:
+        str: The cleaned return description.
+    """
     description = description.strip()
 
     if ":" not in description:
@@ -137,6 +163,11 @@ def _extract_return_description(description: str) -> str:
 
 
 def _looks_like_type(text: str) -> bool:
+    """Checks if the given text can be parsed as a valid type expression.
+
+    Returns:
+        bool: True if the text is a valid type expression, False otherwise.
+    """
     try:
         ast.parse(text, mode="eval")
         return True
@@ -145,10 +176,20 @@ def _looks_like_type(text: str) -> bool:
 
 
 def _analyze_admonition(section: DocstringSectionAdmonition) -> DocstringSection:
+    """Analyzes and parses an admonition section of a docstring.
+
+    Returns:
+        DocstringSection: The parsed docstring section.
+    """
     return _parse_custom_section(title=section.title, value=section.value.description)
 
 
 def _parse_custom_section(title: str | None, value: str) -> DocstringSection:
+    """Parses a custom docstring section based on its title.
+
+    Returns:
+        DocstringSection: The parsed custom docstring section.
+    """
     if title == "Notes":
         return DocstringNotesSection(value=value)
     elif title == "Gyomu Context":
@@ -161,12 +202,24 @@ def _parse_custom_section(title: str | None, value: str) -> DocstringSection:
 
 
 def _is_indented(line: str) -> bool:
+    """Checks if the given line starts with whitespace.
+
+    Returns:
+        bool: True if the line starts with whitespace, False otherwise.
+    """
     return bool(line) and line[0].isspace()
 
 
 def parse_text_section(
     text: str,
 ) -> tuple[str, str, list[DocstringSection]]:
+    """Parses the text section of a docstring into summary, description, and custom
+    sections.
+
+    Returns:
+        tuple[str, str, list[DocstringSection]]: A tuple containing summary,
+            description, and list of parsed custom sections.
+    """
     lines = text.splitlines()
 
     while lines and not lines[0].strip():
@@ -240,6 +293,12 @@ def analyze_docstring(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DocstringAnalysis | None:
+    """Analyzes a docstring object and returns structured analysis results.
+
+    Returns:
+        DocstringAnalysis | None: The structured docstring analysis, or None if doc is
+            None.
+    """
     if doc is None:
         return None
 
@@ -313,9 +372,15 @@ PARSEABLE_SECTIONS = [
     DocstringSectionKind.type_parameters,
     DocstringSectionKind.parameters,
 ]
+"""List of docstring section kinds that can be parsed."""
 
 
 def _parse_other_section(section: GriffeSection) -> DocstringSection | None:
+    """Parses other or unhandled docstring sections into custom sections.
+
+    Returns:
+        DocstringSection | None: The parsed docstring section, or None if unhandled.
+    """
     title = section.title or section.kind.replace("_", " ").title()
     if title is None:
         logger.error("Unhandled Docstring Section")

@@ -1,3 +1,4 @@
+import ast
 from dataclasses import dataclass
 
 from griffe import Alias, Attribute, Class, Function, Module, TypeAlias
@@ -9,6 +10,10 @@ from gyomu_schema.schemas.python.types import (
     PythonPath,
 )
 
+from gyomu_python_analysis.analysis.analyzers.ast.symbol import (
+    AstClassFunctionKey,
+    get_ast_index,
+)
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
 from gyomu_python_analysis.analysis.analyzers.context import (
     DependencyInformation,
@@ -26,18 +31,35 @@ from gyomu_python_analysis.analysis.file.source_file_context import SourceFileCo
 
 @dataclass
 class SymbolExtractContext:
+    """Holds extracted symbol and import analysis context."""
+
     imported: tuple[ImportAnalysis, ...]
+    """Import analysis results."""
+
     symbols: tuple[SymbolAnalysis, ...]
+    """Extracted symbol analysis results."""
 
 
 def extract_symbols(
     source_file: SourceFileContext,
     source_lines: list[str],
+    source: str,
     option: AnalysisOption | None = None,
 ) -> SymbolExtractContext:
+    """Extracts symbols and imports from a source file.
+
+    Args:
+        source_file (SourceFileContext): Source file context being analyzed.
+        source_lines (list[str]): Lines of source code.
+        source (str): Source code string.
+        option (AnalysisOption | None): Optional analysis configuration options.
+
+    Returns:
+        SymbolExtractContext: Extracted symbol and import context.
+    """
     imported: list[ImportAnalysis] = _extract_imports(source_file.module, source_lines)
     symbols: list[SymbolAnalysis] = _extract_symbols_internal(
-        source_file, source_lines, imported, option
+        source_file, source, source_lines, imported, option
     )
     # for symbol_name, value in module.members.items():
     #     if isinstance(value, Alias):
@@ -48,6 +70,15 @@ def _extract_imports(
     module: Module,
     source_lines: list[str],
 ) -> list[ImportAnalysis]:
+    """Extracts import statements from a module.
+
+    Args:
+        module (Module): Module to extract imports from.
+        source_lines (list[str]): Lines of source code.
+
+    Returns:
+        list[ImportAnalysis]: List of extracted import analyses.
+    """
     imported: list[ImportAnalysis] = []
     for symbol_name, value in module.members.items():
         if isinstance(value, Alias):
@@ -57,13 +88,36 @@ def _extract_imports(
 
 def _extract_symbols_internal(
     source_file: SourceFileContext,
+    source: str,
     source_lines: list[str],
     imported: list[ImportAnalysis],
     option: AnalysisOption | None = None,
 ) -> list[SymbolAnalysis]:
+    """Internal helper to extract and analyze symbols from a source file module.
+
+    Args:
+        source_file (SourceFileContext): Source file context being analyzed.
+        source (str): Source code string.
+        source_lines (list[str]): Lines of source code.
+        imported (list[ImportAnalysis]): Extracted import analyses.
+        option (AnalysisOption | None): Optional analysis configuration options.
+
+    Returns:
+        list[SymbolAnalysis]: List of extracted symbol analyses with resolved
+            dependencies.
+
+    Raises:
+        ValueError: Raised when a symbol identity cannot be found in the extracted
+            symbols map.
+    """
     symbols: list[SymbolAnalysis] = []
     dependencies: list[DependencyInformation] = []
     module_name: PythonPath = PythonPath(source_file.module.path)
+    index: (
+        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]
+        | None
+    ) = None
+
     logger.info(f"module_name:{module_name}")
     for symbol_name, symbol in source_file.module.members.items():
         if isinstance(symbol, Alias):
@@ -80,15 +134,31 @@ def _extract_symbols_internal(
                 )
             )
         elif isinstance(symbol, Function):
+            index = get_ast_index(index, source, source_path=module_name)
+            assert symbol.endlineno
+            ast_symbol = index.get(AstClassFunctionKey(symbol.name, symbol.endlineno))
+            assert isinstance(ast_symbol, ast.FunctionDef | ast.AsyncFunctionDef)
             symbols.append(
                 analyze_function(
-                    func=symbol, name=symbol_name, context=context, option=option
+                    func=symbol,
+                    name=symbol_name,
+                    context=context,
+                    option=option,
+                    ast=ast_symbol,
                 )
             )
         elif isinstance(symbol, Class):
+            index = get_ast_index(index, source, source_path=module_name)
+            assert symbol.endlineno
+            ast_symbol = index.get(AstClassFunctionKey(symbol.name, symbol.endlineno))
+            assert isinstance(ast_symbol, ast.ClassDef)
             symbols.append(
                 analyze_class(
-                    cls=symbol, name=symbol_name, context=context, option=option
+                    cls=symbol,
+                    name=symbol_name,
+                    context=context,
+                    ast=ast_symbol,
+                    option=option,
                 )
             )
 

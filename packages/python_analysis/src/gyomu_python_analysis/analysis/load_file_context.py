@@ -17,6 +17,18 @@ def load_file_analysis_context(
     file_hash: str | None = None,
     option: AnalysisOption | None = None,
 ) -> Result[FileAnalysisContext, AnalysisError]:
+    """Loads the file analysis context for a given project file.
+
+    Args:
+        context (ProjectContext): The project context.
+        file_path (ProjectRelativePath): The relative path of the file to load.
+        file_hash (str | None): Optional hash of the file.
+        option (AnalysisOption | None): Optional analysis options.
+
+    Returns:
+        Result[FileAnalysisContext, AnalysisError]: A Result containing the
+            FileAnalysisContext on success or an AnalysisError on failure.
+    """
     module_analysis_result = get_module_analysis(context, file_path, file_hash, option)
     if isinstance(module_analysis_result, Failure):
         return module_analysis_result

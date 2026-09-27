@@ -1,0 +1,304 @@
+{
+  "entries": [
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::EnvironmentLoaderOption",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing accurate summary and description state for EnvironmentLoaderOption class",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::EnvironmentLoaderOption",
+        "declaration_id": ".::variables"
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing documentation for variables attribute",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::EnvironmentLoaderOption",
+        "declaration_id": ".::use_dot_env"
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing documentation for use_dot_env attribute",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::EnvironmentLoaderOption",
+        "declaration_id": ".::dot_env_path"
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing documentation for dot_env_path attribute",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::BaseFileLoaderOption",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing accurate summary for BaseFileLoaderOption class",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::BaseFileLoaderOption",
+        "declaration_id": ".::file_path"
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing documentation for file_path attribute",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::JsonLoaderOption",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing summary for JsonLoaderOption class",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::YamlLoaderOption",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing summary for YamlLoaderOption class",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::TomlLoaderOption",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing summary for TomlLoaderOption class",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    },
+    {
+      "identity": {
+        "symbol_id": "docstring.config_loader_option::ConfigLoaderOption",
+        "declaration_id": "."
+      },
+      "summary": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "description": {
+        "action": {
+          "type": "preserve"
+        },
+        "confidence": 1.0
+      },
+      "params": [],
+      "raises": [],
+      "returns": null,
+      "reasoning": {
+        "summary": "Preserving existing summary for ConfigLoaderOption type alias",
+        "param_mapping": "No parameters to map",
+        "return_mapping": "No return type to map"
+      },
+      "risk": {
+        "has_human_conflict": false,
+        "risk_level": "low"
+      }
+    }
+  ]
+}

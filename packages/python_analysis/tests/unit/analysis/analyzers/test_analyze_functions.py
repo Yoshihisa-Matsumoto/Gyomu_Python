@@ -86,3 +86,12 @@ class TestAnalyzeFunctions(AnalysisTestBase):
                 default=None,
             ),
         )
+
+    def test_analyzes_function_ellipse(self) -> None:
+        result = self._analyze_function(
+            name="abstract",
+        )
+        assert result.kind == DeclarationKind.FUNCTION
+        assert result.name == "abstract"
+        assert result.visibility == Visibility.PUBLIC
+        assert result.is_ellipsis_only

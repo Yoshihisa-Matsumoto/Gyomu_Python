@@ -11,6 +11,8 @@ from gyomu_infra.stream.stream_io import stream_to_file
 
 
 class CsvWriter[T: BaseModel]:
+    """Writes Pydantic model records to CSV format."""
+
     def __init__(
         self,
         *,
@@ -24,6 +26,14 @@ class CsvWriter[T: BaseModel]:
         self,
         records: Iterable[T],
     ) -> Iterator[bytes]:
+        """Streams records as encoded CSV byte chunks.
+
+        Args:
+            records (Iterable[T]): Iterable of Pydantic model records to write
+
+        Returns:
+            Iterator[bytes]: Iterator yielding encoded CSV byte chunks
+        """
         options = self.options or CsvWriteOptions()
         encoder = codecs.getincrementalencoder(options.encoding)()
 
@@ -58,6 +68,15 @@ class CsvWriter[T: BaseModel]:
         self,
         options: CsvWriteOptions,
     ) -> tuple[list[str], list[str] | None]:
+        """Determines field names and headers from options or schema.
+
+        Args:
+            options (CsvWriteOptions): CSV write options containing column configuration
+
+        Returns:
+            tuple[list[str], list[str] | None]: Tuple of field names and optional header
+                names
+        """
         fields = options.columns
 
         if fields is None:
@@ -74,6 +93,15 @@ class CsvWriter[T: BaseModel]:
         row: list[object] | list[str],
         options: CsvWriteOptions,
     ) -> str:
+        """Formats a single row into a CSV string.
+
+        Args:
+            row (list[object] | list[str]): List of row values or strings
+            options (CsvWriteOptions): CSV write options for formatting
+
+        Returns:
+            str: Formatted CSV row string
+        """
         buffer = StringIO()
 
         writer = csv.writer(
@@ -95,6 +123,16 @@ def csv_to_string[T: BaseModel](
     schema: type[T],
     options: CsvWriteOptions | None = None,
 ) -> str:
+    """Converts an iterable of Pydantic model records into a CSV string.
+
+    Args:
+        records (Iterable[T]): Iterable of Pydantic model records to convert
+        schema (type[T]): Pydantic model schema class
+        options (CsvWriteOptions | None): Optional CSV write options
+
+    Returns:
+        str: CSV formatted string representing the records
+    """
     options = options or CsvWriteOptions()
     writer = CsvWriter(schema=schema, options=options)
     return b"".join(writer.stream(records)).decode(options.encoding)
@@ -106,6 +144,14 @@ def csv_to_file[T: BaseModel](
     file_path: Path,
     options: CsvWriteOptions | None = None,
 ) -> None:
+    """Writes an iterable of Pydantic model records to a CSV file.
+
+    Args:
+        records (Iterable[T]): Iterable of Pydantic model records to write
+        schema (type[T]): Pydantic model schema class
+        file_path (Path): Destination file path
+        options (CsvWriteOptions | None): Optional CSV write options
+    """
     writer = CsvWriter(
         schema=schema,
         options=options,

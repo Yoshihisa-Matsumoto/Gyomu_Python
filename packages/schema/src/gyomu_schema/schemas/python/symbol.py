@@ -19,6 +19,9 @@ type SymbolAnalysis = Annotated[
     VariableAnalysis | ClassAnalysis | FunctionAnalysis | TypeAliasAnalysis,
     Field(discriminator="kind"),
 ]
+"""Defines a discriminated union of Python symbol analysis types including variables,
+classes, functions, and type aliases.
+"""
 
 type MemberAnalysis = Annotated[
     InnerClassAnalysis
@@ -27,3 +30,6 @@ type MemberAnalysis = Annotated[
     | MethodAnalysis,
     Field(discriminator="kind"),
 ]
+"""Defines a discriminated union of Python class member analysis types including inner
+classes, class variables, class type aliases, and methods.
+"""

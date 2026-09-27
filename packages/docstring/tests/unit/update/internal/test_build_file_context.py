@@ -548,10 +548,16 @@ class TestBuildDocstringFileContext:
     def test_build_docstring_file_context(self) -> None:
 
         source = "def foo() -> None:\n    pass\n\nclass Foo:\n    pass\n"
-        function = create_function_analysis(
+        function1 = create_function_analysis(
             indent=0,
             location=create_location(start_offset=0, end_offset=len(source)),
             name="foo",
+        )
+        function2 = create_function_analysis(
+            indent=0,
+            location=create_location(start_offset=0, end_offset=len(source)),
+            name="foo",
+            is_ellipsis_only=True,
         )
         cls = create_class_analysis(
             indent=0,
@@ -560,8 +566,7 @@ class TestBuildDocstringFileContext:
         )
 
         file_result = create_file_analysis_context(
-            symbol=function,
-            symbol2=cls,
+            symbol=function1, symbol2=cls, symbol3=function2
         )
 
         result = build_docstring_file_context(
@@ -575,23 +580,28 @@ class TestBuildDocstringFileContext:
         assert result.retry is None
 
         assert tuple(symbol.target for symbol in result.symbols) == (
-            function.identity,
+            function1.identity,
             cls.identity,
         )
 
 
 @pytest.mark.parametrize(
-    ("is_pydantic", "name", "expected", "kind"),
+    ("is_pydantic", "name", "expected", "kind", "is_ellipsis_only"),
     [
-        (False, "messages", True, DeclarationKind.VARIABLE),
-        (False, "model_config", True, DeclarationKind.VARIABLE),
-        (True, "messages", True, DeclarationKind.VARIABLE),
-        (True, "model_config", False, DeclarationKind.VARIABLE),
-        (True, "model_config", True, DeclarationKind.FUNCTION),
+        (False, "messages", True, DeclarationKind.VARIABLE, False),
+        (False, "model_config", True, DeclarationKind.VARIABLE, False),
+        (True, "messages", True, DeclarationKind.VARIABLE, False),
+        (True, "model_config", False, DeclarationKind.VARIABLE, False),
+        (True, "model_config", True, DeclarationKind.FUNCTION, False),
+        (True, "model_config", False, DeclarationKind.FUNCTION, True),
     ],
 )
 def test_is_documentable_child_entry(
-    is_pydantic: bool, name: str, expected: bool, kind: DeclarationKind
+    is_pydantic: bool,
+    name: str,
+    expected: bool,
+    kind: DeclarationKind,
+    is_ellipsis_only: bool,
 ) -> None:
     bases: tuple[TypeAnalysis, ...] = tuple()
     if is_pydantic:
@@ -618,6 +628,7 @@ def test_is_documentable_child_entry(
                 location=create_location(),
                 name=name,
                 identity=create_declaration_identity(name),
+                is_ellipsis_only=is_ellipsis_only,
             )
     assert member
     print(is_base_class_pydantic(list(cls.bases)))

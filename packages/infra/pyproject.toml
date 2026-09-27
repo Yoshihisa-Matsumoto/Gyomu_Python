@@ -39,5 +39,10 @@ exclude = [
     "tests/resources"
 ]
 
+[tool.gyomu]
+exclude = [
+    "src/gyomu_infra/db/model/generated"
+]
+
 [tool.hatch.version]
 path = "../../version/__about__.py"

@@ -1,8 +1,6 @@
 from collections.abc import Callable
 from pathlib import Path
 
-from gyomu_ai.execution.context import AiModelContext
-from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_infra.config.loader import ConfigLoader
 from gyomu_schema.config.config_loader_option import EnvironmentLoaderOption
 from pydantic import BaseModel
@@ -13,15 +11,32 @@ from pydantic_ai.models.google import GoogleModel, GoogleModelName
 from pydantic_ai.providers.google import GoogleProvider
 from returns.result import Failure
 
+from gyomu_ai.execution.context import AiModelContext
+from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
+
 
 class GoogleAPIConfig(BaseModel):
+    """Configuration for Google API access containing the API key."""
+
     api_key: str
+    """Google API key."""
 
 
 def create_google_model(
     model_name: GoogleModelName,
     setting: GoogleAPIConfig,
 ) -> Callable[[AiModelContext | None], Model]:
+    """Creates a Google model factory function using the specified configuration.
+
+    Args:
+        model_name (GoogleModelName): Google model name to use.
+        setting (GoogleAPIConfig): Google API configuration.
+
+    Returns:
+        Callable[[AiModelContext | None], Model]: A factory function that creates a
+            Google model instance.
+    """
+
     def factory(context: AiModelContext | None) -> Model:
         return GoogleModel(
             model_name,
@@ -37,6 +52,18 @@ def create_google_embedding(
     model_name: GoogleEmbeddingModelName,
     setting: GoogleAPIConfig,
 ) -> Callable[[AiModelContext | None], Embedder]:
+    """Creates a Google embedding model factory function using the specified
+    configuration.
+
+    Args:
+        model_name (GoogleEmbeddingModelName): Google embedding model name to use.
+        setting (GoogleAPIConfig): Google API configuration.
+
+    Returns:
+        Callable[[AiModelContext | None], Embedder]: A factory function that creates an
+            Embedder instance.
+    """
+
     def factory(context: AiModelContext | None) -> Embedder:
 
         model = GoogleEmbeddingModel(
@@ -53,6 +80,15 @@ def create_google_embedding(
 def create_pydantic_ai_model_registry(
     setting: GoogleAPIConfig,
 ) -> PydanticAiModelRegistry:
+    """Creates a Pydantic AI model registry configured with Google models and
+    embeddings.
+
+    Args:
+        setting (GoogleAPIConfig): Google API configuration.
+
+    Returns:
+        PydanticAiModelRegistry: The configured Pydantic AI model registry.
+    """
     return PydanticAiModelRegistry(
         fast=create_google_model(
             "gemini-3.5-flash-lite",
@@ -80,6 +116,15 @@ def create_pydantic_ai_model_registry(
 def create_default_pydantic_ai_model_registry(
     dot_env_path: Path | None = None,
 ) -> PydanticAiModelRegistry:
+    """Creates a default Pydantic AI model registry by loading Google API configuration
+    from the environment.
+
+    Args:
+        dot_env_path (Path | None): Optional path to a .env file.
+
+    Returns:
+        PydanticAiModelRegistry: The default configured Pydantic AI model registry.
+    """
     setting_result = ConfigLoader.load(
         GoogleAPIConfig,
         EnvironmentLoaderOption(

@@ -8,7 +8,21 @@ from returns.result import Result
 
 
 class FileOperation:
+    """Provides file operation helper utilities such as access checking and waiting
+    for exclusive access.
+    """
+
     def can_access(self, filename: Path, readonly: bool = False) -> bool:
+        """Checks whether a file can be accessed for reading or writing.
+
+        Args:
+            filename (Path):
+            readonly (bool):
+
+        Returns:
+            bool: True if the file is accessible according to the specified mode, False
+                otherwise.
+        """
         if not filename.exists():
             return False
 
@@ -37,6 +51,16 @@ class FileOperation:
         filename: Path,
         timeout_seconds: int,
     ) -> Result[bool, GyomuTimeoutError]:
+        """Waits until the file becomes exclusively accessible within the given timeout.
+
+        Args:
+            filename (Path):
+            timeout_seconds (int):
+
+        Returns:
+            Result[bool, GyomuTimeoutError]: A Result containing True on success or a
+                GyomuTimeoutError on timeout.
+        """
         return polling(
             action_name=f"exclusive access: {filename}",
             timeout_seconds=timeout_seconds,

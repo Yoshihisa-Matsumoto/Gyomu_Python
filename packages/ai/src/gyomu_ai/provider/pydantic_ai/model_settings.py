@@ -1,10 +1,21 @@
-from gyomu_ai.execution.context import AiExecutionContext
 from pydantic_ai import ModelSettings
+
+from gyomu_ai.execution.context import AiExecutionContext
 
 
 def build_model_settings(
     execution_context: AiExecutionContext | None,
 ) -> ModelSettings | None:
+    """Builds model settings from an AI execution context.
+
+    Args:
+        execution_context (AiExecutionContext | None): The AI execution context
+            containing model configuration settings.
+
+    Returns:
+        ModelSettings | None: The built Pydantic AI ModelSettings dictionary, or None if
+            no settings are present or context is None.
+    """
     if execution_context is None:
         return None
     model_settings: ModelSettings = {}

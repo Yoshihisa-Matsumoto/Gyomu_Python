@@ -226,6 +226,8 @@ def create_method(id: str, doc: bool) -> MethodAnalysis:
         indent=indent,
         docstring=docstring,
         parameters=tuple(),
+        is_ellipsis_only=False,
+        statements=tuple(),
     )
 
 

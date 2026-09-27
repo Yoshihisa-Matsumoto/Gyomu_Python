@@ -1,6 +1,25 @@
+import asyncio
 from collections.abc import Awaitable, Callable
 
+from gyomu_schema.conversation.conversation import ConversationSchema
+from gyomu_schema.error.ai import (
+    AiError,
+    AiOperation,
+    AiRetryAfter,
+    AiRetryExponential,
+    AiRetryImmediate,
+    AiRetryResolution,
+    AiRetryStrategy,
+)
+from gyomu_schema.option.retry import RetryOption, RetryParameter
+from gyomu_schema.utility.execution_timer import ExecutionTimer
+from pydantic import BaseModel
+from pydantic_ai import Embedder, EmbeddingModel
+from pydantic_ai.models import Model
+from returns.result import Failure, Result, Success
+
 from gyomu_ai.execution.context import AiModelContext
+from gyomu_ai.execution.observer import _get_retry_observer
 from gyomu_ai.execution.parameter import (
     EmbedParams,
     GenerateObjectParams,
@@ -28,23 +47,22 @@ from gyomu_ai.provider.pydantic_ai.map_result import (
 )
 from gyomu_ai.provider.pydantic_ai.model_settings import build_model_settings
 from gyomu_ai.provider.pydantic_ai.stream import PydanticAiTextStream
-from gyomu_schema.conversation.conversation import ConversationSchema
-from gyomu_schema.error.ai import AiError, AiOperation
-from gyomu_schema.utility.execution_timer import ExecutionTimer
-from pydantic import BaseModel
-from pydantic_ai import Embedder, EmbeddingModel
-from pydantic_ai.models import Model
-from returns.result import Failure, Result, Success
 
 
 class PydanticAiModelExecution:
+    """Executes AI operations using PydanticAI models with support for retries and
+    error handling.
+    """
+
     def __init__(
-        self,
-        registry: PydanticAiModelRegistry,
+        self, registry: PydanticAiModelRegistry, retry_option: RetryOption
     ) -> None:
         self._registry = registry
+        self._retry_option = retry_option
 
     def _select_model(self, key: AiModelKey, context: AiModelContext | None) -> Model:
+        """Selects an appropriate model based on the given AI model key and context."""
+
         match key:
             case AiModelKey.FAST:
                 return self._registry.fast(context)
@@ -64,6 +82,8 @@ class PydanticAiModelExecution:
         model_key: str | None,
         action: Callable[[], Awaitable[T]],
     ) -> Result[T, AiError]:
+        """Executes an asynchronous operation and maps any exceptions to AI errors."""
+
         try:
             return Success(await action())
         except BaseException as error:
@@ -73,12 +93,103 @@ class PydanticAiModelExecution:
                 )
             )
 
+    async def _execute_with_retry[T](
+        self,
+        operation: AiOperation,
+        model: str | None,
+        model_key: str | None,
+        action: Callable[[], Awaitable[T]],
+    ) -> Result[T, AiError]:
+        """Executes an operation with retry logic based on configured retry options."""
+
+        retry_option = self._retry_option
+
+        max_attempts = (
+            retry_option.max_attempts
+            if retry_option is not None and retry_option.max_attempts is not None
+            else 3
+        )
+
+        retry_count = 0
+
+        while True:
+            result = await self._execute(
+                operation,
+                model=model,
+                model_key=model_key,
+                action=action,
+            )
+
+            if isinstance(result, Success):
+                return result
+
+            error = result.failure()
+
+            if not isinstance(error.resolution, AiRetryResolution):
+                return Failure(error)
+
+            if retry_count >= max_attempts:
+                return Failure(error)
+
+            delay_milliseconds = self._calculate_retry_delay_milliseconds(
+                error.resolution.strategy, retry_count
+            )
+
+            observer = _get_retry_observer()
+            if observer is not None:
+                observer.on_retry(
+                    RetryParameter(
+                        error=error,
+                        attempt=retry_count,
+                        delay_milliseconds=delay_milliseconds,
+                    )
+                )
+
+            if delay_milliseconds > 0:
+                await asyncio.sleep(delay_milliseconds / 1000)
+
+            retry_count += 1
+
+    def _calculate_retry_delay_milliseconds(
+        self,
+        strategy: AiRetryStrategy,
+        attempt: int,
+    ) -> int:
+        """Calculates the retry delay in milliseconds based on the retry strategy and
+        attempt count.
+        """
+        match strategy:
+            case AiRetryImmediate():
+                return 0
+
+            case AiRetryAfter(delay_second=delay_second):
+                return int(delay_second * 1000)
+
+            case AiRetryExponential():
+                delay: int = 1000 * 2**attempt
+                return min(
+                    delay,
+                    60_000,
+                )
+            case _:
+                raise ValueError(f"Unsupported strategy: {type(strategy).__name__}")
+
+    def _calculate_exponential_retry_delay(
+        self,
+        retry_count: int,
+    ) -> float:
+        """Calculates an exponential retry delay multiplier based on the retry count."""
+
+        return float(2**retry_count)
+
     async def _generate_text(
         self,
         model: Model,
         conversation: ConversationSchema,
         params: GenerateTextParams,
     ) -> AiGenerateTextResult:
+        """Generates text using a PydanticAI agent and conversation parameters."""
+
         agent, usage_limits = create_pydantic_ai_agent(model, params.tool)
         prompt = build_prompt(conversation)
         timer = ExecutionTimer.start()
@@ -97,8 +208,10 @@ class PydanticAiModelExecution:
         conversation: ConversationSchema,
         params: GenerateTextParams,
     ) -> Result[AiGenerateTextResult, AiError]:
+        """Generates text from a conversation using a selected PydanticAI model."""
+
         model = self._select_model(params.key, params.execution)
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.GENERATE,
             model=model.model_name,
             model_key=params.key,
@@ -115,6 +228,9 @@ class PydanticAiModelExecution:
         conversation: ConversationSchema,
         params: StreamTextParams,
     ) -> AiTextStream:
+        """Streams text responses using a PydanticAI agent and conversation
+        parameters.
+        """
         agent, usage_limits = create_pydantic_ai_agent(model, params.tool)
         prompt = build_prompt(conversation)
         timer = ExecutionTimer.start()
@@ -138,8 +254,10 @@ class PydanticAiModelExecution:
         conversation: ConversationSchema,
         params: StreamTextParams,
     ) -> Result[AiTextStream, AiError]:
+        """Streams text from a conversation using a selected PydanticAI model."""
+
         model = self._select_model(params.key, params.execution)
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.STREAM,
             model=model.model_name,
             model_key=params.key,
@@ -156,6 +274,8 @@ class PydanticAiModelExecution:
         conversation: ConversationSchema,
         params: GenerateObjectParams[T],
     ) -> AiGenerateObjectResult[T]:
+        """Generates a structured Pydantic object using a PydanticAI agent."""
+
         agent, usage_limits = create_pydantic_ai_agent_for_object(
             model, params.output_type, params.tool
         )
@@ -177,8 +297,11 @@ class PydanticAiModelExecution:
         conversation: ConversationSchema,
         params: GenerateObjectParams[T],
     ) -> Result[AiGenerateObjectResult[T], AiError]:
+        """Generates a structured Pydantic object from a conversation using a
+        selected PydanticAI model.
+        """
         model = self._select_model(params.key, params.execution)
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.GENERATE,
             model=model.model_name,
             model_key=params.key,
@@ -194,6 +317,7 @@ class PydanticAiModelExecution:
         agent: Embedder,
         params: EmbedParams[T],
     ) -> AiEmbeddingResult:
+        """Generates embeddings using an embedder agent."""
 
         timer = ExecutionTimer.start()
         response = await agent.embed(
@@ -206,13 +330,15 @@ class PydanticAiModelExecution:
         self,
         params: EmbedParams[T],
     ) -> Result[AiEmbeddingResult, AiError]:
+        """Generates embeddings for input values using an embedding model."""
+
         embedder = self._registry.embedding(params.execution)
         model_name: str = ""
         if isinstance(embedder.model, EmbeddingModel):
             model_name = embedder.model.model_name
         else:
             model_name = embedder.model
-        return await self._execute(
+        return await self._execute_with_retry(
             AiOperation.EMBEDDING,
             model=model_name,
             model_key=AiModelKey.EMBEDDING,

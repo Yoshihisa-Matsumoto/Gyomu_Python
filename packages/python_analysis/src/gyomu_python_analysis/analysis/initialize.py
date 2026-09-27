@@ -18,6 +18,8 @@ from gyomu_python_analysis.project.workspace import WorkspaceConfig, WorkspacePr
 
 
 def resolve_source_root(project_root: FullPath) -> ProjectRelativePath:
+    """Resolve the source root directory for a given project root."""
+
     if (project_root / "src").is_dir():
         return ProjectRelativePath(Path("src"))
 
@@ -27,6 +29,8 @@ def resolve_source_root(project_root: FullPath) -> ProjectRelativePath:
 def initialize_project_from_workspace(
     workspace: WorkspaceConfig, project: WorkspaceProject
 ) -> ProjectContext:
+    """Initialize a project context from workspace and project configurations."""
+
     project_root = FullPath(workspace.path / project.path)
     source_root = resolve_source_root(project_root)
     files = find_included_python_files(
@@ -43,6 +47,8 @@ def initialize_project_from_workspace(
 def initialize_project_context(
     project_root: FullPath, source_root: ProjectRelativePath
 ) -> Result[ProjectContext, AnalysisError]:
+    """Initialize the project context from the given project root and source root."""
+
     pyproject_path = project_root / "pyproject.toml"
     read_result = read_text(pyproject_path)
     if isinstance(read_result, Failure):
@@ -78,16 +84,22 @@ def initialize_project_context(
 def find_included_python_files(
     project_root: FullPath, source_root: ProjectRelativePath
 ) -> frozenset[ProjectRelativePath]:
+    """Find all included Python source files within the project."""
+
     source_path = project_root / source_root
     files = enumerate_files(source_path, _is_python_source_file, project_root)
     return frozenset(ProjectRelativePath(path) for path in files)
 
 
 def _is_python_source_file(path: Path) -> bool:
+    """Check if the given path is a non-test Python source file."""
+
     return path.suffix == ".py" and not _is_test_file(path)
 
 
 def _is_test_file(path: Path) -> bool:
+    """Check if the given path corresponds to a test file."""
+
     return path.name.startswith("test_") or path.name.endswith("_test.py")
 
 
@@ -97,6 +109,8 @@ def analyze_project_config(
     project_relative_path: WorkspaceRelativePath | None = None,
     workspace_config: WorkspaceConfig | None = None,
 ) -> Result[PyProjectConfig, AnalysisError]:
+    """Analyze the project configuration from parsed pyproject.toml data."""
+
     if project_relative_path is None:
         project_relative_path = WorkspaceRelativePath(Path("."))
     project = toml_data["project"]
@@ -143,11 +157,14 @@ def analyze_project_config(
             version=str(version),
             formatter_line_length=formatter_line_length,
             path=project_relative_path,
+            _toml_data=toml_data,
         )
     )
 
 
 def read_version(path: Path) -> Result[str | None, AnalysisError]:
+    """Read the project version from a source file using AST parsing."""
+
     # print(path)
     source_result = read_text(path)
     if isinstance(source_result, Failure):

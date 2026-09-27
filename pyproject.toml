@@ -10,6 +10,7 @@ dev = [
     "pytest-mock>=3.15.1",
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.3",
+    "twine>=7.0.0",
 ]
 [tool.uv]
 constraint-dependencies = [
@@ -25,7 +26,9 @@ members = [
     "packages/ai",
     "packages/python_analysis",
     "packages/ai_compiler",
-    "packages/docstring"
+    "packages/docstring",
+    "packages/workflow",
+    "apps/cli",
 ]
 
 
@@ -41,6 +44,8 @@ files = [
     "packages/python_analysis/src",
     "packages/docstring/src",
     "packages/ai_compiler/src",
+    "packages/workflow/src",
+    "apps/cli/src"
 ]
 
 [tool.ruff]
@@ -73,7 +78,7 @@ markers = [
     "package: tests requiring independent venv while installing built packages"
 ]
 testpaths = [
-    "packages",
+    "packages","apps"
 ]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib"

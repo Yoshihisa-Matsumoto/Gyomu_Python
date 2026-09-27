@@ -21,6 +21,8 @@ from gyomu_infra.stream.record_stream import RecordStream
 
 
 class CsvReader[T: BaseModel]:
+    """Reads and parses CSV data into validated Pydantic models."""
+
     def __init__(
         self,
         stream: BinaryIO | TextIO,
@@ -33,6 +35,8 @@ class CsvReader[T: BaseModel]:
         self.options = options
 
     def records(self) -> RecordStream[T, GyomuIOError | ValidationError]:
+        """Returns a stream of parsed and validated records."""
+
         raw = RecordStream(
             _parse_raw_records(
                 self.stream,
@@ -49,6 +53,8 @@ class CsvReader[T: BaseModel]:
 
 
 class CsvRawReader:
+    """Reads and parses CSV data into raw string dictionaries without validation."""
+
     def __init__(
         self,
         stream: BinaryIO | TextIO,
@@ -61,6 +67,7 @@ class CsvRawReader:
     def records(
         self,
     ) -> RecordStream[dict[str, str], GyomuIOError]:
+        """Returns a stream of raw string dictionaries parsed from the CSV."""
 
         return RecordStream(_parse_raw_records(self.stream, self.options))
 
@@ -69,6 +76,8 @@ def _parse_raw_records(
     stream: BinaryIO | TextIO,
     options: CsvIOOptions | None,
 ) -> Iterator[Result[dict[str, str], GyomuIOError]]:
+    """Parses raw records from a CSV stream."""
+
     options = options or CsvIOOptions()
 
     try:
@@ -97,6 +106,8 @@ def _parse_raw_records(
 
 
 def _text_stream(stream: TextIO | BinaryIO, encoding: str, utf8_bom: bool) -> TextIO:
+    """Wraps a stream into a text stream with the specified encoding."""
+
     if isinstance(stream, (TextIOBase, TextIO)):
         return stream
 
@@ -108,6 +119,7 @@ def _parse_csv(
     stream: TextIO,
     options: CsvParseOptions,
 ) -> Iterator[dict[str, str]]:
+    """Parses a text stream using the standard csv module and options."""
 
     reader = csv.reader(
         stream,
@@ -136,6 +148,8 @@ def _map_header_row(
     header_index: dict[str, int],
     columns: CsvHeaderMode,
 ) -> dict[str, str]:
+    """Maps a CSV row using header names based on configuration."""
+
     if columns.fields is None:
         return {
             header: row[index]
@@ -154,6 +168,8 @@ def _map_index_row(
     row: list[str],
     columns: CsvNoHeaderMode,
 ) -> dict[str, str]:
+    """Maps a CSV row using column indices based on configuration."""
+
     if columns.fields is None:
         return {f"COLUMN{index}": value for index, value in enumerate(row)}
 

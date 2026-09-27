@@ -16,6 +16,21 @@ def analyze_type(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> TypeAnalysis | None:
+    """Analyze a type annotation and return its structured analysis.
+
+    Args:
+        annotation (str | Expr | None): Type annotation as a string, Griffe expression,
+            or None.
+        context (SymbolContext): Contextual information for symbol resolution.
+        option (AnalysisOption | None): Optional analysis configuration options.
+
+    Returns:
+        TypeAnalysis | None: The type analysis result, or None if the annotation is
+            None.
+
+    Raises:
+        ValueError: If the annotation type is not supported.
+    """
     if annotation is None:
         return None
     if isinstance(annotation, str):

@@ -18,7 +18,6 @@ from gyomu_schema.error.ai import (
     AiFailResolution,
     AiOperation,
 )
-from gyomu_schema.option.retry import RetryOption
 from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
@@ -77,7 +76,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         )
         generate_mock.assert_awaited_once()
         assert result == Success(plan)
-        generate_mock.assert_awaited_once_with(context, None)
+        generate_mock.assert_awaited_once_with(context)
 
     @pytest.mark.asyncio
     async def test_build_docstring_update_plan_with_retry_dumps_plan_to_file(
@@ -199,11 +198,9 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
 
-        retry_option = RetryOption(max_attempts=2, observer=None)
+        # retry_option = RetryOption(max_attempts=2)
 
-        option = UpdateOption(
-            retry_option=retry_option,
-        )
+        option = UpdateOption()
 
         generate_mock = mocker.patch(
             "gyomu_docstring.update.internal.build_update_plan.generate_docstring_update_plan",
@@ -220,7 +217,6 @@ class TestBuildDocstringUpdatePlanWithRetry:
         assert result == Success(plan)
         generate_mock.assert_awaited_once_with(
             context,
-            retry_option,
         )
 
     @pytest.mark.asyncio

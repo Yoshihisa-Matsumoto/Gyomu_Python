@@ -14,7 +14,9 @@ type AnalysisPhase = Literal[
     "analysis",
     "post-analysis",
     "workspace-discovery",
+    "snapshot",
 ]
+"""Represents the different phases of Python code analysis."""
 
 
 class AnalysisError(BaseError):

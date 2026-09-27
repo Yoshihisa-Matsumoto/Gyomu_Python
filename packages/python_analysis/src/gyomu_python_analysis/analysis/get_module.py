@@ -21,6 +21,20 @@ def get_module_analysis(
     file_hash: str | None = None,
     option: AnalysisOption | None = None,
 ) -> Result[ModuleAnalysis, AnalysisError]:
+    """Get module analysis for a given file path.
+
+    Analyzes a Python module, leveraging cached results when available.
+
+    Args:
+        context (ProjectContext): The project context.
+        file_path (ProjectRelativePath): The relative path of the file to analyze.
+        file_hash (str | None): Optional file hash for cache validation.
+        option (AnalysisOption | None): Optional analysis options.
+
+    Returns:
+        Result[ModuleAnalysis, AnalysisError]: A Result containing the ModuleAnalysis on
+            success or AnalysisError on failure.
+    """
 
     cache_path = _get_cache_path(context, file_path)
 
@@ -62,5 +76,16 @@ def get_module_analysis(
 def _get_cache_path(
     context: ProjectContext, source_path: ProjectRelativePath
 ) -> FullPath:
+    """Get the cache file path for a source file.
+
+    Computes the full path for a module's analysis cache file.
+
+    Args:
+        context (ProjectContext): The project context.
+        source_path (ProjectRelativePath): The source path relative to the project.
+
+    Returns:
+        FullPath: The full path to the cache file.
+    """
     cache_root = context.project_root / ".gyomu" / "cache"
     return cache_root / f"{source_path}.json"

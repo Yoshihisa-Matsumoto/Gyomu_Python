@@ -247,9 +247,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert result.variables[0].identity.symbol_id == result.identity.symbol_id
         assert result.variables[0].identity.declaration_id == ".::parent_value"
 
-        assert [method.name for method in result.methods] == [
-            "__init__",
-        ]
+        assert "__init__" in [method.name for method in result.methods]
 
         init_method = result.methods[0]
 
@@ -265,10 +263,7 @@ class TestAnalyzeClass(AnalysisTestBase):
 
         assert init_method.is_async is False
 
-        assert [inner.name for inner in result.inner_classes] == [
-            "Inner",
-        ]
-
+        assert "Inner" in [inner.name for inner in result.inner_classes]
         inner = result.inner_classes[0]
 
         # Inner class
@@ -283,14 +278,16 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert inner.variables[0].identity.symbol_id == result.identity.symbol_id
         assert inner.variables[0].identity.declaration_id == ".::Inner::child_value"
 
-        assert [method.name for method in inner.methods] == [
-            "__init__",
-        ]
+        assert "__init__" in [method.name for method in inner.methods]
 
         inner_init = inner.methods[0]
 
         assert inner_init.identity.symbol_id == result.identity.symbol_id
         assert inner_init.identity.declaration_id == ".::Inner::__init__"
+
+        inner_abstract = inner.methods[1]
+        assert inner_abstract.name == "abstract"
+        assert inner_abstract.is_ellipsis_only
 
         assert [param.name for param in inner_init.parameters] == [
             "self",
@@ -324,15 +321,16 @@ class TestAnalyzeClass(AnalysisTestBase):
             ".::Inner::InnerMost::grandchild_value"
         )
 
-        assert [method.name for method in inner_most.methods] == [
-            "__init__",
-        ]
+        assert "__init__" in [method.name for method in inner_most.methods]
 
         inner_most_init = inner_most.methods[0]
         assert inner_most_init.identity.symbol_id == result.identity.symbol_id
         assert (
             inner_most_init.identity.declaration_id == ".::Inner::InnerMost::__init__"
         )
+        inner_most_abstract = inner_most.methods[1]
+        assert inner_most_abstract.name == "abstract"
+        assert inner_most_abstract.is_ellipsis_only
 
         assert [param.name for param in inner_most_init.parameters] == [
             "self",

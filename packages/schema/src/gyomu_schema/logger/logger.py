@@ -3,13 +3,15 @@ from typing import Protocol
 
 
 class Logger(Protocol):
+    """Protocol defining a standard logging interface."""
+
     def debug(
         self,
         message: str,
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None: ...
-    def debug_object(self, value: object) -> None: ...
+    def debug_object(self, value: object, depth: int = 3) -> None: ...
     def info(
         self,
         message: str,
@@ -30,7 +32,7 @@ class Logger(Protocol):
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None: ...
-    def error_object(self, value: object) -> None: ...
+    def error_object(self, value: object, depth: int = 3) -> None: ...
     def critical(
         self,
         message: str,

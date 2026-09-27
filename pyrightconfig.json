@@ -6,6 +6,8 @@
     "packages/ai/src",
     "packages/python_analysis/src",
     "packages/docstring/src",
-    "packages/ai_compiler/src"
+    "packages/ai_compiler/src",
+    "packages/workflow/src",
+    "apps/cli/src"
   ]
 }

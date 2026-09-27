@@ -17,6 +17,7 @@ from gyomu_ai.tool.ai_tool import (
 )
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
+from gyomu_schema.option.retry import RetryOption
 from pydantic import BaseModel
 
 pytestmark = pytest.mark.integration
@@ -26,7 +27,7 @@ pytestmark = pytest.mark.integration
 @pytest.mark.asyncio
 async def test_generate_text(registry: PydanticAiModelRegistry) -> None:
 
-    execution = PydanticAiModelExecution(registry)
+    execution = PydanticAiModelExecution(registry, RetryOption(3))
 
     conversation = ConversationSchema().with_request(
         MessageSchema.user_text("こんにちは。短く自己紹介してください。")
@@ -73,7 +74,7 @@ async def get_value(
 @pytest.mark.asyncio
 async def test_generate_text_with_tool(registry: PydanticAiModelRegistry) -> None:
 
-    execution = PydanticAiModelExecution(registry)
+    execution = PydanticAiModelExecution(registry, RetryOption(3))
 
     tool = AiTool(
         name="get_value",
@@ -133,7 +134,7 @@ async def test_generate_text_with_tool_failure(
     registry: PydanticAiModelRegistry,
 ) -> None:
 
-    execution = PydanticAiModelExecution(registry)
+    execution = PydanticAiModelExecution(registry, RetryOption(3))
 
     class GetValueInput(BaseModel):
         key: str

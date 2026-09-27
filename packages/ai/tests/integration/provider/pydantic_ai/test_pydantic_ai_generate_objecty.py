@@ -6,6 +6,7 @@ from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
+from gyomu_schema.option.retry import RetryOption
 from pydantic import BaseModel
 
 pytestmark = pytest.mark.integration
@@ -20,7 +21,7 @@ class UserSchema(BaseModel):
 @pytest.mark.asyncio
 async def test_generate_object(registry: PydanticAiModelRegistry) -> None:
 
-    execution = PydanticAiModelExecution(registry)
+    execution = PydanticAiModelExecution(registry, RetryOption(3))
 
     conversation = ConversationSchema().with_request(
         MessageSchema.user_text("""Return a json object:

@@ -9,6 +9,17 @@ from gyomu_schema.schemas.python.types import DeclarationIdentity
 def create_file_analysis_metadata(
     module_analysis: ModuleAnalysis,
 ) -> FileAnalysisMetadata:
+    """Create file analysis metadata from a module analysis.
+
+    Creates file analysis metadata from a module analysis result.
+
+    Args:
+        module_analysis (ModuleAnalysis): The module analysis result to process.
+
+    Returns:
+        FileAnalysisMetadata: The created file analysis metadata containing parsed
+            docstrings and symbols.
+    """
     parsed_docstring: dict[DeclarationIdentity, DocstringAnalysis] = {}
     symbols: dict[DeclarationIdentity, SymbolAnalysis | MemberAnalysis] = {}
 
@@ -27,6 +38,22 @@ def register_class_metadata(
     symbols: dict[DeclarationIdentity, SymbolAnalysis | MemberAnalysis],
     parsed_docstring: dict[DeclarationIdentity, DocstringAnalysis],
 ) -> None:
+    """Register class metadata into the symbol and docstring dictionaries.
+
+    Registers class metadata, including inner classes, methods, variables, and type
+    aliases, into the symbol and docstring dictionaries.
+
+    Args:
+        cls (ClassAnalysis | InnerClassAnalysis): The class or inner class analysis to
+            register.
+        symbols (dict[DeclarationIdentity, SymbolAnalysis | MemberAnalysis]): Dictionary
+            mapping declaration identities to symbols or member analyses.
+        parsed_docstring (dict[DeclarationIdentity, DocstringAnalysis]): Dictionary
+            mapping declaration identities to docstring analyses.
+
+    Returns:
+        None: None
+    """
     for inner in cls.inner_classes:
         symbols[inner.identity] = inner
         if inner.docstring is not None:

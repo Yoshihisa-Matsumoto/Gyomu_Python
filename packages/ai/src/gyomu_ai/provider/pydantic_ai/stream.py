@@ -3,18 +3,21 @@ from contextlib import AbstractAsyncContextManager
 from types import TracebackType
 from typing import Self
 
-from gyomu_ai.execution.result import (
-    AiGenerateTextResult,
-)
-from gyomu_ai.provider.pydantic_ai.map_error import map_pydantic_ai_error
-from gyomu_ai.provider.pydantic_ai.map_result import map_stream_text_result
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.error.ai import AiError, AiErrorPhase, AiFailResolution, AiOperation
 from gyomu_schema.utility.execution_timer import ExecutionTimer
 from pydantic_ai.result import StreamedRunResult
 
+from gyomu_ai.execution.result import (
+    AiGenerateTextResult,
+)
+from gyomu_ai.provider.pydantic_ai.map_error import map_pydantic_ai_error
+from gyomu_ai.provider.pydantic_ai.map_result import map_stream_text_result
+
 
 class PydanticAiTextStream:
+    """Provides an asynchronous text stream for PydanticAI responses."""
+
     def __init__(
         self,
         response: AbstractAsyncContextManager[
@@ -37,6 +40,8 @@ class PydanticAiTextStream:
         self._result: AiGenerateTextResult | None = None
 
     async def __aenter__(self) -> Self:
+        """Enters the asynchronous context manager."""
+
         try:
             self._response = await self._internal_response.__aenter__()
             self._stream = self._response.stream_text(delta=True).__aiter__()
@@ -55,6 +60,8 @@ class PydanticAiTextStream:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
+        """Exits the asynchronous context manager."""
+
         await self._internal_response.__aexit__(
             exc_type,
             exc_value,
@@ -62,9 +69,13 @@ class PydanticAiTextStream:
         )
 
     def __aiter__(self) -> Self:
+        """Returns the asynchronous iterator."""
+
         return self
 
     async def __anext__(self) -> str:
+        """Retrieves the next text delta from the stream."""
+
         if self._stream is None:
             raise RuntimeError("Stream is not active")
 
@@ -85,6 +96,8 @@ class PydanticAiTextStream:
         return delta
 
     async def _complete(self) -> None:
+        """Completes the stream and maps the final result."""
+
         if self._result is not None:
             return
         if self._response is None:
@@ -108,3 +121,10 @@ class PydanticAiTextStream:
     @property
     def result(self) -> AiGenerateTextResult | None:
         return self._result
+
+    """Gets the final text generation result if available.
+
+    Gets the final text generation result if available.
+    """
+
+    """Gets the final text generation result if available."""

@@ -11,3 +11,27 @@ dependencies = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+exclude = [
+    "packages/infra/src/gyomu_infra/db/model/generated",
+    "packages/python_analysis/python_analysis_test_support/fixtures",
+    "packages/python_analysis/experiments",
+    "version",
+    "docs"
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM"
+]
+
+[tool.ruff.format]
+quote-style = "double"

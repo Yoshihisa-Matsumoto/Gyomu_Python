@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import PythonPath
@@ -16,11 +19,41 @@ from gyomu_python_analysis.path.conversion import source_relative_path_to_full_p
 from gyomu_python_analysis.project.context import ProjectContext
 
 
+def read_source(path: Path) -> str:
+    """Read the source text from a file.
+
+    Read the source text from a file with normalized line endings.
+
+    Args:
+        path (Path): Path to the source file
+
+    Returns:
+        str: Normalized source file content as a string
+    """
+    with path.open("r", encoding="utf-8", newline="") as file:
+        source = file.read()
+
+    return source.replace("\r\n", "\n").replace("\r", "\n")
+
+
 def load_module_analysis(
     context: ProjectContext,
     module_path: PythonPath,
     option: AnalysisOption | None = None,
 ) -> Result[ModuleAnalysis, AnalysisError]:
+    """Load and analyze a python module.
+
+    Loads and analyzes a python module within the project context.
+
+    Args:
+        context (ProjectContext): Project context information
+        module_path (PythonPath): Python module path to analyze
+        option (AnalysisOption | None): Optional analysis configuration option
+
+    Returns:
+        Result[ModuleAnalysis, AnalysisError]: Result containing the ModuleAnalysis on
+            success or AnalysisError on failure
+    """
     source_file_result = load_module(context, module_path)
 
     if isinstance(source_file_result, Failure):
@@ -30,12 +63,17 @@ def load_module_analysis(
 
     def analyze_module() -> ModuleAnalysis:
         source_full_path = source_relative_path_to_full_path(source_file.path, context)
-        source_lines = source_full_path.read_text(encoding="utf-8").splitlines(
-            keepends=True
-        )
+        read_result = read_source_text(source_full_path)
+        if isinstance(read_result, Failure):
+            raise read_result.failure()
+        source = read_result.unwrap()
+        source_lines = source.splitlines(keepends=True)
 
         symbols = extract_symbols(
-            source_file=source_file, source_lines=source_lines, option=option
+            source_file=source_file,
+            source=source,
+            source_lines=source_lines,
+            option=option,
         )
         module_name = PythonPath(source_file.module.path)
         module_context = initialize_symbol_context(
@@ -67,6 +105,6 @@ def load_module_analysis(
             message="fail to analyze module",
             file_path=module_path,
             phase="symbol-extract",
-            context="gyomu_python_analysis.analysis.load_sourde_file",
+            context="gyomu_python_analysis.analysis.load_module_analysis",
         ).chain(e),
     )

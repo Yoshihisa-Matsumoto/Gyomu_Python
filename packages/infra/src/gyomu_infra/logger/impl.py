@@ -11,6 +11,10 @@ from gyomu_schema.utility.fromatting import format_object
 
 
 class LoggerImpl(Logger):
+    """Concrete implementation of the Logger interface using Python's standard
+    logging module.
+    """
+
     def __init__(self, config: LoggerConfig) -> None:
         self._logger = logging.getLogger("gyomu")
         self._logger.setLevel(config.level.value)
@@ -30,13 +34,17 @@ class LoggerImpl(Logger):
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None:
+        """Logs a message at the debug level."""
+
         self._logger.debug(
             self._format_message(message, extra),
             *args,
         )
 
-    def debug_object(self, value: object) -> None:
-        self.debug(format_object(value))
+    def debug_object(self, value: object, depth: int = 3) -> None:
+        """Logs a formatted representation of an object at the debug level."""
+
+        self.debug(format_object(value, depth=depth))
 
     def info(
         self,
@@ -44,6 +52,8 @@ class LoggerImpl(Logger):
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None:
+        """Logs a message at the info level."""
+
         self._logger.info(
             self._format_message(message, extra),
             *args,
@@ -55,6 +65,8 @@ class LoggerImpl(Logger):
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None:
+        """Logs a message at the warning level."""
+
         self._logger.warning(
             self._format_message(message, extra),
             *args,
@@ -66,13 +78,17 @@ class LoggerImpl(Logger):
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None:
+        """Logs a message at the error level."""
+
         self._logger.error(
             self._format_message(message, extra),
             *args,
         )
 
-    def error_object(self, value: object) -> None:
-        self.error(format_object(value))
+    def error_object(self, value: object, depth: int = 3) -> None:
+        """Logs a formatted representation of an object at the error level."""
+
+        self.error(format_object(value, depth=depth))
 
     def critical(
         self,
@@ -80,6 +96,8 @@ class LoggerImpl(Logger):
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None:
+        """Logs a message at the critical level."""
+
         self._logger.critical(
             self._format_message(message, extra),
             *args,
@@ -91,6 +109,8 @@ class LoggerImpl(Logger):
         *args: object,
         extra: Mapping[str, object] | None = None,
     ) -> None:
+        """Logs an exception message with traceback information."""
+
         self._logger.exception(
             self._format_message(message, extra),
             *args,
@@ -101,6 +121,8 @@ class LoggerImpl(Logger):
         message: str,
         extra: Mapping[str, object] | None,
     ) -> str:
+        """Appends serialized extra metadata to a log message if present."""
+
         if extra is None:
             return message
 
@@ -111,6 +133,8 @@ class LoggerImpl(Logger):
         logger: logging.Logger,
         formatter: logging.Formatter,
     ) -> None:
+        """Configures and adds a console stream handler to the logger."""
+
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
         logger.addHandler(handler)
@@ -120,6 +144,9 @@ class LoggerImpl(Logger):
         config: LoggerConfig,
         formatter: logging.Formatter,
     ) -> None:
+        """Configures and adds a file handler to the logger based on configuration
+        settings.
+        """
         directory = config.log_directory or Path(tempfile.gettempdir())
         directory.mkdir(parents=True, exist_ok=True)
 
@@ -138,6 +165,8 @@ class LoggerImpl(Logger):
 
     @staticmethod
     def _add_timestamp(filename: str) -> str:
+        """Appends a formatted current timestamp to a given filename."""
+
         path = Path(filename)
         timestamp = datetime.now().astimezone().strftime("%Y%m%d_%H%M%S")
 

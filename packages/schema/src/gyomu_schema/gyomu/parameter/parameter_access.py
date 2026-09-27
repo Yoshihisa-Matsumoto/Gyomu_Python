@@ -10,6 +10,11 @@ from gyomu_schema.gyomu.user import User
 
 
 class ParameterAccess(Protocol):
+    """Protocol for accessing and updating application-level parameters.
+
+    Interface for retrieving and managing application-level parameter values.
+    """
+
     def _get_item_key(self, key: str, user: User | None = None) -> str: ...
 
     def get_value(
@@ -18,12 +23,11 @@ class ParameterAccess(Protocol):
         user: User | None = None,
         target_date: date | None = None,
     ) -> Result[str, DatabaseError]:
-        """
-        Gyomu Context:
+        """Gyomu Context:
             ParameterAccess is a service for retrieving application-level
             parameter values.
 
-            target_date is not a database search date. It represents the
+        target_date is not a database search date. It represents the
             reference date used to determine which parameter value should
             be effective at that point in time.
 
@@ -74,11 +78,10 @@ class ParameterAccess(Protocol):
     def set_value(
         self, key: str, value: str, user: User | None = None
     ) -> Result[None, DatabaseError | ValidationError]:
-        """
-        Gyomu Context:
+        """Gyomu Context:
             set_value manages the current value of a parameter.
 
-            This operation does not manage date-based parameter history.
+        This operation does not manage date-based parameter history.
             Parameters set through this service are always date-independent
             and therefore have no item_fromdate.
 

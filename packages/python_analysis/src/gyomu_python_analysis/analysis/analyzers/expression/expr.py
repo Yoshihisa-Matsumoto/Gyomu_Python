@@ -29,11 +29,11 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     CallableStructureAnalysis,
     CallStructureAnalysis,
     DictionaryStructureAnalysis,
-    ExpressionAnalysis,
     GenericsStructureAnalysis,
     KeywordStructureAnalysis,
     LiteralStructureAnalysis,
     SetStructureAnalysis,
+    StructureAnalysis,
     TupleStructureAnalysis,
     TypeExpression,
     UnionStructureAnalysis,
@@ -48,7 +48,9 @@ def analyze_expression(
     context: SymbolContext,
     option: AnalysisOption | None,
     need_registration_dependency: bool = True,
-) -> ExpressionAnalysis:
+) -> StructureAnalysis:
+    """Analyze an expression and return its corresponding structure analysis."""
+
     if isinstance(expression, ExprName):
         return analyze_expression_name(
             expression, context, need_registration_dependency
@@ -87,6 +89,8 @@ def analyze_expression_constant(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> TypeExpression:
+    """Analyze a constant expression and return its type expression."""
+
     return analyze_type_expression(expression.value, context, option)
 
 
@@ -95,6 +99,8 @@ def _analyze_expression_attribute(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> AttributeStructureAnalysis:
+    """Analyze an attribute expression and return an attribute structure analysis."""
+
     # print(
     #     dict(
     #         canonical_path=expression.canonical_path,
@@ -129,6 +135,8 @@ def _analyze_expression_binary_operation(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> UnionStructureAnalysis | UnknownStructureAnalysis:
+    """Analyze a binary operation expression and return its structure analysis."""
+
     # print(
     #     dict(
     #         name=expression.name,
@@ -155,6 +163,8 @@ def _analyze_union(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> UnionStructureAnalysis:
+    """Analyze a union type expression and return a union structure analysis."""
+
     types: list[TypeExpression] = []
 
     def append_union_types(value: str | Expr) -> None:
@@ -189,7 +199,9 @@ def analyze_subscript(
     expression: ExprSubscript,
     context: SymbolContext,
     option: AnalysisOption | None,
-) -> ExpressionAnalysis:
+) -> StructureAnalysis:
+    """Analyze a subscript expression and return its structure analysis."""
+
     # print(expression.as_dict())
     # print(f"canonical_name  : {expression.canonical_name}")
     # print(f"canonical_path  : {expression.canonical_path}")
@@ -238,6 +250,11 @@ def analyze_dictionary(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DictionaryStructureAnalysis:
+    """Analyze a dictionary expression and return a dictionary structure analysis."""
+
+    if len(expression.keys) == 0:
+        return DictionaryStructureAnalysis(keys=None, values=None)
+
     assert len(expression.keys) == 1
     assert expression.keys[0]
     assert len(expression.values) == 1
@@ -252,8 +269,14 @@ def _analyze_dictionary_from_subscript(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DictionaryStructureAnalysis:
-    assert isinstance(slice, ExprTuple)
-    assert len(slice.elements) == 2
+    """Analyze a dictionary from a subscript slice and return a dictionary structure
+    analysis.
+    """
+    if not isinstance(slice, ExprTuple) or len(slice.elements) != 2:
+        return DictionaryStructureAnalysis(keys=None, values=None)
+
+    # assert isinstance(slice, ExprTuple)
+    # assert len(slice.elements) == 2
     return DictionaryStructureAnalysis(
         keys=analyze_type_expression(slice.elements[0], context, option),
         values=analyze_type_expression(slice.elements[1], context, option),
@@ -265,6 +288,8 @@ def analyze_array(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> ArrayStructureAnalysis:
+    """Analyze a list expression and return an array structure analysis."""
+
     return ArrayStructureAnalysis(
         element=analyze_type_expression(expression.elements[0], context, option)
     )
@@ -275,6 +300,9 @@ def _analyze_callable_from_subscript(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> CallableStructureAnalysis:
+    """Analyze a callable from a subscript slice and return a callable structure
+    analysis.
+    """
     assert isinstance(slice, ExprTuple)
     assert len(slice.elements) == 2
     parameters_expression = slice.elements[0]
@@ -301,6 +329,9 @@ def _analyze_array_from_subscript(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> ArrayStructureAnalysis:
+    """Analyze an array from a subscript slice and return an array structure
+    analysis.
+    """
     return ArrayStructureAnalysis(
         element=analyze_type_expression(slice, context, option)
     )
@@ -311,6 +342,9 @@ def analyze_literal(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> LiteralStructureAnalysis:
+    """Analyze a literal expression from a subscript and return a literal structure
+    analysis.
+    """
 
     return LiteralStructureAnalysis(
         value=analyze_type_expression(slice, context, option)
@@ -323,6 +357,8 @@ def analyze_type_expression(
     option: AnalysisOption | None,
     need_registration_dependency: bool = True,
 ) -> TypeExpression:
+    """Analyze a type expression represented as a string or expression object."""
+
     if isinstance(value, str):
         parsed = ast.literal_eval(value)
         if parsed is None:
@@ -334,6 +370,8 @@ def analyze_type_expression(
 
 
 def parse_literal_value(value: str) -> str | int | bool | float:
+    """Parse and validate a literal value from string representation."""
+
     parsed = ast.literal_eval(value)
     if isinstance(parsed, bool):
         return parsed
@@ -355,6 +393,8 @@ def _analyze_tuple_from_subscript(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> TupleStructureAnalysis:
+    """Analyze a tuple from a subscript slice and return a tuple structure analysis."""
+
     assert isinstance(slice, ExprTuple)
 
     return analyze_tuple(slice, context, option)
@@ -365,6 +405,8 @@ def analyze_tuple(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> TupleStructureAnalysis:
+    """Analyze a tuple expression and return a tuple structure analysis."""
+
     variable_length = False
     elements: list[TypeExpression] = []
 
@@ -388,6 +430,8 @@ def _analyze_set_from_subscript(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> SetStructureAnalysis:
+    """Analyze a set from a subscript slice and return a set structure analysis."""
+
     return SetStructureAnalysis(
         element_type=analyze_type_expression(slice, context, option)
     )
@@ -398,6 +442,8 @@ def analyze_set(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> SetStructureAnalysis:
+    """Analyze a set expression and return a set structure analysis."""
+
     return SetStructureAnalysis(
         element_type=analyze_type_expression(expression.elements[0], context, option)
     )
@@ -408,6 +454,8 @@ def analyze_expression_name(
     context: SymbolContext,
     need_registration_dependency: bool,
 ) -> NameStructureAnalysis | NoneStructureAnalysis:
+    """Analyze an expression name and return its name or none structure analysis."""
+
     # print(
     #     dict(
     #         name=expression.name,
@@ -436,6 +484,8 @@ def _analyze_keyword(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> KeywordStructureAnalysis:
+    """Analyze a keyword expression and return a keyword structure analysis."""
+
     name = expression.name
     value = analyze_type_expression(expression.value, context, option)
     return KeywordStructureAnalysis(name=name, value=value)
@@ -446,6 +496,8 @@ def _analyze_call(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> CallStructureAnalysis:
+    """Analyze a call expression and return a call structure analysis."""
+
     func = analyze_expression(expression.function, context, option)
     arguments: list[TypeExpression] = []
 

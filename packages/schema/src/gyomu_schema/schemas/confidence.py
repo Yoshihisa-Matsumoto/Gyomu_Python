@@ -10,3 +10,7 @@ Confidence = Annotated[
         description="AI decision confidence used for merge strategy routing",
     ),
 ]
+"""Confidence score between 0.0 and 1.0.
+
+Represents a confidence score between 0.0 and 1.0 used for merge strategy routing.
+"""

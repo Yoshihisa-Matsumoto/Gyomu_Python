@@ -1,0 +1,28 @@
+[project]
+name = "gyomu-workflow"
+dynamic = ["version"]
+description = "Gyomu CLI"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "gyomu-schema",
+    "gyomu-infra",
+    "returns",
+    "gyomu-python-analysis",
+    "gyomu-docstring"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[tool.uv.sources]
+gyomu-schema = { workspace = true }
+gyomu-infra = { workspace = true }
+gyomu-python-analysis = { workspace = true }
+gyomu-docstring = { workspace = true }
+
+[tool.hatch.version]
+path = "../../version/__about__.py"
+

@@ -6,6 +6,8 @@ from returns.result import Result
 
 
 class TransactionManager(Protocol):
+    """Protocol defining the interface for transaction management."""
+
     def rollback(self) -> Result[None, DatabaseError]: ...
 
     def create_child(self) -> Result[Self, DatabaseError]: ...

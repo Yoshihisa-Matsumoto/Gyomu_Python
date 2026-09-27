@@ -6,54 +6,90 @@ from gyomu_schema.error.base import BaseError
 
 
 class AiOperation(StrEnum):
+    """Defines AI operation types."""
+
     GENERATE = "generate"
+    """Generation operation."""
+
     STREAM = "stream"
+    """Streaming operation."""
+
     EMBEDDING = "embedding"
+    """Embedding operation."""
 
 
 class AiErrorPhase(StrEnum):
+    """Defines AI error phases."""
+
     REQUEST = "request"
+    """Request phase."""
+
     RESPONSE = "response"
+    """Response phase."""
+
     DECODE = "decode"
+    """Decode phase."""
+
     RATE_LIMIT = "rate-limit"
+    """Rate limit phase."""
+
     TOOL_CALL = "tool-call"
+    """Tool call phase."""
+
     STREAM = "stream"
+    """Stream phase."""
 
 
 @dataclass(frozen=True)
 class AiRetryImmediate:
+    """Represents an immediate retry strategy."""
+
     pass
 
 
 @dataclass(frozen=True)
 class AiRetryExponential:
+    """Represents an exponential backoff retry strategy."""
+
     pass
 
 
 @dataclass(frozen=True)
 class AiRetryAfter:
+    """Represents a retry strategy with a specified delay."""
+
     delay_second: float
+    """Delay in seconds before retrying."""
 
 
 type AiRetryStrategy = AiRetryImmediate | AiRetryExponential | AiRetryAfter
+"""Type alias for supported AI retry strategies."""
 
 
 @dataclass(frozen=True)
 class AiRetryResolution:
+    """Represents a retry resolution for an AI error."""
+
     strategy: AiRetryStrategy
+    """The retry strategy to apply."""
 
 
 @dataclass(frozen=True)
 class AiFallbackResolution:
+    """Represents a fallback resolution for an AI error."""
+
     pass
 
 
 @dataclass(frozen=True)
 class AiFailResolution:
+    """Represents a failure resolution for an AI error."""
+
     pass
 
 
 type AiErrorResolution = AiRetryResolution | AiFallbackResolution | AiFailResolution
+"""Type alias for AI error resolutions."""
 
 
 class AiError(BaseError):

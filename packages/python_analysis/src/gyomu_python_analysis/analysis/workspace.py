@@ -21,6 +21,18 @@ from gyomu_python_analysis.project.workspace import (
 def find_root(
     start_directory: FullPath,
 ) -> Result[WorkspaceRoot, AnalysisError]:
+    """Finds the workspace root from a starting directory.
+
+    Finds the workspace root directory by searching upwards from the given start
+    directory for a pyproject.toml file.
+
+    Args:
+        start_directory (FullPath): The directory to start searching from.
+
+    Returns:
+        Result[WorkspaceRoot, AnalysisError]: A Result containing the WorkspaceRoot on
+            success, or an AnalysisError on failure.
+    """
     current = start_directory
     first_pyproject: FullPath | None = None
 
@@ -67,6 +79,17 @@ def find_root(
 def read_pyproject_toml(
     path: FullPath,
 ) -> Result[dict[str, Any], AnalysisError]:
+    """Reads and parses a pyproject.toml file.
+
+    Reads and parses a pyproject.toml file from the specified path.
+
+    Args:
+        path (FullPath): The path to the pyproject.toml file.
+
+    Returns:
+        Result[dict[str, Any], AnalysisError]: A Result containing the parsed dictionary
+            of TOML data on success, or an AnalysisError on failure.
+    """
     read_result = read_text(path)
     if isinstance(read_result, Failure):
         return Failure(
@@ -84,6 +107,16 @@ def read_pyproject_toml(
 
 
 def is_uv_workspace(toml_data: dict[str, Any]) -> bool:
+    """Determines if the TOML data defines a uv workspace.
+
+    Checks whether the given TOML data represents a uv workspace configuration.
+
+    Args:
+        toml_data (dict[str, Any]): The parsed TOML data dictionary.
+
+    Returns:
+        bool: True if the configuration defines a uv workspace, False otherwise.
+    """
     tool = toml_data.get("tool")
     if not isinstance(tool, dict):
         return False
@@ -96,6 +129,18 @@ def is_uv_workspace(toml_data: dict[str, Any]) -> bool:
 def initialize_workspace_config(
     path: FullPath, toml_data: dict[str, Any]
 ) -> Result[WorkspaceConfig, AnalysisError]:
+    """Initializes workspace configuration.
+
+    Initializes workspace configuration from pyproject.toml data.
+
+    Args:
+        path (FullPath): The path to the workspace root or project.
+        toml_data (dict[str, Any]): The parsed TOML data dictionary.
+
+    Returns:
+        Result[WorkspaceConfig, AnalysisError]: A Result containing the WorkspaceConfig
+            on success, or an AnalysisError on failure.
+    """
     try:
         name = None
         description = None
@@ -136,6 +181,16 @@ def initialize_workspace_config(
 
 
 def get_uv_workspace_members(toml_data: dict[str, Any]) -> list[str]:
+    """Retrieves member paths from a uv workspace configuration.
+
+    Extracts member paths from a uv workspace pyproject.toml configuration.
+
+    Args:
+        toml_data (dict[str, Any]): The parsed TOML data dictionary.
+
+    Returns:
+        list[str]: A list of workspace member paths.
+    """
     tool = toml_data.get("tool")
     if not isinstance(tool, dict):
         return []
@@ -155,6 +210,17 @@ def get_uv_workspace_members(toml_data: dict[str, Any]) -> list[str]:
 def initialize_workspace_context(
     root: WorkspaceRoot,
 ) -> Result[WorkspaceContext, AnalysisError]:
+    """Initializes the workspace context.
+
+    Initializes the workspace context from a given workspace root.
+
+    Args:
+        root (WorkspaceRoot): The workspace root object.
+
+    Returns:
+        Result[WorkspaceContext, AnalysisError]: A Result containing the
+            WorkspaceContext on success, or an AnalysisError on failure.
+    """
     toml_result = read_pyproject_toml(root.path / "pyproject.toml")
     if isinstance(toml_result, Failure):
         return toml_result

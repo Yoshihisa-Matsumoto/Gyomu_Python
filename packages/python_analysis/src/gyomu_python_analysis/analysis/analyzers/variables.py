@@ -28,6 +28,17 @@ def analyze_variable(
     context: SymbolContext,
     option: AnalysisOption | None = None,
 ) -> VariableAnalysis:
+    """Analyze a variable attribute and return its analysis.
+
+    Args:
+        variable (Attribute): The attribute representing the variable to analyze.
+        name (str): The name of the variable.
+        context (SymbolContext): The symbol context for the analysis.
+        option (AnalysisOption | None): Optional analysis options.
+
+    Returns:
+        VariableAnalysis: The resulting variable analysis.
+    """
     variable_common = build_symbol_common(
         symbol=variable, name=name, context=context, option=option
     )

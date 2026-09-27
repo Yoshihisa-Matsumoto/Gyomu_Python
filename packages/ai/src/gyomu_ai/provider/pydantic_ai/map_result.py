@@ -3,18 +3,6 @@ from decimal import Decimal
 from pprint import pprint
 from typing import Any
 
-from gyomu_ai.execution.result import (
-    AiAssistantTextMessage,
-    AiEmbeddingResult,
-    AiFinishReason,
-    AiGenerateObjectResult,
-    AiGenerateTextResult,
-    AiGenerationMetadata,
-    AiToolCallGroup,
-    AiToolCallResultPart,
-    AiToolUsage,
-    AiUsage,
-)
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
 from gyomu_schema.utility.execution_timer import ExecutionTimer
@@ -32,10 +20,25 @@ from pydantic_ai import (
 )
 from pydantic_ai.result import StreamedRunResult
 
+from gyomu_ai.execution.result import (
+    AiAssistantTextMessage,
+    AiEmbeddingResult,
+    AiFinishReason,
+    AiGenerateObjectResult,
+    AiGenerateTextResult,
+    AiGenerationMetadata,
+    AiToolCallGroup,
+    AiToolCallResultPart,
+    AiToolUsage,
+    AiUsage,
+)
+
 
 def map_pydantic_finish_reason(
     reason: FinishReason | None, state: ModelResponseState
 ) -> AiFinishReason | None:
+    """Map Pydantic AI finish reason to standard AI finish reason."""
+
     if reason is None:
         return None
     match reason:
@@ -69,6 +72,8 @@ def _map_result_metadata[T](
     timer: ExecutionTimer,
     response: AgentRunResult[T] | EmbeddingResult | StreamedRunResult[object, str],
 ) -> AiGenerationMetadata:
+    """Map agent or embedding run result to generation metadata."""
+
     complete_result = timer.complete()
     finish_reason: AiFinishReason | None
     if isinstance(response, (EmbeddingResult, StreamedRunResult)):
@@ -109,6 +114,8 @@ def _map_result_metadata[T](
 def _build_tool_calls(
     messages: Sequence[ModelMessage],
 ) -> AiToolCallGroup | None:
+    """Build tool call group from message sequence."""
+
     calls: list[AiToolCallResultPart] = []
     usage_input_tokens = 0
     usage_output_tokens = 0
@@ -177,6 +184,8 @@ def _find_tool_returns(
     response_index: int,
     tool_call_ids: set[str],
 ) -> dict[str, ToolReturnPart]:
+    """Find tool return parts corresponding to specified tool calls."""
+
     result: dict[str, ToolReturnPart] = {}
 
     for message in messages[response_index + 1 :]:
@@ -194,6 +203,8 @@ def _find_tool_returns(
 
 
 def _calculate_usage(messages: Sequence[ModelMessage]) -> AiUsage:
+    """Calculate aggregated token usage and cost from message sequence."""
+
     responses = [message for message in messages if isinstance(message, ModelResponse)]
 
     input_tokens = sum(response.usage.input_tokens for response in responses)
@@ -219,6 +230,8 @@ def map_generate_text_result(
     response: AgentRunResult[str],
     conversation: ConversationSchema,
 ) -> AiGenerateTextResult:
+    """Map text generation agent run result to standard AI generate text result."""
+
     assistant_message = MessageSchema.assistant_text(response.output)
     # response.all_messages()
     # print(
@@ -245,6 +258,9 @@ def map_generate_object_result[T: BaseModel](
     timer: ExecutionTimer,
     response: AgentRunResult[T],
 ) -> AiGenerateObjectResult[T]:
+    """Map structured object generation agent run result to standard AI generate
+    object result.
+    """
     return AiGenerateObjectResult(
         output=response.output, metadata=_map_result_metadata(timer, response)
     )
@@ -256,6 +272,7 @@ def map_stream_text_result(
     total_text: str,
     conversation: ConversationSchema,
 ) -> AiGenerateTextResult:
+    """Map streamed text generation result to standard AI generate text result."""
 
     assistant_message = MessageSchema.assistant_text(total_text)
 
@@ -280,6 +297,8 @@ def map_embed_result(
     timer: ExecutionTimer,
     response: EmbeddingResult,
 ) -> AiEmbeddingResult:
+    """Map embedding result to standard AI embedding result."""
+
     return AiEmbeddingResult(
         vector=response.embeddings, metadata=_map_result_metadata(timer, response)
     )

@@ -3,9 +3,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
-from gyomu_ai.provider.pydantic_ai.google import (
-    create_default_pydantic_ai_model_registry,
-)
+from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
 from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
     DocstringUpdatePlan,
 )
@@ -21,9 +19,11 @@ from gyomu_schema.option.update import (
 )
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
+from gyomu_schema.utility.fromatting import format_object
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
+from packages.ai.ai_test_support.helper import register_test_google_routing
 from packages.docstring.docstring_test_support.helper import (
     FIXTURES_ROOT,
     assert_text_file_equals,
@@ -36,6 +36,7 @@ def project_path(
 ) -> Path:
     fixture_path = FIXTURES_ROOT / "update_e2e"
     project_path = tmp_path_factory.mktemp("update_e2e")
+    print(f"\nCurrentPath: {Path.cwd()}")
     print(f"\nDocstring E2E project: {project_path}")
     shutil.copytree(
         fixture_path,
@@ -59,6 +60,8 @@ def project_path(
         "method",
         "multiple_symbols",
         "no_update",
+        "existing_docstring2",
+        "config_loader_option",
     ],
 )
 @pytest.mark.asyncio
@@ -83,6 +86,8 @@ async def test_update(
         context=project_context,
         file_path=file_path,
     )
+    if isinstance(result, Failure):
+        print(format_object(result.failure()))
     assert isinstance(result, Success)
 
     file_context = result.unwrap()
@@ -90,6 +95,8 @@ async def test_update(
     result = read_json(
         project_path / "expected_plan" / (case + ".json"), DocstringUpdatePlan
     )
+    if isinstance(result, Failure):
+        print(format_object(result.failure()))
     assert isinstance(result, Success)
 
     plan = result.unwrap()
@@ -143,7 +150,7 @@ async def test_update_with_real_llm(
     project_dot_env: Path,
 ) -> None:
     try:
-        create_default_pydantic_ai_model_registry(project_dot_env)
+        register_test_google_routing(project_dot_env, [DocstringRouteId])
     except ConfigError:
         pytest.skip("GEMINI_API_KEY is not configured")
 

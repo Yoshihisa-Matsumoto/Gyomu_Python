@@ -61,14 +61,16 @@ class Nested:
     def __init__(self, value: int) -> None:
         self.parent_value = value
 
+    def abstract(self)->None:...
+
     class Inner:
         def __init__(self, value: int) -> None:
             self.child_value = value
-
+        def abstract(self)->None:...
         class InnerMost:
             def __init__(self, value: int) -> None:
                 self.grandchild_value = value
-
+            def abstract(self)->None:...
 
 class TypeAlias:
     type UserId = int

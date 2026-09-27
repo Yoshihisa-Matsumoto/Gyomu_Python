@@ -12,6 +12,18 @@ def convert[T: BaseModel](
     schema: type[T],
     value: object,
 ) -> Result[T, ValidationError]:
+    """Converts and validates an input value against a Pydantic model.
+
+    Validates and converts a value into a Pydantic BaseModel instance.
+
+    Args:
+        schema (type[T]): The Pydantic model class to validate and convert into.
+        value (object): The input value to validate.
+
+    Returns:
+        Result[T, ValidationError]: A Success containing the validated model instance,
+            or a Failure containing a ValidationError if validation fails.
+    """
     try:
         return Success(schema.model_validate(value))
     except PydanticValidationError as exc:
@@ -30,6 +42,20 @@ def convert_json[T: BaseModel](
     schema: type[T],
     content: str,
 ) -> Result[T, GyomuIOError | ValidationError]:
+    """Converts and validates a JSON string against a Pydantic model.
+
+    Parses a JSON string and validates the resulting data against a Pydantic BaseModel
+    instance.
+
+    Args:
+        schema (type[T]): The Pydantic model class to validate and convert into.
+        content (str): The JSON string content to parse and validate.
+
+    Returns:
+        Result[T, GyomuIOError | ValidationError]: A Success containing the validated
+            model instance, or a Failure containing a GyomuIOError or ValidationError if
+            parsing or validation fails.
+    """
     try:
         value = json.loads(content)
     except json.JSONDecodeError as exc:

@@ -11,8 +11,10 @@ from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
     DocstringUpdatePlan,
 )
 from gyomu_infra.filesystem.file_io import write_json
+from gyomu_infra.logger import logger
 from gyomu_schema.option.update import UpdateOption
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
+from gyomu_schema.utility.fromatting import format_object
 from returns.pipeline import is_successful
 from returns.result import Failure, Result, Success
 
@@ -29,13 +31,25 @@ async def build_docstring_update_plan_with_retry(
     file_context: FileAnalysisContext,
     option: UpdateOption | None = None,
 ) -> Result[DocstringUpdatePlan, UpdateError]:
+    """Builds a docstring update plan with retry capabilities upon validation failures.
+
+    Builds a docstring update plan with retry attempts on validation failure.
+
+    Args:
+        context (DocstringFileContext): The docstring file context.
+        file_context (FileAnalysisContext): The file analysis context.
+        option (UpdateOption | None): Optional update options.
+
+    Returns:
+        Result[DocstringUpdatePlan, UpdateError]: A Result containing the
+            DocstringUpdatePlan or an UpdateError.
+    """
     current_context = context
     original_plan: DocstringUpdatePlan | None = None
 
     for attempt in range(5):
         plan_result = await generate_docstring_update_plan(
             current_context,
-            option.retry_option if option else None,
         )
 
         if not is_successful(plan_result):
@@ -75,6 +89,7 @@ async def build_docstring_update_plan_with_retry(
 
         original_plan = override_plan
 
+        logger.debug(f"missing identity: {format_object(validation.diff)}")
         current_context = current_context.model_copy(
             update={
                 "retry": DocstringRetryOption(
@@ -100,6 +115,21 @@ def override_docstring_update_plan(
     plan: DocstringUpdatePlan,
     original_plan: DocstringUpdatePlan | None,
 ) -> DocstringUpdatePlan:
+    """Overrides or filters a docstring update plan based on the execution context and
+    retry state.
+
+    Overrides or filters a docstring update plan based on context and retry missing
+    identities.
+
+    Args:
+        context (DocstringFileContext): The docstring file context.
+        plan (DocstringUpdatePlan): The current docstring update plan.
+        original_plan (DocstringUpdatePlan | None): The optional original docstring
+            update plan.
+
+    Returns:
+        DocstringUpdatePlan: The overridden DocstringUpdatePlan.
+    """
     if original_plan is None or context.retry is None:
         context_identities = get_docstring_identities_from_context(context)
 

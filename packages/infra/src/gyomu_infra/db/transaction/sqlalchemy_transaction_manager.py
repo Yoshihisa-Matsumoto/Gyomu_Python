@@ -10,6 +10,8 @@ from gyomu_infra.db.error.database import to_database_error
 
 
 class SqlAlchemyTransactionManager:
+    """Manages SQLAlchemy database transactions and nested savepoints."""
+
     def __init__(self, session: Session, parent: Self | None) -> None:
         self._session = session
         self._completed = False
@@ -19,6 +21,8 @@ class SqlAlchemyTransactionManager:
             self._transaction = session.begin_nested()
 
     def rollback(self) -> Result[None, DatabaseError]:
+        """Rolls back the current transaction."""
+
         self._completed = True
         return self._rollback().alt(
             to_database_error,
@@ -26,9 +30,13 @@ class SqlAlchemyTransactionManager:
 
     @safe(exceptions=(SQLAlchemyError,))
     def _rollback(self) -> None:
+        """Performs the underlying rollback operation."""
+
         self._transaction.rollback()
 
     def __enter__(self) -> Self:
+        """Enters the runtime context for the transaction."""
+
         return self
 
     def __exit__(
@@ -37,6 +45,9 @@ class SqlAlchemyTransactionManager:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
+        """Exits the runtime context, committing or rolling back based on exception
+        state.
+        """
         if self._completed:
             return
 
@@ -47,4 +58,6 @@ class SqlAlchemyTransactionManager:
         self._transaction.commit()
 
     def create_child(self) -> Result[Self, DatabaseError]:
+        """Creates a nested transaction manager child instance."""
+
         return Success(type(self)(self._session, self))

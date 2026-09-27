@@ -6,15 +6,18 @@ from gyomu_ai.execution.parameter import (
 )
 from gyomu_ai.provider.pydantic_ai.ai_model import PydanticAiModelRegistry
 from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
+from gyomu_schema.option.retry import RetryOption
 
 pytestmark = pytest.mark.integration
+
+_retry_option = RetryOption(3)
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_generate_text(registry: PydanticAiModelRegistry) -> None:
 
-    execution = PydanticAiModelExecution(registry)
+    execution = PydanticAiModelExecution(registry, _retry_option)
 
     result = await execution.embed(
         EmbedParams(

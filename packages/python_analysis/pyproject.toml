@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "gyomu-schema",
     "gyomu-infra",
+    "pydantic",
     "returns",
     "griffelib>=2.2.0",
     "docstring-parser>=0.18.0",

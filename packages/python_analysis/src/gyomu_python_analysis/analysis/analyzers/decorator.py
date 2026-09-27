@@ -9,8 +9,8 @@ from gyomu_schema.schemas.python.type.structure import (
 from gyomu_schema.schemas.python.type.type_analysis import (
     AttributeStructureAnalysis,
     CallStructureAnalysis,
-    ExpressionAnalysis,
     KeywordStructureAnalysis,
+    StructureAnalysis,
     TypeExpression,
 )
 
@@ -28,6 +28,18 @@ def analyze_decorators(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> list[DecoratorAnalysis]:
+    """Analyze a list of decorators.
+
+    Analyzes a list of decorators.
+
+    Args:
+        decorators (list[Decorator]): List of decorators to analyze
+        context (SymbolContext): Symbol context for analysis
+        option (AnalysisOption | None): Analysis options
+
+    Returns:
+        list[DecoratorAnalysis]: List of decorator analyses
+    """
     returns: list[DecoratorAnalysis] = []
     for dec in decorators:
         returns.append(analyze_decorator(dec, context, option))
@@ -40,6 +52,18 @@ def analyze_decorator(
     context: SymbolContext,
     option: AnalysisOption | None,
 ) -> DecoratorAnalysis:
+    """Analyze an individual decorator.
+
+    Analyzes an individual decorator.
+
+    Args:
+        decorator (Decorator): Decorator to analyze
+        context (SymbolContext): Symbol context for analysis
+        option (AnalysisOption | None): Analysis options
+
+    Returns:
+        DecoratorAnalysis: Decorator analysis result
+    """
     value = analyze_type_expression(decorator.value, context, option)
     name: str
     arguments: list[DecoratorArgument] = []
@@ -57,30 +81,61 @@ def analyze_decorator(
 
 
 def _retrieve_expression_name(
-    expression: ExpressionAnalysis,
+    structure: StructureAnalysis,
 ) -> tuple[str, list[DecoratorArgument]]:
-    if isinstance(expression, NameStructureAnalysis):
-        return expression.name, []
-    elif isinstance(expression, AttributeStructureAnalysis):
-        return ".".join(_retrieve_attribute_names(expression)), []
-    elif isinstance(expression, CallStructureAnalysis):
-        name, _ = _retrieve_expression_name(expression.function)
+    """Retrieve expression name and arguments.
+
+    Retrieves the expression name and arguments from a structure analysis.
+
+    Args:
+        structure (StructureAnalysis): Structure analysis to inspect
+
+    Returns:
+        tuple[str, list[DecoratorArgument]]: Tuple containing the expression name and a
+            list of decorator arguments
+    """
+    if isinstance(structure, NameStructureAnalysis):
+        return structure.name, []
+    elif isinstance(structure, AttributeStructureAnalysis):
+        return ".".join(_retrieve_attribute_names(structure)), []
+    elif isinstance(structure, CallStructureAnalysis):
+        name, _ = _retrieve_expression_name(structure.function)
         arguments: list[DecoratorArgument] = []
-        for arg in expression.arguments:
+        for arg in structure.arguments:
             arguments.append(_retrieve_expression_argument(arg))
         return name, arguments
     else:
-        logger.error(f"Unsupported Expression: {expression.kind}")
+        logger.error(f"Unsupported Expression: {structure.kind}")
         return "", []
 
 
 def _retrieve_expression_argument(expression: TypeExpression) -> DecoratorArgument:
+    """Retrieve expression argument.
+
+    Retrieves a decorator argument from an expression.
+
+    Args:
+        expression (TypeExpression): Expression to convert into a decorator argument
+
+    Returns:
+        DecoratorArgument: Decorator argument representation
+    """
     if isinstance(expression, KeywordStructureAnalysis):
         return DecoratorArgument(expression=expression.value, name=expression.name)
     return DecoratorArgument(expression=expression)
 
 
 def _retrieve_attribute_names(attribute: AttributeStructureAnalysis) -> list[str]:
+    """Retrieve attribute names.
+
+    Retrieves attribute names recursively from an attribute structure analysis.
+
+    Args:
+        attribute (AttributeStructureAnalysis): Attribute structure analysis to inspect
+
+    Returns:
+        list[str]: List of attribute name strings
+    """
     strings: list[str] = []
     for value in attribute.values:
         if isinstance(value, LiteralValue):

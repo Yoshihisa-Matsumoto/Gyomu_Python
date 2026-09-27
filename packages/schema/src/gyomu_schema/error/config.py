@@ -4,7 +4,10 @@ from typing import Literal
 from gyomu_schema.error.base import BaseError
 
 type ConfigPhase = Literal["load", "parse", "decode", "validate"]
+"""Represents the configuration lifecycle phase in which an error occurred."""
+
 type ConfigSource = Literal["env", "yaml", "json", "toml"]
+"""Represents the source of configuration data or files."""
 
 
 class ConfigError(BaseError):

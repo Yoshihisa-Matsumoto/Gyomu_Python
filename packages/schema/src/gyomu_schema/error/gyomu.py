@@ -11,6 +11,9 @@ GyomuErrorReason = Literal[
     "concurrent_modification",
     "out_of_bounds",
 ]
+"""Represents standard reasons for Gyomu application errors, such as invalid input, not
+found, external failure, unexpected errors, concurrent modification, or out of bounds.
+"""
 
 
 class GyomuError(BaseError):

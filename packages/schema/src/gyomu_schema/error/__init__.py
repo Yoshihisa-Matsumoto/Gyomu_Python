@@ -14,3 +14,4 @@ __all__ = [
     "GyomuIOError",
     "ValidationError",
 ]
+"""Defines the public exports of the error module."""

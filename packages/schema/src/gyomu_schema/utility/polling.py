@@ -18,14 +18,14 @@ def polling(
     """Poll an action until it succeeds or the timeout is reached.
 
     Args:
-        action_name: Name of the polling action.
-        timeout_seconds: Maximum duration to continue polling.
-        interval_seconds: Delay between polling attempts.
-        action: Function to execute repeatedly.
+        action_name (str): Name of the polling action.
+        timeout_seconds (float): Maximum duration to continue polling.
+        interval_seconds (float): Delay between polling attempts.
+        action (Callable[[], bool]): Function to execute repeatedly.
 
     Returns:
-        Success(True) if the action returns True within the timeout.
-        Failure(GyomuTimeoutError) if the timeout is reached.
+        Result[bool, GyomuTimeoutError]: Success(True) if the action returns True within
+            the timeout.
     """
     start_time = clock()
     deadline = start_time + timeout_seconds

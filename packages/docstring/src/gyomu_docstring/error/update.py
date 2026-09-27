@@ -7,6 +7,7 @@ from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
 type UpdatePhase = Literal[
     "context-build", "update-plan", "merge-plan", "apply-merge", "update", "post-update"
 ]
+"""Represents the phase of the docstring update process."""
 
 
 class UpdateError(BaseError):

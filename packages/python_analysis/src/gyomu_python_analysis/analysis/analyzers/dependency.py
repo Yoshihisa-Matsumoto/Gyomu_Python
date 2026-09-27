@@ -51,11 +51,19 @@ PYTHON_RESERVED_TYPE_NAMES: frozenset[str] = frozenset(
         "Self",
     }
 )
+"""Set of Python reserved and built-in type names ignored during dependency analysis."""
 
 
 def register_dependency(
     identity: DeclarationIdentity, name: str, context: SymbolContext
 ) -> None:
+    """Registers a dependency if the name is not a reserved type.
+
+    Args:
+        identity (DeclarationIdentity): Declaration identity of the source symbol
+        name (str): Name of the referenced type or symbol
+        context (SymbolContext): Symbol context containing recorded dependencies
+    """
     if name in PYTHON_RESERVED_TYPE_NAMES:
         return
 
@@ -68,6 +76,15 @@ def _find_imported(
     name: str,
     imported: list[ImportAnalysis],
 ) -> ImportAnalysis | None:
+    """Finds an imported symbol analysis by its local name.
+
+    Args:
+        name (str): Name of the symbol to find
+        imported (list[ImportAnalysis]): List of import analyses to search
+
+    Returns:
+        ImportAnalysis | None: Matching import analysis, or None if not found
+    """
     for item in imported:
         if item.local_name == name:
             return item
@@ -75,6 +92,14 @@ def _find_imported(
 
 
 def _retrieve_imported_symbol_id(imported_item: ImportAnalysis) -> SymbolId:
+    """Retrieves the SymbolId corresponding to an imported item.
+
+    Args:
+        imported_item (ImportAnalysis): Import analysis record
+
+    Returns:
+        SymbolId: SymbolId of the imported item
+    """
     if imported_item.kind == ImportKind.MODULE:
         return SymbolId(imported_item.imported_name)
     module_name, symbol_name = imported_item.imported_name.rsplit(".", 1)
@@ -85,6 +110,15 @@ def _find_symbol(
     name: str,
     symbols: list[SymbolAnalysis],
 ) -> SymbolAnalysis | None:
+    """Finds a symbol analysis by its name.
+
+    Args:
+        name (str): Name of the symbol to find
+        symbols (list[SymbolAnalysis]): List of symbol analyses to search
+
+    Returns:
+        SymbolAnalysis | None: Matching symbol analysis, or None if not found
+    """
     for symbol in symbols:
         if symbol.name == name:
             return symbol
@@ -97,6 +131,17 @@ def analyze_dependency(
     imported: list[ImportAnalysis],
     symbols: list[SymbolAnalysis],
 ) -> DependencyAnalysis | None:
+    """Analyzes a dependency record against imports and symbols to produce a dependency
+    analysis.
+
+    Args:
+        record (DependencyInformation): Dependency information record
+        imported (list[ImportAnalysis]): List of import analyses
+        symbols (list[SymbolAnalysis]): List of symbol analyses
+
+    Returns:
+        DependencyAnalysis | None: Dependency analysis result, or None if not resolved
+    """
     symbol_id: SymbolId
     if imported_item := _find_imported(record.target_name, imported):
         symbol_id = _retrieve_imported_symbol_id(imported_item)
@@ -118,6 +163,19 @@ def resolve_dependencies(
     imported: list[ImportAnalysis],
     symbols: list[SymbolAnalysis],
 ) -> dict[DeclarationIdentity, tuple[DependencyAnalysis, ...]]:
+    """Resolves a list of dependency records into a mapping grouped by source
+    declaration identity.
+
+    Args:
+        dependencies (list[DependencyInformation]): List of dependency information
+            records
+        imported (list[ImportAnalysis]): List of import analyses
+        symbols (list[SymbolAnalysis]): List of symbol analyses
+
+    Returns:
+        dict[DeclarationIdentity, tuple[DependencyAnalysis, ...]]: Mapping of
+            declaration identities to their resolved dependency analyses
+    """
     result: dict[
         DeclarationIdentity,
         list[DependencyAnalysis],

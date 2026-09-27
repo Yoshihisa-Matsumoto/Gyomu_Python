@@ -22,6 +22,11 @@ def map_pydantic_ai_error(
     model_key: str | None,
     model: str | None,
 ) -> AiError:
+    """Map a Pydantic AI exception to a standardized AI error.
+
+    Returns:
+        AiError: Standardized AI error object
+    """
     if isinstance(error, ModelHTTPError):
         return _map_model_http_error(
             error,
@@ -45,6 +50,11 @@ def _map_model_http_error(
     operation: AiOperation,
     model_key: str | None,
 ) -> AiError:
+    """Map a model HTTP error to a standardized AI error.
+
+    Returns:
+        AiError: Standardized AI error object
+    """
     status_code = error.status_code
     model = error.model_name
 
@@ -83,6 +93,11 @@ def _map_rate_limit_error(
     model_key: str | None,
     model: str | None,
 ) -> AiError:
+    """Map a rate limit error to a standardized AI error with retry resolution.
+
+    Returns:
+        AiError: Standardized AI error object
+    """
     delay_second = _extract_retry_delay(error)
 
     if delay_second is not None:
@@ -106,6 +121,11 @@ def _map_rate_limit_error(
 
 
 def _extract_retry_delay(error: ModelHTTPError) -> float | None:
+    """Extract the retry delay from a model HTTP error.
+
+    Returns:
+        float | None: Retry delay in seconds, or None if not found
+    """
     retry_after = error.retry_after
     if retry_after is not None:
         return retry_after
@@ -119,6 +139,11 @@ def _extract_retry_delay(error: ModelHTTPError) -> float | None:
 def _extract_retry_delay_from_body(
     body: Mapping[str, Any],
 ) -> float | None:
+    """Extract the retry delay from an error response body.
+
+    Returns:
+        float | None: Retry delay in seconds, or None if not found
+    """
     error_body = body.get("error")
     if not isinstance(error_body, Mapping):
         return None

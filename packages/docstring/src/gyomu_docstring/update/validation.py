@@ -13,6 +13,8 @@ def run_ruff_format(
     project_root: FullPath,
     file_context: FileAnalysisContext,
 ) -> Result[None, UpdateError]:
+    """Run ruff format on a source path."""
+
     return _run_ruff(
         ("ruff", "format", str(source_path)),
         project_root=project_root,
@@ -27,6 +29,8 @@ def run_ruff_check(
     project_root: FullPath,
     file_context: FileAnalysisContext,
 ) -> Result[None, UpdateError]:
+    """Run ruff check on a source path."""
+
     return _run_ruff(
         ("ruff", "check", str(source_path)),
         project_root=project_root,
@@ -42,10 +46,14 @@ def _run_ruff(
     file_context: FileAnalysisContext,
     operation: str,
 ) -> Result[None, UpdateError]:
+    """Execute a ruff command and handle the result."""
+
     result = execute(
         command,
         cwd=project_root,
     )
+    # print(command)
+    # print(project_root)
 
     return result.alt(
         lambda error: UpdateError(
@@ -83,6 +91,8 @@ def validate_source(
     project_root: FullPath,
     file_context: FileAnalysisContext,
 ) -> Result[None, UpdateError]:
+    """Validate a source file using ruff format and check."""
+
     return run_ruff_format(
         source_path, project_root=project_root, file_context=file_context
     ).bind(
