@@ -28,6 +28,7 @@ members = [
     "packages/ai_compiler",
     "packages/docstring",
     "packages/workflow",
+    "packages/concept",
     "apps/cli",
 ]
 
@@ -45,6 +46,7 @@ files = [
     "packages/docstring/src",
     "packages/ai_compiler/src",
     "packages/workflow/src",
+    "packages/concept/src",
     "apps/cli/src"
 ]
 
@@ -86,6 +88,7 @@ pythonpath = [
     "packages/python_analysis",
     "packages/docstring",
     "packages/ai_compiler",
+    "packages/concept"
 ]
 
 [tool.coverage.run]
@@ -95,7 +98,9 @@ source_pkgs = [
     "gyomu_ai",
     "gyomu_python_analysis",
     "gyomu_docstring",
-    "gyomu_ai_compiler"
+    "gyomu_ai_compiler",
+    "gyomu_concept",
+    "gyomu_workflow"
 ]
 branch = true
 

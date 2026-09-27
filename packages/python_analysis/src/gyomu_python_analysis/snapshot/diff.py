@@ -1,6 +1,5 @@
 from gyomu_schema.schemas.python.types import ProjectRelativePath
-
-from gyomu_python_analysis.snapshot.models import (
+from gyomu_schema.schemas.snapshot.types import (
     FileAdded,
     FileChange,
     FileDeleted,

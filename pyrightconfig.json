@@ -8,6 +8,7 @@
     "packages/docstring/src",
     "packages/ai_compiler/src",
     "packages/workflow/src",
+    "packages/concept/src",
     "apps/cli/src"
   ]
 }

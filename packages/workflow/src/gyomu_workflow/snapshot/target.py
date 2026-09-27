@@ -1,8 +1,8 @@
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
-from gyomu_python_analysis.snapshot.models import FileDeleted
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.snapshot.types import FileDeleted
 from gyomu_schema.schemas.types import FullPath
 from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
