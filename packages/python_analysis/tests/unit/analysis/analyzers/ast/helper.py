@@ -16,9 +16,8 @@ def get_module(module_name: str) -> ast.Module:
 def find_function(module_name: str, function_name: str) -> ast.FunctionDef:
     target_method: ast.FunctionDef | None = None
     for method in ast.iter_child_nodes(get_module(module_name)):
-        if isinstance(method, ast.FunctionDef):
-            if method.name == function_name:
-                target_method = method
+        if isinstance(method, ast.FunctionDef) and method.name == function_name:
+            target_method = method
 
     assert target_method is not None
     return target_method
