@@ -176,6 +176,7 @@ class ExpressionKind(StrEnum):
 
     The set_compare member.
     """
+    UNARYOP = "unaryop"
 
 
 class UnknownExpressionAnalysis(BaseModel):
@@ -440,9 +441,8 @@ class FormattedConversion(StrEnum):
     """
 
 
-type ExpressionAnalysis = (
-    LiteralValue
-    | UnknownExpressionAnalysis
+type ExpressionWithoutConstant = (
+    UnknownExpressionAnalysis
     | NameExpressionAnalysis
     | NoneExpressionAnalysis
     | EllipsisExpressionAnalysis
@@ -472,6 +472,8 @@ type ExpressionAnalysis = (
     | NamedExpressionAnalysis
     | SetCompareExpressionAnalysis
 )
+
+type ExpressionAnalysis = LiteralValue | ExpressionWithoutConstant
 """Union type representing any supported expression analysis model.
 
 Union type representing any supported expression analysis model.
@@ -741,6 +743,8 @@ class UnaryOpExpressionAnalysis(BaseModel):
 
     Represents an analysis of a unary operation expression.
     """
+
+    kind: ExpressionKind = ExpressionKind.UNARYOP
 
     op: UnaryOperator
     """The op field.
@@ -1292,6 +1296,7 @@ class StatementKind(StrEnum):
 
     The GLOBAL member.
     """
+    ANNASSIGN = "annassign"
 
 
 class GlobalStatementAnalysis(BaseModel):
@@ -1299,6 +1304,8 @@ class GlobalStatementAnalysis(BaseModel):
 
     Represents an analysis of a global statement.
     """
+
+    kind: StatementKind = StatementKind.GLOBAL
 
     names: tuple[str, ...]
     """The names field.
@@ -1312,6 +1319,8 @@ class AnnotationAssignStatementAnalysis(BaseModel):
 
     Represents an analysis of an annotated assignment statement.
     """
+
+    kind: StatementKind = StatementKind.ANNASSIGN
 
     target: ExpressionAnalysis
     """The target field.

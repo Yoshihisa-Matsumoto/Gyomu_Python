@@ -153,7 +153,7 @@ def analyze_expression(
     if expr is None:
         return NoneExpressionAnalysis()
     if isinstance(expr, ast.Constant):
-        return _analyze_const(expr, context, option)
+        return _analyze_const(expr, context, option, need_registration_dependency)
     if isinstance(expr, ast.Name):
         return analyze_expression_name(
             expr, context, option, need_registration_dependency
@@ -225,6 +225,7 @@ def _analyze_const(
     const: ast.Constant,
     context: SymbolContext,
     option: AnalysisOption | None,
+    need_registration_dependency: bool,
 ) -> LiteralValue | EllipsisExpressionAnalysis | NoneExpressionAnalysis:
     if isinstance(const.value, str | bytes | bool | int | float | complex):
         return LiteralValue(value=const.value)
