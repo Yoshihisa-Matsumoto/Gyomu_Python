@@ -162,12 +162,13 @@ def create_variable_analysis(
     value_source: str | None = None,
     value_expression: TypeExpression | None = None,
     pydantic: PydanticFieldAnalysis | None = None,
+    docstring: DocstringAnalysis | None = None,
 ) -> VariableAnalysis:
     if identity is None:
         identity = create_declaration_identity(name)
     return VariableAnalysis(
         name=name,
-        docstring=None,
+        docstring=docstring,
         identity=identity,
         decorators=tuple(),
         dependencies=tuple(),
@@ -427,6 +428,9 @@ def create_file_analysis_context(
     symbol: SymbolAnalysis | MemberAnalysis | None = None,
     symbol2: SymbolAnalysis | MemberAnalysis | None = None,
     symbol3: SymbolAnalysis | MemberAnalysis | None = None,
+    module_path: SourceRelativePath | None = None,
+    module_name: str = "test",
+    python_path: PythonPath | None = None,
 ) -> FileAnalysisContext:
     symbols: dict[DeclarationIdentity, SymbolAnalysis | MemberAnalysis]
     symbols = dict([(symbol.identity, symbol)]) if symbol else dict()
@@ -452,9 +456,11 @@ def create_file_analysis_context(
     return FileAnalysisContext(
         metadata=FileAnalysisMetadata(parsed_docstring=dict(), symbols=symbols),
         analysis=ModuleAnalysis(
-            path=SourceRelativePath(Path("test.py")),
-            name="test",
-            module_name=PythonPath(""),
+            path=SourceRelativePath(Path("test.py"))
+            if module_path is None
+            else module_path,
+            name=module_name,
+            module_name=PythonPath("test") if python_path is None else python_path,
             docstring=None,
             imports=tuple(),
             symbols=tuple(analysis_symbols),

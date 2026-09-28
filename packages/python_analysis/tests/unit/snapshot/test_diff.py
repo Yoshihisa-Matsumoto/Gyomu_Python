@@ -2,14 +2,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from gyomu_python_analysis.snapshot.diff import diff_snapshot
-from gyomu_python_analysis.snapshot.models import (
+from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
+from gyomu_schema.schemas.snapshot.types import (
     FileAdded,
     FileDeleted,
     FileSnapshot,
     FileUpdated,
     ProjectSnapshot,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 
 PROJECT_ROOT = WorkspaceRelativePath(Path("packages/example"))
 

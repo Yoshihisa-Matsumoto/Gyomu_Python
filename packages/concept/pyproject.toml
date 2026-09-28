@@ -1,0 +1,40 @@
+[project]
+name = "gyomu-concept"
+dynamic = ["version"]
+description = "Gyomu Concept"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "gyomu-schema",
+    "gyomu-infra",
+    "gyomu-python-analysis",
+    "gyomu-ai-compiler",
+    "returns",
+]
+license = "MIT"
+authors = [
+    { name = "Yoshihisa Matsumoto" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[tool.uv.sources]
+gyomu-schema = { workspace = true }
+gyomu-infra = { workspace = true }
+gyomu-python-analysis = { workspace = true }
+gyomu-ai-compiler = {workspace = true}
+
+[tool.hatch.version]
+path = "../../version/__about__.py"

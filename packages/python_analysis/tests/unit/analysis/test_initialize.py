@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from gyomu_python_analysis.analysis.initialize import (
     find_included_python_files,
+    find_package_roots,
     initialize_project_context,
     initialize_project_from_workspace,
     read_version,
@@ -87,10 +88,7 @@ class TestFindIncludedPythonFiles:
 
 
 class TestInitializeProjectContext:
-    def test_initialize_project_context(
-        self,
-        tmp_path: Path,
-    ) -> None:
+    def test_initialize_project_context(self, tmp_path: Path, mocker) -> None:
         source_root = tmp_path / "src"
 
         pyproject = """\
@@ -118,6 +116,14 @@ class TestInitializeProjectContext:
             encoding="utf-8",
         )
 
+        mocker.patch(
+            "gyomu_python_analysis.analysis.initialize.find_package_roots",
+            return_value=(
+                ProjectRelativePath(Path("a")),
+                ProjectRelativePath(Path("b")),
+            ),
+        )
+
         result = initialize_project_context(
             FullPath(tmp_path),
             ProjectRelativePath(Path("src")),
@@ -136,6 +142,10 @@ class TestInitializeProjectContext:
             {
                 ProjectRelativePath(Path("src/example/foo.py")),
             }
+        )
+        assert context.package_roots == (
+            ProjectRelativePath(Path("a")),
+            ProjectRelativePath(Path("b")),
         )
 
     def test_initialize_project_context_with_hatch_dynamic_version(
@@ -307,6 +317,13 @@ class TestInitializeProjectFromWorkspace:
             "gyomu_python_analysis.analysis.initialize.find_included_python_files",
             return_value=frozenset(),
         )
+        mocker.patch(
+            "gyomu_python_analysis.analysis.initialize.find_package_roots",
+            return_value=(
+                ProjectRelativePath(Path("a")),
+                ProjectRelativePath(Path("b")),
+            ),
+        )
 
         result = initialize_project_context(
             project_root=project_root,
@@ -331,3 +348,63 @@ class TestInitializeProjectFromWorkspace:
             "src/generated",
             "tests/resources",
         ]
+
+
+class TestFindPackageRoots:
+    def test_find_roots(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        # fixture:
+        #
+        # src/
+        #   package_a/
+        #       __init__.py
+        #   package_b/
+        #       __init__.py
+        #   not_package/
+        #       module.py
+        #
+        project_root = tmp_path
+        source_root = ProjectRelativePath(Path("src"))
+
+        (project_root / "src" / "package_a").mkdir(parents=True)
+        (project_root / "src" / "package_a" / "__init__.py").touch()
+
+        (project_root / "src" / "package_b").mkdir(parents=True)
+        (project_root / "src" / "package_b" / "__init__.py").touch()
+
+        (project_root / "src" / "not_package").mkdir(parents=True)
+        (project_root / "src" / "not_package" / "module.py").touch()
+
+        result = find_package_roots(
+            project_root=FullPath(project_root),
+            source_root=source_root,
+        )
+
+        assert result == (
+            ProjectRelativePath(Path("src/package_a")),
+            ProjectRelativePath(Path("src/package_b")),
+        )
+
+    def test_does_not_include_nested_packages(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        project_root = FullPath(tmp_path)
+        source_root = ProjectRelativePath(Path("src"))
+
+        package = project_root / "src" / "package"
+        package.mkdir(parents=True)
+        (package / "__init__.py").touch()
+
+        nested_package = package / "nested"
+        nested_package.mkdir()
+        (nested_package / "__init__.py").touch()
+
+        result = find_package_roots(
+            project_root=project_root,
+            source_root=source_root,
+        )
+
+        assert result == (ProjectRelativePath(Path("src/package")),)

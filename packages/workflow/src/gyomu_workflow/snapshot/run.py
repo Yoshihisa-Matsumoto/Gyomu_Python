@@ -2,10 +2,10 @@ from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.delete_cache import delete_module_cache
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_python_analysis.snapshot.commit import commit_project_changes
-from gyomu_python_analysis.snapshot.models import ProjectSnapshot
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
 from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 

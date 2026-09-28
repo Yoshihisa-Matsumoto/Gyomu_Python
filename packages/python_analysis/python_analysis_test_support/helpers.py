@@ -18,12 +18,6 @@ from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.snapshot.models import (
     AnalyzeProjectChangesResult,
-    FileAdded,
-    FileChange,
-    FileDeleted,
-    FileSnapshot,
-    FileUpdated,
-    ProjectSnapshot,
 )
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
@@ -36,6 +30,14 @@ from gyomu_schema.schemas.python.types import (
     WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
+from gyomu_schema.schemas.snapshot.types import (
+    FileAdded,
+    FileChange,
+    FileDeleted,
+    FileSnapshot,
+    FileUpdated,
+    ProjectSnapshot,
+)
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure
 
