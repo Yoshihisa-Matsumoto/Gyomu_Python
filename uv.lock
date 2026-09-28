@@ -14,6 +14,7 @@ members = [
     "gyomu-cli",
     "gyomu-concept",
     "gyomu-docstring",
+    "gyomu-facts",
     "gyomu-infra",
     "gyomu-python-analysis",
     "gyomu-schema",
@@ -901,6 +902,24 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "gyomu-ai-compiler", editable = "packages/ai_compiler" },
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
+    { name = "gyomu-schema", editable = "packages/schema" },
+    { name = "returns" },
+]
+
+[[package]]
+name = "gyomu-facts"
+source = { editable = "packages/facts" }
+dependencies = [
+    { name = "gyomu-infra" },
+    { name = "gyomu-python-analysis" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
     { name = "gyomu-schema", editable = "packages/schema" },

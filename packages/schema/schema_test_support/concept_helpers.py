@@ -13,6 +13,15 @@ from gyomu_schema.schemas.concept.file_summary import (
     FileSummary,
     PublicDeclarationSummary,
 )
+from gyomu_schema.schemas.concept.package.analysis import (
+    DependencyAnalysis,
+    DependencyKind,
+    DependencySource,
+    DirectoryAnalysis,
+    DirectoryAnalysisFact,
+    PackageAnalysis,
+    PyProjectAnalysis,
+)
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import DirectoryRelativePath, ProjectRelativePath
 
@@ -27,24 +36,6 @@ def create_sub_directory_input(
     path: Path, concept: DirectoryConcept
 ) -> SubDirectoryInput:
     return SubDirectoryInput(path=DirectoryRelativePath(path), concept=concept)
-
-
-def create_directory_concept(
-    summary: str,
-    responsibilities: list[str],
-    concepts: list[str],
-    relationships: list[str],
-    design_decisions: list[str],
-    importance: DirectoryImportance,
-) -> DirectoryConcept:
-    return DirectoryConcept(
-        summary=summary,
-        responsibilities=responsibilities,
-        concepts=concepts,
-        relationships=relationships,
-        design_decisions=design_decisions,
-        importance=importance,
-    )
 
 
 def create_file_summary(
@@ -62,7 +53,9 @@ def create_file_summary(
 
 
 def create_public_declaration_summary(
-    symbol: str, kind: DeclarationKind, summary: str
+    symbol: str = "test",
+    kind: DeclarationKind = DeclarationKind.VARIABLE,
+    summary: str = "summary",
 ) -> PublicDeclarationSummary:
     return PublicDeclarationSummary(symbol=symbol, kind=kind, summary=summary)
 
@@ -75,5 +68,75 @@ def create_public_declaration_summary(
 #     return ReExportSummarySingle(module=module, symbol=symbol)
 
 
-def create_dependency_summary(target: str, external: bool) -> DependencySummary:
+def create_dependency_summary(
+    target: str = "target", external: bool = True
+) -> DependencySummary:
     return DependencySummary(target=target, external=external)
+
+
+def create_package_analysis(
+    package: PyProjectAnalysis,
+    dependencies: tuple[DependencyAnalysis, ...],
+    directories: tuple[DirectoryAnalysis, ...],
+    exported_files: tuple[FileSummary, ...],
+) -> PackageAnalysis:
+    return PackageAnalysis(
+        package=package,
+        dependencies=dependencies,
+        directories=directories,
+        public_files=exported_files,
+    )
+
+
+def create_pyproject_analysis(
+    name: str = "test", version: str = "1.0.0", license: str = "MIT"
+) -> PyProjectAnalysis:
+    return PyProjectAnalysis(name=name, version=version, license=license)
+
+
+def create_dependency_analysis(
+    package_name: str = "test",
+    kind: DependencyKind = "version",
+    source: DependencySource = "dependency",
+    required_version: str | None = None,
+) -> DependencyAnalysis:
+    return DependencyAnalysis(
+        package_name=package_name,
+        kind=kind,
+        source=source,
+        required_version=required_version,
+    )
+
+
+def create_directory_analysis(
+    path: ProjectRelativePath, concept: DirectoryConcept, fact: DirectoryAnalysisFact
+) -> DirectoryAnalysis:
+    return DirectoryAnalysis(path=path, concept=concept, fact=fact)
+
+
+def create_directory_concept(
+    summary: str = "summary",
+    responsibilities: list[str] = ["responsibility"],  # noqa: B006
+    concepts: list[str] = ["concept"],  # noqa: B006
+    relationships: list[str] = ["relationship"],  # noqa: B006
+    design_decisions: list[str] = ["design"],  # noqa: B006
+    importance: DirectoryImportance = DirectoryImportance.CORE,
+) -> DirectoryConcept:
+    return DirectoryConcept(
+        summary=summary,
+        responsibilities=responsibilities,
+        concepts=concepts,
+        relationships=relationships,
+        design_decisions=design_decisions,
+        importance=importance,
+    )
+
+
+def create_directory_analysis_fact(
+    public_symbol_count: int = 3, file_count: int = 3, total_symbol_count: int = 5
+) -> DirectoryAnalysisFact:
+    return DirectoryAnalysisFact(
+        public_symbol_count=public_symbol_count,
+        file_count=file_count,
+        total_symbol_count=total_symbol_count,
+    )

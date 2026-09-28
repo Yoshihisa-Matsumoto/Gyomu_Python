@@ -29,6 +29,7 @@ members = [
     "packages/docstring",
     "packages/workflow",
     "packages/concept",
+    "packages/facts",
     "apps/cli",
 ]
 
@@ -47,6 +48,7 @@ files = [
     "packages/ai_compiler/src",
     "packages/workflow/src",
     "packages/concept/src",
+    "packages/facts/src",
     "apps/cli/src"
 ]
 
@@ -101,6 +103,7 @@ source_pkgs = [
     "gyomu_docstring",
     "gyomu_ai_compiler",
     "gyomu_concept",
+    "gyomu_facts",
     "gyomu_workflow"
 ]
 branch = true

@@ -9,6 +9,7 @@
     "packages/ai_compiler/src",
     "packages/workflow/src",
     "packages/concept/src",
+    "packages/facts/src",
     "apps/cli/src"
   ]
 }
