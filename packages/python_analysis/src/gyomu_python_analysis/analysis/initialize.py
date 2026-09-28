@@ -71,13 +71,33 @@ def initialize_project_context(
     files = find_included_python_files(
         project_root=project_root, source_root=source_root
     )
+
+    package_roots = find_package_roots(
+        project_root=project_root,
+        source_root=source_root,
+    )
+
     return Success(
         ProjectContext(
             project_root=project_root,
             source_root=source_root,
             config=config_result.unwrap(),
             included_files=files,
+            package_roots=package_roots,
         )
+    )
+
+
+def find_package_roots(
+    project_root: FullPath,
+    source_root: ProjectRelativePath,
+) -> tuple[ProjectRelativePath, ...]:
+    source_path = project_root / source_root
+
+    return tuple(
+        ProjectRelativePath(path.relative_to(project_root))
+        for path in sorted(source_path.iterdir(), key=lambda path: path.name)
+        if path.is_dir() and (path / "__init__.py").is_file()
     )
 
 

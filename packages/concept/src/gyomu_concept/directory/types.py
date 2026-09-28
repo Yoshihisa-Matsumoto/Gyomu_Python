@@ -8,3 +8,9 @@ class BuildResult:
     concept: DirectoryConcept
 
     changed: bool
+
+
+@dataclass(frozen=True)
+class BuildRootResult:
+    concepts: tuple[DirectoryConcept, ...]
+    changed: bool

@@ -3,15 +3,15 @@ from pathlib import Path
 
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.snapshot.commit import commit_project_changes
-from gyomu_python_analysis.snapshot.models import (
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
+from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
+from gyomu_schema.schemas.snapshot.types import (
     FileAdded,
     FileDeleted,
     FileSnapshot,
     FileUpdated,
     ProjectSnapshot,
 )
-from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
-from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 

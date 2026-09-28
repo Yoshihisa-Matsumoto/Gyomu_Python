@@ -12,7 +12,6 @@ from packages.schema.schema_test_support.concept_helpers import (
     create_directory_concept_input,
     create_file_summary,
     create_public_declaration_summary,
-    create_re_exports_summary,
     create_sub_directory_input,
 )
 
@@ -35,13 +34,13 @@ class TestDirectoryConceptInput:
                                     )
                                 ]
                             ),
-                            re_exports=tuple(
-                                [
-                                    create_re_exports_summary(
-                                        export_all=True, module="test_module"
-                                    )
-                                ]
-                            ),
+                            # re_exports=tuple(
+                            #     [
+                            #         create_re_exports_summary(
+                            #             export_all=True, module="test_module"
+                            #         )
+                            #     ]
+                            # ),
                             dependencies=tuple(
                                 [
                                     create_dependency_summary(

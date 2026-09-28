@@ -20,6 +20,8 @@ class ConceptDebugInfoOption(AnalysisDebugInfoOption):
 class ConceptActionOption(ExecutionOption):
     """Action options for the concept update process."""
 
+    write_to_temp_folder: bool = False
+
 
 @dataclass(frozen=True)
 class ConceptOption(AnalysisOption):

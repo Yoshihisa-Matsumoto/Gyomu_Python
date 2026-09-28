@@ -9,9 +9,12 @@ from gyomu_python_analysis.snapshot.create import (
     create_snapshot,
     enumerate_target_files,
 )
-from gyomu_python_analysis.snapshot.models import FileSnapshot, ProjectSnapshot
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
+from gyomu_schema.schemas.snapshot.types import (
+    FileSnapshot,
+    ProjectSnapshot,
+)
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 

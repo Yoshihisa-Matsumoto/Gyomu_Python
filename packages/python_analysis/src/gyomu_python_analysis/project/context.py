@@ -109,6 +109,7 @@ class ProjectContext:
         source_root: ProjectRelativePath,
         config: PyProjectConfig,
         included_files: frozenset[ProjectRelativePath] = frozenset(),
+        package_roots: tuple[ProjectRelativePath, ...] = tuple(),
     ) -> None:
         self.project_root = project_root
         self.source_root = source_root
@@ -118,3 +119,4 @@ class ProjectContext:
         )
         self.config = config
         self.included_files = included_files
+        self.package_roots = package_roots

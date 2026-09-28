@@ -1,10 +1,34 @@
-from gyomu_concept.directory.types import BuildResult
+from gyomu_concept.directory.internal.build import build_directory_concept_from_path
+from gyomu_concept.directory.types import BuildRootResult
 from gyomu_concept.error.concept import ConceptError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
-from returns.result import Result
+from gyomu_schema.schemas.concept.directory.concept import DirectoryConcept
+from gyomu_schema.schemas.types import FullPath
+from returns.result import Failure, Result, Success
 
 
-def build_directory_concept(
+async def build_directory_concept(
     context: ProjectContext, option: ConceptOption | None = None
-) -> Result[BuildResult, ConceptError]: ...
+) -> Result[BuildRootResult, ConceptError]:
+    root_path_items: tuple[FullPath, ...] = (
+        (FullPath(context.project_root / option.target_folder),)
+        if option is not None and option.target_folder is not None
+        else tuple(
+            FullPath(context.project_root / root) for root in context.package_roots
+        )
+    )
+    is_changed = False
+    concepts: list[DirectoryConcept] = []
+    for root_path in root_path_items:
+        result = await build_directory_concept_from_path(context, root_path, option)
+        if isinstance(result, Failure):
+            return result
+
+        item_result = result.unwrap()
+        concepts.append(item_result.concept)
+
+        if item_result.changed:
+            is_changed = True
+
+    return Success(BuildRootResult(concepts=tuple(concepts), changed=is_changed))
