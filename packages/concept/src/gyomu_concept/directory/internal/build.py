@@ -69,16 +69,16 @@ async def build_directory_concept_from_path(
     directory_concepts: list[SubDirectoryInput] = []
 
     for folder in folders:
-        result = await build_directory_concept_from_path(
+        directory_result = await build_directory_concept_from_path(
             context=context,
             target_directory=folder,
             option=option,
         )
 
-        if isinstance(result, Failure):
-            return result
+        if isinstance(directory_result, Failure):
+            return directory_result
 
-        build_result = result.unwrap()
+        build_result = directory_result.unwrap()
 
         if build_result.changed:
             is_changed = True
@@ -95,12 +95,12 @@ async def build_directory_concept_from_path(
     for file in files:
         file_relative_path = ProjectRelativePath(file.relative_to(context.project_root))
 
-        result = load_file_analysis_context(
+        file_result = load_file_analysis_context(
             context=context,
             file_path=file_relative_path,
         )
 
-        if isinstance(result, Failure):
+        if isinstance(file_result, Failure):
             return Failure(
                 ConceptError(
                     message="fail to load file analysis context",
@@ -108,13 +108,13 @@ async def build_directory_concept_from_path(
                     package_name=context.config.name,
                     phase="directory-summary",
                     identity=None,
-                ).chain(result.failure())
+                ).chain(file_result.failure())
             )
 
         file_summaries.append(
             build_file_summary_record(
                 project_context=context,
-                file_context=result.unwrap(),
+                file_context=file_result.unwrap(),
             )
         )
 

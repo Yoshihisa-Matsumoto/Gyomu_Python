@@ -57,6 +57,7 @@ exclude = [
     "packages/infra/src/gyomu_infra/db/model/generated",
     "packages/python_analysis/python_analysis_test_support/fixtures",
     "packages/python_analysis/experiments",
+    "packages/concept/concept_test_support/fixtures",
     "version",
     "docs"
 ]
