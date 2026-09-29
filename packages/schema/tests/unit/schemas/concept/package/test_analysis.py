@@ -33,7 +33,7 @@ class TestPackageAnalysis:
                         ),
                     ]
                 ),
-                exported_files=tuple(
+                public_files=tuple(
                     [
                         create_file_summary(
                             path=ProjectRelativePath(Path("src/test.py")),

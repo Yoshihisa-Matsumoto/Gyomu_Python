@@ -11,8 +11,8 @@ from gyomu_schema.schemas.concept.package.analysis import PackageAnalysis
 
 def build_package_concept_input(context: PackageAnalysis) -> PackageConceptInput:
     symbols: dict[str, list[PublicApiSymbol]] = {}
-    for item in context.public_files:
-        for declaration in item.exports:
+    for file in context.public_files:
+        for declaration in file.exports:
             module, _, name = declaration.symbol.rpartition(".")
             # module = declaration.symbol  # split in last "." and first part
             # name = declaration.symbol  # split in last "." and last part
@@ -30,15 +30,15 @@ def build_package_concept_input(context: PackageAnalysis) -> PackageConceptInput
         )
 
     top_directories: list[TopDirectory] = []
-    for item in PackageFacts(context).get_ranked_directories(
+    for directory in PackageFacts(context).get_ranked_directories(
         TopScoreDirectorySelection(limit=5)
     ):
         top_directories.append(
             TopDirectory(
-                path=item.path,
-                importance=item.concept.importance,
-                responsibilities=tuple(item.concept.responsibilities),
-                summary=item.concept.summary,
+                path=directory.path,
+                importance=directory.concept.importance,
+                responsibilities=tuple(directory.concept.responsibilities),
+                summary=directory.concept.summary,
             )
         )
     return PackageConceptInput(
