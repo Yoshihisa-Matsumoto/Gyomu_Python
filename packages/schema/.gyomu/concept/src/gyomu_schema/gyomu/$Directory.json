@@ -1,0 +1,19 @@
+{
+  "summary": "Serves as the core domain and schema package, housing user representations, business calendar protocols, application parameter interfaces, and variable translation utilities.",
+  "responsibilities": [
+    "Represent core domain entities such as users, and provide supporting protocols and utilities for business calendars, application parameters, and variable translation."
+  ],
+  "concepts": [
+    "user representation",
+    "business calendar protocol",
+    "application parameters",
+    "variable translation"
+  ],
+  "relationships": [
+    "The user representation defines a user model with a unique identifier within the gyomu schema."
+  ],
+  "design_decisions": [
+    "Organizes core domain models and protocol definitions for business operations, parameters, and variable translation."
+  ],
+  "importance": "Core"
+}

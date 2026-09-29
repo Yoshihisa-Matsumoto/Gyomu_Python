@@ -96,5 +96,4 @@ def analyze_function(
         return_type=return_type,
         identity=context.declaration,
         is_ellipsis_only=is_ellipsis_only,
-        statements=tuple(statements),
     )

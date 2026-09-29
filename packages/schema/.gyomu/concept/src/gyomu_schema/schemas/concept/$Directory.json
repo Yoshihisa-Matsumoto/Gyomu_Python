@@ -1,0 +1,19 @@
+{
+  "summary": "Defines schema definitions and data structures for directory concepts, package analysis, dependency analysis, and capability models within the schema package.",
+  "responsibilities": [
+    "Provides schema definitions, data structures, and input models for directory concepts, package analysis, dependency analysis, and capability models."
+  ],
+  "concepts": [
+    "directory concepts",
+    "package analysis",
+    "dependency analysis",
+    "schema definitions"
+  ],
+  "relationships": [
+    "The package sub-directory defines schema structures utilized in package analysis."
+  ],
+  "design_decisions": [
+    "Organizes data structures and schema definitions into dedicated sub-directories for concepts and package-level analysis."
+  ],
+  "importance": "Core"
+}

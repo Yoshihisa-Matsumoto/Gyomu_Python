@@ -12,6 +12,7 @@ from gyomu_ai.provider.pydantic_ai.routing import (
     RouteNode,
 )
 from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
+from gyomu_ai_compiler.pipelines.document import DocumentRouteId
 from gyomu_infra.logger import logger
 from gyomu_schema.option.retry import RetryObserver
 from gyomu_workflow.snapshot.models import (
@@ -72,7 +73,7 @@ def snapshot(
     filter: str | None = None,
     log_keyword: str | None = None,
 ) -> None:
-    register_google_routing(route_id_list=[DocstringRouteId])
+    register_google_routing(route_id_list=[DocstringRouteId, DocumentRouteId])
     option = SnapshotExecutionOption(
         commit=commit,
         target=SnapshotTargetOption(
@@ -83,6 +84,7 @@ def snapshot(
             docstring=DocstringExecutionOption(
                 enabled=docstring, log_keyword=log_keyword
             ),
+            project_context=commit,
         ),
     )
     request_result = translate_snapshot_request(package, option)

@@ -1,0 +1,19 @@
+{
+  "summary": "Provides core schema conversion, input validation against Pydantic models, and market holiday definitions.",
+  "responsibilities": [
+    "Converts and validates input values and JSON strings against Pydantic models.",
+    "Defines market holiday structures."
+  ],
+  "concepts": [
+    "Pydantic validation",
+    "Market holiday",
+    "Schema conversion"
+  ],
+  "relationships": [
+    "convert and convert_json validate input values against Pydantic models."
+  ],
+  "design_decisions": [
+    "Uses Pydantic models for validation and conversion of inputs and JSON strings."
+  ],
+  "importance": "Core"
+}

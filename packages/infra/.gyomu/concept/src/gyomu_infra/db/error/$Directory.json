@@ -1,0 +1,15 @@
+{
+  "summary": "Provides error handling and exception conversion utilities for database operations, specifically mapping SQLAlchemy errors to internal database error types.",
+  "responsibilities": [
+    "Convert database-specific library errors into structured database errors."
+  ],
+  "concepts": [
+    "Database error",
+    "SQLAlchemy error conversion"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Wraps SQLAlchemy exceptions into a custom database error representation."
+  ],
+  "importance": "Supporting"
+}

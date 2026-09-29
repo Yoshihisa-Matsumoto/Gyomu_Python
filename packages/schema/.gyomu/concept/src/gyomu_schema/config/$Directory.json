@@ -1,0 +1,16 @@
+{
+  "summary": "Defines configuration options and loader options for environment variables and file formats such as JSON, YAML, and TOML.",
+  "responsibilities": [
+    "Defines configuration loader options for environment variables and various file formats."
+  ],
+  "concepts": [
+    "Configuration Options",
+    "Environment Variables",
+    "File-Based Configuration"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Uses type aliases and base classes to define configuration loader options for various formats and environments."
+  ],
+  "importance": "Core"
+}

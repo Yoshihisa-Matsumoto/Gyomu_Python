@@ -3,11 +3,19 @@ from gyomu_python_analysis.analysis.delete_cache import delete_module_cache
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_python_analysis.snapshot.commit import commit_project_changes
 from gyomu_schema.error.gyomu import GyomuError
-from gyomu_schema.option.concept import ConceptDebugInfoOption, ConceptOption
-from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
+from gyomu_schema.option.concept import (
+    ConceptActionOption,
+    ConceptDebugInfoOption,
+    ConceptOption,
+)
+from gyomu_schema.option.update import (
+    UpdateDebugInfoOption,
+    UpdateOption,
+)
 from gyomu_schema.schemas.python.types import ProjectRelativePath
-from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
+from gyomu_schema.schemas.snapshot.types import FileChange, ProjectSnapshot
 from gyomu_schema.utility.context import caller_context
+from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.checkpoint import (
@@ -45,8 +53,8 @@ async def run_snapshot(request: SnapshotRequest) -> Result[None, GyomuError]:
     target = target_result.unwrap()
 
     logger.debug(repr(target.files))
-    if len(target.files) == 0:
-        logger.debug_object(target.snapshot.files)
+    # if len(target.files) == 0:
+    #     logger.debug_object(target.snapshot.files)
     current_snapshot = target.snapshot
 
     action_result = await run_actions(request=request, target=target)
@@ -143,14 +151,18 @@ async def run_actions(
                     context=context,
                 ).chain(error)
             )
-        current_snapshot = analysis_result.unwrap().current_snapshot
-
+        analysis = analysis_result.unwrap()
+        current_snapshot = analysis.current_snapshot
+        logger.debug_object(analysis.diff)
         concept_option = build_concept_update_option(
-            log_keyword=request.option.action.docstring.log_keyword
+            diff=analysis.diff,
+            log_keyword=request.option.action.docstring.log_keyword,
         )
 
-        current_checkpoint = load_checkpoint(request=request)
-
+        current_checkpoint = load_checkpoint(request=request, diff=analysis.diff)
+        logger.debug(
+            f"Checkpoint Status: {format_object(current_checkpoint.completed_steps)}"
+        )
         if request.option.action.project_context:
             if PipelineStep.DIRECTORY_CONCEPT not in current_checkpoint.completed_steps:
                 directory_result = await run_directory_action(
@@ -205,6 +217,7 @@ def build_docstring_update_option(
 
 
 def build_concept_update_option(
+    diff: tuple[FileChange, ...],
     log_keyword: str | None,
 ) -> ConceptOption:
     return ConceptOption(
@@ -215,7 +228,9 @@ def build_concept_update_option(
             package_concept=True,
             package_analysis=True,
             readme_sections=True,
-        )
+        ),
+        changed_files=diff,
+        action=ConceptActionOption(),
     )
 
 

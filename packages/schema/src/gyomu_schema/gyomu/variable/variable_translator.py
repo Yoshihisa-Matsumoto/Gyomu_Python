@@ -4,6 +4,7 @@ from typing import Protocol
 from returns.result import Result
 
 from gyomu_schema.error.database import DatabaseError
+from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.error.validation import ValidationError
 
 
@@ -83,7 +84,7 @@ class VariableTranslator(Protocol):
         input_string: str,
         target_date: date,
         market: str,
-    ) -> Result[str, DatabaseError | ValidationError]:
+    ) -> Result[str, DatabaseError | GyomuIOError | ValidationError]:
         """Translates variable expressions enclosed by ``{%`` and ``%}``
         within the input string.
 

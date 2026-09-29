@@ -4,35 +4,55 @@ from pydantic import BaseModel, Field
 
 
 class DirectoryImportance(StrEnum):
+    """Defines the importance level of a directory within the package."""
+
     CORE = "Core"
+    """Represents core directory importance."""
+
     SUPPORTING = "Supporting"
+    """Represents supporting directory importance."""
+
     UTILITY = "Utility"
+    """Represents utility directory importance."""
 
 
 class DirectoryConcept(BaseModel):
+    """Defines the architectural and domain concept schema for a directory, including
+    its summary, responsibilities, concepts, relationships, design decisions, and
+    importance.
+    """
+
     summary: str = Field(
         description=(
             "Describe the overall architectural purpose "
             "of this directory in 100-300 characters."
         )
     )
+    """Overall architectural purpose summary of the directory."""
+
     responsibilities: list[str] = Field(
         description=(
             "List the primary responsibilities owned by this directory. "
             "Describe what this directory does, not how it is implemented."
         )
     )
+    """Primary responsibilities owned by the directory."""
+
     concepts: list[str] = Field(
         description=(
             "List the important domain or architectural concepts "
             "represented by this directory. Prefer nouns or noun phrases."
         )
     )
+    """Important domain or architectural concepts represented by the directory."""
+
     relationships: list[str] = Field(
         description=(
             "Describe important relationships between concepts in complete sentences."
         )
     )
+    """Relationships between concepts within the directory."""
+
     design_decisions: list[str] = Field(
         description=(
             "List significant architectural decisions, design patterns, "
@@ -40,6 +60,9 @@ class DirectoryConcept(BaseModel):
             "or other notable implementation strategies."
         )
     )
+    """Significant architectural decisions and implementation strategies for the
+    directory.
+    """
     importance: DirectoryImportance = Field(
         description=(
             "Indicates how essential this directory is to "
@@ -56,3 +79,4 @@ class DirectoryConcept(BaseModel):
             "not on implementation size, number of files, or complexity."
         )
     )
+    """Essentialness level of the directory to the package's primary purpose."""

@@ -177,6 +177,10 @@ class ExpressionKind(StrEnum):
     The set_compare member.
     """
     UNARYOP = "unaryop"
+    """The unaryop member.
+
+    The unaryop member.
+    """
 
 
 class UnknownExpressionAnalysis(BaseModel):
@@ -472,6 +476,10 @@ type ExpressionWithoutConstant = (
     | NamedExpressionAnalysis
     | SetCompareExpressionAnalysis
 )
+"""Union type representing expression analysis models without constant values.
+
+Union type representing expression analysis models without constant values.
+"""
 
 type ExpressionAnalysis = LiteralValue | ExpressionWithoutConstant
 """Union type representing any supported expression analysis model.
@@ -745,6 +753,10 @@ class UnaryOpExpressionAnalysis(BaseModel):
     """
 
     kind: ExpressionKind = ExpressionKind.UNARYOP
+    """The kind field.
+
+    The kind field.
+    """
 
     op: UnaryOperator
     """The op field.
@@ -1297,6 +1309,10 @@ class StatementKind(StrEnum):
     The GLOBAL member.
     """
     ANNASSIGN = "annassign"
+    """The annassign member.
+
+    The annassign member.
+    """
 
 
 class GlobalStatementAnalysis(BaseModel):
@@ -1306,6 +1322,10 @@ class GlobalStatementAnalysis(BaseModel):
     """
 
     kind: StatementKind = StatementKind.GLOBAL
+    """The kind field.
+
+    The kind field.
+    """
 
     names: tuple[str, ...]
     """The names field.
@@ -1321,6 +1341,10 @@ class AnnotationAssignStatementAnalysis(BaseModel):
     """
 
     kind: StatementKind = StatementKind.ANNASSIGN
+    """The kind field.
+
+    The kind field.
+    """
 
     target: ExpressionAnalysis
     """The target field.

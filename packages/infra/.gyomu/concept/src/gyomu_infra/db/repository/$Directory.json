@@ -1,0 +1,20 @@
+{
+  "summary": "Defines repository interfaces and their corresponding SQLAlchemy implementations for database operations.",
+  "responsibilities": [
+    "Define repository protocols and their SQLAlchemy implementations for data management and querying."
+  ],
+  "concepts": [
+    "Repository protocol",
+    "SQLAlchemy implementation",
+    "Market holiday data",
+    "Parameter master"
+  ],
+  "relationships": [
+    "SqlAlchemyMarketHolidayRepository implements MarketHolidayRepository.",
+    "SqlAlchemyParameterMasterRepository implements ParameterMasterRepository."
+  ],
+  "design_decisions": [
+    "Implements repository protocols using SQLAlchemy as the persistence layer."
+  ],
+  "importance": "Core"
+}

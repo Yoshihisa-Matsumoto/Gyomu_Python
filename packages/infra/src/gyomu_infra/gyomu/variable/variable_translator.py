@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Literal, TypeGuard, assert_never
 
 from dateutil.relativedelta import relativedelta
+from gyomu_schema.error.database import DatabaseError
 from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.gyomu.holiday.business_calendar import BusinessCalendar
@@ -116,7 +117,7 @@ class VariableTranslatorImpl:
 
     def parse_date(
         self, keyword: str, target_date: date
-    ) -> Result[date, GyomuIOError | ValidationError]:
+    ) -> Result[date, DatabaseError | ValidationError]:
         """Parse a date keyword into a concrete date based on a target date."""
 
         parts = keyword.split("$")
@@ -240,7 +241,7 @@ class VariableTranslatorImpl:
 
     def parse(
         self, input_string: str, target_date: date
-    ) -> Result[str, GyomuIOError | ValidationError]:
+    ) -> Result[str, DatabaseError | GyomuIOError | ValidationError]:
         """Recursively parse and replace variable placeholders within an input
         string.
         """
@@ -272,7 +273,7 @@ class VariableTranslatorImpl:
         keyword: str,
         target_date: date,
         arguments: list[str] | None = None,
-    ) -> Result[str, GyomuIOError | ValidationError]:
+    ) -> Result[str, DatabaseError | ValidationError]:
         """Translate a single variable keyword into its resolved string value."""
 
         parts = keyword.split("$")

@@ -1,0 +1,21 @@
+{
+  "summary": "Provides filesystem infrastructure utilities including file I/O operations for text and JSON, file enumeration and search functionality, and file operation helpers for access checking and exclusive access handling.",
+  "responsibilities": [
+    "Read and write text and JSON files with directory management and file deletion capabilities",
+    "Enumerate files and provide file search functionality based on filter conditions",
+    "Provide file operation helpers such as access checking and waiting for exclusive access"
+  ],
+  "concepts": [
+    "File I/O",
+    "File Operations",
+    "File Search"
+  ],
+  "relationships": [
+    "FileSearch uses filter conditions to provide search functionality",
+    "FileOperation provides access checking and waiting for exclusive access helpers"
+  ],
+  "design_decisions": [
+    "Normalizes line endings to LF when reading Python source files"
+  ],
+  "importance": "Core"
+}

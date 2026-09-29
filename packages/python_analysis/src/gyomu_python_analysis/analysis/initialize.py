@@ -36,11 +36,16 @@ def initialize_project_from_workspace(
     files = find_included_python_files(
         project_root=project_root, source_root=source_root
     )
+    package_roots = find_package_roots(
+        project_root=project_root,
+        source_root=source_root,
+    )
     return ProjectContext(
         project_root=project_root,
         source_root=source_root,
         config=project.config,
         included_files=files,
+        package_roots=package_roots,
     )
 
 

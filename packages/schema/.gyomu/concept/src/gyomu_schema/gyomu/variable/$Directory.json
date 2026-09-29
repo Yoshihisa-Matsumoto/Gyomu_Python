@@ -1,0 +1,17 @@
+{
+  "summary": "Provides variable translation capabilities for parsing and converting variable expressions embedded within strings.",
+  "responsibilities": [
+    "Translating variable expressions embedded in strings"
+  ],
+  "concepts": [
+    "variable expressions",
+    "variable translator"
+  ],
+  "relationships": [
+    "VariableTranslator translates variable expressions embedded in strings."
+  ],
+  "design_decisions": [
+    "Translates variable expressions embedded in strings via a dedicated translator component."
+  ],
+  "importance": "Core"
+}

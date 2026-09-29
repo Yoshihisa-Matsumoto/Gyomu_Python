@@ -5,7 +5,7 @@ from pathlib import Path
 from gyomu_infra.filesystem.file_io import read_json, write_json
 from gyomu_python_analysis.snapshot.project import to_project_id
 from gyomu_schema.error.gyomu import GyomuError
-from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
+from gyomu_schema.schemas.snapshot.types import FileChange, ProjectSnapshot
 from gyomu_schema.schemas.types import FullPath
 from gyomu_schema.utility.context import caller_context
 from pydantic import BaseModel
@@ -38,14 +38,23 @@ def _get_checkpoint_path(request: SnapshotRequest) -> FullPath:
     return FullPath(Path(".gyomu") / "checkpoint" / project_id / "Checkpoint.json")
 
 
-def load_checkpoint(request: SnapshotRequest) -> Checkpoint:
+def _is_complete(checkpoint: Checkpoint) -> bool:
+    return PipelineStep.PACKAGE_CONCEPT in checkpoint.completed_steps
+
+
+def load_checkpoint(
+    request: SnapshotRequest, diff: tuple[FileChange, ...]
+) -> Checkpoint:
     checkfile_path = _get_checkpoint_path(request)
 
     if checkfile_path.exists():
         load_result = read_json(path=checkfile_path, model_type=Checkpoint)
         if isinstance(load_result, Success):
             checkpoint: Checkpoint = load_result.unwrap()
-            return checkpoint
+            if not _is_complete(checkpoint):
+                return checkpoint
+            if len(diff) == 0:
+                return checkpoint
 
     return initialize_checkpoint(request.project_context.config.name)
 

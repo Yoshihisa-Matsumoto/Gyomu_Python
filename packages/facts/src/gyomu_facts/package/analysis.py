@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from gyomu_facts.package.rank import rank_directories_by_score
 from gyomu_schema.schemas.concept.directory.concept import DirectoryImportance
 from gyomu_schema.schemas.concept.package.analysis import (
     DirectoryAnalysis,
     PackageAnalysis,
 )
+
+from gyomu_facts.package.rank import rank_directories_by_score
 
 
 @dataclass(frozen=True)

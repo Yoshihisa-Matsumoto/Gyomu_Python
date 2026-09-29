@@ -1,0 +1,43 @@
+{
+  "summary": "`gyomu-schema` defines the canonical schema models and data structures for the Gyomu system, providing robust Pydantic-based models for Python AST and code analysis, package structure analysis, conceptual modeling, error handling, and configuration management.",
+  "responsibilities": [
+    "Define canonical schema models and data structures for Python code analysis, AST elements, and metadata.",
+    "Provide models and structures for package analysis, dependencies, and architectural concepts.",
+    "Define application error types, operational error phases, and automated retry/recovery strategies.",
+    "Manage configuration settings and options for system execution, analysis, and loaders.",
+    "Provide utility functions for file system operations, project snapshots, and object serialization."
+  ],
+  "capabilities": [
+    {
+      "name": "Python AST and Code Analysis Schemas",
+      "description": "Defines schema models representing Python AST expressions, statements, types, and code structures for analysis."
+    },
+    {
+      "name": "Package and Concept Modeling",
+      "description": "Provides comprehensive schema definitions for package analysis, dependency tracking, directory facts, and capability and package concepts."
+    },
+    {
+      "name": "Error Handling and Retry Strategies",
+      "description": "Defines application-level error handling classes, operational phases, domain-specific errors, and retry strategies."
+    },
+    {
+      "name": "Configuration and Process Options",
+      "description": "Defines configuration options and parameters for system processes, code analysis, LLM execution, and loaders."
+    },
+    {
+      "name": "System Utilities and File Management",
+      "description": "Provides utilities for file system management, project and file snapshots, serialization, execution timing, and asynchronous/synchronous execution wrapping."
+    }
+  ],
+  "design_decisions": [
+    "Built on Pydantic for rigorous data validation, schema modeling, and type safety across all domain objects.",
+    "Organizes codebase into specialized sub-packages separating Python language constructs, metadata, configuration, error management, and utilities.",
+    "Employs functional result types and protocols to support robust error handling, synchronization, and retry workflows."
+  ],
+  "usage_guidance": [
+    "Use the schema models in `gyomu_schema.schemas` to construct, validate, and serialize Python code analyses, AST representations, and project snapshots.",
+    "Utilize `gyomu_schema.error` and associated retry strategies for consistent application error management and recovery.",
+    "Configure system processes and analysis options using the options defined in `gyomu_schema.option` and `gyomu_schema.config`.",
+    "Leverage utility functions in `gyomu_schema.utility` for serialization, execution timing, and safe result wrapping."
+  ]
+}

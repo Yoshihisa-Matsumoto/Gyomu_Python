@@ -33,7 +33,7 @@ async def build_package_concept(
             concept = load_result.unwrap()
             if concept is not None:
                 return Success(concept)
-
+    logger.info(f"create package concept: {context.config.name}")
     analysis_result = build_package_analysis(context, option)
     if isinstance(analysis_result, Failure):
         return analysis_result

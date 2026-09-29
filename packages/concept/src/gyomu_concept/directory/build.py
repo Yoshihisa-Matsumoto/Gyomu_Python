@@ -1,10 +1,12 @@
 from gyomu_concept.directory.internal.build import build_directory_concept_from_path
 from gyomu_concept.directory.types import BuildRootResult
 from gyomu_concept.error.concept import ConceptError
+from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.directory.concept import DirectoryConcept
 from gyomu_schema.schemas.types import FullPath
+from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
 
@@ -20,6 +22,12 @@ async def build_directory_concept(
     )
     is_changed = False
     concepts: list[DirectoryConcept] = []
+    logger.debug(f"Directory Concept generation on {repr(root_path_items)}")
+    logger.debug(repr(context.package_roots))
+    if option is not None and option.changed_files is not None:
+        logger.debug(f"Changed Files: {format_object(option.changed_files)}")
+    else:
+        logger.debug("No Changed Files Specified")
     for root_path in root_path_items:
         result = await build_directory_concept_from_path(context, root_path, option)
         if isinstance(result, Failure):

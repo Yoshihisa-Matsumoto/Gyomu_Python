@@ -42,7 +42,7 @@ def test_load_checkpoint_success(
         return_value=Success(checkpoint),
     )
 
-    result = load_checkpoint(snapshot_request)
+    result = load_checkpoint(snapshot_request, diff=tuple())
 
     assert result == checkpoint
     read_json.assert_called_once_with(
@@ -67,7 +67,7 @@ def test_load_checkpoint_when_file_does_not_exist(
         "gyomu_workflow.snapshot.checkpoint.read_json",
     )
 
-    result = load_checkpoint(snapshot_request)
+    result = load_checkpoint(snapshot_request, diff=tuple())
 
     assert result == Checkpoint(
         package=snapshot_request.project_context.config.name,
@@ -100,7 +100,7 @@ def test_load_checkpoint_when_read_fails(
         return_value=Failure(error),
     )
 
-    result = load_checkpoint(snapshot_request)
+    result = load_checkpoint(snapshot_request, diff=tuple())
 
     assert result == Checkpoint(
         package=snapshot_request.project_context.config.name,

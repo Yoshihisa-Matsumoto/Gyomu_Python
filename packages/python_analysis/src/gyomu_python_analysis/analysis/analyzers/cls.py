@@ -239,7 +239,6 @@ def _build_class_method_analysis(
             context=context, member_path=new_member_path
         ),
         is_ellipsis_only=is_ellipsis_only,
-        statements=tuple(statements),
     )
 
 

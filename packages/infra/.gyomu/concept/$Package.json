@@ -1,0 +1,40 @@
+{
+  "summary": "Gyomu Infrastructure is a core foundational package providing robust utility modules and infrastructure components for CSV data processing, file system management, stream handling, database interactions via SQLAlchemy, and business calendar calculations.",
+  "responsibilities": [
+    "Provide foundational infrastructure utilities for data serialization, file system manipulation, and stream processing.",
+    "Implement database access patterns, connection management, and entity mapping.",
+    "Support core business domain services such as date calculations and parameter management."
+  ],
+  "capabilities": [
+    {
+      "name": "CSV Data Processing",
+      "description": "Parse, serialize, and validate CSV data using Pydantic models with customizable parsing and formatting options."
+    },
+    {
+      "name": "Filesystem Utilities",
+      "description": "Perform file I/O operations, text and JSON manipulation, directory management, and file searching."
+    },
+    {
+      "name": "Stream Processing",
+      "description": "Process lazy single-use streams and handle byte stream file writing operations."
+    },
+    {
+      "name": "Database Access and ORM",
+      "description": "Manage database connectivity, transactions, repositories, and object mapping via SQLAlchemy."
+    },
+    {
+      "name": "Business Calendar and Dates",
+      "description": "Calculate business calendars and manage holiday-dependent domain logic."
+    }
+  ],
+  "design_decisions": [
+    "Leverages Pydantic for robust data validation and schema definition across CSV processing and database mapping.",
+    "Employs SQLAlchemy protocol-based repository patterns and transaction managers for database abstraction.",
+    "Integrates functional programming constructs like Result values for lazy stream processing."
+  ],
+  "usage_guidance": [
+    "Use the CSV reader and writer components with Pydantic models for structured data import and export.",
+    "Utilize SQLAlchemy-based repositories and transaction managers for persistent data operations.",
+    "Leverage filesystem and stream utilities for secure file handling, searching, and lazy data processing."
+  ]
+}

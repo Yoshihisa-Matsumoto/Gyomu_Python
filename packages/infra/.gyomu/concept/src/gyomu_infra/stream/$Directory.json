@@ -1,0 +1,21 @@
+{
+  "summary": "Provides stream processing and input/output utilities, including lazy single-use streams of Result values and byte stream file writing functions.",
+  "responsibilities": [
+    "Providing lazy, single-use stream processing of Result values",
+    "Handling stream I/O operations such as writing byte streams to files"
+  ],
+  "concepts": [
+    "RecordStream",
+    "Stream I/O",
+    "Type variables"
+  ],
+  "relationships": [
+    "RecordStream processes lazy streams of Result values using type variables.",
+    "stream_to_file writes iterable byte streams to a file."
+  ],
+  "design_decisions": [
+    "Lazy single-use stream of Result values",
+    "Iterable byte stream writing to files"
+  ],
+  "importance": "Core"
+}

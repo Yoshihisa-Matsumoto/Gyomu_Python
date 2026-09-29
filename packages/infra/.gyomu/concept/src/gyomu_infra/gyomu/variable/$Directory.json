@@ -1,0 +1,20 @@
+{
+  "summary": "The variable directory provides mechanisms for translating and resolving date and parameter placeholders, defining supported variable types and date parameter keywords.",
+  "responsibilities": [
+    "Defines supported variable types and date parameter keywords.",
+    "Resolves and translates date and parameter placeholders."
+  ],
+  "concepts": [
+    "Variable Translator",
+    "Variable Date Parameter",
+    "Variable Type"
+  ],
+  "relationships": [
+    "VariableTranslatorImpl resolves date and parameter placeholders using VariableType, VariableDateParameter, and VARIABLE_DATE_PARAMETERS."
+  ],
+  "design_decisions": [
+    "Uses an enumeration and type alias to define supported variable types and date parameter keywords.",
+    "Provides an implementation class for resolving date and parameter placeholders."
+  ],
+  "importance": "Core"
+}

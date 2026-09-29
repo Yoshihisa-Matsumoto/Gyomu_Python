@@ -1,0 +1,20 @@
+{
+  "summary": "The directory defines parameter master schemas and data models, including base definitions, unique identifiers, and schemas for creating and updating parameter records.",
+  "responsibilities": [
+    "Define data validation and structural schemas for parameter master records, including creation and update operations."
+  ],
+  "concepts": [
+    "Parameter Master Schema",
+    "Parameter Master Base",
+    "Parameter Master Create",
+    "Parameter Master Update"
+  ],
+  "relationships": [
+    "ParameterMaster inherits from or extends ParameterMasterBase.",
+    "ParameterMasterCreate and ParameterMasterUpdate provide input schemas relative to ParameterMasterBase and ParameterMaster."
+  ],
+  "design_decisions": [
+    "Defines base and complete parameter master schemas using inheritance or composition patterns for creation and updates."
+  ],
+  "importance": "Core"
+}

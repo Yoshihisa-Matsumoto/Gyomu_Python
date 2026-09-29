@@ -1,0 +1,18 @@
+{
+  "summary": "Provides functionality for executing system processes and managing their results and associated errors.",
+  "responsibilities": [
+    "Execute external processes or commands and manage their results and errors."
+  ],
+  "concepts": [
+    "Process execution",
+    "Subprocess error",
+    "Process result"
+  ],
+  "relationships": [
+    "Process execution produces a process result and raises a subprocess error when failures occur."
+  ],
+  "design_decisions": [
+    "Modularizes process handling into distinct components for execution, result representation, and error handling."
+  ],
+  "importance": "Supporting"
+}

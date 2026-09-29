@@ -1,0 +1,14 @@
+{
+  "summary": "Provides database configuration management for the application through dedicated configuration structures.",
+  "responsibilities": [
+    "Manage and provide database configuration settings."
+  ],
+  "concepts": [
+    "Database Configuration"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Configuration is encapsulated using a dedicated class."
+  ],
+  "importance": "Core"
+}

@@ -2,21 +2,30 @@ from pydantic import BaseModel, Field
 
 
 class CapabilityConcept(BaseModel):
+    """Defines a capability concept with a short name and description."""
+
     name: str = Field(
         description=(
             "Short capability name. Use 2-5 words. Examples: 'Text Generation', "
             "'Schema Validation'."
         )
     )
+    """Short capability name."""
+
     description: str = Field(
         description=(
             "Brief explanation of what this capability provides to "
             "consumers of the package."
         )
     )
+    """Brief explanation of the capability provided to consumers."""
 
 
 class PackageConcept(BaseModel):
+    """Defines a package concept including summary, responsibilities, capabilities,
+    design decisions, and usage guidance.
+    """
+
     summary: str = Field(
         description=(
             "High-level summary of the package. "
@@ -24,6 +33,8 @@ class PackageConcept(BaseModel):
             "overall role within the project."
         )
     )
+    """High-level summary of the package's primary purpose and role."""
+
     responsibilities: list[str] = Field(
         description=(
             "- What the package is responsible for within the system\n"
@@ -37,6 +48,8 @@ class PackageConcept(BaseModel):
             "- Provide shared validation models.\n"
         )
     )
+    """Long-term architectural responsibilities of the package within the system."""
+
     capabilities: list[CapabilityConcept] = Field(
         description=(
             "- What consumers can accomplish\n"
@@ -53,6 +66,8 @@ class PackageConcept(BaseModel):
             "- Type Analysis Framework\n"
         )
     )
+    """Cohesive feature areas and what consumers can accomplish."""
+
     design_decisions: list[str] = Field(
         description=(
             "Important architectural or design decisions that explain why the package "
@@ -60,9 +75,12 @@ class PackageConcept(BaseModel):
             "rather than temporary implementation choices."
         )
     )
+    """Important architectural or design decisions explaining package structure."""
+
     usage_guidance: list[str] = Field(
         description=(
             "Recommendations and best practices for consumers of this package. "
             "Explain how the package is intended to be used."
         )
     )
+    """Recommendations and best practices for package consumers."""
