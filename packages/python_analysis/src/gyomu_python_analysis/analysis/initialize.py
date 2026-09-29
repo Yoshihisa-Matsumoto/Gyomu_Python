@@ -133,7 +133,7 @@ def analyze_project_config(
 
     if project_relative_path is None:
         project_relative_path = WorkspaceRelativePath(Path("."))
-    project = toml_data["project"]
+    project = toml_data.get("project", {})
     name = project.get("name", "")
     description = project.get("description", None)
     is_version_dynamic = "dynamic" in project and "version" in project["dynamic"]

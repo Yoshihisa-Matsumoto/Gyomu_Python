@@ -5,6 +5,7 @@ from gyomu_docstring.error.update import UpdateError
 from gyomu_docstring.update.validation import (
     run_ruff_check,
     run_ruff_format,
+    run_ruff_import_fix,
     validate_source,
 )
 from gyomu_infra.process.error import ProcessError
@@ -224,6 +225,10 @@ def test_validate_source_returns_check_failure(
         return_value=Success(None),
     )
     mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_import_fix",
+        return_value=Success(None),
+    )
+    mocker.patch(
         "gyomu_docstring.update.validation.run_ruff_check",
         return_value=Failure(error),
     )
@@ -235,3 +240,196 @@ def test_validate_source_returns_check_failure(
     )
 
     assert result == Failure(error)
+
+
+def test_run_ruff_import_fix_success(
+    mocker,
+    file_context: FileAnalysisContext,
+) -> None:
+    execute = mocker.patch(
+        "gyomu_docstring.update.validation.execute",
+        return_value=Success(
+            ProcessResult(
+                exit_code=0,
+                stdout="1 file reformatted\n",
+                stderr="",
+            )
+        ),
+    )
+
+    result = run_ruff_import_fix(
+        ProjectRelativePath(Path("src/example.py")),
+        project_root=FullPath(Path("/project")),
+        file_context=file_context,
+    )
+
+    assert result == Success(None)
+
+    execute.assert_called_once_with(
+        (
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--fix",
+            str(Path("src/example.py")),
+        ),
+        cwd=Path("/project"),
+    )
+
+
+def test_run_ruff_import_fix_failure(
+    mocker,
+    file_context: FileAnalysisContext,
+) -> None:
+    mocker.patch(
+        "gyomu_docstring.update.validation.execute",
+        return_value=Success(
+            ProcessResult(
+                exit_code=1,
+                stdout="src/example.py:1:1: I001 ...\n",
+                stderr="",
+            )
+        ),
+    )
+
+    result = run_ruff_import_fix(
+        ProjectRelativePath(Path("src/example.py")),
+        project_root=FullPath(Path("/project")),
+        file_context=file_context,
+    )
+
+    assert isinstance(result, Failure)
+
+    error = result.failure()
+    assert error.details == {
+        "exit_code": 1,
+        "stdout": "src/example.py:1:1: I001 ...\n",
+        "stderr": "",
+    }
+
+
+def test_run_ruff_import_fix_process_error(
+    mocker,
+    file_context: FileAnalysisContext,
+) -> None:
+    process_error = ProcessError(
+        "ruff not found",
+        command=("ruff", "check", "--select", "I", "--fix", "src/example.py"),
+        exit_code=None,
+    )
+
+    mocker.patch(
+        "gyomu_docstring.update.validation.execute",
+        return_value=Failure(process_error),
+    )
+
+    result = run_ruff_import_fix(
+        ProjectRelativePath(Path("src/example.py")),
+        project_root=FullPath(Path("/project")),
+        file_context=file_context,
+    )
+
+    assert isinstance(result, Failure)
+
+    error = result.failure()
+    assert isinstance(error, UpdateError)
+    assert error.message == "fail to execute ruff import-fix"
+
+
+def test_validate_source_does_not_import_fix_when_format_fails(
+    mocker,
+    file_context: FileAnalysisContext,
+) -> None:
+    error = UpdateError(
+        "ruff format failed",
+        file_path=file_context.analysis.module_name,
+        phase="post-update",
+        identity=None,
+        context="test",
+    )
+
+    mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_format",
+        return_value=Failure(error),
+    )
+    run_import_fix = mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_import_fix",
+    )
+    run_check = mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_check",
+    )
+
+    result = validate_source(
+        ProjectRelativePath(Path("src/example.py")),
+        project_root=FullPath(Path("/project")),
+        file_context=file_context,
+    )
+
+    assert result == Failure(error)
+    run_import_fix.assert_not_called()
+    run_check.assert_not_called()
+
+
+def test_validate_source_does_not_check_when_import_fix_fails(
+    mocker,
+    file_context: FileAnalysisContext,
+) -> None:
+    error = UpdateError(
+        "ruff import-fix failed",
+        file_path=file_context.analysis.module_name,
+        phase="post-update",
+        identity=None,
+        context="test",
+    )
+
+    mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_format",
+        return_value=Success(None),
+    )
+    mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_import_fix",
+        return_value=Failure(error),
+    )
+    run_check = mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_check",
+    )
+
+    result = validate_source(
+        ProjectRelativePath(Path("src/example.py")),
+        project_root=FullPath(Path("/project")),
+        file_context=file_context,
+    )
+
+    assert result == Failure(error)
+    run_check.assert_not_called()
+
+
+def test_validate_source_runs_format_import_fix_and_check(
+    mocker,
+    file_context: FileAnalysisContext,
+) -> None:
+    run_format = mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_format",
+        return_value=Success(None),
+    )
+    run_import_fix = mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_import_fix",
+        return_value=Success(None),
+    )
+    run_check = mocker.patch(
+        "gyomu_docstring.update.validation.run_ruff_check",
+        return_value=Success(None),
+    )
+
+    result = validate_source(
+        ProjectRelativePath(Path("src/example.py")),
+        project_root=FullPath(Path("/project")),
+        file_context=file_context,
+    )
+
+    assert result == Success(None)
+
+    run_format.assert_called_once()
+    run_import_fix.assert_called_once()
+    run_check.assert_called_once()
