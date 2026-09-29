@@ -1010,6 +1010,7 @@ requires-dist = [
 name = "gyomu-workflow"
 source = { editable = "packages/workflow" }
 dependencies = [
+    { name = "gyomu-concept" },
     { name = "gyomu-docstring" },
     { name = "gyomu-infra" },
     { name = "gyomu-python-analysis" },
@@ -1019,6 +1020,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "gyomu-concept", editable = "packages/concept" },
     { name = "gyomu-docstring", editable = "packages/docstring" },
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-python-analysis", editable = "packages/python_analysis" },

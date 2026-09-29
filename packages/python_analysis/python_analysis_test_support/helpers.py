@@ -16,7 +16,11 @@ from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
-from gyomu_python_analysis.project.workspace import WorkspaceRoot, WorkspaceRootKind
+from gyomu_python_analysis.project.workspace import (
+    WorkspaceProject,
+    WorkspaceRoot,
+    WorkspaceRootKind,
+)
 from gyomu_python_analysis.snapshot.models import (
     AnalyzeProjectChangesResult,
 )
@@ -55,6 +59,23 @@ _default_project_config = PyProjectConfig(
     formatter_line_length=88,
     _toml_data={},
 )
+
+_default_workspace_path = WorkspaceRelativePath(Path("."))
+_default_pyproject = PyProjectConfig(
+    path=_default_workspace_path,
+    name="test",
+    description="",
+    formatter_line_length=88,
+    version="1.0",
+    _toml_data={},
+)
+
+
+def create_workspace_project(
+    path: WorkspaceRelativePath = _default_workspace_path,
+    config: PyProjectConfig = _default_pyproject,
+) -> WorkspaceProject:
+    return WorkspaceProject(path=path, config=config)
 
 
 def _create_context() -> ProjectContext:

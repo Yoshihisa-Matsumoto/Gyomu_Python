@@ -9,7 +9,8 @@ dependencies = [
     "gyomu-infra",
     "returns",
     "gyomu-python-analysis",
-    "gyomu-docstring"
+    "gyomu-docstring",
+    "gyomu-concept"
 ]
 license = "MIT"
 authors = [
@@ -35,6 +36,7 @@ gyomu-schema = { workspace = true }
 gyomu-infra = { workspace = true }
 gyomu-python-analysis = { workspace = true }
 gyomu-docstring = { workspace = true }
+gyomu-concept = { workspace = true }
 
 [tool.hatch.version]
 path = "../../version/__about__.py"

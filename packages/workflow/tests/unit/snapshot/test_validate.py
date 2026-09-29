@@ -14,6 +14,7 @@ from returns.result import Failure, Success
 
 from packages.python_analysis.python_analysis_test_support.helpers import (
     _create_context,
+    create_workspace_project,
 )
 
 
@@ -31,6 +32,7 @@ class TestValidateSnapshotRequest:
                     docstring=DocstringExecutionOption(enabled=True)
                 ),
             ),
+            project=create_workspace_project(),
         )
 
         result = validate_snapshot_request(request)
@@ -50,6 +52,7 @@ class TestValidateSnapshotRequest:
                     docstring=DocstringExecutionOption(enabled=True)
                 ),
             ),
+            project=create_workspace_project(),
         )
 
         result = validate_snapshot_request(request)
@@ -78,6 +81,7 @@ class TestValidateSnapshotRequest:
                     docstring=DocstringExecutionOption(enabled=True)
                 ),
             ),
+            project=create_workspace_project(),
         )
 
         result = validate_snapshot_request(request)

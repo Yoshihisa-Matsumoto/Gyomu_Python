@@ -3,15 +3,22 @@ from gyomu_python_analysis.analysis.delete_cache import delete_module_cache
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_python_analysis.snapshot.commit import commit_project_changes
 from gyomu_schema.error.gyomu import GyomuError
+from gyomu_schema.option.concept import ConceptDebugInfoOption, ConceptOption
 from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
 from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
+from gyomu_workflow.snapshot.checkpoint import (
+    PipelineStep,
+    load_checkpoint,
+)
 from gyomu_workflow.snapshot.models import SnapshotRequest, SnapshotTarget
 from gyomu_workflow.snapshot.normalize import normalize_filter
+from gyomu_workflow.snapshot.run_directory import run_directory_action
 from gyomu_workflow.snapshot.run_docstring import run_docstring_action
+from gyomu_workflow.snapshot.run_package import run_package_action
 from gyomu_workflow.snapshot.target import resolve_snapshot_target
 
 
@@ -138,6 +145,37 @@ async def run_actions(
             )
         current_snapshot = analysis_result.unwrap().current_snapshot
 
+        concept_option = build_concept_update_option(
+            log_keyword=request.option.action.docstring.log_keyword
+        )
+
+        current_checkpoint = load_checkpoint(request=request)
+
+        if request.option.action.project_context:
+            if PipelineStep.DIRECTORY_CONCEPT not in current_checkpoint.completed_steps:
+                directory_result = await run_directory_action(
+                    request=request,
+                    current_checkpoint=current_checkpoint,
+                    option=concept_option,
+                )
+                if isinstance(directory_result, Failure):
+                    return directory_result
+                action_result = directory_result.unwrap()
+                current_checkpoint = action_result.checkpoint
+                current_snapshot = action_result.snapshot
+
+            if PipelineStep.PACKAGE_CONCEPT not in current_checkpoint.completed_steps:
+                package_result = await run_package_action(
+                    request=request,
+                    current_checkpoint=current_checkpoint,
+                    option=concept_option,
+                )
+                if isinstance(package_result, Failure):
+                    return package_result
+                action_result = package_result.unwrap()
+                current_checkpoint = action_result.checkpoint
+                current_snapshot = action_result.snapshot
+
     return Success(current_snapshot)
 
 
@@ -163,6 +201,21 @@ def build_docstring_update_option(
             keyword=log_keyword,
         ),
         no_check_cache=True,
+    )
+
+
+def build_concept_update_option(
+    log_keyword: str | None,
+) -> ConceptOption:
+    return ConceptOption(
+        debug_info=ConceptDebugInfoOption(
+            dump_to_file=True,
+            keyword=log_keyword,
+            directory_concept=True,
+            package_concept=True,
+            package_analysis=True,
+            readme_sections=True,
+        )
     )
 
 

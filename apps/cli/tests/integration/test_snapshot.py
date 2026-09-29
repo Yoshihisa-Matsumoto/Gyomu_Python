@@ -2,8 +2,10 @@ from pathlib import Path
 
 import pytest
 from gyomu_cli.main import app
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.workspace import WorkspaceProject
 from gyomu_schema.error.gyomu import GyomuError
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 from gyomu_workflow.snapshot.models import (
     DocstringExecutionOption,
@@ -30,6 +32,17 @@ def snapshot_request(mocker: MockerFixture) -> SnapshotRequest:
                 docstring=DocstringExecutionOption(enabled=True),
             ),
             target=SnapshotTargetOption(),
+        ),
+        project=WorkspaceProject(
+            path=WorkspaceRelativePath(Path("/tmp")),
+            config=PyProjectConfig(
+                name="example",
+                description="Example project",
+                version="1.0.0",
+                path=WorkspaceRelativePath(Path("/tmp")),
+                formatter_line_length=88,
+                _toml_data={},
+            ),
         ),
     )
 
