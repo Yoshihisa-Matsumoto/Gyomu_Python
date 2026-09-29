@@ -9,7 +9,7 @@ class PublicApiSymbol(BaseModel):
     summary: str
 
 
-class PublicApiModule(BaseModel):
+class PublicSymbolsModule(BaseModel):
     module: str
     symbols: tuple[PublicApiSymbol, ...]
 
@@ -29,5 +29,5 @@ class PackageDependencyInput(BaseModel):
 class PackageConceptInput(BaseModel):
     package: PyProjectAnalysis
     top_directories: tuple[TopDirectory, ...]
-    public_api: tuple[PublicApiModule, ...]
+    public_symbols: tuple[PublicSymbolsModule, ...]
     dependencies: tuple[PackageDependencyInput, ...]

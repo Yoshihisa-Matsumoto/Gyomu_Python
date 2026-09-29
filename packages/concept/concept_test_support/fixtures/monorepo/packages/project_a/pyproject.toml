@@ -1,0 +1,17 @@
+[project]
+name = "project-a"
+version = "0.1.0"
+description = "Project A"
+dependencies = [
+    "project-b",
+    "pydantic",
+    "returns>=0.28",
+]
+license="MIT"
+
+[dependency-groups]
+dev = [
+    "project-b",
+    "pytest>=9",
+    "python-dotenv",
+]

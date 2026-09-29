@@ -10,7 +10,6 @@ from returns.result import Failure, Result, Success
 from gyomu_python_analysis.analysis.initialize import analyze_project_config
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import (
-    WorkspaceConfig,
     WorkspaceContext,
     WorkspaceProject,
     WorkspaceRoot,
@@ -126,60 +125,6 @@ def is_uv_workspace(toml_data: dict[str, Any]) -> bool:
     )
 
 
-def initialize_workspace_config(
-    path: FullPath, toml_data: dict[str, Any]
-) -> Result[WorkspaceConfig, AnalysisError]:
-    """Initializes workspace configuration.
-
-    Initializes workspace configuration from pyproject.toml data.
-
-    Args:
-        path (FullPath): The path to the workspace root or project.
-        toml_data (dict[str, Any]): The parsed TOML data dictionary.
-
-    Returns:
-        Result[WorkspaceConfig, AnalysisError]: A Result containing the WorkspaceConfig
-            on success, or an AnalysisError on failure.
-    """
-    try:
-        name = None
-        description = None
-        if "project" in toml_data:
-            project = toml_data["project"]
-            name = project.get("name", None)
-            description = project.get("description", None)
-
-        formatter_line_length: int | None = None
-        tool = toml_data.get("tool")
-        if (
-            isinstance(tool, dict)
-            and isinstance(tool.get("ruff"), dict)
-            and "line-length" in tool["ruff"]
-        ):
-            formatter_line_length = int(tool["ruff"]["line-length"])
-
-        if formatter_line_length is None:
-            formatter_line_length = 88
-
-        return Success(
-            WorkspaceConfig(
-                path=path,
-                name=name,
-                description=description,
-                formatter_line_length=formatter_line_length,
-            )
-        )
-    except ValueError:
-        return Failure(
-            AnalysisError(
-                "fail to parse root pyproject.toml",
-                file_path=path,
-                phase="workspace-discovery",
-                context="gyomu_python_analysis.analysis.workspace.intialize_workspace_config",
-            )
-        )
-
-
 def get_uv_workspace_members(toml_data: dict[str, Any]) -> list[str]:
     """Retrieves member paths from a uv workspace configuration.
 
@@ -226,7 +171,7 @@ def initialize_workspace_context(
         return toml_result
 
     toml_data = toml_result.unwrap()
-    config_result = initialize_workspace_config(root.path, toml_data)
+    config_result = analyze_project_config(root.path, toml_data)
     if isinstance(config_result, Failure):
         return config_result
 
@@ -238,6 +183,7 @@ def initialize_workspace_context(
             return project_config_result
         return Success(
             WorkspaceContext(
+                path=root.path,
                 config=config_result.unwrap(),
                 projects=tuple(
                     [
@@ -281,6 +227,7 @@ def initialize_workspace_context(
             )
         return Success(
             WorkspaceContext(
+                path=root.path,
                 config=config_result.unwrap(),
                 projects=tuple(projects),
             )

@@ -16,6 +16,7 @@ from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load import load_module
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.workspace import WorkspaceRoot, WorkspaceRootKind
 from gyomu_python_analysis.snapshot.models import (
     AnalyzeProjectChangesResult,
 )
@@ -101,6 +102,12 @@ def create_project_snapshot(
     ),
 ) -> ProjectSnapshot:
     return ProjectSnapshot(project_root=project_root, files=files)
+
+
+def create_workspace_root(
+    path: FullPath, kind: WorkspaceRootKind = WorkspaceRootKind.UV_WORKSPACE
+) -> WorkspaceRoot:
+    return WorkspaceRoot(path=path, kind=kind)
 
 
 def create_analyze_project_change(

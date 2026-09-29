@@ -48,3 +48,22 @@ class TestPackageAnalysis:
                 ),
             ),
         )
+
+
+class TestDirectoryAnalysisFact:
+    def test_append(self) -> None:
+        item = create_directory_analysis_fact(
+            public_symbol_count=3, file_count=4, total_symbol_count=5
+        )
+        result = item.add(
+            create_directory_analysis_fact(
+                public_symbol_count=10, file_count=20, total_symbol_count=30
+            )
+        )
+
+        assert result.file_count == 24
+        assert result.public_symbol_count == 13
+        assert result.total_symbol_count == 35
+        assert item.file_count == 24
+        assert item.public_symbol_count == 13
+        assert item.total_symbol_count == 35

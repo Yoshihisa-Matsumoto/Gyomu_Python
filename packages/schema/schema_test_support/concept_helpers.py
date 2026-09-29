@@ -14,13 +14,17 @@ from gyomu_schema.schemas.concept.file_summary import (
     PublicDeclarationSummary,
 )
 from gyomu_schema.schemas.concept.package.analysis import (
-    DependencyAnalysis,
-    DependencyKind,
-    DependencySource,
     DirectoryAnalysis,
     DirectoryAnalysisFact,
     PackageAnalysis,
+    PackageDependencyAnalysis,
+    PackageDependencyKind,
+    PackageDependencySource,
     PyProjectAnalysis,
+)
+from gyomu_schema.schemas.concept.package.concept import (
+    CapabilityConcept,
+    PackageConcept,
 )
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import DirectoryRelativePath, ProjectRelativePath
@@ -76,31 +80,36 @@ def create_dependency_summary(
 
 def create_package_analysis(
     package: PyProjectAnalysis,
-    dependencies: tuple[DependencyAnalysis, ...],
+    dependencies: tuple[PackageDependencyAnalysis, ...],
     directories: tuple[DirectoryAnalysis, ...],
-    exported_files: tuple[FileSummary, ...],
+    public_files: tuple[FileSummary, ...],
 ) -> PackageAnalysis:
     return PackageAnalysis(
         package=package,
         dependencies=dependencies,
         directories=directories,
-        public_files=exported_files,
+        public_files=public_files,
     )
 
 
 def create_pyproject_analysis(
-    name: str = "test", version: str = "1.0.0", license: str = "MIT"
+    name: str = "test",
+    description: str | None = None,
+    version: str = "1.0.0",
+    license: str = "MIT",
 ) -> PyProjectAnalysis:
-    return PyProjectAnalysis(name=name, version=version, license=license)
+    return PyProjectAnalysis(
+        name=name, description=description, version=version, license=license
+    )
 
 
 def create_dependency_analysis(
     package_name: str = "test",
-    kind: DependencyKind = "version",
-    source: DependencySource = "dependency",
+    kind: PackageDependencyKind = "version",
+    source: PackageDependencySource = "dependency",
     required_version: str | None = None,
-) -> DependencyAnalysis:
-    return DependencyAnalysis(
+) -> PackageDependencyAnalysis:
+    return PackageDependencyAnalysis(
         package_name=package_name,
         kind=kind,
         source=source,
@@ -139,4 +148,26 @@ def create_directory_analysis_fact(
         public_symbol_count=public_symbol_count,
         file_count=file_count,
         total_symbol_count=total_symbol_count,
+    )
+
+
+def create_capability_concept(
+    name: str = "test", description: str = "description"
+) -> CapabilityConcept:
+    return CapabilityConcept(name=name, description=description)
+
+
+def create_package_concept(
+    summary: str = "summary",
+    responsibilities: list[str] = [],  # noqa: B006
+    capabilities: list[CapabilityConcept] = [],  # noqa: B006
+    design_decisions: list[str] = [],  # noqa: B006
+    usage_guidance: list[str] = [],  # noqa: B006
+) -> PackageConcept:
+    return PackageConcept(
+        summary=summary,
+        responsibilities=responsibilities,
+        capabilities=capabilities,
+        design_decisions=design_decisions,
+        usage_guidance=usage_guidance,
     )

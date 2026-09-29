@@ -14,7 +14,7 @@ from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
-from gyomu_python_analysis.project.workspace import WorkspaceConfig, WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceProject
 
 
 def resolve_source_root(project_root: FullPath) -> ProjectRelativePath:
@@ -27,7 +27,7 @@ def resolve_source_root(project_root: FullPath) -> ProjectRelativePath:
 
 
 def initialize_project_from_workspace(
-    workspace: WorkspaceConfig, project: WorkspaceProject
+    workspace: PyProjectConfig, project: WorkspaceProject
 ) -> ProjectContext:
     """Initialize a project context from workspace and project configurations."""
 
@@ -127,7 +127,7 @@ def analyze_project_config(
     project_root: FullPath,
     toml_data: dict[str, Any],
     project_relative_path: WorkspaceRelativePath | None = None,
-    workspace_config: WorkspaceConfig | None = None,
+    workspace_config: PyProjectConfig | None = None,
 ) -> Result[PyProjectConfig, AnalysisError]:
     """Analyze the project configuration from parsed pyproject.toml data."""
 

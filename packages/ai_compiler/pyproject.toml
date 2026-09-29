@@ -8,6 +8,7 @@ dependencies = [
     "gyomu-schema",
     "gyomu-infra",
     "gyomu-ai",
+    "gyomu-facts",
     "returns",
 ]
 license = "MIT"
@@ -33,6 +34,7 @@ build-backend = "hatchling.build"
 gyomu-schema = { workspace = true }
 gyomu-infra = { workspace = true }
 gyomu-ai = { workspace = true }
+gyomu-facts = { workspace = true }
 
 [tool.hatch.version]
 path = "../../version/__about__.py"
