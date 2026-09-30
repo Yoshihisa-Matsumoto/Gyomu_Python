@@ -104,6 +104,7 @@ class TestValidatePythonPackageStructure:
         context = create_test_project_structure(
             project_root=tmp_path,
             files={
+                "src/foo/py.typed": "",
                 "src/foo/__init__.py": "",
                 "src/foo/module.py": "",
                 "src/foo/sub/__init__.py": "",
@@ -119,9 +120,12 @@ class TestValidatePythonPackageStructure:
         context = create_test_project_structure(
             project_root=tmp_path,
             files={
+                "src/foo/py.typed": "",
                 "src/foo/__init__.py": "",
                 "src/foo/module.py": "",
+                "src/bar/py.typed": "",
                 "src/bar/module.py": "",
+                "src/baz/py.typed": "",
                 "src/baz/__init__.py": "",
                 "src/baz/sub/module.py": "",
             },
@@ -147,6 +151,7 @@ class TestValidatePythonPackageStructure:
         context = create_test_project_structure(
             project_root=tmp_path,
             files={
+                "src/foo/py.typed": "",
                 "src/foo/__init__.py": "",
                 "src/foo/module.py": "",
                 "src/docs/README.md": "",
@@ -164,6 +169,7 @@ class TestValidatePythonPackageStructure:
         context = create_test_project_structure(
             project_root=tmp_path,
             files={
+                "src/foo/py.typed": "",
                 "src/foo/__init__.py": "",
                 "src/foo/bar/module.py": "",
             },
@@ -183,9 +189,7 @@ class TestValidatePythonPackageStructure:
     ):
         context = create_test_project_structure(
             project_root=tmp_path,
-            files={
-                "src/foo/bar/baz/module.py": "",
-            },
+            files={"src/foo/bar/baz/module.py": "", "src/foo/__init__.py": ""},
         )
 
         result = validate_python_package_structure(context)
@@ -197,3 +201,4 @@ class TestValidatePythonPackageStructure:
             ProjectRelativePath(Path("src/foo/bar")),
             ProjectRelativePath(Path("src/foo")),
         }
+        assert len(error.errors) == 3

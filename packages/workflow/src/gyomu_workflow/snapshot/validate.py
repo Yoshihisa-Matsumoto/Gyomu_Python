@@ -90,6 +90,17 @@ def validate_python_package_structure(
         if entry.is_dir():
             validate_directory(entry)
 
+    for package_root in project_context.package_roots:
+        package_root_full_path = project_context.project_root / package_root
+
+        if not (package_root_full_path / "py.typed").is_file():
+            errors.append(
+                PyProjectStructureValidationError(
+                    "py.typed does not exist",
+                    path=package_root,
+                )
+            )
+
     if errors:
         return Failure(
             PyProjectStructureValidationErrors(
