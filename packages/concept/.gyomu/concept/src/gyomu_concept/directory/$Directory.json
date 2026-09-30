@@ -1,0 +1,18 @@
+{
+  "summary": "Manages directory concept construction and defines result data structures for building operations.",
+  "responsibilities": [
+    "Build directory concepts from paths",
+    "Define build result types and structures"
+  ],
+  "concepts": [
+    "Directory Concept Building",
+    "Build Results"
+  ],
+  "relationships": [
+    "The build module uses types defined in the types module to represent build outcomes."
+  ],
+  "design_decisions": [
+    "Houses modules responsible for building directory concepts and defining build result types."
+  ],
+  "importance": "Core"
+}

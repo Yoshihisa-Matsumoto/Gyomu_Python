@@ -1,0 +1,18 @@
+{
+  "summary": "Defines schema types and models for representing project snapshots, file snapshots, and file change events.",
+  "responsibilities": [
+    "Define data structures and types for file and project snapshots and change events."
+  ],
+  "concepts": [
+    "FileSnapshot",
+    "ProjectSnapshot",
+    "FileChange"
+  ],
+  "relationships": [
+    "FileSnapshot, ProjectSnapshot, and FileChange types define schema structures for tracking project and file states."
+  ],
+  "design_decisions": [
+    "Defines schema models and types representing file snapshots, project snapshots, and file change events."
+  ],
+  "importance": "Core"
+}

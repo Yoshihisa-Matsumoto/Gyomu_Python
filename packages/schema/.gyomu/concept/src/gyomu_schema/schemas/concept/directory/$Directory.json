@@ -1,0 +1,19 @@
+{
+  "summary": "Provides data classes and input schemas for defining directory concepts, importance levels, and sub-directory inputs.",
+  "responsibilities": [
+    "Defines data structures and input schemas for representing directory concepts, directory importance levels, and sub-directory inputs within the schema package."
+  ],
+  "concepts": [
+    "DirectoryConcept",
+    "DirectoryImportance",
+    "SubDirectoryInput",
+    "DirectoryConceptInput"
+  ],
+  "relationships": [
+    "DirectoryConceptInput contains SubDirectoryInput and relates to DirectoryConcept."
+  ],
+  "design_decisions": [
+    "Data models and classes are organized to represent directory concepts and input structures."
+  ],
+  "importance": "Core"
+}

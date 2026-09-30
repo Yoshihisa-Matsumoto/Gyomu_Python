@@ -1,0 +1,19 @@
+{
+  "summary": "Houses internal helper utilities supporting analysis functionality, specifically providing common building blocks, location calculation, and visibility determination for code analysis.",
+  "responsibilities": [
+    "Provide internal helper utilities for code analysis including calculating symbol locations, determining visibility, and building common components."
+  ],
+  "concepts": [
+    "internal analysis helpers",
+    "symbol location calculation",
+    "visibility calculation",
+    "common analyzer components"
+  ],
+  "relationships": [
+    "Internal analysis modules provide shared calculation utilities for location, visibility, and common metadata attributes."
+  ],
+  "design_decisions": [
+    "Internal module helper functions are grouped together to support analysis logic."
+  ],
+  "importance": "Core"
+}

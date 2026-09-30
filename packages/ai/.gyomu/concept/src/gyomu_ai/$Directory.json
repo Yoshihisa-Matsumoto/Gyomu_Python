@@ -1,0 +1,24 @@
+{
+  "summary": "Serves as the root package for the gyomu_ai application, coordinating core domain logic including error handling, execution management, model identification, provider integrations, and AI tool execution.",
+  "responsibilities": [
+    "Define application-specific error types and exception handling.",
+    "Manage execution context, parameters, policies, and results for AI operations.",
+    "Represent core AI model identification and structures.",
+    "Integrate external AI provider backends and map standard components.",
+    "Define AI tool execution logic, configuration, and result handling."
+  ],
+  "concepts": [
+    "routing errors",
+    "execution environment",
+    "AI model representation",
+    "provider integration layer",
+    "AI tool execution"
+  ],
+  "relationships": [
+    "The execution, model, provider, and tool directories work together to manage AI operations, model interactions, and tool executions."
+  ],
+  "design_decisions": [
+    "Organizes core application components into modular packages covering error handling, execution management, model representation, provider integration, and tool execution."
+  ],
+  "importance": "Core"
+}

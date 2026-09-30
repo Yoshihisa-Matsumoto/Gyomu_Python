@@ -1,0 +1,25 @@
+{
+  "summary": "The gyomu-facts package provides core analysis and directory ranking capabilities for evaluating software packages. It compiles package facts and computes directory importance scores to support automated architectural assessment.",
+  "responsibilities": [
+    "Compile and structure architectural facts about software packages.",
+    "Evaluate and rank directories based on importance and scoring criteria."
+  ],
+  "capabilities": [
+    {
+      "name": "Package Analysis",
+      "description": "Analyze package structures and compile comprehensive package metadata and facts."
+    },
+    {
+      "name": "Directory Ranking",
+      "description": "Calculate scores and rank directories using configurable selection criteria."
+    }
+  ],
+  "design_decisions": [
+    "Leverages functional programming patterns and monadic error handling via the returns library.",
+    "Relies on shared infrastructure and schema definitions from sibling gyomu packages."
+  ],
+  "usage_guidance": [
+    "Use package analysis modules to inspect and compile structural facts about target codebases.",
+    "Apply directory selection options and scoring functions to prioritize relevant source directories."
+  ]
+}

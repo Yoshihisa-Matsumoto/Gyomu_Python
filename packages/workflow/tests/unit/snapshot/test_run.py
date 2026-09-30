@@ -1,68 +1,21 @@
 from pathlib import Path
 
 import pytest
-from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.snapshot.models import ProjectSnapshot
 from gyomu_schema.error.gyomu import GyomuError
-from gyomu_schema.option.update import UpdateOption
 from gyomu_schema.schemas.python.types import ProjectRelativePath
-from gyomu_schema.schemas.types import FullPath
-from gyomu_workflow.snapshot.models import (
-    DocstringExecutionOption,
-    SnapshotActionOption,
-    SnapshotExecutionOption,
-    SnapshotRequest,
-    SnapshotTarget,
-    SnapshotTargetOption,
+from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
+from gyomu_workflow.snapshot.checkpoint import (
+    Checkpoint,
+    PipelineStep,
+    SnapshotActionResult,
 )
 from gyomu_workflow.snapshot.run import (
     build_docstring_update_option,
     is_source_file,
+    run_actions,
     run_snapshot,
 )
 from returns.result import Failure, Success
-
-from packages.python_analysis.python_analysis_test_support.helpers import (
-    _create_context,
-    create_project_snapshot,
-)
-
-
-@pytest.fixture
-def update_option() -> UpdateOption:
-    return build_docstring_update_option(None)
-
-
-@pytest.fixture
-def project_context() -> ProjectContext:
-    return _create_context()
-
-
-@pytest.fixture
-def snapshot_request(project_context: ProjectContext) -> SnapshotRequest:
-    return SnapshotRequest(
-        repository_root_path=FullPath(Path("/tmp")),
-        project_context=project_context,
-        option=SnapshotExecutionOption(
-            commit=True,
-            action=SnapshotActionOption(
-                docstring=DocstringExecutionOption(enabled=True),
-            ),
-            target=SnapshotTargetOption(),
-        ),
-    )
-
-
-@pytest.fixture
-def snapshot_target(current_snapshot) -> SnapshotTarget:
-    return SnapshotTarget(
-        files=frozenset(), deleted_files=frozenset(), snapshot=current_snapshot
-    )
-
-
-@pytest.fixture
-def current_snapshot() -> ProjectSnapshot:
-    return create_project_snapshot()
 
 
 @pytest.mark.asyncio
@@ -243,6 +196,282 @@ async def test_commit_failure(
     assert wrapped_error.reason == "external_failure"
 
     assert wrapped_error.__cause__ is not None
+
+
+@pytest.mark.asyncio
+async def test_run_actions_runs_directory_and_package_concept(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    initial_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=tuple(),
+    )
+
+    directory_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(PipelineStep.DIRECTORY_CONCEPT,),
+    )
+    directory_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
+    package_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+        ),
+    )
+    package_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=initial_checkpoint,
+    )
+
+    run_directory_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=directory_checkpoint,
+                snapshot=directory_snapshot,
+            )
+        ),
+    )
+    run_package_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=package_checkpoint,
+                snapshot=package_snapshot,
+            )
+        ),
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Success)
+    assert result.unwrap() is package_snapshot
+
+    run_directory_action.assert_awaited_once()
+
+    run_package_action.assert_awaited_once_with(
+        request=snapshot_request,
+        current_checkpoint=directory_checkpoint,
+        option=run_package_action.call_args.kwargs["option"],
+    )
+
+
+@pytest.mark.asyncio
+async def test_run_actions_skips_completed_directory_concept(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(PipelineStep.DIRECTORY_CONCEPT,),
+    )
+
+    package_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+        ),
+    )
+    package_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=checkpoint,
+    )
+
+    run_directory_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+    )
+    run_package_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=package_checkpoint,
+                snapshot=package_snapshot,
+            )
+        ),
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Success)
+    assert result.unwrap() is package_snapshot
+
+    run_directory_action.assert_not_awaited()
+    run_package_action.assert_awaited_once_with(
+        request=snapshot_request,
+        current_checkpoint=checkpoint,
+        option=run_package_action.call_args.kwargs["option"],
+    )
+
+
+@pytest.mark.asyncio
+async def test_run_actions_skips_completed_concepts(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+        ),
+    )
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=checkpoint,
+    )
+
+    run_directory_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+    )
+    run_package_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Success)
+    assert result.unwrap() is snapshot_target.snapshot
+
+    run_directory_action.assert_not_awaited()
+    run_package_action.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_run_actions_returns_directory_failure(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    checkpoint = Checkpoint(
+        package="test",
+        completed_steps=tuple(),
+    )
+
+    error = GyomuError(
+        message="directory concept failed",
+        domain="test",
+        operation="test",
+        reason="invalid_input",
+    )
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=checkpoint,
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+        return_value=Failure(error),
+    )
+    run_package_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Failure)
+    assert result.failure() is error
+
+    run_package_action.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_run_actions_returns_package_failure(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(PipelineStep.DIRECTORY_CONCEPT,),
+    )
+
+    error = GyomuError(
+        message="package concept failed",
+        domain="test",
+        operation="test",
+        reason="invalid_input",
+    )
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=checkpoint,
+    )
+    run_directory_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+        return_value=Failure(error),
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Failure)
+    assert result.failure() is error
+
+    run_directory_action.assert_not_awaited()
 
 
 def test_build_docstring_update_option():

@@ -1,0 +1,37 @@
+{
+  "summary": "Gyomu Python Analysis is a comprehensive toolkit for statically analyzing Python projects, workspaces, and language constructs. It provides modular AST-based analyzers for examining classes, functions, types, Pydantic models, and expressions, alongside robust workspace initialization, configuration parsing, and project snapshot tracking capabilities.",
+  "responsibilities": [
+    "Analyze Python source code structures, language constructs, and metadata.",
+    "Manage project and workspace initialization, configuration parsing, and module loading contexts.",
+    "Create, diff, and manage project snapshots to track code modifications and changes over time.",
+    "Build symbol indexes, locations, and identity contexts from source code elements."
+  ],
+  "capabilities": [
+    {
+      "name": "Python Language Analysis",
+      "description": "Examines Python language constructs including classes, functions, variables, imports, dependencies, docstrings, type aliases, and Pydantic models."
+    },
+    {
+      "name": "AST Parsing and Indexing",
+      "description": "Parses Python Abstract Syntax Trees to analyze statements, expressions, and build symbol indexes and identities."
+    },
+    {
+      "name": "Workspace and Project Management",
+      "description": "Initializes project and workspace contexts, reads configurations, manages module loading, and handles caching."
+    },
+    {
+      "name": "Snapshot and Version Tracking",
+      "description": "Tracks file modifications, diffs changes between versions, and handles project snapshot creation, validation, and persistence."
+    }
+  ],
+  "design_decisions": [
+    "Employs modular AST-based analyzers to decompose Python language constructs into structured representations.",
+    "Maintains explicit project and workspace contexts to support multi-project configurations and source root resolution.",
+    "Utilizes snapshot tracking with file hashing and modification timestamps to detect and analyze project changes efficiently."
+  ],
+  "usage_guidance": [
+    "Use the workspace and project initialization modules to set up analysis contexts from project configurations.",
+    "Leverage the core analyzers and AST utilities to inspect Python source code constructs and extract symbol metadata.",
+    "Employ snapshot and diffing workflows to track modifications and analyze changes across project files."
+  ]
+}

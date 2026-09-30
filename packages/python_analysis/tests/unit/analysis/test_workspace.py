@@ -5,7 +5,6 @@ import pytest
 from gyomu_python_analysis.analysis.workspace import (
     find_root,
     get_uv_workspace_members,
-    initialize_workspace_config,
     initialize_workspace_context,
     is_uv_workspace,
     read_pyproject_toml,
@@ -145,106 +144,6 @@ class TestIsUvWorkspace:
         assert is_uv_workspace(toml_data) is expected
 
 
-class TestInitializeWorkspaceConfig:
-    def test_reads_project_information(self, project_path: Path) -> None:
-        MONOREPO_FIXTURES_ROOT = FullPath(project_path / "monorepo_fixtures")
-        path = MONOREPO_FIXTURES_ROOT / "pyproject.toml"
-
-        toml_result = read_pyproject_toml(path)
-
-        assert isinstance(toml_result, Success)
-
-        result = initialize_workspace_config(
-            MONOREPO_FIXTURES_ROOT,
-            toml_result.unwrap(),
-        )
-
-        assert isinstance(result, Success)
-
-        config = result.unwrap()
-
-        assert config.path == MONOREPO_FIXTURES_ROOT
-        assert config.name == "test-monorepo"
-
-    def test_reads_ruff_line_length(self, project_path: Path) -> None:
-        MONOREPO_FIXTURES_ROOT = FullPath(project_path / "monorepo_fixtures")
-        path = MONOREPO_FIXTURES_ROOT / "pyproject.toml"
-
-        toml_result = read_pyproject_toml(path)
-
-        assert isinstance(toml_result, Success)
-
-        result = initialize_workspace_config(
-            MONOREPO_FIXTURES_ROOT,
-            toml_result.unwrap(),
-        )
-
-        assert isinstance(result, Success)
-
-        config = result.unwrap()
-
-        assert config.formatter_line_length == 88
-
-    def test_allows_missing_project_information(self, project_path: Path) -> None:
-        MONOREPO_FIXTURES_ROOT = FullPath(project_path / "monorepo_fixtures")
-        result = initialize_workspace_config(
-            MONOREPO_FIXTURES_ROOT,
-            {},
-        )
-
-        assert isinstance(result, Success)
-
-        config = result.unwrap()
-
-        assert config.name is None
-        assert config.description is None
-        assert config.formatter_line_length == 88
-
-    def test_allows_missing_ruff_configuration(self, project_path: Path) -> None:
-        MONOREPO_FIXTURES_ROOT = FullPath(project_path / "monorepo_fixtures")
-        result = initialize_workspace_config(
-            MONOREPO_FIXTURES_ROOT,
-            {
-                "project": {
-                    "name": "test-project",
-                    "description": "Test project",
-                }
-            },
-        )
-
-        assert isinstance(result, Success)
-
-        config = result.unwrap()
-
-        assert config.name == "test-project"
-        assert config.description == "Test project"
-        assert config.formatter_line_length == 88
-
-    def test_reads_ruff_line_length_with_length_setting(
-        self, project_path: Path
-    ) -> None:
-        MONOREPO_FIXTURES_ROOT = FullPath(project_path / "monorepo_fixtures")
-        result = initialize_workspace_config(
-            MONOREPO_FIXTURES_ROOT,
-            {
-                "project": {
-                    "name": "test-project",
-                },
-                "tool": {
-                    "ruff": {
-                        "line-length": 100,
-                    }
-                },
-            },
-        )
-
-        assert isinstance(result, Success)
-
-        config = result.unwrap()
-
-        assert config.formatter_line_length == 100
-
-
 class TestGetUvWorkspaceMembers:
     def test_returns_workspace_members(self, project_path: Path) -> None:
         MONOREPO_FIXTURES_ROOT = FullPath(project_path / "monorepo_fixtures")
@@ -289,7 +188,8 @@ class TestInitializeWorkspaceContext:
 
         context = result.unwrap()
 
-        assert context.config.path == MONOREPO_FIXTURES_ROOT
+        assert context.path == MONOREPO_FIXTURES_ROOT
+        assert context.config.path == Path(".")
         assert context.config.name == "test-monorepo"
 
         assert len(context.projects) == 2

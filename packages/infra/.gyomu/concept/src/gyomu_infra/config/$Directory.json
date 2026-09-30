@@ -1,0 +1,17 @@
+{
+  "summary": "Provides configuration management capabilities through a dedicated loader component to initialize settings for the infrastructure package.",
+  "responsibilities": [
+    "Load and manage configuration settings for the infrastructure package."
+  ],
+  "concepts": [
+    "configuration loader",
+    "configuration management"
+  ],
+  "relationships": [
+    "The configuration loader handles loading configuration settings."
+  ],
+  "design_decisions": [
+    "Uses a dedicated loader class to handle configuration loading."
+  ],
+  "importance": "Core"
+}

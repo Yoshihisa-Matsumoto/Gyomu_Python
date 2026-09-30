@@ -1,0 +1,17 @@
+{
+  "summary": "Provides hashing utility functions to compute full and truncated SHA-256 hashes for strings, bytes, and file paths.",
+  "responsibilities": [
+    "Compute standard and truncated SHA-256 hashes for string, bytes, and file inputs."
+  ],
+  "concepts": [
+    "SHA-256 hash",
+    "file hashing",
+    "string hashing",
+    "truncated hash"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Implements hashing utilities using SHA-256 algorithm for strings, bytes, and files."
+  ],
+  "importance": "Utility"
+}

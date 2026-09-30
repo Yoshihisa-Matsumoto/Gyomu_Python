@@ -1,0 +1,18 @@
+{
+  "summary": "Provides a business calendar protocol for handling business days, calculating offsets, and managing holidays.",
+  "responsibilities": [
+    "Provide a business calendar protocol to check business days, calculate offsets, and retrieve holidays."
+  ],
+  "concepts": [
+    "Business calendar",
+    "Holiday management",
+    "Business days"
+  ],
+  "relationships": [
+    "BusinessCalendar defines a protocol for checking business days, calculating offsets, and retrieving holidays."
+  ],
+  "design_decisions": [
+    "Defines a protocol for business calendar operations."
+  ],
+  "importance": "Core"
+}

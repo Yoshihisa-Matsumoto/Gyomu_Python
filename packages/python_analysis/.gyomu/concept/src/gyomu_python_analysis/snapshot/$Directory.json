@@ -1,0 +1,25 @@
+{
+  "summary": "Manages project snapshots, tracking file modifications, diffing changes between snapshots, and handling snapshot creation, validation, and commit workflows.",
+  "responsibilities": [
+    "Create and manage project snapshots including target files, hashes, and modification timestamps.",
+    "Analyze, diff, and commit project changes by comparing snapshots.",
+    "Manage project snapshot workspaces and persistence."
+  ],
+  "concepts": [
+    "project snapshot",
+    "project changes",
+    "file snapshots",
+    "snapshot diff",
+    "snapshot workspace"
+  ],
+  "relationships": [
+    "Project changes analysis compares previous and current snapshots.",
+    "Diffing computes differences between previous and current project snapshots.",
+    "Committing validates the project snapshot and commits changes.",
+    "Creating a project snapshot enumerates target files and generates file snapshots."
+  ],
+  "design_decisions": [
+    "Exports functions for creating, validating, committing, analyzing, and diffing project snapshots."
+  ],
+  "importance": "Core"
+}

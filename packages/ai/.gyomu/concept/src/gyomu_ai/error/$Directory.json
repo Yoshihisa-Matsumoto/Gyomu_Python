@@ -1,0 +1,17 @@
+{
+  "summary": "Defines application-specific error types and exception handling for routing operations within the gyomu_ai package.",
+  "responsibilities": [
+    "Define and handle application-specific routing errors."
+  ],
+  "concepts": [
+    "RoutingError",
+    "error handling"
+  ],
+  "relationships": [
+    "RoutingError is defined as a custom error class within the error module."
+  ],
+  "design_decisions": [
+    "Defines custom error classes for routing exceptions within the application package."
+  ],
+  "importance": "Core"
+}

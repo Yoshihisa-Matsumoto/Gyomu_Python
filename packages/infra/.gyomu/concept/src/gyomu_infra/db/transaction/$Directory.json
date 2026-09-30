@@ -1,0 +1,17 @@
+{
+  "summary": "Provides database transaction management interfaces and SQLAlchemy-based transaction implementations supporting nested savepoints.",
+  "responsibilities": [
+    "Defines transaction management protocols and implements SQLAlchemy-based transaction and nested savepoint management."
+  ],
+  "concepts": [
+    "Transaction Manager",
+    "SQLAlchemy Transaction Manager"
+  ],
+  "relationships": [
+    "SqlAlchemyTransactionManager implements the TransactionManager protocol interface."
+  ],
+  "design_decisions": [
+    "Implements a protocol-based interface for transaction management backed by SQLAlchemy."
+  ],
+  "importance": "Core"
+}

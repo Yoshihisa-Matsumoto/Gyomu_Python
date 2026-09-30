@@ -1,0 +1,21 @@
+{
+  "summary": "Defines the input context data structures and classes used for processing package concepts, dependencies, and public API symbols within the package concept pipeline.",
+  "responsibilities": [
+    "Defines input context data structures and classes for handling package concepts, dependencies, public API symbols, modules, and top directories within the package concept pipeline."
+  ],
+  "concepts": [
+    "Package Concept Context",
+    "Package Dependency Input",
+    "Package Concept Input",
+    "Public API Symbol",
+    "Public Symbols Module",
+    "Top Directory"
+  ],
+  "relationships": [
+    "Package Concept Input utilizes Package Dependency Input, Public API Symbol, Public Symbols Module, and Top Directory to model the input context for package concepts."
+  ],
+  "design_decisions": [
+    "The directory organizes data structures and classes representing input context for package concepts and dependencies within a specific pipeline."
+  ],
+  "importance": "Core"
+}

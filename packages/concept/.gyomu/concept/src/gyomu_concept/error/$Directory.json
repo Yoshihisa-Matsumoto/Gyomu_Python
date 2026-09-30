@@ -1,0 +1,17 @@
+{
+  "summary": "Defines domain-specific errors and phase classifications for handling concept-related exceptions within the application.",
+  "responsibilities": [
+    "Defining domain-specific error classes and concept phases for error handling."
+  ],
+  "concepts": [
+    "ConceptError",
+    "ConceptPhase"
+  ],
+  "relationships": [
+    "ConceptError relates to ConceptPhase to classify errors during conceptual execution."
+  ],
+  "design_decisions": [
+    "Defines custom error types and phase classifications related to conceptual operations."
+  ],
+  "importance": "Core"
+}

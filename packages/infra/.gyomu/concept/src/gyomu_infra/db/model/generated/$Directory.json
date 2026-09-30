@@ -1,0 +1,17 @@
+{
+  "summary": "Contains generated database models representing core data entities such as market holidays and parameter masters.",
+  "responsibilities": [
+    "Provide generated database models including market holiday and parameter master entities"
+  ],
+  "concepts": [
+    "Database models",
+    "Generated code",
+    "Market holiday model",
+    "Parameter master model"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Models are automatically generated"
+  ],
+  "importance": "Core"
+}

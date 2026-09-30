@@ -1,0 +1,15 @@
+{
+  "summary": "Provides pipeline routing identifiers and configuration for document processing tasks within the gyomu AI compiler.",
+  "responsibilities": [
+    "Defines route identifiers for document processing pipelines."
+  ],
+  "concepts": [
+    "Document Route ID",
+    "Document Pipeline"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Exports a document route identifier for pipeline routing."
+  ],
+  "importance": "Core"
+}

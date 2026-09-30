@@ -1,0 +1,16 @@
+[project]
+name = "test-monorepo"
+version = "0.1.0"
+
+[tool.uv.workspace]
+members = [
+    "packages/project_a",
+    "packages/project_b",
+]
+
+[tool.uv]
+constraint-dependencies = [
+    "returns>=0.29.0,<1",
+    "pydantic>=2,<3",
+    "python-dotenv>=1.2.3,<2",
+]

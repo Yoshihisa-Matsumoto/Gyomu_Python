@@ -1,0 +1,23 @@
+{
+  "summary": "Internal utilities for building file contexts, planning updates and merges, rendering docstrings, and validating update plans.",
+  "responsibilities": [
+    "Build file and declaration contexts for docstring updates.",
+    "Build and override docstring update plans with retry support.",
+    "Create merge plans for docstring updates.",
+    "Render docstring lines, tags, and strings.",
+    "Validate docstring update plans and signatures."
+  ],
+  "concepts": [
+    "file context building",
+    "update plan creation",
+    "merge plan creation",
+    "line rendering",
+    "string rendering",
+    "validation"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Internal helper functions and modules are encapsulated to support docstring updates."
+  ],
+  "importance": "Core"
+}

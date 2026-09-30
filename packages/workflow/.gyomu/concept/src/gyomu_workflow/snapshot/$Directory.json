@@ -1,0 +1,20 @@
+{
+  "summary": "Manages the execution, validation, checkpointing, and target resolution of snapshot workflows within the workflow package.",
+  "responsibilities": [
+    "Run snapshot workflows and execute actions on target files and directories",
+    "Manage checkpoints, pipeline steps, and snapshot state initialization and updates",
+    "Define configuration models and request parameters for snapshot execution",
+    "Validate snapshot requests and Python package structures",
+    "Resolve snapshot targets and filter included files"
+  ],
+  "concepts": [
+    "snapshot workflow",
+    "checkpoint management",
+    "snapshot validation",
+    "snapshot models",
+    "snapshot target resolution"
+  ],
+  "relationships": [],
+  "design_decisions": [],
+  "importance": "Core"
+}

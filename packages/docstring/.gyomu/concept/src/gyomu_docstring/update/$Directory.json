@@ -1,0 +1,21 @@
+{
+  "summary": "Handles the creation, execution, rendering, and validation of file updates and merges for docstrings.",
+  "responsibilities": [
+    "Build and apply file update plans and merge plans for docstrings.",
+    "Render docstrings for updates.",
+    "Validate updated sources using formatting and linting tools."
+  ],
+  "concepts": [
+    "Docstring updates",
+    "Merge plans",
+    "Update validation",
+    "Docstring rendering"
+  ],
+  "relationships": [
+    "Docstring update planning depends on building update plans and merge plans, rendering docstrings, and validating sources."
+  ],
+  "design_decisions": [
+    "Encapsulates modules for building, merging, applying, and validating file and docstring updates using formatting and check tools."
+  ],
+  "importance": "Core"
+}

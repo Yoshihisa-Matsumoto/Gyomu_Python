@@ -8,7 +8,7 @@ from gyomu_python_analysis.analysis.workspace import (
     initialize_workspace_context,
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.workspace import WorkspaceRootKind
+from gyomu_python_analysis.project.workspace import WorkspaceConfig, WorkspaceRootKind
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
@@ -57,9 +57,14 @@ def translate_snapshot_request(
                 reason="invalid_input",
             )
         )
-
+    workspace_config: WorkspaceConfig = WorkspaceConfig(
+        path=workspace_context.path,
+        name=target_package.config.name,
+        description=target_package.config.description,
+        formatter_line_length=target_package.config.formatter_line_length,
+    )
     project_context = initialize_project_from_workspace(
-        workspace_context.config, target_package
+        workspace_config, target_package
     )
 
     return Success(
@@ -67,5 +72,6 @@ def translate_snapshot_request(
             repository_root_path=workspace.path,
             project_context=project_context,
             option=option,
+            project=target_package,
         )
     )

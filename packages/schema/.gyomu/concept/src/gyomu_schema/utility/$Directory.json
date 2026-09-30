@@ -1,0 +1,26 @@
+{
+  "summary": "Provides general-purpose utility functions and helper classes supporting caller inspection, execution timing, object formatting, action polling, result wrapping, and JSON serialization.",
+  "responsibilities": [
+    "Retrieve caller context using frame inspection.",
+    "Measure execution duration and completion timestamps.",
+    "Format objects into pretty-printed strings.",
+    "Poll actions until success or timeout.",
+    "Wrap synchronous and asynchronous function outcomes in results.",
+    "Serialize values to JSON strings and validate JSON against model types."
+  ],
+  "concepts": [
+    "Caller Context",
+    "Execution Timer",
+    "Object Formatting",
+    "Polling Action",
+    "Result Wrapping",
+    "JSON Serialization"
+  ],
+  "relationships": [
+    "The utility package provides helper mechanisms used across general application tasks such as timing, serialization, polling, result wrapping, and caller inspection."
+  ],
+  "design_decisions": [
+    "Provides modular utility functions and helper classes for common cross-cutting tasks such as formatting, timing, serialization, and flow control."
+  ],
+  "importance": "Utility"
+}

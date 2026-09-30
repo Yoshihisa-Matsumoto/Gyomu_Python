@@ -49,3 +49,24 @@ class PyProjectStructureValidationError(BaseError):
             details=details,
         )
         self.path = path
+
+
+class PyProjectStructureValidationErrors(BaseError):
+    """Raised when multiple pyproject structure validation errors occur."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        project_name: str,
+        errors: tuple[PyProjectStructureValidationError, ...],
+        context: str | None = None,
+        details: Mapping[str, object] | None = None,
+    ) -> None:
+        super().__init__(
+            message,
+            context=context,
+            details=details,
+        )
+        self.project_name = project_name
+        self.errors = errors

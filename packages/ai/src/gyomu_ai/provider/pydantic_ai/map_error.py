@@ -2,6 +2,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
+from gyomu_infra.logger import logger
 from gyomu_schema.error.ai import (
     AiError,
     AiErrorPhase,
@@ -71,6 +72,7 @@ def _map_model_http_error(
             strategy=AiRetryExponential(),
         )
         phase = AiErrorPhase.RESPONSE
+        logger.info(f"AI LLM error: status={status_code}")
     else:
         resolution = AiFailResolution()
         phase = AiErrorPhase.REQUEST
@@ -104,10 +106,12 @@ def _map_rate_limit_error(
         resolution: AiErrorResolution = AiRetryResolution(
             strategy=AiRetryAfter(delay_second=delay_second),
         )
+        logger.debug(f"Rate Limit: {delay_second} second")
     else:
         resolution = AiRetryResolution(
             strategy=AiRetryExponential(),
         )
+        logger.debug("Rate Limit exponential")
 
     return AiError(
         str(error),

@@ -1,0 +1,19 @@
+{
+  "summary": "Implements the docstring update pipeline, organizing execution logic, context representations, update modes, and schemas for deterministic docstring generation and update plans.",
+  "responsibilities": [
+    "Implements pipelines and supporting components for updating and generating docstrings using deterministic plans, execution logic, context models, and schemas."
+  ],
+  "concepts": [
+    "docstring update pipeline",
+    "docstring generation",
+    "update plans",
+    "replacement actions"
+  ],
+  "relationships": [
+    "The context, executor, mode, and schema directories organize components that support the docstring update pipeline."
+  ],
+  "design_decisions": [
+    "Organizes modules responsible for updating docstrings through pipelines, execution logic, context representation, modes, and structured schemas."
+  ],
+  "importance": "Core"
+}

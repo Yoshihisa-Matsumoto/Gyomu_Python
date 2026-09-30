@@ -14,6 +14,7 @@ members = [
     "gyomu-cli",
     "gyomu-concept",
     "gyomu-docstring",
+    "gyomu-facts",
     "gyomu-infra",
     "gyomu-python-analysis",
     "gyomu-schema",
@@ -834,6 +835,7 @@ name = "gyomu-ai-compiler"
 source = { editable = "packages/ai_compiler" }
 dependencies = [
     { name = "gyomu-ai" },
+    { name = "gyomu-facts" },
     { name = "gyomu-infra" },
     { name = "gyomu-schema" },
     { name = "returns" },
@@ -842,6 +844,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "gyomu-ai", editable = "packages/ai" },
+    { name = "gyomu-facts", editable = "packages/facts" },
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-schema", editable = "packages/schema" },
     { name = "returns" },
@@ -901,6 +904,24 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "gyomu-ai-compiler", editable = "packages/ai_compiler" },
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
+    { name = "gyomu-schema", editable = "packages/schema" },
+    { name = "returns" },
+]
+
+[[package]]
+name = "gyomu-facts"
+source = { editable = "packages/facts" }
+dependencies = [
+    { name = "gyomu-infra" },
+    { name = "gyomu-python-analysis" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
     { name = "gyomu-schema", editable = "packages/schema" },
@@ -989,6 +1010,7 @@ requires-dist = [
 name = "gyomu-workflow"
 source = { editable = "packages/workflow" }
 dependencies = [
+    { name = "gyomu-concept" },
     { name = "gyomu-docstring" },
     { name = "gyomu-infra" },
     { name = "gyomu-python-analysis" },
@@ -998,6 +1020,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "gyomu-concept", editable = "packages/concept" },
     { name = "gyomu-docstring", editable = "packages/docstring" },
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-python-analysis", editable = "packages/python_analysis" },

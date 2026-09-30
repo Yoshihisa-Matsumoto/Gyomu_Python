@@ -6,6 +6,7 @@ from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.error import (
     PyProjectStructureValidationError,
+    PyProjectStructureValidationErrors,
     SnapshotRequestValidationError,
 )
 from gyomu_workflow.snapshot.models import SnapshotRequest
@@ -40,7 +41,7 @@ def validate_snapshot_request(
 
 def validate_python_package_structure(
     project_context: ProjectContext,
-) -> Result[None, PyProjectStructureValidationError]:
+) -> Result[None, PyProjectStructureValidationErrors]:
     """Validate Python package structure.
 
     Validates the Python package structure within a project context, ensuring required
@@ -51,23 +52,30 @@ def validate_python_package_structure(
             project root paths.
 
     Returns:
-        Result[None, PyProjectStructureValidationError]: Success with None if the
+        Result[None, PyProjectStructureValidationErrors]: Success with None if the
             package structure is valid, or Failure with
-            PyProjectStructureValidationError otherwise.
+            PyProjectStructureValidationErrors otherwise.
     """
     source_root_full_path = project_context.project_root / project_context.source_root
+    errors: list[PyProjectStructureValidationError] = []
 
-    def validate_directory(
-        path: Path,
-    ) -> Result[None, PyProjectStructureValidationError]:
+    def validate_directory(path: Path) -> bool:
         entries = tuple(path.iterdir())
 
         has_python_file = any(
             entry.is_file() and entry.suffix == ".py" for entry in entries
         )
 
-        if has_python_file and not (path / "__init__.py").is_file():
-            return Failure(
+        has_python_file_in_children = False
+
+        for entry in entries:
+            if entry.is_dir() and validate_directory(entry):
+                has_python_file_in_children = True
+
+        contains_python_file = has_python_file or has_python_file_in_children
+
+        if contains_python_file and not (path / "__init__.py").is_file():
+            errors.append(
                 PyProjectStructureValidationError(
                     "__init__.py does not exist",
                     path=ProjectRelativePath(
@@ -76,12 +84,30 @@ def validate_python_package_structure(
                 )
             )
 
-        for entry in entries:
-            if entry.is_dir():
-                result = validate_directory(entry)
-                if isinstance(result, Failure):
-                    return result
+        return contains_python_file
 
-        return Success(None)
+    for entry in source_root_full_path.iterdir():
+        if entry.is_dir():
+            validate_directory(entry)
 
-    return validate_directory(source_root_full_path)
+    for package_root in project_context.package_roots:
+        package_root_full_path = project_context.project_root / package_root
+
+        if not (package_root_full_path / "py.typed").is_file():
+            errors.append(
+                PyProjectStructureValidationError(
+                    "py.typed does not exist",
+                    path=package_root,
+                )
+            )
+
+    if errors:
+        return Failure(
+            PyProjectStructureValidationErrors(
+                message="Invalid structure on project",
+                errors=tuple(errors),
+                project_name=project_context.config.name,
+            )
+        )
+
+    return Success(None)

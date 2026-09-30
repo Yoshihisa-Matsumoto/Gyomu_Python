@@ -269,6 +269,10 @@ class TestInitializeProjectFromWorkspace:
             "gyomu_python_analysis.analysis.initialize.resolve_source_root",
             return_value=ProjectRelativePath(Path("src")),
         )
+        mocker.patch(
+            "gyomu_python_analysis.analysis.initialize.find_package_roots",
+            return_value=tuple(),
+        )
 
         result = initialize_project_from_workspace(workspace, project)
 

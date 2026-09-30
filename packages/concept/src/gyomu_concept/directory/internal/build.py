@@ -1,9 +1,4 @@
-from gyomu_concept.directory.internal.file_summary import build_file_summary_record
-from gyomu_concept.directory.internal.load import load_directory_concept
-from gyomu_concept.directory.internal.process import process_directory_concept
-from gyomu_concept.directory.internal.save import save_directory_concept
-from gyomu_concept.directory.types import BuildResult
-from gyomu_concept.error.concept import ConceptError
+from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
@@ -18,12 +13,30 @@ from gyomu_schema.schemas.python.types import (
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
+from gyomu_concept.directory.internal.file_summary import build_file_summary_record
+from gyomu_concept.directory.internal.load import load_directory_concept
+from gyomu_concept.directory.internal.process import process_directory_concept
+from gyomu_concept.directory.internal.save import save_directory_concept
+from gyomu_concept.directory.types import BuildResult
+from gyomu_concept.error.concept import ConceptError
+
 
 async def build_directory_concept_from_path(
     context: ProjectContext,
     target_directory: FullPath,
     option: ConceptOption | None = None,
 ) -> Result[BuildResult, ConceptError]:
+    """Builds a directory concept from a given path asynchronously.
+
+    Args:
+        context (ProjectContext): Project context
+        target_directory (FullPath): Target directory full path
+        option (ConceptOption | None): Optional concept building options
+
+    Returns:
+        Result[BuildResult, ConceptError]: Result containing BuildResult on success or
+            ConceptError on failure
+    """
     target_directory_relative_path = ProjectRelativePath(
         target_directory.relative_to(context.project_root)
     )
@@ -33,7 +46,7 @@ async def build_directory_concept_from_path(
         key=lambda path: path.name,
     )
 
-    folders = [path for path in entries if path.is_dir()]
+    folders = [path for path in entries if path.is_dir() and path.name != "__pycache__"]
 
     files = [
         path
@@ -110,7 +123,6 @@ async def build_directory_concept_from_path(
                     identity=None,
                 ).chain(file_result.failure())
             )
-
         file_summaries.append(
             build_file_summary_record(
                 project_context=context,
@@ -122,7 +134,7 @@ async def build_directory_concept_from_path(
         files=tuple(file_summaries),
         sub_directories=tuple(directory_concepts),
     )
-
+    logger.info(f"create directory concept: {target_directory_relative_path}")
     generated = await process_directory_concept(
         package_name=context.config.name,
         target_directory=target_directory_relative_path,
@@ -156,6 +168,17 @@ def _is_directory_changed(
     target_directory_relative_path: ProjectRelativePath,
     option: ConceptOption | None,
 ) -> bool:
+    """Checks whether a directory or any of its subdirectories has changed based on
+    options.
+
+    Args:
+        target_directory_relative_path (ProjectRelativePath): Target directory relative
+            path
+        option (ConceptOption | None): Optional concept building options
+
+    Returns:
+        bool: True if the directory has changed, otherwise False
+    """
     if option is None or option.changed_files is None:
         return False
 

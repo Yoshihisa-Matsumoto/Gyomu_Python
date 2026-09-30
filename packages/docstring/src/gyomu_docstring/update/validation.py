@@ -23,6 +23,22 @@ def run_ruff_format(
     )
 
 
+def run_ruff_import_fix(
+    source_path: ProjectRelativePath,
+    *,
+    project_root: FullPath,
+    file_context: FileAnalysisContext,
+) -> Result[None, UpdateError]:
+    """Fix import sorting issues using ruff."""
+
+    return _run_ruff(
+        ("ruff", "check", "--select", "I", "--fix", str(source_path)),
+        project_root=project_root,
+        file_context=file_context,
+        operation="import-fix",
+    )
+
+
 def run_ruff_check(
     source_path: ProjectRelativePath,
     *,
@@ -93,10 +109,24 @@ def validate_source(
 ) -> Result[None, UpdateError]:
     """Validate a source file using ruff format and check."""
 
-    return run_ruff_format(
-        source_path, project_root=project_root, file_context=file_context
-    ).bind(
-        lambda _: run_ruff_check(
-            source_path, project_root=project_root, file_context=file_context
+    return (
+        run_ruff_format(
+            source_path,
+            project_root=project_root,
+            file_context=file_context,
+        )
+        .bind(
+            lambda _: run_ruff_import_fix(
+                source_path,
+                project_root=project_root,
+                file_context=file_context,
+            )
+        )
+        .bind(
+            lambda _: run_ruff_check(
+                source_path,
+                project_root=project_root,
+                file_context=file_context,
+            )
         )
     )

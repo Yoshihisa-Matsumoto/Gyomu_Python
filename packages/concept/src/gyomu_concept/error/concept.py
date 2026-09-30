@@ -13,9 +13,14 @@ type ConceptPhase = Literal[
     "concept-build",
     "export",
 ]
+"""Represents the execution phase of concept processing."""
 
 
 class ConceptError(BaseError):
+    """Base error class for concept processing failures, containing package, file,
+    phase, and identity context.
+    """
+
     def __init__(
         self,
         message: str,

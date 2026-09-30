@@ -1,0 +1,19 @@
+{
+  "summary": "Provides database connection management and configuration infrastructure using a factory pattern and SQLAlchemy.",
+  "responsibilities": [
+    "Defines configuration constants for database connections and provides a factory to create SQLAlchemy database engines."
+  ],
+  "concepts": [
+    "Database Connection",
+    "SQLAlchemy Database Engines",
+    "Environment Variable Configuration"
+  ],
+  "relationships": [
+    "The DbConnectionFactory uses the environment variable definition to configure database connections."
+  ],
+  "design_decisions": [
+    "Uses a factory pattern to create database engines.",
+    "Defines environment variable names for configuration constants."
+  ],
+  "importance": "Core"
+}

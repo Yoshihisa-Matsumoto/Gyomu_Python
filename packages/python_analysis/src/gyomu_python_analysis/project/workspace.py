@@ -46,8 +46,12 @@ class WorkspaceContext:
     """
 
     def __init__(
-        self, config: WorkspaceConfig, projects: tuple[WorkspaceProject, ...]
+        self,
+        path: FullPath,
+        config: PyProjectConfig,
+        projects: tuple[WorkspaceProject, ...],
     ) -> None:
+        self.path = path
         self.config = config
         self.projects = projects
 

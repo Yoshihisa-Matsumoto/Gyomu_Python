@@ -1,0 +1,17 @@
+{
+  "summary": "Provides data structures and types related to file operations including file information, filtering, comparison, transport, and archiving within the schema package.",
+  "responsibilities": [
+    "Define schemas and types for file information, filtering, comparison, transport, and archiving."
+  ],
+  "concepts": [
+    "FileInfo",
+    "FileFilterType",
+    "FileCompareType",
+    "FileFilterInfo",
+    "FileTransportInfo",
+    "FileArchiveType"
+  ],
+  "relationships": [],
+  "design_decisions": [],
+  "importance": "Core"
+}

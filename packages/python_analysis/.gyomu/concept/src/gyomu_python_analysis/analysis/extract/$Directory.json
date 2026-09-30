@@ -1,0 +1,18 @@
+{
+  "summary": "Provides core symbol extraction capabilities and context management for analyzing Python source code.",
+  "responsibilities": [
+    "Extract symbols from Python code analysis.",
+    "Manage context used during symbol extraction."
+  ],
+  "concepts": [
+    "Symbol Extraction",
+    "Symbol Extract Context"
+  ],
+  "relationships": [
+    "SymbolExtractContext provides configuration and context for extract_symbols."
+  ],
+  "design_decisions": [
+    "Provides functional extraction logic operating within a specific context."
+  ],
+  "importance": "Core"
+}

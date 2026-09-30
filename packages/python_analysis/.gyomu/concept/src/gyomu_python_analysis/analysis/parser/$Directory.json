@@ -1,0 +1,17 @@
+{
+  "summary": "The parser directory is responsible for analyzing and parsing code documentation, specifically providing docstring parsing capabilities for python analysis.",
+  "responsibilities": [
+    "Parse docstrings to extract analysis information"
+  ],
+  "concepts": [
+    "parser",
+    "docstring parser"
+  ],
+  "relationships": [
+    "DocstringParser provides docstring analysis functionality within the parser module."
+  ],
+  "design_decisions": [
+    "modular parsing organization"
+  ],
+  "importance": "Core"
+}

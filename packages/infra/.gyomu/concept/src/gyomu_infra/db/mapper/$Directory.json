@@ -1,0 +1,17 @@
+{
+  "summary": "Provides data mapping utilities to convert between database models and schemas for domain entities like market holidays and parameter masters.",
+  "responsibilities": [
+    "Convert database models to schemas",
+    "Convert schemas to database models"
+  ],
+  "concepts": [
+    "database mapper",
+    "schema conversion",
+    "model conversion"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Provides conversion functions between database models and schemas for domain entities such as market holidays and parameter masters."
+  ],
+  "importance": "Supporting"
+}

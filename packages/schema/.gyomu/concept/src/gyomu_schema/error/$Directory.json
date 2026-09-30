@@ -1,0 +1,16 @@
+{
+  "summary": "Defines the core error handling schemas, including base errors, domain-specific error classes for AI, configuration, database, I/O, validation, and timeouts, along with associated retry and resolution strategies.",
+  "responsibilities": [
+    "Defines error classes, types, phases, operations, and resolution strategies for AI, configuration, database, I/O, timeout, validation, and general application operations."
+  ],
+  "concepts": [
+    "Application Errors",
+    "Error Handling Strategies",
+    "Error Resolution and Retry"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Object-oriented error hierarchies with domain-specific subclasses and resolution strategies"
+  ],
+  "importance": "Core"
+}

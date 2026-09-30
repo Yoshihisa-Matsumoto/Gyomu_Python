@@ -1,0 +1,22 @@
+{
+  "summary": "Provides business calendar calculations, holiday services, and factory creation for date-related domain logic.",
+  "responsibilities": [
+    "Perform business calendar calculations based on holidays.",
+    "Provide cached business calendar instances retrieved from a market holiday repository.",
+    "Create business calendar services."
+  ],
+  "concepts": [
+    "Business Calendar",
+    "Market Holiday",
+    "Business Calendar Service",
+    "Business Calendar Factory"
+  ],
+  "relationships": [
+    "BusinessCalendarService retrieves business calendar instances from a market holiday repository."
+  ],
+  "design_decisions": [
+    "Implements business calendar calculations based on a given set of holidays.",
+    "Provides business calendar instances retrieved from a market holiday repository with caching."
+  ],
+  "importance": "Core"
+}

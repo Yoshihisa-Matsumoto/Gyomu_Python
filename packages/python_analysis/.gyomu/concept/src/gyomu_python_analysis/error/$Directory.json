@@ -1,0 +1,17 @@
+{
+  "summary": "Provides error handling and analysis phase definitions for Python analysis operations, including custom exception types.",
+  "responsibilities": [
+    "Define error types and analysis phases for Python analysis operations."
+  ],
+  "concepts": [
+    "Python Analysis error",
+    "AnalysisPhase"
+  ],
+  "relationships": [
+    "AnalysisError incorporates or references AnalysisPhase to represent Python analysis errors."
+  ],
+  "design_decisions": [
+    "Defines custom error types and analysis phases for Python analysis operations."
+  ],
+  "importance": "Core"
+}

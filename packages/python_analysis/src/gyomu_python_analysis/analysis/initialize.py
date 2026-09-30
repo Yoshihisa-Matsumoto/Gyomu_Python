@@ -36,11 +36,16 @@ def initialize_project_from_workspace(
     files = find_included_python_files(
         project_root=project_root, source_root=source_root
     )
+    package_roots = find_package_roots(
+        project_root=project_root,
+        source_root=source_root,
+    )
     return ProjectContext(
         project_root=project_root,
         source_root=source_root,
         config=project.config,
         included_files=files,
+        package_roots=package_roots,
     )
 
 
@@ -92,6 +97,11 @@ def find_package_roots(
     project_root: FullPath,
     source_root: ProjectRelativePath,
 ) -> tuple[ProjectRelativePath, ...]:
+    """Find package root directories within the source root.
+
+    Find all package root directories containing an `__init__.py` file within the source
+    root.
+    """
     source_path = project_root / source_root
 
     return tuple(
@@ -127,13 +137,13 @@ def analyze_project_config(
     project_root: FullPath,
     toml_data: dict[str, Any],
     project_relative_path: WorkspaceRelativePath | None = None,
-    workspace_config: WorkspaceConfig | None = None,
+    workspace_config: PyProjectConfig | None = None,
 ) -> Result[PyProjectConfig, AnalysisError]:
     """Analyze the project configuration from parsed pyproject.toml data."""
 
     if project_relative_path is None:
         project_relative_path = WorkspaceRelativePath(Path("."))
-    project = toml_data["project"]
+    project = toml_data.get("project", {})
     name = project.get("name", "")
     description = project.get("description", None)
     is_version_dynamic = "dynamic" in project and "version" in project["dynamic"]

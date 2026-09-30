@@ -1,0 +1,17 @@
+{
+  "summary": "Provides the provider integration layer for Pydantic AI, encapsulating model registries, agent creation, prompt building, execution, and mapping between Pydantic AI and standard AI components.",
+  "responsibilities": [
+    "Integrate Pydantic AI functionality including model registries, agent creation, prompt building, and execution.",
+    "Map Pydantic AI errors, results, finish reasons, and tools to standard formats."
+  ],
+  "concepts": [
+    "Pydantic AI provider",
+    "AI model integration",
+    "AI agent execution"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Integrates Pydantic AI as an external AI provider backend for models, agents, and execution."
+  ],
+  "importance": "Core"
+}

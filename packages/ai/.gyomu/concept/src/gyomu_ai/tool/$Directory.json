@@ -1,0 +1,19 @@
+{
+  "summary": "Houses the core domain logic and definitions for AI tool execution, including configurations, execution results, and public error handling.",
+  "responsibilities": [
+    "Define classes and types for AI tool execution, configuration, and results.",
+    "Provide error handling structures such as public errors for tool operations."
+  ],
+  "concepts": [
+    "AI tool",
+    "Tool result",
+    "Tool configuration",
+    "Public error"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Defines tool success and failure results as part of tool execution.",
+    "Provides configuration options for AI tools."
+  ],
+  "importance": "Core"
+}

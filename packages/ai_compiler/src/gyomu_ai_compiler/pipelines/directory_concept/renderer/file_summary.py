@@ -5,6 +5,11 @@ from gyomu_schema.schemas.concept.file_summary import (
 
 
 def render_file_summary(context: FileSummary) -> str:
+    """Render a file summary string from the given FileSummary context.
+
+    Returns:
+        str: The rendered file summary string.
+    """
     return (
         f"File path:\n"
         f"{context.path}\n"
@@ -19,4 +24,10 @@ def render_file_summary(context: FileSummary) -> str:
 
 
 def build_export_symbol_input(symbol: PublicDeclarationSummary) -> str:
+    """Build a formatted string representation of a public declaration summary for
+    export.
+
+    Returns:
+        str: The formatted export symbol input string.
+    """
     return f"- {symbol.symbol} ({symbol.kind})\n  Summary:\n  {symbol.summary}"

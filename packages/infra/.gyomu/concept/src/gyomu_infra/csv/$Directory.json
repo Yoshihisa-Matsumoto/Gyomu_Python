@@ -1,0 +1,21 @@
+{
+  "summary": "Provides infrastructure components for reading, writing, and configuring CSV data parsing and serialization using Pydantic models.",
+  "responsibilities": [
+    "Define configuration options for CSV parsing, encoding, IO, headers, and columns",
+    "Read and parse CSV data into validated Pydantic models or raw string dictionaries",
+    "Write and convert Pydantic model records to CSV format and files"
+  ],
+  "concepts": [
+    "CSV options",
+    "CSV reading",
+    "CSV writing"
+  ],
+  "relationships": [
+    "CSV reader uses CSV parsing, encoding, and IO options to read and validate data into Pydantic models",
+    "CSV writer uses CSV writing options to serialize Pydantic model records to CSV format"
+  ],
+  "design_decisions": [
+    "Uses Pydantic models for data validation and representation in CSV operations"
+  ],
+  "importance": "Core"
+}

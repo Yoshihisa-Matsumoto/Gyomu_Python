@@ -1,0 +1,15 @@
+{
+  "summary": "Manages snapshot workflows, handling execution, validation, checkpointing, and target resolution within the workflow package.",
+  "responsibilities": [
+    "Manage snapshot workflow execution, validation, checkpointing, and target resolution"
+  ],
+  "concepts": [
+    "Snapshot Workflows",
+    "Workflow Execution",
+    "Checkpoint Management",
+    "Target Resolution"
+  ],
+  "relationships": [],
+  "design_decisions": [],
+  "importance": "Core"
+}

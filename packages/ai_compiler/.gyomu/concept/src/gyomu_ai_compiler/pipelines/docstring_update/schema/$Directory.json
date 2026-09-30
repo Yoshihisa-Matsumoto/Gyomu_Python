@@ -1,0 +1,17 @@
+{
+  "summary": "Defines the schema and data structures for deterministic AI plans and actions used in docstring updates, including replacement actions, reasoning, risks, and update plans for descriptions, parameters, raises, and returns.",
+  "responsibilities": [
+    "Define data structures and schemas for deterministic docstring update plans, actions, and values."
+  ],
+  "concepts": [
+    "AI plan schema",
+    "Docstring update actions"
+  ],
+  "relationships": [
+    "Docstring update plans organize reasoning, risks, and update actions for summaries, descriptions, parameters, raises, and returns."
+  ],
+  "design_decisions": [
+    "Replacement content is embedded directly in actions to eliminate external context requirements."
+  ],
+  "importance": "Core"
+}

@@ -1,0 +1,22 @@
+{
+  "summary": "Defines conversation schema structures, including messages, roles, parts, and request states for handling conversation data.",
+  "responsibilities": [
+    "Defines schemas for conversations, messages, roles, and message parts to structure conversation data and history."
+  ],
+  "concepts": [
+    "ConversationSchema",
+    "MessageSchema",
+    "MessagePart",
+    "MessageRole",
+    "AiTextPart"
+  ],
+  "relationships": [
+    "ConversationSchema contains system messages, message history, and request state using MessageSchema and related components.",
+    "MessageSchema contains identifiers, roles, message parts, and creation timestamps.",
+    "MessagePart includes text content parts such as AiTextPart and message roles like MessageRole."
+  ],
+  "design_decisions": [
+    "Defines schema classes representing conversation structures, message contents, and request states."
+  ],
+  "importance": "Core"
+}

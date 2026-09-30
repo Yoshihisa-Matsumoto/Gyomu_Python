@@ -1,0 +1,19 @@
+{
+  "summary": "Provides functionality for managing, extracting, and defining metadata for ZIP archives and their entries.",
+  "responsibilities": [
+    "Provide functionality for managing and extracting ZIP archives",
+    "Define metadata for entries contained within ZIP archives"
+  ],
+  "concepts": [
+    "ZIP archive management",
+    "archive extraction",
+    "ZIP entry metadata"
+  ],
+  "relationships": [
+    "Zip uses ZipEntry to define metadata for entries within a ZIP archive."
+  ],
+  "design_decisions": [
+    "Object-oriented modeling of ZIP archives and their entries"
+  ],
+  "importance": "Core"
+}

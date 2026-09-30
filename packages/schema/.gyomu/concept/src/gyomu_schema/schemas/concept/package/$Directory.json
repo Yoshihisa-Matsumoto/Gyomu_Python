@@ -1,0 +1,20 @@
+{
+  "summary": "Defines schema definitions and data structures for package analysis, dependency analysis, and capability and package concepts within the gyomu_schema package.",
+  "responsibilities": [
+    "Define schema structures for package analysis, directory analysis facts, pyproject analysis, package dependency analysis, capability concepts, and package concepts."
+  ],
+  "concepts": [
+    "Package analysis",
+    "Capability concept",
+    "Package concept",
+    "Directory analysis fact",
+    "Package dependency analysis"
+  ],
+  "relationships": [
+    "Package analysis utilizes package dependency analysis and directory analysis structures."
+  ],
+  "design_decisions": [
+    "Defines Python project and directory analysis structures alongside package capability and conceptual models using schema definitions."
+  ],
+  "importance": "Core"
+}

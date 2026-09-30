@@ -1,0 +1,41 @@
+{
+  "summary": "The gyomu-docstring package automates the generation, updating, merging, and formatting of code docstrings. It provides core capabilities for analyzing source code contexts, planning and merging documentation changes, rendering formatted docstring sections, and validating the resulting code against quality and linting standards.",
+  "responsibilities": [
+    "Manage the end-to-end lifecycle of automated docstring generation, updates, and merges within source files.",
+    "Model docstring structures, sections, and line-level representations.",
+    "Validate update plans, target signatures, and modified source code.",
+    "Handle errors specific to docstring update failures with phase-aware exception types."
+  ],
+  "capabilities": [
+    {
+      "name": "Docstring Context Analysis",
+      "description": "Constructs structured representations of source files, declarations, and existing documentation to serve as the foundation for docstring updates."
+    },
+    {
+      "name": "Update and Merge Planning",
+      "description": "Plans and executes fine-grained additions, deletions, replacements, and semantic merges of docstring sections and symbols."
+    },
+    {
+      "name": "Docstring Rendering",
+      "description": "Renders docstring components, tags, and formatted lines into valid documentation strings."
+    },
+    {
+      "name": "Validation and Quality Control",
+      "description": "Validates docstring update plans, signatures, and resulting source code integrity using external formatting and linting tools."
+    },
+    {
+      "name": "Error Handling",
+      "description": "Provides custom exception definitions and phase tracking specifically for docstring update operations."
+    }
+  ],
+  "design_decisions": [
+    "Organizes update logic into explicit phases: context building, plan generation, merging, rendering, and validation.",
+    "Employs dedicated data structures to model docstring lines, sections, merge actions, and conflict resolution.",
+    "Integrates external code formatters and linters (such as ruff) to verify and enforce code quality on updated sources."
+  ],
+  "usage_guidance": [
+    "Use the main update entry points to orchestrate end-to-end docstring analysis, planning, and file application.",
+    "Leverage the validation facilities to ensure generated docstring updates conform to expected code formatting and linting rules.",
+    "Handle `UpdateError` exceptions to catch and diagnose failures occurring during specific update phases."
+  ]
+}

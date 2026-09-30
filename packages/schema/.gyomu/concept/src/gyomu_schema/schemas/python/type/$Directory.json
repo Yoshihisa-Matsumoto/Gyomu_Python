@@ -1,0 +1,17 @@
+{
+  "summary": "Defines schema models and data structures representing Python AST expressions, statements, and type analysis for abstract syntax tree processing.",
+  "responsibilities": [
+    "Define schema models representing analyses of Python expressions, statements, and types for AST processing."
+  ],
+  "concepts": [
+    "Python expression analysis",
+    "Python statement analysis",
+    "Type analysis",
+    "Structure analysis"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Defines union types and class models for AST expressions, statements, and type structures."
+  ],
+  "importance": "Core"
+}

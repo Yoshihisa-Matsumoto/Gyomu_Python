@@ -12,6 +12,7 @@ from gyomu_ai.provider.pydantic_ai.routing import (
     RouteNode,
 )
 from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
+from gyomu_ai_compiler.pipelines.document import DocumentRouteId
 from gyomu_infra.logger import logger
 from gyomu_schema.option.retry import RetryObserver
 from gyomu_workflow.snapshot.models import (
@@ -27,24 +28,52 @@ from gyomu_workflow.snapshot.validate import validate_snapshot_request
 from returns.result import Failure
 
 app = typer.Typer()
+"""Main Typer application instance for the CLI."""
+
 
 hello_app = typer.Typer()
+"""Secondary Typer application instance for hello commands."""
+
 app.add_typer(hello_app, name="hello")
 
 
 # @hello_app.command()
 @app.command()
 def greet(name: str = "World") -> None:
+    """Greets the user with a hello message.
+
+    Args:
+        name (str): Name to greet.
+
+    Returns:
+        None: None
+    """
     print(f"Hello, {name}!")
 
 
 @app.command()
 def greet2(name: str = "World") -> None:
+    """Greets the user with a hello message (secondary command).
+
+    Args:
+        name (str): Name to greet.
+
+    Returns:
+        None: None
+    """
     print(f"Hello, {name}!")
 
 
 @hello_app.command("greet")
 def greet3(name: str = "World") -> None:
+    """Greets the user with a hello message under the hello app.
+
+    Args:
+        name (str): Name to greet.
+
+    Returns:
+        None: None
+    """
     print(f"Hello, {name}!")
 
 
@@ -52,6 +81,16 @@ def register_google_routing(
     route_id_list: list[ModelRouteId],
     retry_observer: RetryObserver | None = None,
 ) -> None:
+    """Registers Google routing configuration and initializes AI settings.
+
+    Args:
+        route_id_list (list[ModelRouteId]): List of model route IDs to register.
+        retry_observer (RetryObserver | None): Optional retry observer for handling
+            model retries.
+
+    Returns:
+        None: None
+    """
     route: RouteNode = RouteNode(registry=create_default_pydantic_ai_model_registry())
     routes: dict[ModelRouteId, ModelRoute] = {}
     for route_id in route_id_list:
@@ -72,7 +111,20 @@ def snapshot(
     filter: str | None = None,
     log_keyword: str | None = None,
 ) -> None:
-    register_google_routing(route_id_list=[DocstringRouteId])
+    """Executes a code snapshot for the specified package.
+
+    Args:
+        package (str): Target package to snapshot.
+        docstring (bool): Whether to include docstrings.
+        all (bool): Whether to process all files.
+        commit (bool): Whether to commit the snapshot.
+        filter (str | None): Optional file filter pattern.
+        log_keyword (str | None): Optional keyword for logging.
+
+    Returns:
+        None: None
+    """
+    register_google_routing(route_id_list=[DocstringRouteId, DocumentRouteId])
     option = SnapshotExecutionOption(
         commit=commit,
         target=SnapshotTargetOption(
@@ -83,6 +135,7 @@ def snapshot(
             docstring=DocstringExecutionOption(
                 enabled=docstring, log_keyword=log_keyword
             ),
+            project_context=commit,
         ),
     )
     request_result = translate_snapshot_request(package, option)
@@ -108,7 +161,7 @@ def snapshot(
 
     snapshot_result = asyncio.run(run_snapshot(request))
     if isinstance(snapshot_result, Failure):
-        logger.error_object(snapshot_result.failure())
+        logger.error_object(snapshot_result.failure(), depth=6)
         return
 
     logger.info("Done")
