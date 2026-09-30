@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu Schema
+
+mission: |
+  Gyomu プロジェクト全体で共有されるスキーマ、型定義、サービス定義、および
+  特定パッケージに依存しないユーティリティを提供する。
+  パッケージ間で共通の契約（Contract）を定義し、型安全性と一貫性を保ちながら、
+  各パッケージが疎結合に連携できる基盤となることを目的とする。
+
+policies:
+  - パッケージ間で共有されるデータ、永続化されるデータ、またはランタイムで検証が必要なデータは Pydantic Schema として定義する。
+  - ブランド型（Brand）は共有して利用できるよう本パッケージに配置する。
+  - サービスは Protocol のみを定義し、実装は行わない。
+  - サービス定義は共有が必要なものに限定する。
+  - Pydantic Schema の Annotation はランタイムだけでなく、AI によるコード生成・ドキュメント生成・知識生成にも利用されるため、省略しない。
+  - ユーティリティは純粋関数とし、Gyomu の他パッケージへ依存してはならない。
+  - API は可能な限りイミュータブルかつ宣言的に設計する。
+  - エラー型は共通構造を持ち、他パッケージの実装例となるよう設計する。
+  - スキーマ・型定義・サービス定義は再利用性を優先して設計する。
+
+constraints:
+  - Pydantic、Returns、Python 標準ライブラリ、および日付・時刻ライブラリ以外の外部ライブラリへ依存してはならない。
+  - "gyomu 配下の他パッケージへ依存してはならない。"
+  - ビジネスロジックを実装してはならない。
+  - ファイルシステム、ネットワーク、データベースなどの I/O を行ってはならない。
+
+non_goals:
+  - サービスの実装を提供すること。
+  - インフラストラクチャへのアクセスを提供すること。
+  - AI の実行やプロンプト生成を行うこと。
+  - アプリケーション固有の業務ロジックを実装すること。
+  - 特定パッケージ専用の型やユーティリティを配置すること。
+
+terminology:
+  - term: Pydantic Schema
+    definition: ランタイム検証・デコード・エンコード・型推論を提供するスキーマ定義。
+
+  - term: ブランド型
+    definition: 実行時は同じ型であっても、意味を区別するための名目型。
+
+  - term: サービス定義
+    definition: Context Tag とインターフェースによって能力のみを定義した契約。実装は含まない。
+
+  - term: ユーティリティ
+    definition: 他の Gyomu パッケージへ依存せず、副作用を持たない補助関数。
+
+rationale:
+  - スキーマを一元管理することで、パッケージ間の契約を統一できる。
+  - サービス定義と実装を分離することで、依存関係を最小限に保てる。
+  - ブランド型を共有することで、識別子の取り違えを防止できる。
+  - 依存方向を可能な限り一方向に保つことで、循環参照を防ぎ、全パッケージから安全に利用できる。
+
+usage:
+  - situation: 複数パッケージで利用するデータモデルを作成する
+    guidance: Pydantic Schema を gyomu-schema に定義し、各パッケージから共有して利用する。
+
+  - situation: ID やパスなど意味を持つ文字列を定義する
+    guidance: string を直接使用せず、ブランド型として定義する。
+
+  - situation: 新しいサービスを追加する
+    guidance: Protocol のみを本パッケージに定義し、実装は別パッケージで提供する。
+
+  - situation: 共通関数を追加する
+    guidance: 他の Gyomu パッケージへ依存しない純粋関数のみを追加する。
+
+examples:
+  - title: 共有スキーマ
+    input: |
+      PackageConcept を AI Compiler と Documentation Generator の両方で利用する。
+    output: |
+      PackageConcept を Pydantic Schema として gyomu-schema に定義する。
+    explanation: |
+      複数パッケージで利用される契約は、本パッケージで一元管理する。
+
+  - title: サービス定義
+    input: |
+      ログ出力機能を複数パッケージで利用したい。
+    output: |
+      Logger のインターフェースと Context Tag を gyomu-schema に定義し、
+      実装は gyomu-infra に配置する。
+    explanation: |
+      契約と実装を分離することで、依存関係をシンプルに保てる。
+
+  - title: ブランド型
+    input: |
+      ProjectRelativePath と FullPath はどちらも Path で表現される。
+    output: |
+      それぞれを別のブランド型として定義する。
+    explanation: |
+      同じ実行時型でも意味を区別でき、誤った値の受け渡しを防止できる。
+
+  - title: エラー型
+    input: |
+      PackageConcept の読み込み時に発生するエラーを定義したい。
+    output: |
+      BaseError と同じ構造を持つ PackageConceptError を定義する。
+    explanation: |
+      エラー型は共通構造を維持し、パッケージごとに具体的なエラー型を定義する。

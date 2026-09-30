@@ -1,0 +1,161 @@
+{
+  "$defs": {
+    "PackageExample": {
+      "description": "A complete worked example demonstrating how this knowledge should be applied.",
+      "properties": {
+        "title": {
+          "description": "A short descriptive title that summarizes the example.",
+          "title": "Title",
+          "type": "string"
+        },
+        "input": {
+          "description": "The input, request, or initial situation presented to the system. Use Markdown when formatting improves readability.",
+          "title": "Input",
+          "type": "string"
+        },
+        "output": {
+          "description": "The expected or recommended output produced from the input. Use Markdown when appropriate.",
+          "title": "Output",
+          "type": "string"
+        },
+        "explanation": {
+          "description": "Explain why this output is considered correct and what principle or policy it demonstrates.",
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "input",
+        "output",
+        "explanation"
+      ],
+      "title": "PackageExample",
+      "type": "object"
+    },
+    "PackageTerminology": {
+      "description": "A glossary entry.",
+      "properties": {
+        "term": {
+          "description": "The technical term or concept.",
+          "title": "Term",
+          "type": "string"
+        },
+        "definition": {
+          "description": "A concise explanation of the meaning of the term within this project.",
+          "title": "Definition",
+          "type": "string"
+        }
+      },
+      "required": [
+        "term",
+        "definition"
+      ],
+      "title": "PackageTerminology",
+      "type": "object"
+    },
+    "PackageUsage": {
+      "description": "One recommended usage pattern consisting of a situation and the corresponding guidance.",
+      "properties": {
+        "situation": {
+          "description": "Describe the context or situation in which this guidance should be applied.",
+          "title": "Situation",
+          "type": "string"
+        },
+        "guidance": {
+          "description": "Explain the recommended action, behavior, or workflow that should be followed in this situation.",
+          "title": "Guidance",
+          "type": "string"
+        }
+      },
+      "required": [
+        "situation",
+        "guidance"
+      ],
+      "title": "PackageUsage",
+      "type": "object"
+    }
+  },
+  "description": "Structured knowledge provided to an LLM. It defines the mission, expected behaviors, limitations, terminology, rationale, recommended usage, and practical examples for a specific topic.",
+  "properties": {
+    "display_name": {
+      "description": "Package display name",
+      "title": "Display Name",
+      "type": "string"
+    },
+    "mission": {
+      "description": "The primary mission or purpose of this knowledge. Explain what this knowledge exists to achieve in one concise paragraph.",
+      "title": "Mission",
+      "type": "string"
+    },
+    "policies": {
+      "description": "General principles or recommended behaviors. These describe what should usually be done, but are not absolute requirements.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Policies",
+      "type": "array"
+    },
+    "constraints": {
+      "description": "Hard requirements that must always be satisfied. Violating these constraints makes the output incorrect.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Constraints",
+      "type": "array"
+    },
+    "non_goals": {
+      "description": "Explicitly state what this knowledge is not intended to solve or cover. This helps avoid scope creep and incorrect assumptions.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Non Goals",
+      "type": "array"
+    },
+    "terminology": {
+      "description": "Definitions of project-specific terminology. Include only terms that may be ambiguous or unfamiliar.",
+      "items": {
+        "$ref": "#/$defs/PackageTerminology"
+      },
+      "title": "Terminology",
+      "type": "array"
+    },
+    "rationale": {
+      "description": "Important reasoning behind decisions, trade-offs, or architectural choices. Focus on \"why\" rather than \"what\".",
+      "items": {
+        "type": "string"
+      },
+      "title": "Rationale",
+      "type": "array"
+    },
+    "usage": {
+      "description": "Recommended ways to apply this knowledge in practice. Each entry describes when the guidance applies and what should be done.",
+      "items": {
+        "$ref": "#/$defs/PackageUsage"
+      },
+      "title": "Usage",
+      "type": "array"
+    },
+    "examples": {
+      "description": "Concrete examples showing correct application of this knowledge. Examples should be realistic, representative, and suitable for few-shot prompting.",
+      "items": {
+        "$ref": "#/$defs/PackageExample"
+      },
+      "title": "Examples",
+      "type": "array"
+    }
+  },
+  "required": [
+    "display_name",
+    "mission",
+    "policies",
+    "constraints",
+    "non_goals",
+    "terminology",
+    "rationale",
+    "usage",
+    "examples"
+  ],
+  "title": "Knowledge",
+  "type": "object"
+}

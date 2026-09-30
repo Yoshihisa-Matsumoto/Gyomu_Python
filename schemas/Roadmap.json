@@ -1,0 +1,79 @@
+{
+  "$defs": {
+    "RoadmapItem": {
+      "description": "One roadmap item describing a planned improvement or feature.",
+      "properties": {
+        "title": {
+          "description": "A short title summarizing the planned work.",
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explain the purpose, expected outcome, or motivation for this work.",
+          "title": "Description",
+          "type": "string"
+        },
+        "priority": {
+          "description": "Relative implementation priority. High-priority items are expected to be addressed before lower-priority items.",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Priority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "priority"
+      ],
+      "title": "RoadmapItem",
+      "type": "object"
+    }
+  },
+  "description": "Tracks the implementation status of planned work for this package. It is intended to communicate current priorities and future direction rather than detailed task management.",
+  "properties": {
+    "planned": {
+      "description": "Work that has been approved or planned but has not yet started.",
+      "items": {
+        "$ref": "#/$defs/RoadmapItem"
+      },
+      "title": "Planned",
+      "type": "array"
+    },
+    "in_progress": {
+      "description": "Work that is currently being implemented.",
+      "items": {
+        "$ref": "#/$defs/RoadmapItem"
+      },
+      "title": "In Progress",
+      "type": "array"
+    },
+    "completed": {
+      "description": "Completed work that is worth documenting because it influences future development.",
+      "items": {
+        "$ref": "#/$defs/RoadmapItem"
+      },
+      "title": "Completed",
+      "type": "array"
+    },
+    "backlog": {
+      "description": "Ideas or requests that may be implemented in the future but are not currently planned.",
+      "items": {
+        "$ref": "#/$defs/RoadmapItem"
+      },
+      "title": "Backlog",
+      "type": "array"
+    }
+  },
+  "required": [
+    "planned",
+    "in_progress",
+    "completed",
+    "backlog"
+  ],
+  "title": "Roadmap",
+  "type": "object"
+}
