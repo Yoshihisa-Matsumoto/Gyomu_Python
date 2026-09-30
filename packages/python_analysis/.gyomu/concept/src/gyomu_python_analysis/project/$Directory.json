@@ -1,0 +1,21 @@
+{
+  "summary": "Manages project configuration, context, and workspace definitions, encapsulating settings parsed from configuration files and workspace structures.",
+  "responsibilities": [
+    "Manage project configuration settings parsed from pyproject.toml files.",
+    "Encapsulate project context including roots, configurations, and loaders.",
+    "Define workspace configurations, roots, and constituent projects."
+  ],
+  "concepts": [
+    "Project Context",
+    "Workspace Configuration",
+    "PyProject Config"
+  ],
+  "relationships": [
+    "ProjectContext encapsulates PyProjectConfig and project metadata.",
+    "WorkspaceContext contains WorkspaceConfig and WorkspaceProject instances."
+  ],
+  "design_decisions": [
+    "Encapsulates project context and workspace structures into object representations."
+  ],
+  "importance": "Core"
+}

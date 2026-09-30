@@ -129,6 +129,10 @@ class SnapshotRequest:
     Snapshot execution options.
     """
     project: WorkspaceProject
+    """Workspace project.
+
+    Workspace project.
+    """
 
 
 class SnapshotTarget(BaseModel):

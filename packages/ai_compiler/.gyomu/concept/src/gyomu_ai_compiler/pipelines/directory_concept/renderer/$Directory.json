@@ -1,0 +1,18 @@
+{
+  "summary": "Provides rendering logic and formatting utilities to generate text strings representing file summaries, exported symbols, and sub-directories within directory concept pipelines.",
+  "responsibilities": [
+    "Render file summaries and export symbol inputs into formatted text strings, and provide sub-directory rendering capabilities."
+  ],
+  "concepts": [
+    "file summary renderer",
+    "sub directory renderer",
+    "export symbol input builder"
+  ],
+  "relationships": [
+    "The directory provides rendering functions that process file summaries, export symbols, and sub-directories into formatted string outputs."
+  ],
+  "design_decisions": [
+    "Uses functional rendering approaches to convert context structures into formatted string representations."
+  ],
+  "importance": "Supporting"
+}

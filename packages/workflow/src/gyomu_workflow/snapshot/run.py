@@ -220,6 +220,15 @@ def build_concept_update_option(
     diff: tuple[FileChange, ...],
     log_keyword: str | None,
 ) -> ConceptOption:
+    """Construct the concept update option configuration.
+
+    Args:
+        diff (tuple[FileChange, ...]): Tuple of file changes.
+        log_keyword (str | None): Optional keyword for logging.
+
+    Returns:
+        ConceptOption: The constructed ConceptOption configuration.
+    """
     return ConceptOption(
         debug_info=ConceptDebugInfoOption(
             dump_to_file=True,

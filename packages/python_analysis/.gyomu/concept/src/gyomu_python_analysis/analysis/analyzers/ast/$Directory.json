@@ -1,0 +1,18 @@
+{
+  "summary": "Provides AST-based code analysis capabilities, including functions to analyze Python statements and expressions as well as utilities for building symbol indexes.",
+  "responsibilities": [
+    "Provides functions to analyze statements, expressions, tuples, slices, sets, arrays, and dictionaries using Abstract Syntax Trees.",
+    "Builds class and function indexes and AST indexes from source code symbols."
+  ],
+  "concepts": [
+    "AST statement analysis",
+    "AST symbol indexing"
+  ],
+  "relationships": [
+    "Statement analysis and symbol indexing are components of AST-based code analysis."
+  ],
+  "design_decisions": [
+    "Organizes analysis routines into specialized modules for statements, expressions, and symbols."
+  ],
+  "importance": "Core"
+}

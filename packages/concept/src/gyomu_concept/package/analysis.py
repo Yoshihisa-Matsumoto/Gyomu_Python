@@ -1,9 +1,5 @@
 from dataclasses import dataclass
 
-from gyomu_concept.directory.internal.file_summary import build_file_summary_record
-from gyomu_concept.directory.internal.load import load_directory_concept
-from gyomu_concept.error.concept import ConceptError
-from gyomu_concept.package.internal.dependency import collect_dependencies
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.workspace import (
@@ -26,10 +22,21 @@ from gyomu_schema.schemas.python.visibility import Visibility
 from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
+from gyomu_concept.directory.internal.file_summary import build_file_summary_record
+from gyomu_concept.directory.internal.load import load_directory_concept
+from gyomu_concept.error.concept import ConceptError
+from gyomu_concept.package.internal.dependency import collect_dependencies
+
 
 def build_package_analysis(
     context: ProjectContext, option: ConceptOption | None = None
 ) -> Result[PackageAnalysis, ConceptError]:
+    """Builds the package analysis for a project context.
+
+    Returns:
+        Result[PackageAnalysis, ConceptError]: A Result containing the PackageAnalysis
+            on success or a ConceptError on failure.
+    """
     caller = caller_context()
     root_result = find_root(context.project_root)
     if isinstance(root_result, Failure):
@@ -97,13 +104,25 @@ def build_package_analysis(
 
 @dataclass(frozen=True)
 class AggregateFileAndDirectories:
+    """Represents aggregated file summaries and directory analyses for a package."""
+
     files: dict[ProjectRelativePath, FileSummary]
+    """Mapping of project relative paths to file summaries."""
+
     dirs: dict[ProjectRelativePath, DirectoryAnalysis]
+    """Mapping of project relative paths to directory analyses."""
 
 
 def _aggregate_file_and_load_directory(
     context: ProjectContext, option: ConceptOption | None
 ) -> Result[AggregateFileAndDirectories, ConceptError | AnalysisError]:
+    """Aggregates files and loads directory concepts for the project context.
+
+    Returns:
+        Result[AggregateFileAndDirectories, ConceptError | AnalysisError]: A Result
+            containing AggregateFileAndDirectories or a ConceptError/AnalysisError on
+            failure.
+    """
     files: dict[ProjectRelativePath, FileSummary] = {}
     dirs: dict[ProjectRelativePath, DirectoryAnalysis] = {}
 
@@ -148,6 +167,11 @@ def _aggregate_file_and_load_directory(
 
 
 def _get_file_analysis_fact(file_context: FileAnalysisContext) -> DirectoryAnalysisFact:
+    """Extracts directory analysis facts from a file analysis context.
+
+    Returns:
+        DirectoryAnalysisFact: The extracted directory analysis facts.
+    """
     total_symbols = len(file_context.analysis.symbols)
     public_symbols = len(
         [

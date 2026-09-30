@@ -10,6 +10,17 @@ from packaging.requirements import Requirement
 def collect_dependencies(
     context: ProjectContext, workspace_context: WorkspaceContext | None
 ) -> tuple[PackageDependencyAnalysis, ...]:
+    """Collects and analyzes project dependencies and development dependencies.
+
+    Args:
+        context (ProjectContext): The project context containing configuration and
+            dependencies.
+        workspace_context (WorkspaceContext | None): Optional workspace context
+            containing workspace-level projects and constraints.
+
+    Returns:
+        tuple[PackageDependencyAnalysis, ...]: A tuple of package dependency analyses.
+    """
     dependencies: list[PackageDependencyAnalysis] = []
 
     workspace_dependency_constraints = (

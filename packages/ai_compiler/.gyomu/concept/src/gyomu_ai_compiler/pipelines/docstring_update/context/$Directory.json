@@ -1,0 +1,19 @@
+{
+  "summary": "The context directory provides data structures and context representations for declarations and files used during docstring generation and update pipelines.",
+  "responsibilities": [
+    "Model declaration contexts and file contexts for updating docstrings within the docstring update pipeline."
+  ],
+  "concepts": [
+    "Declaration Context",
+    "File Context",
+    "Docstring Parameter",
+    "Existing Docstring"
+  ],
+  "relationships": [
+    "Declaration context classes provide context structures for generating docstrings for Python declarations."
+  ],
+  "design_decisions": [
+    "Defines data classes and context structures representing declarations and files for docstring generation pipelines."
+  ],
+  "importance": "Core"
+}

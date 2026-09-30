@@ -1,0 +1,30 @@
+{
+  "summary": "The gyomu-ai-compiler package provides compilation pipelines for AI-driven code analysis and documentation generation. It defines data schemas, execution contexts, and renderers for updating Python docstrings and analyzing package and directory concepts.",
+  "responsibilities": [
+    "Provide compilation pipelines for generating AI-driven documentation and package concept analysis.",
+    "Define data models and schemas for tracking declaration contexts, file contexts, and AI update plans.",
+    "Manage prompt templates and configurations for AI interactions within the compiler framework."
+  ],
+  "capabilities": [
+    {
+      "name": "Docstring Generation and Updates",
+      "description": "Defines structured schemas and execution plans for deterministic AI-driven code docstring updates, including replacement actions, parameter changes, raises, and returns."
+    },
+    {
+      "name": "Package and Directory Analysis",
+      "description": "Processes package-level and directory-level concepts, synthesizing public API symbols, dependencies, and code structure into structured inputs and analysis summaries."
+    },
+    {
+      "name": "Prompt Management",
+      "description": "Manages and loads prompt templates and base configurations to drive AI compilation tasks."
+    }
+  ],
+  "design_decisions": [
+    "Utilizes structured schemas to enforce deterministic AI plans and actions for code documentation modifications.",
+    "Organizes compiler logic into modular, pipeline-specific execution contexts and renderers."
+  ],
+  "usage_guidance": [
+    "Use the docstring update pipeline executors and schemas to parse, evaluate, and apply deterministic AI-driven documentation changes to Python codebases.",
+    "Leverage the package concept and directory analysis pipelines to extract public APIs, dependencies, and structural summaries for package exploration."
+  ]
+}

@@ -5,6 +5,17 @@ from gyomu_schema.schemas.concept.package.analysis import DirectoryAnalysis
 def rank_directories_by_score(
     directories: tuple[DirectoryAnalysis, ...],
 ) -> tuple[DirectoryAnalysis, ...]:
+    """Rank directory analyses by score.
+
+    Rank a collection of directory analyses by importance score and public symbol count.
+
+    Args:
+        directories (tuple[DirectoryAnalysis, ...]): The directory analyses to rank.
+
+    Returns:
+        tuple[DirectoryAnalysis, ...]: The ranked directory analyses in descending order
+            of score.
+    """
     if not directories:
         return ()
 
@@ -44,6 +55,19 @@ def calculate_score(
     entry: DirectoryAnalysis,
     max_public_symbol_count: int,
 ) -> float:
+    """Calculate score for a directory analysis.
+
+    Calculate a score for a directory analysis based on importance and public symbol
+    count.
+
+    Args:
+        entry (DirectoryAnalysis): The directory analysis to score.
+        max_public_symbol_count (int): The maximum public symbol count across all
+            directories.
+
+    Returns:
+        float: The calculated score.
+    """
     importance_score = {
         DirectoryImportance.CORE: 50,
         DirectoryImportance.SUPPORTING: 30,

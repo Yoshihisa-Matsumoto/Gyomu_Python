@@ -1,0 +1,24 @@
+{
+  "summary": "Provides core Python analysis capabilities, including project and workspace initialization, configuration management, path conversion, custom error handling, and snapshot tracking workflows.",
+  "responsibilities": [
+    "Initialize project and workspace contexts, parse configurations, and manage file and module analysis.",
+    "Define custom error types and analysis phases for Python analysis operations.",
+    "Translate between various path formats including project-relative, source-relative, python, and full paths.",
+    "Manage project configurations and workspace structures.",
+    "Track file modifications, compute diffs, and handle snapshot creation, validation, and commit workflows."
+  ],
+  "concepts": [
+    "project analysis",
+    "configuration management",
+    "path conversion",
+    "error handling",
+    "project snapshot"
+  ],
+  "relationships": [
+    "Project and workspace contexts configure project analysis and snapshot management workflows."
+  ],
+  "design_decisions": [
+    "Modular structure organizing core analysis functions into domain-specific subpackages such as analysis, error, path, project, and snapshot."
+  ],
+  "importance": "Core"
+}

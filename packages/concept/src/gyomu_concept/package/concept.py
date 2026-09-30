@@ -1,10 +1,5 @@
 from pathlib import Path
 
-from gyomu_concept.error.concept import ConceptError
-from gyomu_concept.package.analysis import build_package_analysis
-from gyomu_concept.package.internal.load import load_package_concept
-from gyomu_concept.package.internal.process import process_package_concept
-from gyomu_concept.package.internal.save import save_package_concept
 from gyomu_infra.filesystem.file_io import write_json
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext
@@ -14,10 +9,28 @@ from gyomu_schema.schemas.concept.package.concept import PackageConcept
 from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
+from gyomu_concept.error.concept import ConceptError
+from gyomu_concept.package.analysis import build_package_analysis
+from gyomu_concept.package.internal.load import load_package_concept
+from gyomu_concept.package.internal.process import process_package_concept
+from gyomu_concept.package.internal.save import save_package_concept
+
 
 async def build_package_concept(
     context: ProjectContext, option: ConceptOption | None = None
 ) -> Result[PackageConcept, ConceptError]:
+    """Build the package concept for a project.
+
+    Builds and returns the package concept for the project context.
+
+    Args:
+        context (ProjectContext): The project context.
+        option (ConceptOption | None): Optional concept generation options.
+
+    Returns:
+        Result[PackageConcept, ConceptError]: A Result containing the PackageConcept on
+            success or ConceptError on failure.
+    """
     if (
         option is not None
         and option.changed_files is not None

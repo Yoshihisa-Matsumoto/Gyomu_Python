@@ -22,6 +22,19 @@ from gyomu_ai_compiler.prompts.load import load_prompt
 async def generate_directory_concept(
     context: DirectoryConceptInput,
 ) -> Result[DirectoryConcept, GyomuIOError | AiError]:
+    """Generate a directory concept from input files and subdirectories.
+
+    Generates a directory concept based on input files and subdirectories.
+
+    Args:
+        context (DirectoryConceptInput): Input data containing files and subdirectories
+            for generating the directory concept.
+
+    Returns:
+        Result[DirectoryConcept, GyomuIOError | AiError]: A Result containing the
+            generated DirectoryConcept on success, or a GyomuIOError or AiError on
+            failure.
+    """
     prompt_result = load_prompt("directory-concept.md")
     if isinstance(prompt_result, Failure):
         return prompt_result

@@ -1,0 +1,24 @@
+{
+  "summary": "Provides core analyzer modules for examining Python language constructs such as classes, functions, dependencies, docstrings, imports, Pydantic models, type aliases, types, and variables, along with symbol context management.",
+  "responsibilities": [
+    "Analyze Python classes, functions, dependencies, docstrings, imports, Pydantic models, type aliases, types, and variables, and manage symbol context and identity during code analysis."
+  ],
+  "concepts": [
+    "class analysis",
+    "function analysis",
+    "dependency analysis",
+    "docstring analysis",
+    "import analysis",
+    "pydantic analysis",
+    "type analysis",
+    "variable analysis",
+    "symbol context"
+  ],
+  "relationships": [
+    "Code analysis uses specialized analyzers for classes, functions, dependencies, docstrings, imports, pydantic models, type aliases, types, and variables alongside symbol context management."
+  ],
+  "design_decisions": [
+    "Modular analysis routines for specific Python code constructs and features"
+  ],
+  "importance": "Core"
+}

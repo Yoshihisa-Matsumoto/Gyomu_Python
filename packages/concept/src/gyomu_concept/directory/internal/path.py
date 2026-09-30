@@ -9,6 +9,20 @@ def get_directory_concept_path(
     target_directory: ProjectRelativePath,
     option: ConceptOption | None = None,
 ) -> FullPath:
+    """Get the full path for a directory concept.
+
+    Calculates the full file system path for a directory concept JSON file within the
+    project structure.
+
+    Args:
+        context (ProjectContext): Project context providing the root directory.
+        target_directory (ProjectRelativePath): Project-relative path of the target
+            directory.
+        option (ConceptOption | None): Optional concept configuration options.
+
+    Returns:
+        FullPath: The full path to the directory concept file.
+    """
     return FullPath(
         context.project_root
         / ".gyomu"

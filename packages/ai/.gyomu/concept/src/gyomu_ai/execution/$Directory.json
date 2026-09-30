@@ -1,0 +1,33 @@
+{
+  "summary": "Manages the execution environment, runtime parameters, configuration policies, observers, and result structures for AI model interactions, text/object generation, streaming, and embeddings.",
+  "responsibilities": [
+    "Manage execution context and model context for AI operations.",
+    "Register global retry observers for execution monitoring.",
+    "Define parameters and policies for tool loops, text generation, streaming, object generation, and embedding.",
+    "Represent results, metadata, streaming events, and token usage statistics for AI executions."
+  ],
+  "concepts": [
+    "AI Model Context",
+    "AI Execution Context",
+    "Retry Observer",
+    "Tool Loop Policy",
+    "Tool Configuration",
+    "Generation Parameters",
+    "Embedding Parameters",
+    "Tool Execution Result",
+    "Text Delta Result Part",
+    "Streaming Response",
+    "Generation Metadata",
+    "Text Generation Result",
+    "Structured Object Generation Result",
+    "Embedding Result"
+  ],
+  "relationships": [
+    "Execution parameter configurations and execution contexts support AI model invocation and execution tracking.",
+    "Execution results capture outputs, metadata, and token usage from AI generation operations."
+  ],
+  "design_decisions": [
+    "Defines execution contexts, observation mechanisms, parameters for text, stream, object generation and embedding, and structured results for AI operations."
+  ],
+  "importance": "Core"
+}

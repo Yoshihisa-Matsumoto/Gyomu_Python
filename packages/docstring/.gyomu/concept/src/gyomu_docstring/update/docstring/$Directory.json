@@ -1,0 +1,20 @@
+{
+  "summary": "Manages docstring updates, providing data structures and plans for merging, updating, and formatting docstring lines, sections, and rendered symbols.",
+  "responsibilities": [
+    "Define structures for planning and executing docstring updates and merges.",
+    "Model lines and sections of docstrings.",
+    "Represent rendered symbol docstrings and updated docstrings."
+  ],
+  "concepts": [
+    "Docstring update plan",
+    "Docstring merge plan",
+    "Docstring line formatting",
+    "Rendered symbol docstring",
+    "Updated docstring"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Defines data structures and plan representations for updating and merging docstrings."
+  ],
+  "importance": "Core"
+}

@@ -1,0 +1,31 @@
+{
+  "summary": "The gyomu-cli package serves as the core command-line interface for the application, leveraging Typer to provide entry points, command execution, and routing registration. It coordinates user-facing commands like greetings and snapshots while relying on supporting domain and workflow packages for underlying operations.",
+  "responsibilities": [
+    "Define and expose the primary CLI entry points and user commands.",
+    "Handle command routing and feature registration for the CLI application.",
+    "Coordinate with shared domain and infrastructure packages to execute commands."
+  ],
+  "capabilities": [
+    {
+      "name": "Command Line Interface",
+      "description": "Provides the main entry point and executable command structure for the CLI application."
+    },
+    {
+      "name": "Routing and Registration",
+      "description": "Organizes command routing and application feature registration."
+    },
+    {
+      "name": "System Integration",
+      "description": "Integrates with underlying workflow, schema, and infrastructure packages."
+    }
+  ],
+  "design_decisions": [
+    "Uses Typer to build a structured, attribute-based command line interface.",
+    "Modularizes command handling around core application domains such as greetings and snapshots.",
+    "Depends on external domain packages (gyomu-schema, gyomu-infra, gyomu-workflow) to delegate business logic execution."
+  ],
+  "usage_guidance": [
+    "Use the main application entry points defined in the package to execute CLI commands.",
+    "Register new command routes using the established routing mechanisms within the application structure."
+  ]
+}

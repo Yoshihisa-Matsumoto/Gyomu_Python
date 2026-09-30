@@ -1,0 +1,14 @@
+{
+  "summary": "Organizes modes for docstring updates within the docstring update pipeline.",
+  "responsibilities": [
+    "Defines and organizes modes for docstring updates within the docstring update pipeline."
+  ],
+  "concepts": [
+    "docstring update mode"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "packaged mode configuration structure"
+  ],
+  "importance": "Supporting"
+}

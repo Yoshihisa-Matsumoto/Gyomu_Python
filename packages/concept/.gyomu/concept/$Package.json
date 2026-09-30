@@ -1,0 +1,36 @@
+{
+  "summary": "The gyomu-concept package provides core functionality for analyzing, constructing, processing, and persisting architectural concepts at both the directory and package levels. It orchestrates file aggregation, dependency collection, path resolution, and robust domain error management to support higher-level architectural tooling.",
+  "responsibilities": [
+    "Model and construct directory and package concepts from filesystem paths.",
+    "Analyze packages by aggregating files and directories and collecting dependencies.",
+    "Persist, load, and process concept records across the application.",
+    "Provide centralized domain error definitions and phase classifications."
+  ],
+  "capabilities": [
+    {
+      "name": "Directory Concept Management",
+      "description": "Construct, analyze, and manage structured directory concepts and file summaries from file system paths."
+    },
+    {
+      "name": "Package Analysis and Concept Generation",
+      "description": "Perform package analysis, aggregate files and directories, and build comprehensive package-level concepts."
+    },
+    {
+      "name": "Serialization and Dependency Resolution",
+      "description": "Collect dependencies, resolve concept paths, and handle serialization and persistence operations."
+    },
+    {
+      "name": "Domain Error Handling",
+      "description": "Provide domain-specific error classes and phase classifications for robust error handling."
+    }
+  ],
+  "design_decisions": [
+    "Separates core domain logic into distinct directory and package tiers to maintain a clear hierarchical boundary.",
+    "Encapsulates internal implementation details within internal submodules while exposing clean public interfaces for building, loading, saving, and processing.",
+    "Defines domain-specific errors with phase classifications to categorize and handle exceptions across different processing stages."
+  ],
+  "usage_guidance": [
+    "Use the package and directory modules to build, load, save, and process structural concepts for your codebase.",
+    "Rely on the provided error handling classes and phase classifications to manage and diagnose domain-specific exceptions."
+  ]
+}

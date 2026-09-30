@@ -1,0 +1,19 @@
+{
+  "summary": "Provides functions for analyzing various types of Python expressions, including constants, subscripts, dictionaries, arrays, literals, type expressions, tuples, sets, and expression names, alongside literal value parsing.",
+  "responsibilities": [
+    "analyze Python expressions including constants, subscripts, dictionaries, arrays, literals, type expressions, tuples, sets, and expression names",
+    "parse literal values"
+  ],
+  "concepts": [
+    "expression analysis",
+    "literal parsing",
+    "type expression analysis"
+  ],
+  "relationships": [
+    "analyze expression delegates to specific analyzers for constants, subscripts, dictionaries, arrays, literals, type expressions, tuples, sets, and expression names"
+  ],
+  "design_decisions": [
+    "modular expression analysis functions"
+  ],
+  "importance": "Core"
+}

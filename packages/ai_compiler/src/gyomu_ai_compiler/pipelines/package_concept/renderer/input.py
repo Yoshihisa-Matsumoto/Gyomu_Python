@@ -1,3 +1,6 @@
+from gyomu_facts.package.analysis import PackageFacts, TopScoreDirectorySelection
+from gyomu_schema.schemas.concept.package.analysis import PackageAnalysis
+
 from gyomu_ai_compiler.pipelines.package_concept.context.input import (
     PackageConceptInput,
     PackageDependencyInput,
@@ -5,11 +8,20 @@ from gyomu_ai_compiler.pipelines.package_concept.context.input import (
     PublicSymbolsModule,
     TopDirectory,
 )
-from gyomu_facts.package.analysis import PackageFacts, TopScoreDirectorySelection
-from gyomu_schema.schemas.concept.package.analysis import PackageAnalysis
 
 
 def build_package_concept_input(context: PackageAnalysis) -> PackageConceptInput:
+    """Build package concept input data for rendering.
+
+    Builds the package concept input from the given package analysis context.
+
+    Args:
+        context (PackageAnalysis): The package analysis context containing package
+            information, public files, and dependencies.
+
+    Returns:
+        PackageConceptInput: The constructed package concept input structure.
+    """
     symbols: dict[str, list[PublicApiSymbol]] = {}
     for file in context.public_files:
         for declaration in file.exports:

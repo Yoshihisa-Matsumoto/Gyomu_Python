@@ -1,0 +1,18 @@
+{
+  "summary": "Serves as the root directory for the gyomu_ai_compiler package, housing specialized processing pipelines and prompt management utilities.",
+  "responsibilities": [
+    "Implements specialized processing pipelines and manages prompt templates and base prompts for the compiler package."
+  ],
+  "concepts": [
+    "Processing pipelines",
+    "Prompt templates",
+    "Compiler package"
+  ],
+  "relationships": [
+    "The package contains processing pipelines and prompt management utilities."
+  ],
+  "design_decisions": [
+    "Organizes specialized processing pipelines and prompt loading utilities within the compiler package."
+  ],
+  "importance": "Core"
+}

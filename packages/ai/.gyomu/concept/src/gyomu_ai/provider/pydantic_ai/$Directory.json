@@ -1,0 +1,29 @@
+{
+  "summary": "Implements the Pydantic AI provider integration for gyomu_ai, providing components for AI model registries, agent creation, prompt building, model execution, routing, and mapping between Pydantic AI and standard AI results, errors, and tools.",
+  "responsibilities": [
+    "Integrate Pydantic AI functionality including model registries, agent creation, prompt building, and execution.",
+    "Map Pydantic AI errors, results, finish reasons, and tools to standard formats.",
+    "Configure model settings, Google API integration, and model routing."
+  ],
+  "concepts": [
+    "Pydantic AI provider",
+    "AI model registry",
+    "prompt building",
+    "agent creation",
+    "model execution",
+    "Google API configuration",
+    "error mapping",
+    "result mapping",
+    "tool mapping",
+    "model settings",
+    "route registry",
+    "routing service",
+    "model routing",
+    "text stream"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Integrates Pydantic AI as a provider for AI models, routing, agents, and execution."
+  ],
+  "importance": "Core"
+}

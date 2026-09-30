@@ -59,14 +59,22 @@ def validate_python_package_structure(
     source_root_full_path = project_context.project_root / project_context.source_root
     errors: list[PyProjectStructureValidationError] = []
 
-    def validate_directory(path: Path) -> None:
+    def validate_directory(path: Path) -> bool:
         entries = tuple(path.iterdir())
 
         has_python_file = any(
             entry.is_file() and entry.suffix == ".py" for entry in entries
         )
 
-        if has_python_file and not (path / "__init__.py").is_file():
+        has_python_file_in_children = False
+
+        for entry in entries:
+            if entry.is_dir() and validate_directory(entry):
+                has_python_file_in_children = True
+
+        contains_python_file = has_python_file or has_python_file_in_children
+
+        if contains_python_file and not (path / "__init__.py").is_file():
             errors.append(
                 PyProjectStructureValidationError(
                     "__init__.py does not exist",
@@ -76,11 +84,11 @@ def validate_python_package_structure(
                 )
             )
 
-        for entry in entries:
-            if entry.is_dir():
-                validate_directory(entry)
+        return contains_python_file
 
-    validate_directory(source_root_full_path)
+    for entry in source_root_full_path.iterdir():
+        if entry.is_dir():
+            validate_directory(entry)
 
     if errors:
         return Failure(

@@ -1,0 +1,17 @@
+{
+  "summary": "Provides path conversion and manipulation utilities to translate between different path formats including project-relative paths, source-relative paths, python paths, and full paths.",
+  "responsibilities": [
+    "converts various path representations such as project-relative paths, source-relative paths, python paths, and full paths"
+  ],
+  "concepts": [
+    "path conversion",
+    "path manipulation"
+  ],
+  "relationships": [
+    "converts project-relative paths, source-relative paths, python paths, and full paths to each other using path conversion functions"
+  ],
+  "design_decisions": [
+    "provides functions to convert between project-relative paths, source-relative paths, python paths, and full paths"
+  ],
+  "importance": "Core"
+}

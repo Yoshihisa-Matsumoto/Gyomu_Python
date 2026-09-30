@@ -15,36 +15,73 @@ from gyomu_workflow.snapshot.models import SnapshotRequest
 
 
 class PipelineStep(StrEnum):
+    """Defines the steps in the workflow pipeline."""
+
     DIRECTORY_CONCEPT = "directoryConcept"
+    """Directory concept step."""
+
     PACKAGE_CONCEPT = "packageConcept"
+    """Package concept step."""
+
     README = "README"
+    """README step."""
+
     LLM_CONTEXT = "LLMContext"
+    """LLM context step."""
 
 
 class Checkpoint(BaseModel):
+    """Represents a checkpoint holding the package name and completed workflow steps."""
+
     package: str
+    """Package name associated with the checkpoint."""
 
     completed_steps: tuple[PipelineStep, ...]
+    """Tuple of completed pipeline steps."""
 
 
 @dataclass(frozen=True)
 class SnapshotActionResult:
+    """Holds the result of a snapshot action including its checkpoint and project
+    snapshot.
+    """
+
     checkpoint: Checkpoint
+    """The updated checkpoint."""
+
     snapshot: ProjectSnapshot
+    """The generated project snapshot."""
 
 
 def _get_checkpoint_path(request: SnapshotRequest) -> FullPath:
+    """Retrieves the file path for the checkpoint corresponding to the snapshot request.
+
+    Args:
+        request (SnapshotRequest):
+    """
     project_id = to_project_id(request.project.path)
     return FullPath(Path(".gyomu") / "checkpoint" / project_id / "Checkpoint.json")
 
 
 def _is_complete(checkpoint: Checkpoint) -> bool:
+    """Checks whether the pipeline has completed the package concept step.
+
+    Args:
+        checkpoint (Checkpoint):
+    """
     return PipelineStep.PACKAGE_CONCEPT in checkpoint.completed_steps
 
 
 def load_checkpoint(
     request: SnapshotRequest, diff: tuple[FileChange, ...]
 ) -> Checkpoint:
+    """Loads an existing checkpoint or initializes a new one based on the request and
+    file changes.
+
+    Args:
+        request (SnapshotRequest):
+        diff (tuple[FileChange, ...]):
+    """
     checkfile_path = _get_checkpoint_path(request)
 
     if checkfile_path.exists():
@@ -62,6 +99,13 @@ def load_checkpoint(
 def update_checkpoint(
     checkpoint: Checkpoint, request: SnapshotRequest, status_to_add: PipelineStep
 ) -> Result[Checkpoint, GyomuError]:
+    """Updates the checkpoint by adding a new completed step and saving it to disk.
+
+    Args:
+        checkpoint (Checkpoint):
+        request (SnapshotRequest):
+        status_to_add (PipelineStep):
+    """
 
     checkfile_path = _get_checkpoint_path(request)
     current_steps: list[PipelineStep] = [item for item in checkpoint.completed_steps]
@@ -88,4 +132,9 @@ def update_checkpoint(
 
 
 def initialize_checkpoint(project_name: str) -> Checkpoint:
+    """Initializes a new checkpoint with the given project name and no completed steps.
+
+    Args:
+        project_name (str):
+    """
     return Checkpoint(package=project_name, completed_steps=tuple())

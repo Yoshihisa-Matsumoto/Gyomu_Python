@@ -97,6 +97,11 @@ def find_package_roots(
     project_root: FullPath,
     source_root: ProjectRelativePath,
 ) -> tuple[ProjectRelativePath, ...]:
+    """Find package root directories within the source root.
+
+    Find all package root directories containing an `__init__.py` file within the source
+    root.
+    """
     source_path = project_root / source_root
 
     return tuple(

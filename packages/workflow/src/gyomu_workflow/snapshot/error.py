@@ -52,6 +52,8 @@ class PyProjectStructureValidationError(BaseError):
 
 
 class PyProjectStructureValidationErrors(BaseError):
+    """Raised when multiple pyproject structure validation errors occur."""
+
     def __init__(
         self,
         message: str,

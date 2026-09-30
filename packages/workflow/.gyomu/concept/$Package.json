@@ -1,0 +1,36 @@
+{
+  "summary": "The gyomu-workflow package powers the snapshot workflow engine for the Gyomu CLI. It provides robust capabilities for orchestrating execution pipelines, managing checkpoints, resolving target files, and validating project structures.",
+  "responsibilities": [
+    "Manage the end-to-end execution of snapshot workflows and associated actions.",
+    "Persist and update workflow state and execution checkpoints.",
+    "Resolve, filter, and validate target files and Python package structures.",
+    "Define configuration schemas and request models for workflow operations."
+  ],
+  "capabilities": [
+    {
+      "name": "Workflow Orchestration",
+      "description": "Orchestrates the execution of snapshot workflows, coordinating pipeline steps, validating request parameters, and running actions on target files."
+    },
+    {
+      "name": "Checkpoint Management",
+      "description": "Manages snapshot state, persistence through checkpoints, and history tracking across workflow runs."
+    },
+    {
+      "name": "Target Resolution and Filtering",
+      "description": "Resolves target files and directories for snapshot execution, applying file filters and pattern matching."
+    },
+    {
+      "name": "Configuration and Validation",
+      "description": "Defines core data models, request configurations, and validation rules for snapshot execution and Python package structures."
+    }
+  ],
+  "design_decisions": [
+    "Encapsulates workflow execution logic into modular components handling distinct concerns such as action execution, state management, and target resolution.",
+    "Leverages dedicated error models and validation steps to ensure correctness of snapshot requests and project structures before execution."
+  ],
+  "usage_guidance": [
+    "Use the core run and translation modules to initiate and configure snapshot workflows based on project requirements.",
+    "Rely on checkpoint utilities to track state and maintain execution history across workflow runs.",
+    "Configure file filters and target options using the provided models to scope snapshot operations accurately."
+  ]
+}

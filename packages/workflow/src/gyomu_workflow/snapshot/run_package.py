@@ -19,6 +19,22 @@ async def run_package_action(
     request: SnapshotRequest,
     option: ConceptOption,
 ) -> Result[SnapshotActionResult, GyomuError]:
+    """Execute the package action for the snapshot workflow.
+
+    Executes the package build action as part of the snapshot workflow, updating the
+    checkpoint and snapshot status.
+
+    Args:
+        current_checkpoint (Checkpoint): The current workflow checkpoint.
+        request (SnapshotRequest): The snapshot request containing project context and
+            data.
+        option (ConceptOption): The concept option configuration for building the
+            package.
+
+    Returns:
+        Result[SnapshotActionResult, GyomuError]: A Result containing the
+            SnapshotActionResult upon success or a GyomuError on failure.
+    """
     context = caller_context()
     package_result = await build_package_concept(
         context=request.project_context, option=option

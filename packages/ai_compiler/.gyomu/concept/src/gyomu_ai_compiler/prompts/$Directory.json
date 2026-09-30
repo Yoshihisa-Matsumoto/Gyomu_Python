@@ -1,0 +1,17 @@
+{
+  "summary": "Manages and loads prompt templates and base prompts used throughout the gyomu_ai_compiler package.",
+  "responsibilities": [
+    "Load and manage prompt templates and base prompts for the compiler."
+  ],
+  "concepts": [
+    "prompts",
+    "prompt loading"
+  ],
+  "relationships": [
+    "The prompt loader reads and initializes prompt templates and base prompts."
+  ],
+  "design_decisions": [
+    "Exports prompt loading utilities via module initialization."
+  ],
+  "importance": "Core"
+}

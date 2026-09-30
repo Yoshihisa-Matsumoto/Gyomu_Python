@@ -1,0 +1,20 @@
+{
+  "summary": "Performs project and workspace initialization, reads project configurations, manages module loading, caching, and file analysis contexts.",
+  "responsibilities": [
+    "Initialize project contexts and parse project configurations from workspace structures, load and manage module and file analysis contexts, and delete module caches."
+  ],
+  "concepts": [
+    "project initialization",
+    "module loading and analysis",
+    "workspace configuration",
+    "file analysis context",
+    "cache management"
+  ],
+  "relationships": [
+    "Project initialization handles workspace configurations and source roots."
+  ],
+  "design_decisions": [
+    "Modular functions for project initialization, module loading, caching, workspace handling, and file context loading."
+  ],
+  "importance": "Core"
+}

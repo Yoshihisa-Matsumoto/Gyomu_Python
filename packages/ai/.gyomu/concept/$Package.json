@@ -1,0 +1,41 @@
+{
+  "summary": "The gyomu-ai package provides a robust AI integration and execution framework built primarily around Pydantic AI. It manages runtime execution contexts, parameters, policies, tools, and error handling, while offering seamless mapping between provider-specific constructs and standardized AI generation, streaming, and embedding results.",
+  "responsibilities": [
+    "Integrate Pydantic AI functionality including model registries, agent creation, prompt building, and execution.",
+    "Manage execution context, runtime parameters, configuration policies, observers, and result structures for AI interactions.",
+    "Define classes and types for AI tool execution, configuration, and public error handling.",
+    "Define and handle application-specific routing and operation errors.",
+    "Represent core AI model structures and keys used across the application."
+  ],
+  "capabilities": [
+    {
+      "name": "Pydantic AI Integration",
+      "description": "Integration layer mapping Pydantic AI models, agents, tools, prompts, and results to standard internal formats."
+    },
+    {
+      "name": "Execution Environment",
+      "description": "Management of execution context, runtime parameters, configuration policies, observers, and result structures for AI operations."
+    },
+    {
+      "name": "AI Tool Execution",
+      "description": "Core domain logic and definitions for AI tool execution, configurations, and public error handling."
+    },
+    {
+      "name": "Error Handling and Routing",
+      "description": "Application-specific error types and exception handling for routing operations."
+    },
+    {
+      "name": "Model Representation",
+      "description": "Core data structures and identification keys for AI models across the application."
+    }
+  ],
+  "design_decisions": [
+    "Integrates Pydantic AI as a core provider backend while wrapping its primitives in standardized application abstractions and result types.",
+    "Encapsulates execution parameters, policies, and streaming/generation outcomes into dedicated modules to separate runtime control from model providers."
+  ],
+  "usage_guidance": [
+    "Use the pydantic_ai provider module to initialize model registries, create agents, and configure Google API integrations.",
+    "Leverage the execution environment components to pass contexts, parameters, and policies for text generation, object generation, streaming, and embeddings.",
+    "Define AI tools and handle results using the designated tool and error structures provided by the package."
+  ]
+}

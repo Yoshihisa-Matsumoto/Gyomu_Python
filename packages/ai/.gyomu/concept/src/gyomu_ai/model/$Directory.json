@@ -1,0 +1,17 @@
+{
+  "summary": "Defines the core AI model representation and identification structures used across the application.",
+  "responsibilities": [
+    "Defines the core data structures and keys for AI models used within the application."
+  ],
+  "concepts": [
+    "AI model",
+    "model key"
+  ],
+  "relationships": [
+    "Defines AI model representation and identification structures"
+  ],
+  "design_decisions": [
+    "Exposes model identification through a key structure"
+  ],
+  "importance": "Core"
+}

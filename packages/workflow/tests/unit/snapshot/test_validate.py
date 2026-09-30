@@ -2,7 +2,10 @@ from pathlib import Path
 
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
-from gyomu_workflow.snapshot.error import SnapshotRequestValidationError
+from gyomu_workflow.snapshot.error import (
+    PyProjectStructureValidationErrors,
+    SnapshotRequestValidationError,
+)
 from gyomu_workflow.snapshot.models import (
     DocstringExecutionOption,
     SnapshotActionOption,
@@ -153,3 +156,44 @@ class TestValidatePythonPackageStructure:
         result = validate_python_package_structure(context)
 
         assert result == Success(None)
+
+    def test_requires_init_for_directory_with_python_files_in_descendants(
+        self,
+        tmp_path,
+    ):
+        context = create_test_project_structure(
+            project_root=tmp_path,
+            files={
+                "src/foo/__init__.py": "",
+                "src/foo/bar/module.py": "",
+            },
+        )
+
+        result = validate_python_package_structure(context)
+        assert isinstance(result, Failure)
+        error = result.failure()
+        assert isinstance(error, PyProjectStructureValidationErrors)
+        assert {item.path for item in error.errors} == {
+            ProjectRelativePath(Path("src/foo/bar")),
+        }
+
+    def test_requires_init_for_all_directories_in_python_package_tree(
+        self,
+        tmp_path,
+    ):
+        context = create_test_project_structure(
+            project_root=tmp_path,
+            files={
+                "src/foo/bar/baz/module.py": "",
+            },
+        )
+
+        result = validate_python_package_structure(context)
+        assert isinstance(result, Failure)
+        error = result.failure()
+        assert isinstance(error, PyProjectStructureValidationErrors)
+        assert {item.path for item in error.errors} == {
+            ProjectRelativePath(Path("src/foo/bar/baz")),
+            ProjectRelativePath(Path("src/foo/bar")),
+            ProjectRelativePath(Path("src/foo")),
+        }

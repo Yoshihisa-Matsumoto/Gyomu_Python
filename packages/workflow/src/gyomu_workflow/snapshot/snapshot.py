@@ -8,6 +8,19 @@ from gyomu_workflow.snapshot.models import SnapshotRequest
 
 
 def update_snapshot(request: SnapshotRequest) -> Result[ProjectSnapshot, GyomuError]:
+    """Updates the project snapshot based on project change analysis.
+
+    Analyzes project changes and updates the project snapshot based on the given
+    request.
+
+    Args:
+        request (SnapshotRequest): The snapshot request containing repository root path
+            and project context.
+
+    Returns:
+        Result[ProjectSnapshot, GyomuError]: A Result containing the updated
+            ProjectSnapshot on success, or a GyomuError on failure.
+    """
     context = caller_context()
     analysis_result = analyze_project_changes(
         repository_root_path=request.repository_root_path,

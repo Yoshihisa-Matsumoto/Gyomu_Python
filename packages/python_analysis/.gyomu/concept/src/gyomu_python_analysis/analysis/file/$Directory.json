@@ -1,0 +1,12 @@
+{
+  "summary": "Provides file-level analysis context and source file representation for Python code analysis.",
+  "responsibilities": [
+    "Manage source file context for analysis"
+  ],
+  "concepts": [
+    "source file context"
+  ],
+  "relationships": [],
+  "design_decisions": [],
+  "importance": "Core"
+}

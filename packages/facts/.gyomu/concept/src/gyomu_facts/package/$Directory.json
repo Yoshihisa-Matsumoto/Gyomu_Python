@@ -1,0 +1,22 @@
+{
+  "summary": "Provides package analysis and directory ranking capabilities, including score calculation, directory selection options, and package facts compilation.",
+  "responsibilities": [
+    "Analyze package data through directory selection and fact compilation.",
+    "Calculate scores and rank directories based on specific criteria."
+  ],
+  "concepts": [
+    "Package Analysis",
+    "Directory Ranking",
+    "Score Calculation",
+    "Directory Selection Options",
+    "Package Facts"
+  ],
+  "relationships": [
+    "Rank and score calculations are utilized within package analysis routines."
+  ],
+  "design_decisions": [
+    "Uses type aliases and classes to model directory selection options and package facts.",
+    "Provides scoring and ranking mechanisms for directories."
+  ],
+  "importance": "Core"
+}

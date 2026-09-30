@@ -1,0 +1,18 @@
+{
+  "summary": "Provides internal functionality for building, loading, processing, saving, and managing directory concepts and file summary records.",
+  "responsibilities": [
+    "Build directory concepts from paths",
+    "Build file summary records",
+    "Load directory concepts",
+    "Get directory concept paths",
+    "Process directory concepts",
+    "Save directory concepts"
+  ],
+  "concepts": [
+    "Directory Concept",
+    "File Summary Record"
+  ],
+  "relationships": [],
+  "design_decisions": [],
+  "importance": "Core"
+}

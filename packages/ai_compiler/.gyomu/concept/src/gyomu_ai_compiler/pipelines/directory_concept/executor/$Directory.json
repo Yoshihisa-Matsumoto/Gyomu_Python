@@ -1,0 +1,15 @@
+{
+  "summary": "Provides execution logic for generating directory concepts within the gyomu_ai_compiler pipelines.",
+  "responsibilities": [
+    "Generates directory concepts within the pipeline"
+  ],
+  "concepts": [
+    "Directory Concept Generation",
+    "Executor"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Uses functions to encapsulate generation logic"
+  ],
+  "importance": "Core"
+}

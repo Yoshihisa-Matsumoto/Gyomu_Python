@@ -1,0 +1,28 @@
+{
+  "summary": "Provides the core application logic by organizing modules responsible for directory concept construction, domain error handling, and package analysis and concept generation.",
+  "responsibilities": [
+    "Manage directory concept construction and define build result data structures",
+    "Define domain-specific errors and phase classifications for error handling",
+    "Provide core logic for package analysis, concept generation, dependency collection, and path processing"
+  ],
+  "concepts": [
+    "directory concept construction",
+    "build result types",
+    "domain-specific errors",
+    "phase classifications",
+    "package analysis",
+    "concept generation",
+    "dependency collection",
+    "path processing"
+  ],
+  "relationships": [
+    "The build module uses types defined in the types module to represent build outcomes.",
+    "ConceptError relates to ConceptPhase to classify errors during conceptual execution.",
+    "Package analysis and package concept generation utilize internal package utilities to support operations."
+  ],
+  "design_decisions": [
+    "Organizes core logic into modular subdirectories covering directory concepts, error handling, and package analysis.",
+    "Defines domain-specific error classes alongside phase classifications for handling exceptions."
+  ],
+  "importance": "Core"
+}

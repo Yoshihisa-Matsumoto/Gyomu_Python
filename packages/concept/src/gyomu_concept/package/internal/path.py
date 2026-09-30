@@ -7,6 +7,8 @@ def get_package_concept_path(
     context: ProjectContext,
     option: ConceptOption | None = None,
 ) -> FullPath:
+    """Get the package concept file path within the project."""
+
     return FullPath(
         context.project_root
         / ".gyomu"
