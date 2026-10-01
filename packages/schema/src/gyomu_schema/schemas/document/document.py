@@ -1,5 +1,6 @@
-from gyomu_schema.schemas.document.section import Section
 from pydantic import BaseModel, ConfigDict, Field
+
+from gyomu_schema.schemas.document.section import Section
 
 
 class Document(BaseModel):

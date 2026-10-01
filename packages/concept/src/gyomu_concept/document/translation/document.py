@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from gyomu_schema.schemas.document.section import Section
-from gyomu_schema.schemas.document.translation import LanguageCodes
+from gyomu_schema.schemas.document.section import LanguageCodes, Section
 
 
 @dataclass

@@ -3,7 +3,7 @@ from gyomu_schema.schemas.document.content import (
     BulletListItem,
     DocumentContentType,
 )
-from gyomu_schema.schemas.document.translation import (
+from gyomu_schema.schemas.document.section import (
     DocumentContentDefinitionBase,
     ReconciliationValidator,
 )
@@ -115,7 +115,7 @@ def _validate_bullet_list(
     return ValidationResult(issues=tuple(issues), is_valid=len(issues) == 0)
 
 
-BulletListDefinition = DocumentContentDefinitionBase[BulletList](
+bullet_list_definition = DocumentContentDefinitionBase[BulletList](
     kind=DocumentContentType.BULLET_LIST,
     content_schema=BulletList,
     reconciliation=ReconciliationValidator[BulletList](validate=_validate_bullet_list),

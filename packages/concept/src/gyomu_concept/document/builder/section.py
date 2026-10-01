@@ -1,18 +1,29 @@
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 from gyomu_concept.error.document import DocumentBuilderError
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.base import DocumentBaseContext
-from gyomu_schema.schemas.document.content import DocumentContent
+from gyomu_schema.schemas.document.content import DocumentContent, DocumentContentType
 from gyomu_schema.schemas.document.section import (
     BuiltSection,
+    DocumentContentTranslationStrategy,
     SectionNoTranslation,
     SectionTranslationDefinition,
     SectionTranslationInstruction,
     SectionWithInstruction,
 )
-from gyomu_schema.schemas.document.translation import DocumentContentTranslationStrategy
+from gyomu_schema.schemas.document.translation.bullet_list import (
+    bullet_list_translation_strategy,
+)
+from gyomu_schema.schemas.document.translation.code import (
+    code_block_translation_strategy,
+)
+from gyomu_schema.schemas.document.translation.paragraph import (
+    paragraph_translation_strategy,
+)
+from gyomu_schema.schemas.document.translation.table import table_translation_strategy
 from returns.result import Failure, Result, Success
 
 
@@ -32,7 +43,16 @@ class SectionBuilder[
 
 def _get_translation_strategy(
     content: DocumentContent,
-) -> DocumentContentTranslationStrategy: ...
+) -> DocumentContentTranslationStrategy[Any]:
+    match content.kind:
+        case DocumentContentType.PARAGRAPH:
+            return paragraph_translation_strategy
+        case DocumentContentType.BULLET_LIST:
+            return bullet_list_translation_strategy
+        case DocumentContentType.CODE:
+            return code_block_translation_strategy
+        case DocumentContentType.TABLE:
+            return table_translation_strategy
 
 
 def _create_built_section(

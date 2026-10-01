@@ -26,6 +26,21 @@ from gyomu_schema.schemas.concept.package.concept import (
     CapabilityConcept,
     PackageConcept,
 )
+from gyomu_schema.schemas.document.content import (
+    BulletList,
+    BulletListItem,
+    CodeBlock,
+    Paragraph,
+    Table,
+    TableRow,
+)
+from gyomu_schema.schemas.document.section import (
+    DocumentContentTranslationStrategy,
+    SectionNoTranslation,
+    SectionTranslationDefinition,
+    SectionTranslationInstruction,
+)
+from gyomu_schema.schemas.document.validation import ValidationIssue, ValidationResult
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import DirectoryRelativePath, ProjectRelativePath
 
@@ -170,4 +185,70 @@ def create_package_concept(
         capabilities=capabilities,
         design_decisions=design_decisions,
         usage_guidance=usage_guidance,
+    )
+
+
+def create_paragraph(text: str = "this is a pen") -> Paragraph:
+    return Paragraph(text=text)
+
+
+def create_codeblock(
+    language: str = "en", code="this is code block", title: str | None = None
+) -> CodeBlock:
+    return CodeBlock(language=language, code=code, title=title)
+
+
+def create_table(header: TableRow, rows: tuple[TableRow, ...]) -> Table:
+    return Table(header=header, rows=rows)
+
+
+def create_table_row(cells: tuple[str, ...]) -> TableRow:
+    return TableRow(cells=cells)
+
+
+def create_bullet_list_item(
+    translation_id: int = 1,
+    text: str = "this is list item",
+    children: tuple[BulletListItem, ...] | None = None,
+) -> BulletListItem:
+    return BulletListItem(translation_id=translation_id, text=text, children=children)
+
+
+def create_bullet_list(items: tuple[BulletListItem, ...]) -> BulletList:
+    return BulletList(items=items)
+
+
+def create_section_translation(
+    no_translation: bool = True,
+    translation_instruction: str | None = None,
+    translation_strategies: tuple[DocumentContentTranslationStrategy, ...] = tuple(),
+) -> SectionTranslationDefinition:
+    if no_translation:
+        return SectionNoTranslation()
+    else:
+        return SectionTranslationInstruction(
+            translation_instruction=translation_instruction,
+            translation_strategies=translation_strategies,
+        )
+
+
+def create_validation_result(
+    issues: tuple[ValidationIssue, ...] = tuple(),
+) -> ValidationResult:
+    return ValidationResult(issues=issues, is_valid=len(issues) == 0)
+
+
+def create_validation_issue(
+    code: str = "test",
+    message: str = "invalid test",
+    repair_instruction: str = "sample instruction",
+    translation_id: int | None = None,
+    details: dict[str, str] | None = None,
+) -> ValidationIssue:
+    return ValidationIssue(
+        code=code,
+        message=message,
+        repair_instruction=repair_instruction,
+        translation_id=translation_id,
+        details=details,
     )

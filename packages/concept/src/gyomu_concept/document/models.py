@@ -8,7 +8,7 @@ from gyomu_concept.error.document import DocumentBuilderError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.base import DocumentBaseContext
-from gyomu_schema.schemas.document.translation import LanguageCodes
+from gyomu_schema.schemas.document.section import LanguageCodes
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Result
 

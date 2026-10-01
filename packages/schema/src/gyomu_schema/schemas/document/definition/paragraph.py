@@ -2,7 +2,7 @@ from gyomu_schema.schemas.document.content import (
     DocumentContentType,
     Paragraph,
 )
-from gyomu_schema.schemas.document.translation import (
+from gyomu_schema.schemas.document.section import (
     DocumentContentDefinitionBase,
     ReconciliationValidator,
 )
@@ -13,7 +13,7 @@ def _validate_paragraph(source: Paragraph, destination: Paragraph) -> Validation
     return ValidationResult(issues=tuple(), is_valid=True)
 
 
-ParagraphDefinition = DocumentContentDefinitionBase[Paragraph](
+paragraph_definition = DocumentContentDefinitionBase[Paragraph](
     kind=DocumentContentType.PARAGRAPH,
     content_schema=Paragraph,
     reconciliation=ReconciliationValidator[Paragraph](validate=_validate_paragraph),

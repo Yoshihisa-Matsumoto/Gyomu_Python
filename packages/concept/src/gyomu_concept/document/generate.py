@@ -15,7 +15,7 @@ from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 
-def generate_document[
+async def generate_document[
     TSectionId: str,
     TContext: DocumentBaseContext,
     TOption: ConceptOption,
@@ -54,17 +54,18 @@ def generate_document[
         translated_sections: list[Section] = []
         for section in sections:
             section_id = section.section.id
-            translate_result = translate_section(section, language, option).alt(
-                lambda error, section_id=section_id: DocumentBuilderError(
-                    "fail to translate section",
-                    phase="translate",
-                    package_name=context.analysis.package.name,
-                    section_id=section_id,
-                    context=caller,
-                ).chain(error)
-            )
+            translate_result = await translate_section(section, language, option)
             if isinstance(translate_result, Failure):
-                return translate_result
+                error = translate_result.failure()
+                return Failure(
+                    DocumentBuilderError(
+                        "fail to translate section",
+                        phase="translate",
+                        package_name=context.analysis.package.name,
+                        section_id=section_id,
+                        context=caller,
+                    ).chain(error)
+                )
             translated_sections.append(translate_result.unwrap())
 
         translated_document = TranslatedDocument(
@@ -83,16 +84,17 @@ def generate_document[
         if render_output.type == "text":
             write_result = write_text(
                 path=output_file_path, content=render_output.content
-            ).alt(
-                lambda error, output_file_path=output_file_path: DocumentBuilderError(
-                    "fail to write file",
-                    phase="export",
-                    package_name=context.analysis.package.name,
-                    file_path=output_file_path,
-                    context=caller,
-                ).chain(error)
             )
             if isinstance(write_result, Failure):
-                return write_result
+                error = write_result.failure()
+                return Failure(
+                    DocumentBuilderError(
+                        "fail to write file",
+                        phase="export",
+                        package_name=context.analysis.package.name,
+                        file_path=output_file_path,
+                        context=caller,
+                    ).chain(error)
+                )
 
     return Success(None)

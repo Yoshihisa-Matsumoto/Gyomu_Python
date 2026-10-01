@@ -1,5 +1,5 @@
 from gyomu_schema.schemas.document.content import CodeBlock, DocumentContentType
-from gyomu_schema.schemas.document.translation import (
+from gyomu_schema.schemas.document.section import (
     DocumentContentDefinitionBase,
     ReconciliationValidator,
 )
@@ -43,7 +43,7 @@ def _validate_codeblock(source: CodeBlock, destination: CodeBlock) -> Validation
     return ValidationResult(issues=tuple(issues), is_valid=len(issues) == 0)
 
 
-CodeBlockDefinition = DocumentContentDefinitionBase[CodeBlock](
+code_block_definition = DocumentContentDefinitionBase[CodeBlock](
     kind=DocumentContentType.CODE,
     content_schema=CodeBlock,
     reconciliation=ReconciliationValidator[CodeBlock](validate=_validate_codeblock),

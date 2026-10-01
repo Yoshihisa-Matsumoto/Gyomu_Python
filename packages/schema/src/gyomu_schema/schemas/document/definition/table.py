@@ -1,5 +1,5 @@
 from gyomu_schema.schemas.document.content import DocumentContentType, Table
-from gyomu_schema.schemas.document.translation import (
+from gyomu_schema.schemas.document.section import (
     DocumentContentDefinitionBase,
     ReconciliationValidator,
 )
@@ -74,7 +74,7 @@ def _validate_table(source: Table, destination: Table) -> ValidationResult:
     return ValidationResult(issues=tuple(issues), is_valid=len(issues) == 0)
 
 
-TableDefinition = DocumentContentDefinitionBase[Table](
+table_definition = DocumentContentDefinitionBase[Table](
     kind=DocumentContentType.TABLE,
     content_schema=Table,
     reconciliation=ReconciliationValidator[Table](validate=_validate_table),
