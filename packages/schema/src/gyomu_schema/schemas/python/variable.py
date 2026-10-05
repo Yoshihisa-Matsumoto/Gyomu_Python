@@ -2,7 +2,7 @@ from typing import Literal
 
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind, SymbolAnalysisBase
-from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis, TypeExpression
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
 
 class VariableAnalysis(SymbolAnalysisBase):
@@ -17,8 +17,8 @@ class VariableAnalysis(SymbolAnalysisBase):
     value_source: str | None
     """The source representation of the variable's value."""
 
-    value_expression: TypeExpression | None
-    """The expression analysis of the variable's value, if available."""
+    # value_expression: TypeExpression | None
+    # """The expression analysis of the variable's value, if available."""
 
     pydantic: PydanticFieldAnalysis | None
     """Pydantic-specific field analysis, if applicable."""

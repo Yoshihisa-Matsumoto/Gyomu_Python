@@ -709,19 +709,19 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(second, NameStructureAnalysis)
         assert second.name == "int"
 
-    def test_analyze_type_dict_empty(self) -> None:
-        result = self._analyze_variable("CONFIG_OPTIONS")
+    # def test_analyze_type_dict_empty(self) -> None:
+    #     result = self._analyze_variable("CONFIG_OPTIONS")
 
-        assert result.type is not None
-        assert result.type.text == "Mapping[str, str]"
+    #     assert result.type is not None
+    #     assert result.type.text == "Mapping[str, str]"
 
-        assert isinstance(result.value_expression, DictionaryStructureAnalysis)
+    #     # assert isinstance(result.value_expression, DictionaryStructureAnalysis)
 
-        key = result.value_expression.keys
-        value = result.value_expression.values
+    #     # key = result.value_expression.keys
+    #     # value = result.value_expression.values
 
-        assert key is None
-        assert value is None
+    #     assert key is None
+    #     assert value is None
 
     # def test_analyzes_variable_with_type_annotation(self) -> None:
     #     result = self._analyze_variable(

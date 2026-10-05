@@ -1,13 +1,18 @@
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
+from gyomu_schema.schemas.python.type.expression import (
+    CallExpressionAnalysis,
+    ExpressionAnalysis,
+    NameExpressionAnalysis,
+    SubscriptExpressionAnalysis,
+    TupleExpressionAnalysis,
+)
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
     NameStructureAnalysis,
     NoneStructureAnalysis,
 )
 from gyomu_schema.schemas.python.type.type_analysis import (
-    CallStructureAnalysis,
     GenericsStructureAnalysis,
-    KeywordStructureAnalysis,
     StructureAnalysis,
     TypeExpression,
     UnionStructureAnalysis,
@@ -32,7 +37,7 @@ def _is_field_required(field_type: StructureAnalysis) -> bool:
     return True
 
 
-def retrieve_str_value(value: TypeExpression) -> str | None:
+def retrieve_str_value(value: ExpressionAnalysis) -> str | None:
     """Retrieve a string value from a type expression if it is a literal value.
 
     Args:
@@ -46,8 +51,51 @@ def retrieve_str_value(value: TypeExpression) -> str | None:
     return None
 
 
+# def analyze_pydantic(
+#     field_type: StructureAnalysis, expression: TypeExpression
+# ) -> PydanticFieldAnalysis | None:
+#     """Analyze a Pydantic field definition from type analysis and expressions.
+
+#     Args:
+#         field_type (StructureAnalysis): The structure analysis of the field type.
+#         expression (TypeExpression): The type expression to analyze.
+
+#     Returns:
+#         PydanticFieldAnalysis | None: The pydantic field analysis result, or None if the
+#             expression is not a Pydantic Field.
+#     """
+#     is_required = _is_field_required(field_type)
+
+#     if (
+#         isinstance(expression, CallStructureAnalysis)
+#         and isinstance(expression.function, NameStructureAnalysis)
+#         and expression.function.name == "Field"
+#     ):
+#         description = None
+#         alias = None
+#         default = None
+#         for argument in expression.arguments:
+#             if isinstance(argument, KeywordStructureAnalysis):
+#                 match argument.name:
+#                     case "description":
+#                         description = retrieve_str_value(argument.value)
+
+#                     case "alias":
+#                         alias = retrieve_str_value(argument.value)
+#             else:
+#                 default = retrieve_str_value(argument)
+
+#         return PydanticFieldAnalysis(
+#             required=is_required,
+#             description=description,
+#             alias=alias,
+#             default_source=default,
+#         )
+#     return None
+
+
 def analyze_pydantic(
-    field_type: StructureAnalysis, expression: TypeExpression
+    field_type: StructureAnalysis, expression: ExpressionAnalysis
 ) -> PydanticFieldAnalysis | None:
     """Analyze a Pydantic field definition from type analysis and expressions.
 
@@ -62,23 +110,25 @@ def analyze_pydantic(
     is_required = _is_field_required(field_type)
 
     if (
-        isinstance(expression, CallStructureAnalysis)
-        and isinstance(expression.function, NameStructureAnalysis)
-        and expression.function.name == "Field"
+        isinstance(expression, CallExpressionAnalysis)
+        and isinstance(expression.func, NameExpressionAnalysis)
+        and expression.func.name == "Field"
     ):
         description = None
         alias = None
         default = None
-        for argument in expression.arguments:
-            if isinstance(argument, KeywordStructureAnalysis):
-                match argument.name:
-                    case "description":
-                        description = retrieve_str_value(argument.value)
+        for argument in expression.keywords:
+            match argument.arg:
+                case "description":
+                    description = retrieve_str_value(argument.value)
 
-                    case "alias":
-                        alias = retrieve_str_value(argument.value)
-            else:
-                default = retrieve_str_value(argument)
+                case "alias":
+                    alias = retrieve_str_value(argument.value)
+                case "default":
+                    default = retrieve_str_value(argument.value)
+        if len(expression.args) > 0:
+            first_arg = expression.args[0]
+            default = retrieve_str_value(first_arg)
 
         return PydanticFieldAnalysis(
             required=is_required,
@@ -89,9 +139,13 @@ def analyze_pydantic(
     return None
 
 
+ast_value_expression: ExpressionAnalysis
+
+
 def get_pydantic_field_from_annotated_type_expression(
     expression: TypeExpression | None,
-) -> tuple[TypeExpression, CallStructureAnalysis] | None:
+    ast_expression: ExpressionAnalysis | None,
+) -> tuple[TypeExpression, CallExpressionAnalysis] | None:
     """Extract a Pydantic Field call structure and its underlying type from an Annotated
     type expression.
 
@@ -110,6 +164,17 @@ def get_pydantic_field_from_annotated_type_expression(
         and expression.base.name == "Annotated"
     ):
         return None
+    if not isinstance(ast_expression, SubscriptExpressionAnalysis):
+        return None
+    ast_value = ast_expression.value
+    if not (
+        isinstance(ast_value, NameExpressionAnalysis) and ast_value.name == "Annotated"
+    ):
+        return None
+
+    ast_slice = ast_expression.slice
+    if not (isinstance(ast_slice, TupleExpressionAnalysis)):
+        return None
 
     parameters = expression.parameters
     if len(parameters) < 2:
@@ -117,12 +182,12 @@ def get_pydantic_field_from_annotated_type_expression(
 
     assumed_type = parameters[0]
 
-    for metadata in parameters[1:]:
+    for element in ast_slice.elements:
         if (
-            isinstance(metadata, CallStructureAnalysis)
-            and isinstance(metadata.function, NameStructureAnalysis)
-            and metadata.function.name == "Field"
+            isinstance(element, CallExpressionAnalysis)
+            and isinstance(element.func, NameExpressionAnalysis)
+            and element.func.name == "Field"
         ):
-            return assumed_type, metadata
+            return assumed_type, element
 
     return None

@@ -12,6 +12,7 @@ from gyomu_schema.schemas.python.types import (
 
 from gyomu_python_analysis.analysis.analyzers.ast.symbol import (
     AstClassFunctionKey,
+    AstTargetSymbolType,
     get_ast_index,
 )
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
@@ -114,7 +115,10 @@ def _extract_symbols_internal(
     dependencies: list[DependencyInformation] = []
     module_name: PythonPath = PythonPath(source_file.module.path)
     index: (
-        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]
+        dict[
+            AstClassFunctionKey,
+            AstTargetSymbolType,
+        ]
         | None
     ) = None
 
@@ -128,9 +132,20 @@ def _extract_symbols_internal(
             module_name=module_name, name=symbol_name, source_lines=source_lines
         )
         if isinstance(symbol, Attribute):
+            index = get_ast_index(index, source, source_path=module_name)
+            assert symbol.endlineno
+            ast_symbol = index.get(AstClassFunctionKey(symbol.name, symbol.endlineno))
+            # print(symbol.name)
+            # print(index)
+            if ast_symbol is not None:
+                assert isinstance(ast_symbol, ast.Assign | ast.AnnAssign)
             symbols.append(
                 analyze_variable(
-                    variable=symbol, name=symbol_name, context=context, option=option
+                    variable=symbol,
+                    name=symbol_name,
+                    context=context,
+                    option=option,
+                    asy_symbol=ast_symbol,
                 )
             )
         elif isinstance(symbol, Function):

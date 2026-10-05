@@ -1,13 +1,21 @@
+import ast
+
 from griffe import Attribute
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
+from gyomu_schema.schemas.python.type.expression import (
+    CallExpressionAnalysis,
+)
 from gyomu_schema.schemas.python.type.structure import LiteralValue
 from gyomu_schema.schemas.python.type.type_analysis import (
-    CallStructureAnalysis,
     TypeExpression,
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 
+from gyomu_python_analysis.analysis.analyzers.ast.statement import (
+    analyze_expression,
+)
+from gyomu_python_analysis.analysis.analyzers.ast.symbol import AstTargetSymbolType
 from gyomu_python_analysis.analysis.analyzers.context import (
     SymbolContext,
 )
@@ -26,6 +34,7 @@ def analyze_variable(
     variable: Attribute,
     name: str,
     context: SymbolContext,
+    asy_symbol: AstTargetSymbolType | None,
     option: AnalysisOption | None = None,
 ) -> VariableAnalysis:
     """Analyze a variable attribute and return its analysis.
@@ -49,9 +58,16 @@ def analyze_variable(
         if variable.value is not None
         else None
     )
+    ast_value_expression = (
+        analyze_expression(asy_symbol.value, context, option, False)
+        if asy_symbol is not None and isinstance(asy_symbol, ast.Assign | ast.AnnAssign)
+        else None
+    )
 
-    field_types: tuple[TypeExpression, CallStructureAnalysis] | None = (
-        get_pydantic_field_from_annotated_type_expression(value_expression)
+    field_types: tuple[TypeExpression, CallExpressionAnalysis] | None = (
+        get_pydantic_field_from_annotated_type_expression(
+            value_expression, ast_value_expression
+        )
     )
     pydantic: PydanticFieldAnalysis | None = None
     if field_types is not None:
@@ -66,6 +82,6 @@ def analyze_variable(
         type=type,
         value_source=str(variable.value) if variable.value is not None else None,
         identity=context.declaration,
-        value_expression=value_expression,
+        # value_expression=value_expression,
         pydantic=pydantic,
     )

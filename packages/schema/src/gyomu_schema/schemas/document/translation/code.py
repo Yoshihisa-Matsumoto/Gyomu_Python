@@ -13,6 +13,8 @@ from gyomu_schema.schemas.document.section import (
 def _update_codeblock_retry_context(
     args: RetryContextArg[CodeBlock],
 ) -> Result[TranslationState[CodeBlock], TranslationError]:
+    """Update retry context for code block translation."""
+
     return Success(
         TranslationState[CodeBlock](
             context=args.original_context, validation=args.current_validation
@@ -24,3 +26,4 @@ code_block_translation_strategy = DocumentContentTranslationStrategy[CodeBlock](
     definition=code_block_definition,
     retry_context_updater=_update_codeblock_retry_context,
 )
+"""Translation strategy for code block content."""
