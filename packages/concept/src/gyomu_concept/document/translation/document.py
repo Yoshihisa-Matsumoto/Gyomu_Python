@@ -4,6 +4,6 @@ from gyomu_schema.schemas.document.section import LanguageCodes, Section
 
 
 @dataclass
-class TranslatedDocument:
+class TranslatedDocument[TSectionId: str]:
     language: LanguageCodes
-    sections: tuple[Section, ...]
+    sections: tuple[Section[TSectionId], ...]

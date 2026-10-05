@@ -3,6 +3,7 @@ from gyomu_schema.utility.serialization import (
     _assert_json_round_trip,
     dump_json,
     validate_json,
+    validate_yaml,
 )
 from pydantic import BaseModel
 from returns.result import Failure, Success
@@ -78,3 +79,60 @@ def test_validate_json_does_not_expose_pydantic_validation_error() -> None:
 
     assert isinstance(result, Failure)
     assert isinstance(result.failure(), ValidationError)
+
+
+class SampleModel(BaseModel):
+    name: str
+    count: int
+
+
+def test_validate_yaml():
+    data = """
+name: test
+count: 10
+"""
+
+    result = validate_yaml(SampleModel, data)
+
+    assert isinstance(result, Success)
+    assert result.unwrap() == SampleModel(name="test", count=10)
+
+
+def test_validate_yaml_returns_parse_error():
+    data = """
+name: test
+count: [10
+"""
+
+    result = validate_yaml(SampleModel, data)
+
+    assert isinstance(result, Failure)
+
+    error = result.failure()
+
+    assert isinstance(error, ValidationError)
+    assert error.message == "Failed to parse YAML."
+    assert error.context == "serialization.validate_yaml"
+    assert error.input == data
+    assert error.details is not None
+    assert "error" in error.details
+
+
+def test_validate_yaml_returns_validation_error():
+    data = """
+name: test
+count: invalid
+"""
+
+    result = validate_yaml(SampleModel, data)
+
+    assert isinstance(result, Failure)
+
+    error = result.failure()
+
+    assert isinstance(error, ValidationError)
+    assert error.message == "Failed to validate YAML."
+    assert error.context == "serialization.validate_yaml"
+    assert error.input == data
+    assert error.details is not None
+    assert "errors" in error.details

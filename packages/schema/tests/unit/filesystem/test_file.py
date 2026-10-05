@@ -342,7 +342,7 @@ class TestFileTransportInfo:
             ),
         ],
     )
-    def test_valid_transport_information(self, input_data):
+    def test_valid_transport_information(self, input_data: TransportResult) -> None:
         info: FileTransportInfo = TestFileTransportInfo.create_transport_information(
             input_data
         )
@@ -479,12 +479,12 @@ class TestFileTransportInfo:
             ),
         ],
     )
-    def test_invalid_transport_information(self, input_data: TransportResult):
+    def test_invalid_transport_information(self, input_data: TransportResult) -> None:
         with pytest.raises(ValueError):
             TestFileTransportInfo.create_transport_information(input_data)
 
     @staticmethod
-    def compare(expected: TransportResult, source: FileTransportInfo):
+    def compare(expected: TransportResult, source: FileTransportInfo) -> None:
         assert expected.source_full_base == source.source_fullname_with_basepath
         assert expected.source_full == source.source_fullname
         assert expected.source_dir == source.source_path

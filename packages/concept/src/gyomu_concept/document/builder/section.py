@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -36,7 +36,7 @@ class SectionBuilder[
     translation: SectionTranslationDefinition
     build: Callable[
         [TContext, ConceptOption | None],
-        Result[SectionWithInstruction, DocumentBuilderError],
+        Awaitable[Result[SectionWithInstruction[TSectionId], DocumentBuilderError]],
     ]
     enabled: Callable[[TContext], bool]
 
@@ -55,12 +55,12 @@ def _get_translation_strategy(
             return table_translation_strategy
 
 
-def _create_built_section(
-    input: SectionWithInstruction,
-    translation: SectionTranslationDefinition | None = None,
-) -> BuiltSection:
-    if translation is None:
-        return BuiltSection(section=input.section, translation=SectionNoTranslation())
+def _create_built_section[TSectionId: str](
+    input: SectionWithInstruction[TSectionId],
+    translation: SectionTranslationDefinition,
+) -> BuiltSection[TSectionId]:
+    if isinstance(translation, SectionNoTranslation):
+        return BuiltSection(section=input.section, translation=translation)
     return BuiltSection(
         section=input.section,
         translation=SectionTranslationInstruction(
@@ -72,18 +72,18 @@ def _create_built_section(
     )
 
 
-def build_sections[TSectionId: str, TContext: DocumentBaseContext](
+async def build_sections[TSectionId: str, TContext: DocumentBaseContext](
     context: TContext,
     builders: tuple[SectionBuilder[TSectionId, TContext], ...],
     option: ConceptOption | None = None,
-) -> Result[tuple[BuiltSection, ...], DocumentBuilderError]:
+) -> Result[tuple[BuiltSection[TSectionId], ...], DocumentBuilderError]:
 
-    sections: list[BuiltSection] = []
+    sections: list[BuiltSection[TSectionId]] = []
     for builder in builders:
         enabled = builder.enabled(context)
         if not enabled:
             continue
-        section_with_instruction_result = builder.build(context, option)
+        section_with_instruction_result = await builder.build(context, option)
         if isinstance(section_with_instruction_result, Failure):
             return section_with_instruction_result
         sections.append(

@@ -3,11 +3,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from gyomu_schema.schemas.document.section import Section
 
 
-class Document(BaseModel):
+class Document[TSectionId: str](BaseModel):
     title: str = Field(
         description=("Top-level document title."), examples=["gyomu-schema"]
     )
-    sections: tuple[Section, ...] = Field(
+    sections: tuple[Section[TSectionId], ...] = Field(
         description=("Sections contained in the document."),
     )
 

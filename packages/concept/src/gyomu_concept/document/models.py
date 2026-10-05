@@ -35,23 +35,30 @@ class FilepathResolver:
 
 @dataclass
 class DocumentRenderer[
+    TSectionId: str,
     TContext: DocumentBaseContext,
     TOption: ConceptOption,
     TRendererOption,
 ]:
     render: Callable[
-        [TContext, TranslatedDocument, TOption | None, TRendererOption | None],
+        [
+            TContext,
+            TranslatedDocument[TSectionId],
+            TOption | None,
+            TRendererOption | None,
+        ],
         Result[RendererdDocument, DocumentBuilderError],
     ]
 
 
 @dataclass
 class DocumentOutput[
+    TSectionId: str,
     TContext: DocumentBaseContext,
     TOption: ConceptOption,
     TRendererOption,
 ]:
-    renderer: DocumentRenderer[TContext, TOption, TRendererOption]
+    renderer: DocumentRenderer[TSectionId, TContext, TOption, TRendererOption]
     filepath_resolver: FilepathResolver
 
 
@@ -70,7 +77,7 @@ class DocumentDefinition[
 
     section_builders: tuple[SectionBuilder[TSectionId, TContext], ...]
 
-    output: DocumentOutput[TContext, TOption, TRendererOption]
+    output: DocumentOutput[TSectionId, TContext, TOption, TRendererOption]
 
     renderer_options: TRendererOption | None
 

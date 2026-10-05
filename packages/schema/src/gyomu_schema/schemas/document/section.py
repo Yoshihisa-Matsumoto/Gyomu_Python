@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 from returns.result import Result
 
+from gyomu_schema.conversation.conversation import ConversationSchema
+from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.error.translation import TranslationError
 from gyomu_schema.schemas.document.content import (
     DocumentContent,
@@ -15,8 +17,8 @@ from gyomu_schema.schemas.document.content import (
 from gyomu_schema.schemas.document.validation import ValidationResult
 
 
-class Section(BaseModel):
-    id: str = Field(
+class Section[TSectionId: str](BaseModel):
+    id: TSectionId = Field(
         description=(
             "Stable identifier used by renderers and translators. "
             "It should not depend on the display language."
@@ -78,14 +80,16 @@ class DocumentContentTranslationStrategy[T: DocumentContent]:
     ]
 
 
-class SectionNoTranslation(BaseModel):
+@dataclass
+class SectionNoTranslation:
     strategy: Literal["none"] = "none"
 
 
-class SectionTranslationInstruction(BaseModel):
+@dataclass
+class SectionTranslationInstruction:
+    translation_strategies: tuple[DocumentContentTranslationStrategy[Any], ...]
     strategy: Literal["translate"] = "translate"
     translation_instruction: str | None = None
-    translation_strategies: tuple[DocumentContentTranslationStrategy[Any], ...]
 
 
 type SectionTranslationDefinition = Annotated[
@@ -94,13 +98,14 @@ type SectionTranslationDefinition = Annotated[
 ]
 
 
-class SectionWithInstruction(BaseModel):
-    section: Section
+class SectionWithInstruction[TSectionId: str](BaseModel):
+    section: Section[TSectionId]
     translation_instruction: str | None = None
 
 
-class BuiltSection(BaseModel):
-    section: Section
+@dataclass
+class BuiltSection[TSectionId: str]:
+    section: Section[TSectionId]
     translation: SectionTranslationDefinition
 
 
@@ -173,6 +178,7 @@ class TranslationResult(BaseModel):
 
 
 LanguageCodes = Literal["en", "ja"]
+SUPPORTED_TRANSLATION_LANGUAGES: tuple[LanguageCodes, ...] = get_args(LanguageCodes)
 
 
 class TranslationRequestItem(BaseModel):
@@ -191,3 +197,8 @@ class TranslationRequest(BaseModel):
     )
 
     translations: tuple[TranslationRequestItem, ...]
+
+
+@dataclass
+class SectionPromptProvider[TSectionId: str, TContext: BaseModel]:
+    render: Callable[[TSectionId, TContext], Result[ConversationSchema, GyomuIOError]]

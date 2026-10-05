@@ -1385,7 +1385,9 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         assert execute.await_count == 2
 
     @pytest.mark.asyncio
-    async def test_retry_then_retry_then_success(self, monkeypatch) -> None:
+    async def test_retry_then_retry_then_success(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         model_registry = PydanticAiModelRegistry(
             fast=lambda _: MagicMock(),
             smart=lambda _: MagicMock(),

@@ -1,3 +1,4 @@
+import yaml
 from pydantic import BaseModel, TypeAdapter
 from pydantic import ValidationError as PydanticValidationError
 from returns.result import Failure, Result, Success
@@ -53,6 +54,43 @@ def validate_json[T](model_type: type[T], data: str) -> Result[T, ValidationErro
                 "Failed to validate JSON.",
                 details={"errors": error.errors()},
                 context="serialization.validate_json",
+                input=data,
+            ).chain(error)
+        )
+
+
+def validate_yaml[T](
+    model_type: type[T],
+    data: str,
+) -> Result[T, ValidationError]:
+    """Validates YAML data against a given model type.
+
+    Args:
+        model_type (type[T]): The model type to validate against.
+        data (str): The YAML string data to validate.
+
+    Returns:
+        Result[T, ValidationError]: A Result containing the validated model instance on
+            success or a ValidationError on failure.
+    """
+    try:
+        parsed_data = yaml.safe_load(data)
+        return Success(TypeAdapter(model_type).validate_python(parsed_data))
+    except yaml.YAMLError as error:
+        return Failure(
+            ValidationError(
+                "Failed to parse YAML.",
+                details={"error": str(error)},
+                context="serialization.validate_yaml",
+                input=data,
+            ).chain(error)
+        )
+    except PydanticValidationError as error:
+        return Failure(
+            ValidationError(
+                "Failed to validate YAML.",
+                details={"errors": error.errors()},
+                context="serialization.validate_yaml",
                 input=data,
             ).chain(error)
         )

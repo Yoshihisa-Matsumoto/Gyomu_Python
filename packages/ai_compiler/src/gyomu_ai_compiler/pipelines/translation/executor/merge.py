@@ -25,7 +25,9 @@ def merge_retry_context[TSchema: DocumentContent](
     ):
         return Failure(
             TranslationError(
-                message="Invalid call. Should be called only when validation result fails",
+                message=(
+                    "Invalid call. Should be called only when validation result fails"
+                ),
                 content_type=original_context.kind,
                 phase="retry-context",
                 section_id=section_id,

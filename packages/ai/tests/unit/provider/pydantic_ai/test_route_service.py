@@ -14,6 +14,7 @@ from gyomu_schema.error.ai import (
     AiFailResolution,
     AiFallbackResolution,
 )
+from pytest_mock import MockerFixture
 from returns.result import Failure, Result, Success
 
 
@@ -33,7 +34,7 @@ def second_route_node() -> RouteNode:
 
 @pytest.fixture
 def execution(
-    mocker,
+    mocker: MockerFixture,
     route_node: RouteNode,
 ) -> route_service_module.PydanticAiRoutingExecution:
     route = ModelRoute(nodes=(route_node,))
@@ -52,7 +53,7 @@ def execution(
 class TestPydanticAiRoutingExecution:
     async def test_run_node(
         self,
-        mocker,
+        mocker: MockerFixture,
         route_node: RouteNode,
     ) -> None:
         execution = route_service_module.PydanticAiRoutingExecution.__new__(
@@ -86,7 +87,7 @@ class TestPydanticAiRoutingExecution:
 
     async def test_run_with_model_route_returns_success(
         self,
-        mocker,
+        mocker: MockerFixture,
         route_node: RouteNode,
     ) -> None:
         execution = route_service_module.PydanticAiRoutingExecution.__new__(
@@ -113,7 +114,7 @@ class TestPydanticAiRoutingExecution:
 
     async def test_run_with_model_route_stops_on_non_fallback_error(
         self,
-        mocker,
+        mocker: MockerFixture,
         route_node: RouteNode,
         second_route_node: RouteNode,
     ) -> None:
@@ -219,7 +220,7 @@ class TestPydanticAiRoutingExecution:
 
     async def test_generate_text_delegates_to_model_execution(
         self,
-        mocker,
+        mocker: MockerFixture,
         execution,
     ) -> None:
         conversation = MagicMock()
@@ -250,7 +251,7 @@ class TestPydanticAiRoutingExecution:
 
     async def test_stream_text_delegates_to_model_execution(
         self,
-        mocker,
+        mocker: MockerFixture,
         execution,
     ) -> None:
         conversation = MagicMock()
@@ -262,7 +263,7 @@ class TestPydanticAiRoutingExecution:
 
         async def execute(
             callback,
-        ):
+        ) -> Result[object, AiError]:
             return await callback(service)
 
         run_with_model_route = mocker.patch.object(
@@ -273,14 +274,15 @@ class TestPydanticAiRoutingExecution:
 
         actual = await execution.stream_text(conversation, params)
 
+        assert isinstance(actual, Success)
         assert actual is expected
         run_with_model_route.assert_called_once()
         service.stream_text.assert_awaited_once_with(conversation, params)
 
     async def test_generate_object_delegates_to_model_execution(
         self,
-        mocker,
-        execution,
+        mocker: MockerFixture,
+        execution: route_service_module.PydanticAiRoutingExecution,
     ) -> None:
         conversation = MagicMock()
         params = MagicMock()
@@ -290,8 +292,11 @@ class TestPydanticAiRoutingExecution:
         service.generate_object = AsyncMock(return_value=expected)
 
         async def execute(
-            callback,
-        ):
+            callback: Callable[
+                [PydanticAiModelExecution],
+                Awaitable[Result[str, AiError]],
+            ],
+        ) -> Result[str, AiError]:
             return await callback(service)
 
         run_with_model_route = mocker.patch.object(
@@ -302,13 +307,13 @@ class TestPydanticAiRoutingExecution:
 
         actual = await execution.generate_object(conversation, params)
 
+        assert isinstance(actual, Success)
         assert actual is expected
         run_with_model_route.assert_called_once()
         service.generate_object.assert_awaited_once_with(conversation, params)
 
     async def test_embed_uses_first_route_node(
         self,
-        mocker,
         route_node: RouteNode,
         second_route_node: RouteNode,
     ) -> None:
@@ -322,10 +327,11 @@ class TestPydanticAiRoutingExecution:
         params = MagicMock()
         expected = Success("embedding")
 
-        execution.run_node = AsyncMock(return_value=expected)
+        execution.run_node = AsyncMock(return_value=expected)  # type: ignore[method-assign]
 
         actual = await execution.embed(params)
 
+        assert isinstance(actual, Success)
         assert actual is expected
 
         execution.run_node.assert_awaited_once()

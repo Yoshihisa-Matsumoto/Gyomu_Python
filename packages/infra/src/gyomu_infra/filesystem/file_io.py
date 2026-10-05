@@ -5,7 +5,7 @@ from pathlib import Path
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.types import FullPath
-from gyomu_schema.utility.serialization import dump_json, validate_json
+from gyomu_schema.utility.serialization import dump_json, validate_json, validate_yaml
 from returns.result import Failure, Result, Success
 
 
@@ -111,6 +111,18 @@ def read_json[T](
         return text_result
 
     return validate_json(model_type, text_result.unwrap())
+
+
+def read_yaml[T](
+    path: Path,
+    model_type: type[T],
+) -> Result[T, GyomuIOError | ValidationError]:
+    text_result = read_text(path)
+
+    if isinstance(text_result, Failure):
+        return text_result
+
+    return validate_yaml(model_type, text_result.unwrap())
 
 
 def write_json[T](

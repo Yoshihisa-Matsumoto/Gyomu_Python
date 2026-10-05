@@ -5,13 +5,14 @@ from gyomu_concept.document.models import DocumentDefinition
 from gyomu_concept.document.translation.document import TranslatedDocument
 from gyomu_concept.document.translation.section import translate_section
 from gyomu_concept.error.document import DocumentBuilderError
-from gyomu_infra.filesystem.file_io import write_json, write_text
+from gyomu_infra.filesystem.file_io import write_text
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.base import DocumentBaseContext
-from gyomu_schema.schemas.document.section import BuiltSection, Section
+from gyomu_schema.schemas.document.section import Section
 from gyomu_schema.utility.context import caller_context
+from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
 
@@ -23,7 +24,7 @@ async def generate_document[
 ](
     definition: DocumentDefinition[TSectionId, TContext, TOption, TRendererOption],
     project: ProjectContext,
-    option: TOption,
+    option: TOption | None = None,
 ) -> Result[None, DocumentBuilderError]:
     caller = caller_context()
     context_result = definition.create_context(project, option)
@@ -31,7 +32,9 @@ async def generate_document[
         return context_result
     context = context_result.unwrap()
 
-    sections_result = build_sections(context, definition.section_builders, option)
+    sections_result = await build_sections(
+        context=context, builders=definition.section_builders, option=option
+    )
     if isinstance(sections_result, Failure):
         return sections_result
     sections = sections_result.unwrap()
@@ -42,16 +45,15 @@ async def generate_document[
         and definition.is_scope_of_debug(option)
     ):
         if option.debug_info.dump_to_file:
-            write_json(
+            write_text(
                 Path("log") / f"{definition.log_prefix}Sections.json",
-                sections,
-                tuple[BuiltSection, ...],
+                format_object(sections, depth=6),
             )
         else:
             logger.debug_object(sections, depth=6)
 
     for language in definition.supported_languages:
-        translated_sections: list[Section] = []
+        translated_sections: list[Section[TSectionId]] = []
         for section in sections:
             section_id = section.section.id
             translate_result = await translate_section(section, language, option)

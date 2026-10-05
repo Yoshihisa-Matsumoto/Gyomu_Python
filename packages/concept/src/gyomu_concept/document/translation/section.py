@@ -13,9 +13,11 @@ from gyomu_schema.schemas.document.section import (
 from returns.result import Failure, Result, Success
 
 
-async def translate_section(
-    section: BuiltSection, language: LanguageCodes, option: ConceptOption | None = None
-) -> Result[Section, TranslationError]:
+async def translate_section[TSectionId: str](
+    section: BuiltSection[TSectionId],
+    language: LanguageCodes,
+    option: ConceptOption | None = None,
+) -> Result[Section[TSectionId], TranslationError]:
     contents: list[DocumentContent] = []
     for index, content in enumerate(section.section.contents):
         if not isinstance(section.translation, SectionTranslationInstruction):

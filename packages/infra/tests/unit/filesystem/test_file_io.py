@@ -10,6 +10,7 @@ from gyomu_infra.filesystem.file_io import (
     enumerate_files,
     read_json,
     read_text,
+    read_yaml,
     write_json,
     write_text,
 )
@@ -288,3 +289,43 @@ class TestEnumerateFiles:
         result = enumerate_files(tmp_path)
 
         assert result == frozenset()
+
+
+class TestReadYaml:
+    def test_reads_and_validates_yaml(self, tmp_path: Path) -> None:
+        path = tmp_path / "example.yaml"
+        value = ExampleModel(name="example", value=42)
+        path.write_text(
+            "name: example\nvalue: 42\n",
+            encoding="utf-8",
+        )
+
+        result = read_yaml(path, ExampleModel)
+
+        assert result == Success(value)
+
+    def test_returns_validation_error_for_invalid_yaml(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "example.yaml"
+        path.write_text(
+            "name: example\nvalue: invalid\n",
+            encoding="utf-8",
+        )
+
+        result = read_yaml(path, ExampleModel)
+
+        assert isinstance(result, Failure)
+        assert isinstance(result.failure(), ValidationError)
+
+    def test_returns_io_error_when_file_does_not_exist(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "missing.yaml"
+
+        result = read_yaml(path, ExampleModel)
+
+        assert isinstance(result, Failure)
+        assert isinstance(result.failure(), GyomuIOError)
