@@ -69,7 +69,7 @@ def _is_complete(checkpoint: Checkpoint) -> bool:
     Args:
         checkpoint (Checkpoint):
     """
-    return PipelineStep.PACKAGE_CONCEPT in checkpoint.completed_steps
+    return PipelineStep.README in checkpoint.completed_steps
 
 
 def load_checkpoint(

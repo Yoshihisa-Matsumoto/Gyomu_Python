@@ -227,6 +227,16 @@ async def test_run_actions_runs_directory_and_package_concept(
     )
     package_snapshot = mocker.Mock(spec=ProjectSnapshot)
 
+    readme_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+            PipelineStep.README,
+        ),
+    )
+    readme_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
     mocker.patch(
         "gyomu_workflow.snapshot.run.analyze_project_changes",
         return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
@@ -255,13 +265,23 @@ async def test_run_actions_runs_directory_and_package_concept(
         ),
     )
 
+    run_readme_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_readme_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=readme_checkpoint,
+                snapshot=readme_snapshot,
+            )
+        ),
+    )
+
     result = await run_actions(
         request=snapshot_request,
         target=snapshot_target,
     )
 
     assert isinstance(result, Success)
-    assert result.unwrap() is package_snapshot
+    assert result.unwrap() is readme_snapshot
 
     run_directory_action.assert_awaited_once()
 
@@ -270,6 +290,7 @@ async def test_run_actions_runs_directory_and_package_concept(
         current_checkpoint=directory_checkpoint,
         option=run_package_action.call_args.kwargs["option"],
     )
+    run_readme_action.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -295,6 +316,16 @@ async def test_run_actions_skips_completed_directory_concept(
     )
     package_snapshot = mocker.Mock(spec=ProjectSnapshot)
 
+    readme_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+            PipelineStep.README,
+        ),
+    )
+    readme_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
     mocker.patch(
         "gyomu_workflow.snapshot.run.analyze_project_changes",
         return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
@@ -316,6 +347,15 @@ async def test_run_actions_skips_completed_directory_concept(
             )
         ),
     )
+    run_readme_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_readme_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=readme_checkpoint,
+                snapshot=readme_snapshot,
+            )
+        ),
+    )
 
     result = await run_actions(
         request=snapshot_request,
@@ -323,7 +363,7 @@ async def test_run_actions_skips_completed_directory_concept(
     )
 
     assert isinstance(result, Success)
-    assert result.unwrap() is package_snapshot
+    assert result.unwrap() is readme_snapshot
 
     run_directory_action.assert_not_awaited()
     run_package_action.assert_awaited_once_with(
@@ -331,6 +371,7 @@ async def test_run_actions_skips_completed_directory_concept(
         current_checkpoint=checkpoint,
         option=run_package_action.call_args.kwargs["option"],
     )
+    run_readme_action.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -347,6 +388,7 @@ async def test_run_actions_skips_completed_concepts(
         completed_steps=(
             PipelineStep.DIRECTORY_CONCEPT,
             PipelineStep.PACKAGE_CONCEPT,
+            PipelineStep.README,
         ),
     )
 
@@ -365,6 +407,9 @@ async def test_run_actions_skips_completed_concepts(
     run_package_action = mocker.patch(
         "gyomu_workflow.snapshot.run.run_package_action",
     )
+    run_readme_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_readme_action",
+    )
 
     result = await run_actions(
         request=snapshot_request,
@@ -376,6 +421,7 @@ async def test_run_actions_skips_completed_concepts(
 
     run_directory_action.assert_not_awaited()
     run_package_action.assert_not_awaited()
+    run_readme_action.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -493,31 +539,161 @@ def test_build_docstring_update_option_without_keyword():
 
     assert option.debug_info.keyword is None
 
+    @pytest.mark.parametrize(
+        ("file_path", "source_root", "expected"),
+        [
+            (
+                ProjectRelativePath(Path("src/example.py")),
+                ProjectRelativePath(Path("src")),
+                True,
+            ),
+            (
+                ProjectRelativePath(Path("src/sub/example.py")),
+                ProjectRelativePath(Path("src")),
+                True,
+            ),
+            (
+                ProjectRelativePath(Path("tests/example.py")),
+                ProjectRelativePath(Path("src")),
+                False,
+            ),
+            (
+                ProjectRelativePath(Path("src2/example.py")),
+                ProjectRelativePath(Path("src")),
+                False,
+            ),
+        ],
+    )
+    def test_is_source_file(file_path, source_root, expected):
+        assert is_source_file(file_path, source_root) is expected
 
-@pytest.mark.parametrize(
-    ("file_path", "source_root", "expected"),
-    [
-        (
-            ProjectRelativePath(Path("src/example.py")),
-            ProjectRelativePath(Path("src")),
-            True,
+
+@pytest.mark.asyncio
+async def test_run_actions_skips_completed_directory_and_package_concept(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(PipelineStep.DIRECTORY_CONCEPT, PipelineStep.PACKAGE_CONCEPT),
+    )
+
+    package_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
         ),
-        (
-            ProjectRelativePath(Path("src/sub/example.py")),
-            ProjectRelativePath(Path("src")),
-            True,
+    )
+    package_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
+    readme_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+            PipelineStep.README,
         ),
-        (
-            ProjectRelativePath(Path("tests/example.py")),
-            ProjectRelativePath(Path("src")),
-            False,
+    )
+    readme_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=checkpoint,
+    )
+
+    run_directory_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+    )
+    run_package_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=package_checkpoint,
+                snapshot=package_snapshot,
+            )
         ),
-        (
-            ProjectRelativePath(Path("src2/example.py")),
-            ProjectRelativePath(Path("src")),
-            False,
+    )
+    run_readme_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_readme_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=readme_checkpoint,
+                snapshot=readme_snapshot,
+            )
         ),
-    ],
-)
-def test_is_source_file(file_path, source_root, expected):
-    assert is_source_file(file_path, source_root) is expected
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Success)
+    assert result.unwrap() is readme_snapshot
+
+    run_directory_action.assert_not_awaited()
+    run_package_action.assert_not_awaited()
+    run_readme_action.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_run_actions_returns_readme_failure(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(PipelineStep.DIRECTORY_CONCEPT, PipelineStep.PACKAGE_CONCEPT),
+    )
+
+    error = GyomuError(
+        message="package concept failed",
+        domain="test",
+        operation="test",
+        reason="invalid_input",
+    )
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=checkpoint,
+    )
+    run_directory_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+    )
+    run_package_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+        return_value=Failure(error),
+    )
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.run_readme_action",
+        return_value=Failure(error),
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Failure)
+    assert result.failure() is error
+
+    run_directory_action.assert_not_awaited()
+    run_package_action.assert_not_awaited()
