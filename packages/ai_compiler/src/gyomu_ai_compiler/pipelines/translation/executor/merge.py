@@ -20,6 +20,26 @@ def merge_retry_context[TSchema: DocumentContent](
     original_context: TSchema,
     translated_context: TSchema,
 ) -> Result[TranslationState[TSchema], TranslationError]:
+    """Merge retry context for a document section translation.
+
+    Merges translation retry context using the content strategy when validation fails.
+
+    Args:
+        section_id (str): Identifier of the section.
+        section_definition (SectionTranslationDefinition): Definition of the section
+            translation.
+        content_strategy (DocumentContentTranslationStrategy[TSchema]): Document content
+            translation strategy.
+        current_validation (ValidationResult): Current validation result.
+        previous_validation (ValidationResult | None): Previous validation result, if
+            any.
+        original_context (TSchema): Original document context.
+        translated_context (TSchema): Translated document context.
+
+    Returns:
+        Result[TranslationState[TSchema], TranslationError]: A Result containing the
+            TranslationState or a TranslationError.
+    """
     if current_validation.is_valid or (
         previous_validation is not None and previous_validation.is_valid
     ):

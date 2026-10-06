@@ -1,4 +1,3 @@
-from gyomu_ai_compiler.prompts.load import load_prompt
 from gyomu_schema.error.translation import TranslationError
 from gyomu_schema.schemas.document.content import DocumentContent
 from gyomu_schema.schemas.document.section import (
@@ -13,6 +12,8 @@ from gyomu_schema.utility.convert import to_json_schema
 from gyomu_schema.utility.serialization import dump_json
 from returns.result import Failure, Result, Success
 
+from gyomu_ai_compiler.prompts.load import load_prompt
+
 
 def build_translation_prompt[TSchema: DocumentContent](
     language: LanguageCodes,
@@ -22,6 +23,23 @@ def build_translation_prompt[TSchema: DocumentContent](
     content_strategy: DocumentContentTranslationStrategy[TSchema],
     validation_result: ValidationResult | None,
 ) -> Result[str, TranslationError]:
+    """Builds a translation prompt for a document section.
+
+    Args:
+        language (LanguageCodes): Target language code for translation.
+        section_id (str): Identifier of the section being translated.
+        context (TSchema): Context content object matching the document schema.
+        section_definition (SectionTranslationDefinition): Definition of section
+            translation rules.
+        content_strategy (DocumentContentTranslationStrategy[TSchema]): Strategy for
+            handling document content translation.
+        validation_result (ValidationResult | None): Optional validation result from
+            previous translation attempts.
+
+    Returns:
+        Result[str, TranslationError]: A Result containing the generated prompt string
+            on success, or a TranslationError on failure.
+    """
 
     prompt_result = load_prompt("document-translation.md")
     if isinstance(prompt_result, Failure):

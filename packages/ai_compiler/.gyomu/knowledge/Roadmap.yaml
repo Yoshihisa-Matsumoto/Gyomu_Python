@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../../../schemas/Roadmap.json
+
+planned: []
+
+in_progress: []
+
+completed: []
+
+backlog: []
