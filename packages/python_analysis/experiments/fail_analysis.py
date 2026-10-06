@@ -15,5 +15,5 @@ result = load_module_analysis(context, module_path=PythonPath("sample.user2"))
 # result = load_module_analysis(context,module_path=PythonPath("gyomu_schema.schemas.knowledge.roadmap"))
 if isinstance(result,Failure):
     print(format_object(result.failure(),depth=6))
-# else:
-#     print(format_object(result.unwrap(),depth=6))
+else:
+    print(format_object(result.unwrap(),depth=6))

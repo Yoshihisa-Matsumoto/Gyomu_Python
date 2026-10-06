@@ -14,5 +14,7 @@ Guidelines:
 - Write 2–4 concise paragraphs.
 - Keep the overall length under 180 words.
 - Use clear and professional technical English.
-- Output only the architecture section.
+- Output plain section content only.
+- Do not include a section heading.
+- Do not use Markdown headings.
 - Prefer describing the package as a set of collaborating components instead of listing directories individually.

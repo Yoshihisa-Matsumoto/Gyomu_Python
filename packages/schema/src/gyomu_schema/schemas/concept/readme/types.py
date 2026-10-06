@@ -14,6 +14,10 @@ ReadmeSectionId = Literal[
     "dependencies",
     "license",
 ]
+"""ReadmeSectionId
+
+Represents valid section identifiers for a README file.
+"""
 
 README_SECTION_TITLES: dict[LanguageCodes, dict[ReadmeSectionId, str]] = {
     "en": {
@@ -41,8 +45,17 @@ README_SECTION_TITLES: dict[LanguageCodes, dict[ReadmeSectionId, str]] = {
         "requirements": "要件",
     },
 }
+"""README_SECTION_TITLES
+
+Mapping of README section identifiers to their localized titles across supported
+languages.
+"""
 
 README_LINK: dict[LanguageCodes, str] = {
     "en": "US English",
     "ja": "JP 日本語",
 }
+"""README_LINK
+
+Mapping of language codes to their corresponding README display names.
+"""

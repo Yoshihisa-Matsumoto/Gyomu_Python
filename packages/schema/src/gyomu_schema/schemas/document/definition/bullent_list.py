@@ -16,6 +16,8 @@ def _validate_bullet_list_item(
     translation_id: int,
     issues: list[ValidationIssue],
 ) -> None:
+    """Validate bullet list item translation consistency."""
+
     source_item_count = 0 if source.children is None else len(source.children)
     destination_item_count = (
         0 if destination.children is None else len(destination.children)
@@ -69,6 +71,8 @@ def _validate_bullet_list_item(
 def _validate_bullet_list(
     source: BulletList, destination: BulletList
 ) -> ValidationResult:
+    """Validate bullet list translation consistency."""
+
     issues: list[ValidationIssue] = []
 
     if len(source.items) != len(destination.items):
@@ -124,3 +128,4 @@ bullet_list_definition = DocumentContentDefinitionBase[BulletList](
         "Do not translate or modify `translation_id` or the `children` structure."
     ),
 )
+"""Document content definition for bullet lists."""

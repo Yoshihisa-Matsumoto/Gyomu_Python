@@ -7,6 +7,13 @@ from gyomu_schema.schemas.document.validation import ValidationIssue, Validation
 
 
 def _validate_table(source: Table, destination: Table) -> ValidationResult:
+    """Validate a table against a source table, checking header cell counts, row counts,
+    and row cell counts.
+
+    Returns:
+        ValidationResult: Validation result containing any issues found during table
+            validation.
+    """
     issues: list[ValidationIssue] = []
     if len(source.header.cells) != len(destination.header.cells):
         issues.append(
@@ -83,3 +90,6 @@ table_definition = DocumentContentDefinitionBase[Table](
         "Preserve the table structure, including the number of columns and rows."
     ),
 )
+"""Definition for table document content, including its schema, reconciliation
+validator, and translation instructions.
+"""

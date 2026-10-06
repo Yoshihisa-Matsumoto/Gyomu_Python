@@ -14,6 +14,8 @@ from gyomu_schema.schemas.document.validation import ValidationResult
 def _find_bullet_list_item_from_item(
     item: BulletListItem, translation_id: int
 ) -> BulletListItem | None:
+    """Find a bullet list item matching the specified translation ID."""
+
     if item.translation_id == translation_id:
         return item
     if item.children is not None:
@@ -29,6 +31,8 @@ def _find_bullet_list_item(
     bullet_list: BulletList,
     translation_id: int,
 ) -> BulletListItem | None:
+    """Find a bullet list item in a bullet list by translation ID."""
+
     for item in bullet_list.items:
         found_item = _find_bullet_list_item_from_item(item, translation_id)
         if found_item is not None:
@@ -40,6 +44,8 @@ def _find_bullet_list_item(
 def _update_bullet_list_retry_context(
     args: RetryContextArg[BulletList],
 ) -> Result[TranslationState[BulletList], TranslationError]:
+    """Update bullet list retry context during translation."""
+
     current_validation = args.current_validation
     previous_validation = args.previous_validation
     original_context = args.original_context
@@ -84,6 +90,9 @@ def _update_bullet_list_retry_context(
 def _retrieve_valid_id_list(
     validation: ValidationResult, context: BulletList
 ) -> tuple[int, ...]:
+    """Retrieve a tuple of valid translation IDs from a bullet list and validation
+    result.
+    """
     invalid_id_list = [
         issue.translation_id
         for issue in validation.issues
@@ -101,6 +110,8 @@ def _retrieve_valid_id_list(
 def _retrieve_valid_id_list_item(
     invalid_id_list: list[int], item: BulletListItem
 ) -> list[int]:
+    """Retrieve valid translation IDs from a bullet list item recursively."""
+
     valid_id_list: list[int] = []
 
     if item.translation_id not in invalid_id_list:
@@ -119,6 +130,8 @@ def _merge_validation_result(
     previous_validation: ValidationResult | None,
     context: BulletList,
 ) -> ValidationResult:
+    """Merge current and previous validation results for a bullet list."""
+
     if not previous_validation:
         return current_validation
     if any(issue.translation_id is None for issue in previous_validation.issues):
@@ -141,3 +154,4 @@ bullet_list_translation_strategy = DocumentContentTranslationStrategy[BulletList
     definition=bullet_list_definition,
     retry_context_updater=_update_bullet_list_retry_context,
 )
+"""Translation strategy definition for bullet list content."""

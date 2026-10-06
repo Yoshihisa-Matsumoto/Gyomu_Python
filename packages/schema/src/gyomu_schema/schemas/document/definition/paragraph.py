@@ -10,6 +10,18 @@ from gyomu_schema.schemas.document.validation import ValidationResult
 
 
 def _validate_paragraph(source: Paragraph, destination: Paragraph) -> ValidationResult:
+    """Validates source and destination paragraphs.
+
+    Validates paragraph content during reconciliation.
+
+    Args:
+        source (Paragraph): Source paragraph content
+        destination (Paragraph): Destination paragraph content
+
+    Returns:
+        ValidationResult: Validation result indicating whether the paragraph content is
+            valid
+    """
     return ValidationResult(issues=tuple(), is_valid=True)
 
 
@@ -19,3 +31,7 @@ paragraph_definition = DocumentContentDefinitionBase[Paragraph](
     reconciliation=ReconciliationValidator[Paragraph](validate=_validate_paragraph),
     translation_instruction="Translate only the `text` field.",
 )
+"""Content definition for paragraph documents.
+
+Defines content definition and validation rules for paragraph document content.
+"""

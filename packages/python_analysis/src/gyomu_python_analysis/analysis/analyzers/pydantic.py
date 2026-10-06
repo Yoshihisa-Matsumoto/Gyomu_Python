@@ -19,7 +19,7 @@ from gyomu_schema.schemas.python.type.type_analysis import (
 )
 
 
-def _is_field_required(field_type: StructureAnalysis) -> bool:
+def _is_field_required(field_type: StructureAnalysis | None) -> bool:
     """Determine whether a field is required based on its type analysis.
 
     Args:

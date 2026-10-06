@@ -43,3 +43,43 @@ class RoadmapItem(BaseModel):
             "to be addressed before lower-priority items."
         ),
     )
+
+ReadmeSectionId = Literal[
+    "overview",
+    "features",
+    "installation",
+    "requirements",
+    "quick-start",
+    "architecture",
+    "public-api",
+    "development",
+    "dependencies",
+    "license",
+]
+
+README_SECTION_TITLES: dict[str, dict[ReadmeSectionId, str]] = {
+    "en": {
+        "overview": "Overview",
+        "features": "Features",
+        "installation": "Installation",
+        "public-api": "Public API",
+        "quick-start": "Quick Start",
+        "architecture": "Architecture",
+        "dependencies": "Dependencies",
+        "development": "Development",
+        "license": "License",
+        "requirements": "Requirements",
+    },
+    "ja": {
+        "overview": "概要",
+        "features": "機能",
+        "installation": "インストール",
+        "public-api": "Public API",
+        "quick-start": "クイックスタート",
+        "architecture": "アーキテクチャ",
+        "dependencies": "依存関係",
+        "development": "開発",
+        "license": "ライセンス",
+        "requirements": "要件",
+    },
+}

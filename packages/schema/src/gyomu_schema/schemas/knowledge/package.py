@@ -2,6 +2,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class PackageTerminology(BaseModel):
+    """Defines a glossary entry containing a technical term and its definition."""
+
     model_config = ConfigDict(
         json_schema_extra={
             "description": "A glossary entry.",
@@ -11,15 +13,21 @@ class PackageTerminology(BaseModel):
     term: str = Field(
         description="The technical term or concept.",
     )
+    """The technical term or concept."""
 
     definition: str = Field(
         description=(
             "A concise explanation of the meaning of the term within this project."
         ),
     )
+    """A concise explanation of the meaning of the term within this project."""
 
 
 class PackageUsage(BaseModel):
+    """Defines a recommended usage pattern consisting of a situation and
+    corresponding guidance.
+    """
+
     model_config = ConfigDict(
         json_schema_extra={
             "description": (
@@ -35,6 +43,7 @@ class PackageUsage(BaseModel):
             "applied."
         ),
     )
+    """The context or situation in which this guidance should be applied."""
 
     guidance: str = Field(
         description=(
@@ -42,9 +51,16 @@ class PackageUsage(BaseModel):
             "be followed in this situation."
         ),
     )
+    """The recommended action, behavior, or workflow that should be followed in this
+    situation.
+    """
 
 
 class PackageExample(BaseModel):
+    """Defines a complete worked example with title, input, output, and explanation
+    demonstrating knowledge application.
+    """
+
     model_config = ConfigDict(
         json_schema_extra={
             "description": (
@@ -57,6 +73,7 @@ class PackageExample(BaseModel):
     title: str = Field(
         description="A short descriptive title that summarizes the example.",
     )
+    """A short descriptive title that summarizes the example."""
 
     input: str = Field(
         description=(
@@ -64,6 +81,7 @@ class PackageExample(BaseModel):
             "Use Markdown when formatting improves readability."
         ),
     )
+    """The input, request, or initial situation presented to the system."""
 
     output: str = Field(
         description=(
@@ -71,6 +89,7 @@ class PackageExample(BaseModel):
             "Use Markdown when appropriate."
         ),
     )
+    """The expected or recommended output produced from the input."""
 
     explanation: str = Field(
         description=(
@@ -78,9 +97,16 @@ class PackageExample(BaseModel):
             "or policy it demonstrates."
         ),
     )
+    """Explanation of why the output is considered correct and what principle or
+    policy it demonstrates.
+    """
 
 
 class Package(BaseModel):
+    """Defines a structured knowledge package containing a mission, policies,
+    constraints, terminology, usage patterns, and examples.
+    """
+
     model_config = ConfigDict(
         json_schema_extra={
             "title": "Knowledge",
@@ -95,6 +121,7 @@ class Package(BaseModel):
     display_name: str = Field(
         description="Package display name",
     )
+    """Package display name."""
 
     mission: str = Field(
         description=(
@@ -102,6 +129,7 @@ class Package(BaseModel):
             "this knowledge exists to achieve in one concise paragraph."
         ),
     )
+    """The primary mission or purpose of this knowledge."""
 
     policies: tuple[str, ...] = Field(
         description=(
@@ -109,6 +137,7 @@ class Package(BaseModel):
             "should usually be done, but are not absolute requirements."
         ),
     )
+    """General principles or recommended behaviors."""
 
     constraints: tuple[str, ...] = Field(
         description=(
@@ -116,6 +145,7 @@ class Package(BaseModel):
             "constraints makes the output incorrect."
         ),
     )
+    """Hard requirements that must always be satisfied."""
 
     non_goals: tuple[str, ...] = Field(
         description=(
@@ -123,6 +153,7 @@ class Package(BaseModel):
             "cover. This helps avoid scope creep and incorrect assumptions."
         ),
     )
+    """Explicitly states what this knowledge is not intended to solve or cover."""
 
     terminology: tuple[PackageTerminology, ...] = Field(
         description=(
@@ -130,6 +161,7 @@ class Package(BaseModel):
             "that may be ambiguous or unfamiliar."
         ),
     )
+    """Definitions of project-specific terminology."""
 
     rationale: tuple[str, ...] = Field(
         description=(
@@ -137,6 +169,7 @@ class Package(BaseModel):
             'choices. Focus on "why" rather than "what".'
         ),
     )
+    """Important reasoning behind decisions, trade-offs, or architectural choices."""
 
     usage: tuple[PackageUsage, ...] = Field(
         description=(
@@ -144,6 +177,7 @@ class Package(BaseModel):
             "describes when the guidance applies and what should be done."
         ),
     )
+    """Recommended ways to apply this knowledge in practice."""
 
     examples: tuple[PackageExample, ...] = Field(
         description=(
@@ -152,3 +186,4 @@ class Package(BaseModel):
             "few-shot prompting."
         ),
     )
+    """Concrete examples showing correct application of this knowledge."""

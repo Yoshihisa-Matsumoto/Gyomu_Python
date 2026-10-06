@@ -7,6 +7,12 @@ from gyomu_schema.schemas.document.validation import ValidationIssue, Validation
 
 
 def _validate_codeblock(source: CodeBlock, destination: CodeBlock) -> ValidationResult:
+    """Validates source and destination CodeBlock instances for reconciliation.
+
+    Returns:
+        ValidationResult: Validation result containing any issues found during code
+            block comparison.
+    """
     issues: list[ValidationIssue] = []
     if source.title and not destination.title:
         issues.append(
@@ -52,3 +58,6 @@ code_block_definition = DocumentContentDefinitionBase[CodeBlock](
         "If the `title` field does not exist, do not create one."
     ),
 )
+"""Content definition for CodeBlock elements, specifying validation and translation
+instructions.
+"""

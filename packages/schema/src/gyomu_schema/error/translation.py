@@ -11,6 +11,7 @@ TranslationPhase = Literal[
     "retry",
     "prompt",
 ]
+"""Represents the distinct phases of the translation process."""
 
 
 class TranslationError(BaseError):
