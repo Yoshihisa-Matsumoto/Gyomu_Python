@@ -104,7 +104,7 @@ def _map_rate_limit_error(
 
     if delay_second is not None:
         resolution: AiErrorResolution = AiRetryResolution(
-            strategy=AiRetryAfter(delay_second=delay_second),
+            strategy=AiRetryAfter(delay_second=delay_second + 1),
         )
         logger.debug(f"Rate Limit: {delay_second} second")
     else:

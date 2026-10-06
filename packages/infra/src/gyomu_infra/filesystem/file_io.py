@@ -10,6 +10,9 @@ from returns.result import Failure, Result, Success
 
 
 def ensure_directory(path: Path) -> Result[None, GyomuIOError]:
+    """Ensure that a directory exists at the given path, creating it and parent
+    directories as needed.
+    """
     try:
         path.mkdir(parents=True, exist_ok=True)
         return Success(None)
@@ -28,6 +31,8 @@ def ensure_directory(path: Path) -> Result[None, GyomuIOError]:
 def read_text(
     path: Path,
 ) -> Result[str, GyomuIOError]:
+    """Read text content from a file with UTF-8 encoding."""
+
     try:
         with path.open("r", newline="", encoding="utf-8") as file:
             source = file.read()
@@ -78,6 +83,8 @@ def write_text(
     *,
     create_parent: bool = True,
 ) -> Result[None, GyomuIOError]:
+    """Write text content to a file with UTF-8 encoding."""
+
     if create_parent:
         directory_result = ensure_directory(path.parent)
 
@@ -105,6 +112,8 @@ def read_json[T](
     path: Path,
     model_type: type[T],
 ) -> Result[T, GyomuIOError | ValidationError]:
+    """Read and validate a JSON file into a specified model type."""
+
     text_result = read_text(path)
 
     if isinstance(text_result, Failure):
@@ -117,6 +126,8 @@ def read_yaml[T](
     path: Path,
     model_type: type[T],
 ) -> Result[T, GyomuIOError | ValidationError]:
+    """Read and validate a YAML file into a specified model type."""
+
     text_result = read_text(path)
 
     if isinstance(text_result, Failure):
@@ -128,6 +139,8 @@ def read_yaml[T](
 def write_json[T](
     path: Path, value: T, value_type: type[T], indent: int | None = 2
 ) -> Result[None, GyomuIOError]:
+    """Serialize a value to JSON and write it to a file."""
+
     content = dump_json(value, value_type, indent=indent)
     return write_text(path, content)
 
@@ -137,6 +150,9 @@ def enumerate_files(
     filter: Callable[[Path], bool] | None = None,
     relative_to: Path | None = None,
 ) -> frozenset[Path]:
+    """Enumerate all files recursively within a given directory, optionally applying
+    a filter.
+    """
     files = (file for file in path.rglob("*") if file.is_file())
 
     if filter is not None:
@@ -149,6 +165,8 @@ def enumerate_files(
 
 
 def delete_file(path: Path) -> Result[None, GyomuIOError]:
+    """Delete a file at the specified path."""
+
     try:
         remove(path)
         return Success(None)

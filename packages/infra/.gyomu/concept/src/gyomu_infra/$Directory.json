@@ -1,41 +1,34 @@
 {
-  "summary": "Serves as the root infrastructure package providing foundational modules for archive handling, configuration, CSV data parsing, database persistence, filesystem utilities, domain services, hashing, logging, process execution, and stream processing.",
+  "summary": "Serves as the root infrastructure and domain package, organizing modular subcomponents for database persistence, filesystem operations, CSV processing, archive management, configuration, logging, core business services, and system utilities.",
   "responsibilities": [
-    "Manage, extract, and define metadata for ZIP archives and entries",
-    "Load and manage package configuration settings",
-    "Parse, validate, and serialize CSV data using Pydantic models",
-    "Manage database connections, exceptions, data mapping, models, repositories, and transactions using SQLAlchemy",
-    "Provide filesystem utilities for file I/O, enumeration, search, access checking, and exclusive access handling",
-    "Perform business calendar calculations, parameter access, and variable placeholder resolution",
-    "Compute standard and truncated SHA-256 hashes for strings, bytes, and files",
-    "Provide application-wide logging infrastructure, factories, and instances",
-    "Execute external system processes and manage their results and errors",
-    "Provide lazy stream processing of Result values and byte stream file writing functions"
+    "Manage ZIP archives and metadata entries",
+    "Load and manage configuration settings",
+    "Parse and serialize CSV data using Pydantic models",
+    "Handle database connections, ORM models, repositories, and transactions via SQLAlchemy",
+    "Provide filesystem I/O, search, and operation helper utilities",
+    "Perform core domain services including business calendars, parameter access, and variable translation",
+    "Compute cryptographic hashes for strings, bytes, and files",
+    "Provide application-wide logging facilities and factories",
+    "Execute system processes and manage execution results and errors",
+    "Provide lazy stream processing and byte stream I/O utilities"
   ],
   "concepts": [
-    "ZIP archives",
-    "Configuration management",
-    "CSV data parsing and serialization",
-    "Database infrastructure and persistence",
-    "Filesystem infrastructure utilities",
-    "Core domain infrastructure services",
-    "Hashing utility functions",
-    "Application-wide logging infrastructure",
-    "System process execution",
-    "Stream processing and input/output utilities"
+    "archive management",
+    "configuration loading",
+    "CSV parsing and serialization",
+    "database infrastructure",
+    "filesystem utilities",
+    "domain services",
+    "hashing utilities",
+    "logging infrastructure",
+    "process execution",
+    "stream processing"
   ],
   "relationships": [
-    "Archives use ZIP entries for metadata definition.",
-    "CSV readers and writers use configuration options for parsing, encoding, IO, and serialization with Pydantic models.",
-    "Repositories and transaction managers utilize database connection and session infrastructure.",
-    "File search uses filter conditions, and file operations provide access checking and exclusive access helpers.",
-    "Variable translators utilize date and parameter components to resolve placeholders.",
-    "The logger factory creates the pre-configured logger instance.",
-    "Process execution produces a process result and raises errors upon failures."
+    "The package groups various independent infrastructure utilities and domain services under a unified root package namespace."
   ],
   "design_decisions": [
-    "Modular organization of infrastructure, utility, and domain service capabilities across specialized packages",
-    "Integration with external libraries and standard modules for data validation, ORM persistence, hashing, logging, and process handling"
+    "Modularizes infrastructure and domain components into cohesive subdirectories covering data persistence, file handling, configuration, logging, and core business logic services."
   ],
   "importance": "Core"
 }

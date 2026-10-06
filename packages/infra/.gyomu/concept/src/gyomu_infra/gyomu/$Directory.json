@@ -1,20 +1,25 @@
 {
-  "summary": "Provides core domain infrastructure services including business calendar calculations, parameter access operations, and variable placeholder translation and resolution.",
+  "summary": "Provides core domain logic and services including business calendar calculations, parameter access operations, and variable translation and placeholder resolution.",
   "responsibilities": [
     "Perform business calendar calculations and provide holiday services.",
-    "Provide parameter access functionality using database sessions and repositories.",
-    "Resolve and translate date and parameter placeholders."
+    "Provide parameter access operations utilizing repositories and database sessions.",
+    "Translate and resolve date and parameter placeholders."
   ],
   "concepts": [
-    "business calendar",
-    "parameter access",
-    "variable translation"
+    "Business calendar calculation",
+    "Holiday services",
+    "Parameter access",
+    "Variable translation",
+    "Placeholder resolution"
   ],
   "relationships": [
-    "Variable translators utilize date and parameter components to resolve placeholders."
+    "VariableTranslatorImpl resolves date and parameter placeholders using VariableType, VariableDateParameter, and VARIABLE_DATE_PARAMETERS.",
+    "BusinessCalendarService retrieves business calendar instances from a market holiday repository.",
+    "ParameterAccessImpl depends on a parameter master repository for parameter access operations."
   ],
   "design_decisions": [
-    "Implements domain logic for business calendars, parameter access, and variable resolution using repositories and factory functions."
+    "Implements domain services for business calendars, parameter access, and variable resolution.",
+    "Provides factory functions and cached instances for domain components."
   ],
   "importance": "Core"
 }

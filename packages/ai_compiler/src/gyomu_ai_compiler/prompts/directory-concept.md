@@ -15,8 +15,8 @@ Guidelines
 
 Evidence and inference
 
-- Only describe information that is directly supported by the provided file summaries and child directory concepts.
-- When uncertain, omit the information instead of inferring it.
+- Only describe information that can be reasonably inferred from the provided file summaries and child directory concepts.
+- When an interpretation is uncertain or weakly supported, omit it rather than guessing.
 - Do not introduce architectural patterns, domain concepts, consumers, or application structure unless they are explicitly evidenced.
 - Do not infer a dependency or relationship between child directories merely because one child directory's concept says that it provides something "used by", "shared by", or "available to" other components.
 - A relationship between directories may only be described when the provided file summaries explicitly contain dependency information supporting that relationship.
