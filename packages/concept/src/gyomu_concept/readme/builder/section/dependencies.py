@@ -27,7 +27,7 @@ async def _build(
     if isinstance(dependencies_result, Failure):
         return dependencies_result.alt(
             lambda error: DocumentBuilderError(
-                "fail to build architecture",
+                "fail to build dependencies",
                 package_name=context.analysis.package.name,
                 phase="section-build",
                 section_id=_section_id,

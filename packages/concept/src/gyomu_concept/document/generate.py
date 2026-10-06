@@ -47,10 +47,10 @@ async def generate_document[
         if option.debug_info.dump_to_file:
             write_text(
                 Path("log") / f"{definition.log_prefix}Sections.json",
-                format_object(sections, depth=6),
+                format_object(sections, depth=10),
             )
         else:
-            logger.debug_object(sections, depth=6)
+            logger.debug_object(sections, depth=10)
 
     for language in definition.supported_languages:
         translated_sections: list[Section[TSectionId]] = []
@@ -68,6 +68,7 @@ async def generate_document[
                         context=caller,
                     ).chain(error)
                 )
+
             translated_sections.append(translate_result.unwrap())
 
         translated_document = TranslatedDocument(

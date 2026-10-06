@@ -179,3 +179,113 @@ async def test_run_readme_action_returns_failure_when_checkpoint_update_fails(
         request=snapshot_request,
         status_to_add=PipelineStep.README,
     )
+
+
+@pytest.mark.asyncio
+async def test_run_readme_action_skips_when_completed_and_files_exist(
+    mocker,
+    snapshot_request,
+    checkpoint,
+    concept_option: ConceptOption,
+):
+    completed_checkpoint = Checkpoint(
+        package=checkpoint.package,
+        completed_steps=(PipelineStep.README,),
+    )
+
+    output_file_path = mocker.Mock()
+    output_file_path.exists.return_value = True
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run_readme."
+        "README_DOCUMENT_DEFINITION.output.filepath_resolver.resolve",
+        return_value=output_file_path,
+    )
+
+    generate_readme_files = mocker.patch(
+        "gyomu_workflow.snapshot.run_readme.generate_readme_files"
+    )
+    update_snapshot = mocker.patch("gyomu_workflow.snapshot.run_readme.update_snapshot")
+    update_checkpoint = mocker.patch(
+        "gyomu_workflow.snapshot.run_readme.update_checkpoint"
+    )
+
+    result = await run_readme_action(
+        current_checkpoint=completed_checkpoint,
+        request=snapshot_request,
+        option=concept_option,
+    )
+
+    assert isinstance(result, Success)
+
+    action_result = result.unwrap()
+    assert action_result.checkpoint == completed_checkpoint
+    assert action_result.snapshot is None
+
+    generate_readme_files.assert_not_called()
+    update_snapshot.assert_not_called()
+    update_checkpoint.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_run_readme_action_regenerates_when_readme_file_is_missing(
+    mocker,
+    snapshot_request,
+    checkpoint,
+    concept_option: ConceptOption,
+):
+    completed_checkpoint = Checkpoint(
+        package=checkpoint.package,
+        completed_steps=(PipelineStep.README,),
+    )
+
+    existing_path = mocker.Mock()
+    existing_path.exists.return_value = True
+
+    missing_path = mocker.Mock()
+    missing_path.exists.return_value = False
+
+    resolve = mocker.patch(
+        "gyomu_workflow.snapshot.run_readme."
+        "README_DOCUMENT_DEFINITION.output.filepath_resolver.resolve",
+        side_effect=[existing_path, missing_path],
+    )
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run_readme.generate_readme_files",
+        return_value=Success(mocker.Mock()),
+    )
+
+    snapshot = mocker.Mock(spec=ProjectSnapshot)
+    mocker.patch(
+        "gyomu_workflow.snapshot.run_readme.update_snapshot",
+        return_value=Success(snapshot),
+    )
+
+    updated_checkpoint = Checkpoint(
+        package=checkpoint.package,
+        completed_steps=(PipelineStep.README,),
+    )
+    update_checkpoint = mocker.patch(
+        "gyomu_workflow.snapshot.run_readme.update_checkpoint",
+        return_value=Success(updated_checkpoint),
+    )
+
+    result = await run_readme_action(
+        current_checkpoint=completed_checkpoint,
+        request=snapshot_request,
+        option=concept_option,
+    )
+
+    assert isinstance(result, Success)
+
+    action_result = result.unwrap()
+    assert action_result.checkpoint == updated_checkpoint
+    assert action_result.snapshot == snapshot
+
+    resolve.assert_called()
+    update_checkpoint.assert_called_once_with(
+        checkpoint=completed_checkpoint,
+        request=snapshot_request,
+        status_to_add=PipelineStep.README,
+    )

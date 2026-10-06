@@ -49,7 +49,7 @@ class SnapshotActionResult:
     checkpoint: Checkpoint
     """The updated checkpoint."""
 
-    snapshot: ProjectSnapshot
+    snapshot: ProjectSnapshot | None
     """The generated project snapshot."""
 
 

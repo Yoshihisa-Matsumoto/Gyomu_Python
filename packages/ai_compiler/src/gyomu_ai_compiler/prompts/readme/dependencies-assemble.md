@@ -9,11 +9,12 @@ Write one or two short paragraphs.
 
 Guidelines:
 
-- Explain runtime requirements naturally.
-- Mention compatibility (Node.js, TypeScript, etc.) first.
-- Mention notable libraries only when useful.
-- Do not invent dependencies.
+- Describe only the dependencies and compatibility requirements explicitly provided in the input.
+- Mention compatibility requirements first when they are provided.
+- Mention runtime dependencies when they are useful to users.
+- Do not infer or invent dependencies or compatibility requirements from the package implementation or context.
+- Do not mention Python, Pydantic, or any other technology unless it is present in the provided input.
 - Do not repeat package versions unnecessarily.
 - Do not use bullet lists.
 - Keep the section under 80 words.
-- Focus on what users need to know before using the package, not on exhaustively listing every dependency.
+- Focus on what users need to know before using the package, rather than exhaustively listing every dependency.
