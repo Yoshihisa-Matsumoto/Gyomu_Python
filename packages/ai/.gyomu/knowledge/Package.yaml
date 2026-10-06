@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu AI
+
+mission: |
+  GyomuプロジェクトにおけるAI実行基盤を提供する。
+  AIプロバイダーやSDKの違いを吸収し、AI実行、モデルルーティング、
+  リトライ、フォールバック、エラー処理などを統一された仕組みで提供することで、
+  AI機能を利用するパッケージが特定のプロバイダーやSDKに直接依存しない構成を実現する。
+
+policies:
+  - AIプロバイダー固有のSDKを利用側へ直接公開せず、Gyomuの抽象化を介して利用する。
+  - AIリクエストの実行は定義されたRoutingを介して行う。
+  - AI実行で発生する一時的な失敗は、定義されたRetry戦略に従って処理する。
+  - 利用可能な場合はFallbackを利用し、代替のAI実行経路へ切り替えられるようにする。
+  - AI実行の失敗は構造化されたエラーとして扱い、原因や実行フェーズなどの診断情報を保持する。
+  - Provider固有の結果はGyomuで扱う標準的な結果へ変換する。
+
+constraints:
+  - 特定のAIプロバイダーやSDKに依存したAPIを利用側へ公開してはならない。
+  - Provider固有の実装詳細を利用側へ露出してはならない。
+  - AI実行以外のアプリケーション固有のビジネスロジックを実装してはならない。
+  - AI実行の失敗を例外や文字列だけで表現せず、構造化されたエラーとして扱う。
+  - RetryやFallbackの実行制御を利用側へ重複して実装させない。
+
+non_goals:
+  - アプリケーション固有のプロンプトやAIワークフローを提供すること。
+  - 特定用途専用のAIエージェントを実装すること。
+  - 特定のAIプロバイダーSDKをそのまま公開すること。
+  - AI生成結果をアプリケーション固有の形式で永続化すること。
+  - AI実行とは関係のないアプリケーションやドメインのビジネスロジックを実装すること。
+
+terminology:
+  - term: AI Provider
+    definition: AIモデルへのアクセスを提供する外部サービスまたは、そのサービスと連携する実装。
+
+  - term: AI Execution
+    definition: AIモデルに対してリクエストを実行し、結果またはエラーを取得する処理。
+
+  - term: Routing
+    definition: AIリクエストを実行する経路を決定する仕組み。
+
+  - term: Fallback
+    definition: AI実行が失敗した場合に、別の実行経路へ切り替える仕組み。
+
+  - term: Retry
+    definition: 一時的なAI実行失敗に対して、定義された戦略に従って再実行する仕組み。
+
+  - term: Execution Context
+    definition: AI実行に必要なパラメータ、ポリシー、実行状態などを保持するコンテキスト。
+
+  - term: Result
+    definition: AI実行の成功または失敗をSuccess / Failureとして明示的に表現する結果型。
+
+rationale:
+  - AIプロバイダーを抽象化することで、利用側が特定のSDKやプロバイダーの実装詳細に依存することを防ぐ。
+  - Routingを共通化することで、AI実行経路の選択を利用側で個別に実装する必要をなくす。
+  - RetryとFallbackを共通化することで、一時的な実行失敗や利用可能な代替経路への切り替えを統一的に処理できる。
+  - 構造化されたResultとErrorを利用することで、AI実行の成功・失敗を明示的に扱い、診断に必要な情報を保持できる。
+  - Provider固有の結果を標準化することで、AIプロバイダーの違いを上位パッケージから隠蔽できる。
+
+usage:
+  - situation: AIリクエストを実行する
+    guidance: Gyomu AIの実行APIを利用し、ProviderやSDKへ直接アクセスしない。
+
+  - situation: AI実行経路を指定する
+    guidance: Routingを利用して実行経路を定義する。
+
+  - situation: 一時的なAI実行失敗に対応する
+    guidance: Retry戦略を利用して再実行を制御する。
+
+  - situation: AI実行の代替経路を構成する
+    guidance: Fallbackを利用して、実行失敗時の代替経路を定義する。
+
+  - situation: AI実行結果を処理する
+    guidance: Success / Failureとして表現されたResultを利用し、失敗時には構造化されたErrorを処理する。
+
+examples:
+  - title: AI実行
+    input: |
+      AIモデルへリクエストを送信したい。
+    output: |
+      Gyomu AIの実行APIを利用してリクエストを実行する。
+    explanation: |
+      利用側がProviderやSDKへ直接依存する必要がない。
+
+  - title: Retry
+    input: |
+      一時的なレート制限などでAIリクエストが失敗した場合に再実行したい。
+    output: |
+      Retry戦略を設定してAI実行を再試行する。
+    explanation: |
+      リトライの実行タイミングや回数を利用側で個別に実装する必要がない。
+
+  - title: Fallback
+    input: |
+      優先するAI実行経路が利用できない場合に別の経路を利用したい。
+    output: |
+      RoutingにFallbackを設定して代替経路へ切り替える。
+    explanation: |
+      実行経路の切り替えを利用側で個別に実装する必要がない。
+
+  - title: Provider追加
+    input: |
+      新しいAIプロバイダーを利用できるようにしたい。
+    output: |
+      Gyomu AIのProvider抽象化に対応する実装を追加する。
+    explanation: |
+      上位パッケージはProvider固有のSDKやAPIを直接扱う必要がない。
