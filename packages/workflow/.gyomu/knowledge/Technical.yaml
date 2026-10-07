@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../../schemas/Technical.json
+
+installation:
+  - command: uv add gyomu-workflow
+    description: |
+      通常のPythonパッケージと同様にインストールする。
+      特別なセットアップは不要。
+
+configuration: []
+
+dependencies:
+  - package: pydantic
+    description: |
+      Pydantic Schemaの定義、データの検証、
+      シリアライズ・デシリアライズなどに利用する。
+
+  - package: gyomu-schema
+    description: |
+      スキーマ、共通型の置き場として利用
+
+  - package: gyomu-infra
+    description: |
+      I/Oなどの基盤処理全般に利用
+
+  - package: gyomu-python-analysis
+    description: |
+      Pythonパッケージ、およびファイル分析に利用
+
+  - package: gyomu-docstring
+    description: |
+      PythonファイルのDocstring更新に利用
+
+  - package: gyomu-concept
+    description: |
+      Directory Concept, Package Concept, README.mdファイル作成に利用
+
+compatibility:
+  - name: pydantic
+    supported: 2.x
+    description: |
+      Pydantic Version 2 を前提として設計されている。
+
+migration: []

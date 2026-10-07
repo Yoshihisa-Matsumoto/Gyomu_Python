@@ -13,6 +13,14 @@ def _validate_table_row(
     issues: list[ValidationIssue],
     row_index: int | None = None,
 ) -> None:
+    """Validate individual cells within a table row and record any validation issues.
+
+    Args:
+        source (TableRow): Source table row to validate against.
+        destination (TableRow): Destination table row to check.
+        issues (list[ValidationIssue]): List to accumulate validation issues found.
+        row_index (int | None): Optional row index for error location reporting.
+    """
     for index, source_cell in enumerate(source.cells):
         destination_cell = destination.cells[index]
         validate_text(
@@ -32,6 +40,10 @@ def _validate_table(source: Table, destination: Table) -> ValidationResult:
     Returns:
         ValidationResult: Validation result containing any issues found during table
             validation.
+
+    Args:
+        source (Table): Source table to validate against.
+        destination (Table): Destination table to check.
     """
     issues: list[ValidationIssue] = []
     if len(source.header.cells) != len(destination.header.cells):

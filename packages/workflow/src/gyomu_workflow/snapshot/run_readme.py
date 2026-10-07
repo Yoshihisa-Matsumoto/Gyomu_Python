@@ -21,6 +21,12 @@ async def run_readme_action(
     request: SnapshotRequest,
     option: ConceptOption,
 ) -> Result[SnapshotActionResult, GyomuError]:
+    """Runs the README generation action for the snapshot pipeline.
+
+    Returns:
+        Result[SnapshotActionResult, GyomuError]: Result containing SnapshotActionResult
+            on success or GyomuError on failure
+    """
     context = caller_context()
     if (
         PipelineStep.README not in current_checkpoint.completed_steps
@@ -60,6 +66,11 @@ async def run_readme_action(
 
 
 def _are_readme_files_exist(project_context: ProjectContext) -> bool:
+    """Checks if all required README files exist for the project context.
+
+    Returns:
+        bool: True if all README files exist, False otherwise
+    """
     definition = README_DOCUMENT_DEFINITION
 
     for language in definition.supported_languages:

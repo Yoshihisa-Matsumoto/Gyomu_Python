@@ -16,7 +16,7 @@ from gyomu_ai_compiler.pipelines.translation.executor.translate import (
     translate_document_content,
 )
 
-MAX_TRANSLATION_ATTEMPTS = 5
+MAX_TRANSLATION_ATTEMPTS = 7
 """Maximum number of translation attempt retries allowed.
 
 Maximum number of translation attempt retries allowed.

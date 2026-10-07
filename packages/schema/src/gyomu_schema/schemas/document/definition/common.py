@@ -4,6 +4,17 @@ from gyomu_schema.schemas.document.validation import ValidationIssue
 def validate_text(
     source: str, destination: str, location: str, issues: list[ValidationIssue]
 ) -> None:
+    """Validates literal newline counts between source and destination text.
+
+    Args:
+        source (str): Source text
+        destination (str): Destination text
+        location (str): Location identifier for reporting
+        issues (list[ValidationIssue]): List to append validation issues to
+
+    Returns:
+        None: None
+    """
     source_count = source.count("\\n")
     destination_count = destination.count("\\n")
 

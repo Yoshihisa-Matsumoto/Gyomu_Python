@@ -1314,6 +1314,7 @@ class StatementKind(StrEnum):
     The annassign member.
     """
     NONLOCAL = "nonlocal"
+    """The NONLOCAL member."""
 
 
 class GlobalStatementAnalysis(BaseModel):

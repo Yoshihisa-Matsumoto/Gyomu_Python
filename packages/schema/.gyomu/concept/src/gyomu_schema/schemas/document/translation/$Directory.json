@@ -1,0 +1,18 @@
+{
+  "summary": "Defines translation strategies and configurations for different types of document content, including bullet lists, code blocks, paragraphs, and tables.",
+  "responsibilities": [
+    "Define translation strategies and configurations for various document content types such as bullet lists, code blocks, paragraphs, and tables."
+  ],
+  "concepts": [
+    "Translation strategy",
+    "Document translation",
+    "Translation configuration"
+  ],
+  "relationships": [
+    "Translation strategy definitions configure bullet lists, code blocks, paragraphs, and tables for translation."
+  ],
+  "design_decisions": [
+    "Uses modular translation strategy definitions for different document elements."
+  ],
+  "importance": "Core"
+}

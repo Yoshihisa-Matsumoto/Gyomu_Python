@@ -12,6 +12,10 @@ def _validate_codeblock(source: CodeBlock, destination: CodeBlock) -> Validation
     Returns:
         ValidationResult: Validation result containing any issues found during code
             block comparison.
+
+    Args:
+        source (CodeBlock): Source code block instance to compare.
+        destination (CodeBlock): Destination code block instance to validate.
     """
     issues: list[ValidationIssue] = []
     if source.title and not destination.title:
