@@ -51,49 +51,6 @@ def retrieve_str_value(value: ExpressionAnalysis) -> str | None:
     return None
 
 
-# def analyze_pydantic(
-#     field_type: StructureAnalysis, expression: TypeExpression
-# ) -> PydanticFieldAnalysis | None:
-#     """Analyze a Pydantic field definition from type analysis and expressions.
-
-#     Args:
-#         field_type (StructureAnalysis): The structure analysis of the field type.
-#         expression (TypeExpression): The type expression to analyze.
-
-#     Returns:
-#         PydanticFieldAnalysis | None: The pydantic field analysis result, or None if the
-#             expression is not a Pydantic Field.
-#     """
-#     is_required = _is_field_required(field_type)
-
-#     if (
-#         isinstance(expression, CallStructureAnalysis)
-#         and isinstance(expression.function, NameStructureAnalysis)
-#         and expression.function.name == "Field"
-#     ):
-#         description = None
-#         alias = None
-#         default = None
-#         for argument in expression.arguments:
-#             if isinstance(argument, KeywordStructureAnalysis):
-#                 match argument.name:
-#                     case "description":
-#                         description = retrieve_str_value(argument.value)
-
-#                     case "alias":
-#                         alias = retrieve_str_value(argument.value)
-#             else:
-#                 default = retrieve_str_value(argument)
-
-#         return PydanticFieldAnalysis(
-#             required=is_required,
-#             description=description,
-#             alias=alias,
-#             default_source=default,
-#         )
-#     return None
-
-
 def analyze_pydantic(
     field_type: StructureAnalysis, expression: ExpressionAnalysis
 ) -> PydanticFieldAnalysis | None:
@@ -140,6 +97,10 @@ def analyze_pydantic(
 
 
 ast_value_expression: ExpressionAnalysis
+"""Expression analysis instance.
+
+Expression analysis value representing an AST expression node.
+"""
 
 
 def get_pydantic_field_from_annotated_type_expression(
@@ -151,9 +112,11 @@ def get_pydantic_field_from_annotated_type_expression(
 
     Args:
         expression (TypeExpression | None): The type expression to inspect, or None.
+        ast_expression (ExpressionAnalysis | None): The AST expression to inspect, or
+            None.
 
     Returns:
-        tuple[TypeExpression, CallStructureAnalysis] | None: A tuple containing the
+        tuple[TypeExpression, CallExpressionAnalysis] | None: A tuple containing the
             assumed type and the Field call structure analysis, or None if not found.
     """
     if not isinstance(expression, GenericsStructureAnalysis):

@@ -6,6 +6,7 @@ from gyomu_schema.schemas.python.types import PythonPath
 type AstTargetSymbolType = (
     ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef | ast.Assign | ast.AnnAssign
 )
+"""Represents target AST nodes for symbol analysis."""
 
 
 @dataclass(frozen=True)
@@ -34,8 +35,8 @@ def _analyze_ast_module(
         source_path (PythonPath): The file path of the source code.
 
     Returns:
-        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef]: A dictionary mapping AST class or function keys to
+        dict[AstClassFunctionKey, AstTargetSymbolType]: A dictionary mapping AST class
+            or function keys to
             their definitions.
     """
     tree = ast.parse(source=source, filename=source_path)
@@ -58,14 +59,13 @@ def get_ast_index(
     build one.
 
     Args:
-        index (dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef] | None): An existing index to reuse, if available.
+        index (str): The Python source code content.
         source (str): The Python source code content.
         source_path (PythonPath): The file path of the source code.
 
     Returns:
-        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef]: The AST class and function index.
+        dict[AstClassFunctionKey, AstTargetSymbolType]: The AST class and function
+            index.
     """
     if index is not None:
         return index
@@ -85,8 +85,8 @@ def build_class_function_index(
             process.
 
     Returns:
-        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef]: A dictionary mapping AstClassFunctionKey to class and
+        dict[AstClassFunctionKey, AstTargetSymbolType]: A dictionary mapping
+            AstClassFunctionKey to class and
             function definitions.
     """
     index: dict[

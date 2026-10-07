@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu Facts
+
+mission: |
+  Gyomuプロジェクトおよびパッケージに関する事実（Facts）を構造化し、
+  型安全かつ一貫した方法で取得・参照できる基盤を提供します。
+  パッケージの構造や設定などの情報を共通したFactとして扱い、
+  上位の処理が開発コンテキストを一貫した方法で利用できるようにします。
+  また、Package Analysisによってパッケージに関する事実を構造化し、
+  Directory Rankingによってディレクトリの重要度を評価するための
+  基盤を提供します。
+
+policies:
+  - プロジェクトやパッケージに関する事実を、共通した型安全なモデルとして表現する。
+  - Factの定義とFactの取得方法を分離し、利用側が取得実装の詳細へ依存しない構造を維持する。
+  - 関連するFactは型安全な集合としてまとめ、一貫した方法で扱えるようにする。
+  - Package Analysisはソースコードやプロジェクト設定から取得可能な事実を構造化する責務を持つ。
+  - Directory Rankingは定義された評価基準に基づいてディレクトリの重要度を評価する。
+  - Factの取得と、Factを利用した上位の分析・判断処理を適切に分離する。
+  - Factのモデルは宣言的かつ型安全に定義し、利用側で暗黙的な型変換を行わない。
+  - 新しい種類のFactを追加しても、既存のFact利用者に不要な変更を要求しない設計を維持する。
+
+constraints:
+  - Factの利用側に、個別のFact取得実装を直接持たせてはならない。
+  - Factの定義と、Factを利用した分析・判断ロジックを混在させてはならない。
+  - ソースコードやプロジェクト設定を変更する責務を持たせてはならない。
+  - Factを利用するアプリケーション固有の判断ロジックを実装してはならない。
+  - AIによる分析や推論をFactの取得処理へ組み込んではならない。
+  - Factの表示やドキュメント生成を担当してはならない。
+  - Factの永続化方法やストレージ実装へ利用側を直接依存させてはならない。
+  - 特定のAIプロバイダーやモデルへ直接依存してはならない。
+  - SnapshotやChange Detectionなどの状態管理処理をFactの取得処理へ組み込んではならない。
+
+non_goals:
+  - ソースコードやプロジェクト設定を変更すること。
+  - Gitリポジトリやワーキングツリーを操作すること。
+  - プロジェクト固有のビジネスルールを定義すること。
+  - Factを利用した分析・評価・スコアリングを実行すること。
+  - AIによるプロジェクト分析や推論を実行すること。
+  - Snapshotの取得・永続化を担当すること。
+  - Factの変更検出を担当すること。
+  - 特定の永続化方式をFactの標準実装として強制すること。
+
+terminology:
+  - term: Fact
+    definition: |
+      プロジェクトやパッケージについて、構造化された形式で表現された事実。
+      Factの利用側が共通した方法で参照できる型安全な情報モデル。
+
+  - term: FactSet
+    definition: |
+      関連するFactを型安全にまとめて扱うための集合。
+      複数のFactを一貫した構造で提供する。
+
+  - term: FactProvider
+    definition: |
+      Factを取得するためのサービス。
+      Factの具体的な取得方法を抽象化し、利用側へ統一されたアクセス手段を提供する。
+
+  - term: Package Fact
+    definition: |
+      Pythonパッケージの構造や設定などから取得される事実。
+      パッケージに関する情報を、上位の処理が一貫した方法で参照するために使用される。
+
+  - term: Project Fact
+    definition: |
+      Pythonパッケージの構造や設定を分析し、パッケージに関するFactを
+      構造化された情報としてまとめる処理。
+
+  - term: Repository Fact
+    definition: |
+      パッケージ内のディレクトリを定義された評価基準に基づいて評価し、
+      重要度をスコアとして算出して順位付けする処理。
+
+rationale:
+  - Factを共通モデルとして定義することで、パッケージに関する情報を一貫した形式で扱える。
+  - Package Analysisによってパッケージ構造や設定をFactとしてまとめることで、複数の上位処理から再利用できる。
+  - FactProviderに取得処理を集約することで、Factの具体的な取得方法を変更しても利用側への影響を抑えられる。
+  - FactSetにより関連するFactを型安全にまとめられるため、Factの種類が増えても利用側の構造を維持しやすい。
+  - Directory Rankingによってディレクトリの重要度を定量的に評価することで、後続の処理がパッケージ構造を効率的に扱える。
+  - Factの取得と分析・判断を分離することで、Factを基盤情報として複数の上位処理から利用できる。
+  - SnapshotやChange DetectionをFactの責務から分離することで、事実の取得と状態変化の管理を混同せずに扱える。
+
+usage:
+  - situation: パッケージに関する事実を取得する
+    guidance: FactProviderを依存性注入して取得し、Package Factを参照する。
+
+  - situation: パッケージの構造や設定を分析する
+    guidance: Package Analysisを利用して、パッケージに関するFactを構造化する。
+  - situation: パッケージ内のディレクトリの重要度を評価する
+    guidance: Directory Rankingを利用して、定義された評価基準に基づいてディレクトリを評価・順位付けする。
+  - situation: 関連する複数のFactをまとめて扱う
+    guidance: FactSetを利用して関連するFactを型安全な集合として扱う。
+  - situation: 新しい種類のFactを追加する
+    guidance: Factの型を定義し、FactProviderから統一された方法で取得できるようにする。
+  - situation: Factの取得実装を変更する
+    guidance: FactProviderの契約を維持したまま内部の取得方法を変更し、利用側へ実装詳細を露出させない。
+  - situation: Factを上位の分析処理で利用する
+    guidance: FactProviderから必要なFactを取得し、Factを利用する分析や評価処理へ渡す。
+
+examples:
+  - title: パッケージ情報の取得
+    input: |
+      アプリケーションからPythonパッケージの構造や設定に関する事実を取得したい。
+    output: |
+      FactProviderからPackage Factを取得する。
+    explanation: |
+      パッケージに関する情報を共通したFactとして扱うことで、
+      利用側が個別の解析実装や設定取得処理へ依存せずに情報を参照できる。
+
+  - title: パッケージ分析
+    input: |
+      Pythonパッケージの構造や設定から、後続処理で利用できるFactを作成したい。
+    output: |
+      Package Analysisを実行してパッケージに関するFactを構造化する。
+    explanation: |
+      パッケージに関する情報を構造化されたFactとしてまとめることで、
+      後続の処理が共通したモデルを利用できる。
+
+  - title: ディレクトリランキング
+    input: |
+      パッケージ内で重要なディレクトリを特定したい。
+    output: |
+      Directory Rankingを実行し、定義された評価基準に基づいてディレクトリを順位付けする。
+    explanation: |
+      ディレクトリごとの重要度をスコアとして扱うことで、
+      後続の処理がパッケージ構造の中から重要な領域を識別できる。
+
+  - title: Factのグループ化
+    input: |
+      パッケージに関連する複数のFactをまとめて扱いたい。
+    output: |
+      関連するFactをFactSetにまとめて利用する。
+    explanation: |
+      FactSetによりFactの集合を型安全に扱うことができ、
+      利用側で個別のデータ構造を組み立てる必要がない。
+
+  - title: Fact取得方法の変更
+    input: |
+      Factの取得元や取得方法を変更したい。
+    output: |
+      FactProviderの内部実装を変更し、利用側のコードはFactProviderの契約を通じてFactを取得する。
+    explanation: |
+      取得処理をFactProviderに抽象化することで、
+      Factの具体的な取得方法と利用側を疎結合に保てる。

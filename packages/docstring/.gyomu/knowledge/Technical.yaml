@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=../../../../schemas/Technical.json
+
+installation:
+  - command: uv add gyomu-docstring
+    description: |
+      通常のPythonパッケージと同様にインストールする。
+      特別なセットアップは不要。
+
+configuration: []
+
+dependencies:
+  - package: returns
+    description: |
+      Success / Failure / Result による明示的な成功・失敗表現に利用する。
+
+  - package: gyomu-schema
+    description: |
+      スキーマ、共通型の置き場として利用
+
+  - package: gyomu-infra
+    description: |
+      I/Oなどの基盤処理全般に利用
+
+  - package: gyomu-ai-compiler
+    description: |
+      README/Concept作成時にLLM処理に利用
+
+compatibility: []
+
+migration: []

@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu Docstring
+
+mission: |
+  GyomuにおけるPythonソースコードのdocstring管理基盤を提供します。
+  ソースコードからdocstringを解析し、構造化されたドキュメント情報として
+  扱うとともに、docstringの更新内容をUpdate Planとして表現し、
+  検証された変更をソースコードへ安全に反映できる仕組みを提供します。
+  docstringの解析、更新計画、変更の適用を分離することで、
+  再現可能で保守性の高いコードドキュメント管理を実現します。
+
+policies:
+  - docstringはソースコードの構造と対応する成果物として管理する。
+  - docstringの更新内容はUpdate Planとして適用前に明示的に表現する。
+  - ドキュメント更新計画とソースコードへの適用処理を分離する。
+  - ソースコードへ適用する変更は検証可能な形式で扱う。
+  - docstringの解析とドキュメント生成の責務を分離する。
+  - AIによるドキュメント内容の生成とdocstringの管理処理を分離する。
+  - ファイル操作は正規化されたパスモデルを基準として実行する。
+  - モノレポ環境でも一貫したドキュメント更新処理を提供する。
+
+constraints:
+  - ソースコードを解析せずにdocstring更新を実行してはならない。
+  - 既存のdocstringを無条件に上書きしてはならない。
+  - Update Planを経由せずにdocstring変更を適用してはならない。
+  - ドキュメント生成ロジックとファイル更新処理を結合してはならない。
+  - 特定のディレクトリ構成やビルド方式へ依存してはならない。
+  - 特定のAIプロバイダーやモデルへ直接依存してはならない。
+
+non_goals:
+  - Pythonコードそのものの静的解析を包括的に担当すること。
+  - Pythonコンパイラや型チェッカーの代替となること。
+  - AIモデルによるドキュメント内容の生成を担当すること。
+  - プロジェクト全体のConceptを構築すること。
+  - READMEや設計ドキュメントを直接生成すること。
+  - 特定の出力形式に依存したドキュメント生成を担当すること。
+
+terminology:
+  - term: Docstring
+    definition: |
+      Pythonのソースコードに記述された、モジュール、クラス、関数、
+      メソッドなどのドキュメント文字列。
+
+  - term: Docstring Analysis
+    definition: |
+      Pythonソースコードからdocstringを抽出し、その内容や対象となる
+      宣言との対応関係を構造化する処理。
+
+  - term: Update Plan
+    definition: |
+      docstringに対する変更内容を、ソースコードへ適用する前に
+      構造化された変更情報として表現する中間モデル。
+
+  - term: Reconciliation
+    definition: |
+      Update Planとして表現されたdocstringの変更内容を検証し、
+      ソースコードへ適用可能な状態へ統合する処理。
+
+rationale:
+  - docstringをソースコードと対応する構造化情報として扱うことで、後続処理から安全に再利用できる。
+  - 更新計画と適用処理を分離することで、docstring変更を適用前に検証できる。
+  - 変更適用時の検証処理を分離することで、自動更新と人間によるレビューを両立できる。
+  - パス管理を統一することで、モノレポや複雑なプロジェクト構成でも安定したファイル操作を実現できる。
+  - docstring管理とConcept生成・ドキュメント生成を分離することで、それぞれの責務を独立して維持できる。
+
+usage:
+  - situation: Pythonソースコードからdocstringを解析したい
+    guidance: ソースコードを解析し、対象となる要素とdocstringの対応を構造化する。
+
+  - situation: docstringの更新内容を適用前に確認したい
+    guidance: docstringの変更内容をUpdate Planとして生成し、適用前に内容を確認する。
+
+  - situation: docstringの変更をソースコードへ適用したい
+    guidance: Update PlanをReconciliation処理で検証し、検証済みの変更をソースコードへ反映する。
+
+  - situation: docstring更新後のソースコードを検証したい
+    guidance: 更新されたソースコードに対してRuffなどの検証処理を実行し、変更が安全に適用されたことを確認する。
+
+  - situation: AIを利用してdocstringの内容を生成・更新したい
+    guidance: AIによる生成処理はgyomu-ai-compilerを介して実行し、docstring管理処理とAIプロバイダーを直接結合しない。
+
+examples:
+  - title: Docstring解析
+    input: |
+      Pythonの関数に記述されたdocstringを取得したい。
+    output: |
+      ソースコードを解析し、関数と対応するdocstring情報を取得する。
+    explanation: |
+      docstringを構造化された情報として扱うことで、後続のConcept生成や
+      ドキュメント生成処理から再利用できる。
+
+  - title: Concept生成
+    input: |
+      PythonパッケージのConcept生成にdocstringを利用したい。
+    output: |
+      解析したdocstring情報をConcept生成処理へ渡す。
+    explanation: |
+      docstring解析とConcept生成を分離することで、それぞれの責務を
+      独立して維持できる。
+
+  - title: ドキュメント生成
+    input: |
+      ソースコードのdocstringをプロジェクトドキュメントへ利用したい。
+    output: |
+      構造化されたdocstring情報をドキュメント生成処理の入力として利用する。
+    explanation: |
+      docstringの解析結果を特定の出力形式から独立させることで、
+      READMEなど複数のドキュメント形式から利用できる。

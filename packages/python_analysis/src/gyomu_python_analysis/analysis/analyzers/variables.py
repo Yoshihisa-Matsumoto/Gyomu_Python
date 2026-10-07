@@ -32,6 +32,8 @@ def analyze_variable(
         variable (Attribute): The attribute representing the variable to analyze.
         name (str): The name of the variable.
         context (SymbolContext): The symbol context for the analysis.
+        asy_symbol (AstTargetSymbolType | None): Ast target symbol type for the
+            variable.
         option (AnalysisOption | None): Optional analysis options.
 
     Returns:

@@ -82,8 +82,8 @@ async def generate_document[
                         context=caller,
                     ).chain(error)
                 )
-            print(f"Section: {section_id}")
-            print(format_object(translate_result.unwrap(), depth=10))
+            # print(f"Section: {section_id}")
+            # print(format_object(translate_result.unwrap(), depth=10))
             translated_sections.append(translate_result.unwrap())
 
         translated_document = TranslatedDocument(

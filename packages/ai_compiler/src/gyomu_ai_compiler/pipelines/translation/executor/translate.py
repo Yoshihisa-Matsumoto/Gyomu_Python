@@ -12,7 +12,7 @@ from gyomu_schema.schemas.document.section import (
 )
 from gyomu_schema.schemas.document.validation import ValidationResult
 from gyomu_schema.utility.context import caller_context
-from returns.result import Failure, Result, Success
+from returns.result import Failure, Result
 
 from gyomu_ai_compiler.pipelines.document import DocumentRouteId
 from gyomu_ai_compiler.pipelines.translation.executor.prompt import (
@@ -69,12 +69,12 @@ async def translate_document_content[TSchema: DocumentContent](
             output_type=content_strategy.definition.content_schema,
         ),
     )
-    if isinstance(result, Success):
-        print("Input")
-        if conversation.request:
-            print(repr(conversation.request.parts[0].text))
-        print("Output")
-        print(repr(result.unwrap().output))
+    # if isinstance(result, Success):
+    #     print("Input")
+    #     if conversation.request:
+    #         print(repr(conversation.request.parts[0].text))
+    #     print("Output")
+    #     print(repr(result.unwrap().output))
 
     return result.map(lambda response: response.output).alt(
         lambda error: TranslationError(
