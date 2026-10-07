@@ -1,0 +1,19 @@
+{
+  "summary": "Provides document construction utilities and builders for generating structured elements like sections and bullet lists asynchronously.",
+  "responsibilities": [
+    "Construct document sections and bullet lists asynchronously.",
+    "Represent generated document schemas and items."
+  ],
+  "concepts": [
+    "bullet list",
+    "section builder",
+    "document generation"
+  ],
+  "relationships": [
+    "Generated bullet lists and sections participate in document builder processes."
+  ],
+  "design_decisions": [
+    "Asynchronous building functions are provided to generate document structures."
+  ],
+  "importance": "Core"
+}

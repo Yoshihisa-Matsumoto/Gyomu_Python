@@ -44,6 +44,9 @@ def _format_value(value: object, depth: int) -> object:
     if depth <= 0:
         return f"<{type(value).__name__} ...>"
 
+    if isinstance(value, type):
+        return value.__name__
+
     if isinstance(value, BaseException):
         result: dict[str, object] = {
             key: _format_value(item, depth - 1) for key, item in vars(value).items()

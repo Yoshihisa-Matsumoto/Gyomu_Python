@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu Concept
+
+mission: |
+  Gyomuにおける*Concept*とは、プロジェクトのアーキテクチャ、責務、設計意図、運用知識を表現する構造化されたプロジェクトモデルです。
+  `Concept`はドキュメントそのものではなく、プロジェクトに関する知識を構造化して表現するモデルです。
+  `Concept`はソースコードの解析から得られる情報と、人が管理するKnowledgeを組み合わせて構築され、人とAIが共通して利用できる知識表現として機能します。
+  `gyomu-concept`は、Directory ConceptやPackage Conceptの構築と、ConceptおよびKnowledgeを利用したドキュメント生成を担います。
+
+policies:
+  - Conceptはプロジェクトの構造や責務を表現する構造化された知識モデルとして扱う。
+  - Conceptはソースコードの解析結果と、人が管理するKnowledgeを組み合わせて構築する。
+  - Conceptのモデルは特定のドキュメント形式や出力言語に依存しないものとする。
+  - Package、Directoryなどの異なる粒度のConceptを、それぞれの責務に応じて管理する。
+  - ソースコード解析、Concept構築、ドキュメント生成は独立した責務として設計する。
+  - ドキュメント生成では、ConceptとKnowledgeを入力として利用し、ドキュメント固有の構造へ変換する。
+  - AIを利用する処理はgyomu-ai-compilerを介して実行し、AI Providerやモデルへ直接依存しない。
+  - Document Contentの翻訳方法など、AI実行そのものではないドキュメント固有の定義はConcept側で表現する。
+
+constraints:
+  - Concept生成とMarkdown描画を密結合にしてはならない。
+  - 特定のAIモデルやProviderへ直接依存するAPIを公開してはならない。
+  - エディタやIDE固有の機能へ依存してはならない。
+  - ドキュメント生成処理へソースコード解析ロジックを混在させてはならない。
+  - Markdownなどの出力形式による制約をConceptそのものへ持ち込んではならない。
+  - AI Provider固有のSDKや実装詳細を持ち込んではならない。
+
+non_goals:
+  - ソースコード生成やソースコードの直接編集を行うこと。
+  - AIモデルやAI Providerの実装を提供すること。
+  - AI実行基盤そのものを提供すること。
+  - ドキュメント編集UIを提供すること。
+  - エディタやIDEの統合機能を提供すること。
+  - Pythonソースコードの解析機構そのものを提供すること。
+
+terminology:
+  - term: Concept
+    definition: ソースコードの解析から得られる情報と、人が管理するKnowledgeを組み合わせて表現する構造化されたプロジェクト知識モデル。
+
+  - term: Package Concept
+    definition: パッケージの責務、依存関係、公開API、主要な機能などを表現したConcept。
+
+  - term: Directory Concept
+    definition: ディレクトリに含まれるファイルや子ディレクトリから、そのディレクトリの共通する責務や構造を表現したConcept。
+
+  - term: Knowledge
+    definition: PackageやRoadmap、Technical、Developmentなど、ソースコードとは別に人が管理するプロジェクト知識。
+
+  - term: Document
+    definition: ConceptやKnowledgeなどのプロジェクト情報から構築される、Sectionの集合として表現されたドキュメントモデル。
+
+  - term: Section
+    definition: Documentを構成する論理的なドキュメント単位で、識別子と構造化されたContentを持つ要素。
+
+  - term: Document Content
+    definition: Paragraph、Bullet List、Code、Tableなど、Sectionを構成する構造化されたコンテンツ。
+
+  - term: Translation Strategy
+    definition: Document Contentを対象言語へ変換する際に、そのContent種別に応じた翻訳方法や検証方法を定義する仕組み。
+
+  - term: Document Builder
+    definition: ConceptやKnowledgeなどの入力からDocumentのSectionとContentを構築するコンポーネント。
+
+rationale:
+  - Conceptを構造化された中間表現として保持することで、同じプロジェクト知識を複数のドキュメント生成処理で再利用できる。
+  - Directory ConceptとPackage Conceptを分離することで、コード構造の異なる粒度をそれぞれ適切に表現できる。
+  - Conceptと人が管理するKnowledgeを組み合わせることで、ソースコードだけでは表現できない設計意図や開発上の知識をドキュメントへ反映できる。
+  - DocumentをSectionとContentから構成することで、ドキュメントの構造をMarkdownなどの出力形式から分離できる。
+  - Document Contentの翻訳方法をStrategyとして定義することで、Contentの種類に応じた翻訳と検証を統一的に扱える。
+  - AI実行をgyomu-ai-compilerへ委譲することで、ConceptおよびDocument生成のロジックをAI Providerから分離できる。
+  - Concept生成とDocument生成を分離することで、同じConceptをREADMEなどの複数の用途で利用できる。
+
+usage:
+  - situation: Directory Conceptを生成する
+    guidance: Directoryのファイル情報と子ディレクトリのConceptを入力としてDirectory Conceptを構築する。
+
+  - situation: Package Conceptを生成する
+    guidance: Package AnalysisとPackage配下のDirectory Conceptなどを入力としてPackage Conceptを構築する。
+
+  - situation: READMEを生成する
+    guidance: Package ConceptとKnowledgeをDocument生成処理へ渡し、Sectionを構築してREADMEを生成する。
+
+  - situation: Documentを構築する
+    guidance: Document Definitionに従ってConceptやKnowledgeなどの情報からSectionとContentを構築する。
+
+  - situation: Document Contentを翻訳する
+    guidance: Content種別に対応するTranslation Strategyと対象言語を指定し、gyomu-ai-compilerの翻訳処理を利用する。
+
+  - situation: プロジェクト知識を更新する
+    guidance: ソースコードからConceptを再生成し、人が管理するKnowledgeと組み合わせて最新のDocumentを構築する。
+
+examples:
+  - title: Package Concept
+    input: |
+      Pythonパッケージの責務や公開APIを構造化して表現したい。
+    output: |
+      Package AnalysisとDirectory Conceptを利用してPackage Conceptを生成する。
+    explanation: |
+      Package単位の責務、依存関係、公開APIなどを構造化されたConceptとして保持できる。
+
+  - title: Directory Concept
+    input: |
+      ディレクトリの役割を構造化して表現したい。
+    output: |
+      ディレクトリのファイル情報と子ディレクトリのConceptからDirectory Conceptを生成する。
+    explanation: |
+      個々のファイルの説明ではなく、ディレクトリ全体としての責務や構造をConceptとして表現できる。
+
+  - title: README
+    input: |
+      Package Conceptと人が管理するKnowledgeからREADMEを生成したい。
+    output: |
+      Document Definitionに従ってSectionとContentを構築し、READMEとして出力する。
+    explanation: |
+      ソースコードから導出したConceptと人が管理するKnowledgeを組み合わせてドキュメントを生成できる。
+
+  - title: 多言語README
+    input: |
+      READMEを英語と日本語で生成したい。
+    output: |
+      共通のDocumentから対象言語ごとのContentを生成し、それぞれのREADMEを出力する。
+    explanation: |
+      Documentの構造とContentを言語から分離することで、同じドキュメント構造を複数の言語で利用できる。
+
+  - title: Document Contentの翻訳
+    input: |
+      READMEのSection Contentを別の言語へ翻訳したい。
+    output: |
+      Content種別に対応するTranslation Strategyを利用して翻訳処理を実行する。
+    explanation: |
+      ParagraphやBullet ListなどのContent種別に応じた翻訳方法と検証を統一された仕組みで扱える。

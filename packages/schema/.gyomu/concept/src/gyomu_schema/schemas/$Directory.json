@@ -1,19 +1,19 @@
 {
-  "summary": "Defines core schema definitions and data structures, including AI decision confidence for merge strategy routing and full file system path types within the schema package.",
+  "summary": "Defines core schema types, foundational data structures, confidence levels for merge routing, and custom types used across the schema package.",
   "responsibilities": [
-    "Provide schema definitions and data structures for confidence routing and file system paths."
+    "Defines foundational schema types, confidence levels for merge strategy routing, and custom path types used across the package."
   ],
   "concepts": [
-    "Schema definitions",
-    "Data structures",
-    "AI decision confidence",
-    "File system path"
+    "schema definitions",
+    "data structures",
+    "confidence routing",
+    "file system path type"
   ],
   "relationships": [
-    "Defines schema types and data structures used across the schema package."
+    "Confidence schemas are used for merge strategy routing."
   ],
   "design_decisions": [
-    "Organizes schema definitions and type models for confidence routing and file paths within the schema package."
+    "Organizes core data types and schema components for the package."
   ],
   "importance": "Core"
 }

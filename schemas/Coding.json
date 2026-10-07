@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "CodingRule": {
+      "description": "A coding guideline rule.",
+      "properties": {
+        "category": {
+          "description": "Category of the coding guideline.",
+          "title": "Category",
+          "type": "string"
+        },
+        "rule": {
+          "description": "The coding rule to follow.",
+          "title": "Rule",
+          "type": "string"
+        },
+        "rationale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reason why the rule exists.",
+          "title": "Rationale"
+        }
+      },
+      "required": [
+        "category",
+        "rule"
+      ],
+      "title": "CodingRule",
+      "type": "object"
+    }
+  },
+  "description": "Coding guidelines and rules for AI-assisted development.",
+  "properties": {
+    "display_name": {
+      "title": "Display Name",
+      "type": "string"
+    },
+    "principles": {
+      "description": "Fundamental coding principles.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Principles",
+      "type": "array"
+    },
+    "rules": {
+      "description": "Actionable coding rules.",
+      "items": {
+        "$ref": "#/$defs/CodingRule"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "forbidden": {
+      "description": "Forbidden coding practices.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden",
+      "type": "array"
+    }
+  },
+  "required": [
+    "display_name",
+    "principles",
+    "rules",
+    "forbidden"
+  ],
+  "title": "CodingGuideline",
+  "type": "object"
+}

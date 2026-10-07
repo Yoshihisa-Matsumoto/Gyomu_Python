@@ -233,7 +233,6 @@ def create_function_analysis(
         visibility=Visibility.PUBLIC,
         location=location,
         is_ellipsis_only=is_ellipsis_only,
-        statements=statements,
     )
 
 
@@ -261,7 +260,6 @@ def create_method_analysis(
         visibility=Visibility.PUBLIC,
         location=location,
         is_ellipsis_only=is_ellipsis_only,
-        statements=statements,
     )
 
 

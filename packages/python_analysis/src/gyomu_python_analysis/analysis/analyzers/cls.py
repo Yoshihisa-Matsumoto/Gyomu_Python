@@ -18,18 +18,19 @@ from gyomu_schema.schemas.python.type.structure import NameStructureAnalysis
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.utility.fromatting import format_object
 
-from gyomu_python_analysis.analysis.analyzers.ast.statement import analyze_statement
+from gyomu_python_analysis.analysis.analyzers.ast.statement import (
+    analyze_expression,
+    analyze_statement,
+)
 from gyomu_python_analysis.analysis.analyzers.ast.symbol import (
     AstClassFunctionKey,
+    AstTargetSymbolType,
     build_class_function_index,
 )
 from gyomu_python_analysis.analysis.analyzers.context import (
     MemberPath,
     SymbolContext,
     build_declaration_identity,
-)
-from gyomu_python_analysis.analysis.analyzers.expression.expr import (
-    analyze_type_expression,
 )
 from gyomu_python_analysis.analysis.analyzers.functions import (
     _get_function_parameter_kind,
@@ -123,6 +124,10 @@ def _build_class_variables(
     context: SymbolContext,
     member_path: MemberPath,
     is_pydantic_base_class: bool,
+    ast_symbols: dict[
+        AstClassFunctionKey,
+        AstTargetSymbolType,
+    ],
     option: AnalysisOption | None,
 ) -> list[ClassVariableAnalysis]:
     """Build variable analyses for attributes defined within a class."""
@@ -130,6 +135,16 @@ def _build_class_variables(
     variables: list[ClassVariableAnalysis] = []
     for member_name, member in cls.members.items():
         if isinstance(member, Attribute):
+            ast_assign = (
+                ast_symbols.get(
+                    AstClassFunctionKey(name=member_name, end_line=member.endlineno)
+                )
+                if member.endlineno is not None
+                else None
+            )
+            if not isinstance(ast_assign, ast.Assign | ast.AnnAssign):
+                ast_assign = None
+
             variables.append(
                 _build_class_variable_analysis(
                     member=member,
@@ -138,6 +153,7 @@ def _build_class_variables(
                     context=context,
                     member_path=member_path,
                     is_pydantic_base_class=is_pydantic_base_class,
+                    ast_assign=ast_assign,
                     option=option,
                 )
             )
@@ -151,6 +167,7 @@ def _build_class_variable_analysis(
     context: SymbolContext,
     member_path: MemberPath,
     is_pydantic_base_class: bool,
+    ast_assign: ast.Assign | ast.AnnAssign | None,
     option: AnalysisOption | None,
 ) -> ClassVariableAnalysis:
     """Analyze a single class variable or attribute member."""
@@ -164,30 +181,38 @@ def _build_class_variable_analysis(
         option=option,
     )
     variable_type = analyze_type(member.annotation, context, option)
-    value_expression = (
-        analyze_type_expression(member.value, context, option)
-        if member.value is not None
+    # value_expression = (
+    #     analyze_type_expression(member.value, context, option)
+    #     if member.value is not None
+    #     else None
+    # )
+    ast_value_expression = (
+        analyze_expression(ast_assign.value, context, option, False)
+        if ast_assign is not None
         else None
     )
+    # logger.debug(name)
+    # logger.debug_object(ast_value_expression, depth=6)
+
     pydantic: PydanticFieldAnalysis | None = None
+
     # logger.info(f"pydantic_base:{is_pydantic_base_class}")
     if (
-        value_expression
+        ast_value_expression
         and variable_type
         and variable_type.structure
         and is_pydantic_base_class
     ):
-        # print(repr(variable_type.structure))
-        # print(repr(value_expression))
-        pydantic = analyze_pydantic(variable_type.structure, value_expression)
+        pydantic = analyze_pydantic(variable_type.structure, ast_value_expression)
+        # logger.debug_object(pydantic)
 
     return ClassVariableAnalysis(
         **variable_common,
         type=variable_type,
         value_source=str(member.value) if member.value is not None else None,
-        value_expression=analyze_type_expression(member.value, context, option)
-        if member.value is not None
-        else None,
+        # value_expression=analyze_type_expression(member.value, context, option)
+        # if member.value is not None
+        # else None,
         pydantic=pydantic,
         identity=build_declaration_identity(
             context=context, member_path=new_member_path
@@ -248,7 +273,8 @@ def _build_class_methods(
     context: SymbolContext,
     member_path: MemberPath,
     ast_symbols: dict[
-        AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+        AstClassFunctionKey,
+        AstTargetSymbolType,
     ],
     option: AnalysisOption | None,
 ) -> list[MethodAnalysis]:
@@ -292,7 +318,8 @@ def _build_inner_classes(
     context: SymbolContext,
     member_path: MemberPath,
     ast_symbols: dict[
-        AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+        AstClassFunctionKey,
+        AstTargetSymbolType,
     ],
     option: AnalysisOption | None,
 ) -> list[InnerClassAnalysis]:
@@ -362,6 +389,7 @@ def _analyze_class_common(
         context=context,
         member_path=member_path,
         is_pydantic_base_class=is_pydantic_base_class,
+        ast_symbols=ast_symbols,
         option=option,
     )
 

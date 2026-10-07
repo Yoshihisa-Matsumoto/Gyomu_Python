@@ -6,6 +6,7 @@ from pathlib import Path
 from griffe import Attribute, Class, Function, TypeAlias
 from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_infra.logger import logger
+from gyomu_python_analysis.analysis.analyzers.ast.symbol import AstTargetSymbolType
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
 from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
@@ -206,12 +207,14 @@ class AnalysisTestBase:
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Attribute)
+        ast_symbol = index.get(symbol.name)
         return analyze_variable(
             variable=symbol,
             name=symbol_name,
             context=initialize_symbol_context(
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
+            asy_symbol=ast_symbol,
         )
 
     def _analyze_class_base(
@@ -238,7 +241,7 @@ class AnalysisTestBase:
     ) -> tuple[
         SymbolAnalysis,
         list[str],
-        dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef],
+        dict[str, AstTargetSymbolType],
     ]:
         module_name = file_name
         context = self._read_module_fixture(module_name)
@@ -260,28 +263,33 @@ class AnalysisTestBase:
         source_lines = source.splitlines(keepends=True)
         tree = ast.parse(source=source, filename=module_name)
         # index = _analyze_ast_module(source=source, source_path=module_name)
-        index: dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef] = (
-            self._build_class_function_index(tree)
-        )
+        index: dict[str, AstTargetSymbolType] = self._build_class_function_index(tree)
 
         return symbol, source_lines, index
 
-    _default_index: dict[
-        str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
-    ] = {}
+    _default_index: dict[str, AstTargetSymbolType] = {}
 
     def _build_class_function_index(
         self,
         tree: ast.Module | ast.ClassDef,
-        index: dict[
-            str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
-        ] = _default_index,
-    ) -> dict[str, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]:
+        index: dict[str, AstTargetSymbolType] = _default_index,
+    ) -> dict[str, AstTargetSymbolType]:
 
         for child in ast.iter_child_nodes(tree):
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 key = child.name
                 index[key] = child
+            if isinstance(child, ast.Assign):  # noqa: SIM102
+                if child.end_lineno is not None:
+                    for target in child.targets:
+                        if isinstance(target, ast.Name):
+                            key = target.id
+                            index[key] = child
+            if isinstance(child, ast.AnnAssign):  # noqa: SIM102
+                if child.end_lineno is not None:  # noqa: SIM102
+                    if isinstance(child.target, ast.Name):
+                        key = child.target.id
+                        index[key] = child
             if isinstance(child, ast.ClassDef):
                 self._build_class_function_index(child, index)
         return index

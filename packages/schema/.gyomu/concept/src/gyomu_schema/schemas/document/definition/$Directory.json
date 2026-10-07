@@ -1,0 +1,18 @@
+{
+  "summary": "Provides definitions, validation rules, and translation instructions for specific document content elements like bullet lists, code blocks, paragraphs, and tables.",
+  "responsibilities": [
+    "Defines schemas, validation rules, and translation instructions for various document content elements such as bullet lists, code blocks, paragraphs, and tables."
+  ],
+  "concepts": [
+    "Document content definition",
+    "Content elements",
+    "Validation and translation instructions"
+  ],
+  "relationships": [
+    "Document content definitions provide validation and translation instructions for specific content elements."
+  ],
+  "design_decisions": [
+    "Modular definitions for individual document components like bullet lists, code blocks, paragraphs, and tables"
+  ],
+  "importance": "Core"
+}

@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu Workflow
+
+mission: |
+  Gyomuにおけるコード解析、Concept生成、ドキュメント生成などの処理を
+  一貫したワークフローとして実行するためのオーケストレーション基盤を提供します。
+  各処理の実行順序を管理し、Checkpointと生成物の状態を確認しながら
+  必要な処理だけを実行することで、処理の再開と段階的な更新を可能にします。
+  個々の処理の実装とワークフロー全体の制御を分離することで、
+  再現可能で保守性の高いプロジェクト処理を実現します。
+
+responsibilities:
+  - Gyomuの各処理を所定の順序で実行するワークフローを提供する
+  - Directory Concept、Package Concept、READMEなどの処理をワークフローとして連携する
+  - Checkpointを利用して完了済みの処理を記録し、処理の再開を可能にする
+  - Checkpointだけでなく生成物の存在も確認し、必要な処理を再実行する
+  - 各ワークフローステップの実行結果を管理し、後続ステップへ受け渡す
+  - ワークフロー実行時のエラーを適切に扱い、後続処理への伝播を制御する
+  - CLIなどの上位層から利用できるワークフロー実行インターフェースを提供する
+
+policies:
+  - ワークフローは処理の順序と実行条件を管理し、個々の処理の詳細な実装を担当しない
+  - 各ワークフローステップは可能な限り独立したActionとして扱う
+  - Checkpointは過去にステップが成功したという履歴として扱い、現在の生成物の存在とは分離して扱う
+  - 生成物が存在しない場合は、Checkpoint上で完了済みであっても必要な処理を再実行する
+  - ワークフロー自身がSnapshotやChange Detectionなどの責務を持たず、それぞれの専門パッケージへ委譲する
+  - ワークフローから下位パッケージの実装詳細へ直接依存せず、定義されたインターフェースを通じて処理を実行する
+  - ワークフローはCLIやMCPなどの利用形態に依存せず、再利用可能な処理として設計する
+  - 各ステップの成功・失敗を明確に扱い、失敗したステップ以降の処理を実行しない
+
+constraints:
+  - ワークフローの実行順序や実行条件を管理するが、各処理のドメインロジックを実装しない
+  - Directory Concept、Package Concept、README生成などの処理そのものを実装せず、各担当パッケージへ委譲する
+  - Snapshotの生成・永続化やChange Detectionのロジックを実装しない
+  - Checkpointを現在の生成物の状態そのものとして扱わず、処理完了の履歴として扱う
+  - CLI、MCP、Agentなど特定の実行環境に依存しない
+  - ワークフローからAIプロバイダーやLLMの実装へ直接依存しない
+  - 下位パッケージの内部実装に依存せず、公開されたインターフェースを通じて処理を連携する
+  - ワークフローの各ステップ間で不要な状態や実装詳細を共有しない
+  - ステップの失敗時に後続ステップを実行せず、失敗結果を呼び出し元へ明確に返す
+
+non_goals:
+  - Pythonソースコードの解析そのものを行わない
+  - Directory ConceptやPackage Conceptの生成ロジックを実装しない
+  - docstringの解析・更新・適用ロジックを実装しない
+  - READMEなどのドキュメント生成ロジックを実装しない
+  - AIモデルの呼び出しやプロンプト生成などのAI処理を実装しない
+  - Snapshotの生成・比較・永続化を担当しない
+  - ソースコードの変更検出や差分分析そのものを担当しない
+  - Checkpoint以外の永続的なプロジェクト状態管理を担当しない
+  - コード変更やファイル操作をワークフロー自身の判断で直接実行しない
+  - CLI、MCP、Agentなどの特定の実行インターフェースを提供しない
+
+terminology:
+  - term: Workflow
+    definition: Gyomuの複数の処理を定められた順序と実行条件に従って連携・実行する処理全体。
+
+  - term: Workflow Step
+    definition: Workflowを構成する個々の処理単位。Checkpointによって完了状態が管理される。
+
+  - term: Action
+    definition: Workflow Stepを実行する具体的な処理。Checkpointや生成物の状態を確認し、実行またはスキップを判断する。
+
+  - term: Pipeline Step
+    definition: Workflow上の処理ステップを識別するための値。Checkpointにステップの完了履歴を記録する際にも使用される。
+
+  - term: Checkpoint
+    definition: Workflowの各Stepが過去に正常終了したことを記録する状態。現在の生成物が存在することを直接表すものではない。
+
+  - term: Artifact
+    definition: Workflow Stepによって生成され、ファイルシステムなどに永続化される成果物。Checkpointとは独立して現在の存在状態が確認される。
+
+  - term: Action Result
+    definition: Actionの実行結果。Workflowの後続処理に必要な状態や生成物などの結果を保持する。
+
+  - term: Workflow Error
+    definition: Workflowまたは個々のActionの実行中に発生し、処理の継続を妨げるエラー。
+
+rationale:
+  - Gyomuの複数の処理を一つのWorkflowとして連携することで、処理順序と依存関係を一貫して管理できる。
+  - Checkpointを利用して処理の完了履歴を保持することで、途中で失敗したWorkflowを再開できる。
+  - CheckpointとArtifactの状態を分離することで、過去の処理履歴と現在の生成物の状態を正しく扱える。
+  - 各処理をActionとして分離することで、個々の処理の実装とWorkflow全体のオーケストレーションを独立して維持できる。
+  - Workflowと各専門パッケージの責務を分離することで、CLIやMCPなど複数の実行環境から同じWorkflowを再利用できる。
+
+usage:
+  - situation: Gyomuの複数の処理を決められた順序で実行したい
+    guidance: 各処理をWorkflow Stepとして定義し、依存関係に従ってActionを実行する。
+
+  - situation: 途中で失敗したWorkflowを再開したい
+    guidance: Checkpointを確認し、完了済みのStepをスキップして未完了のStepからWorkflowを再開する。
+
+  - situation: Checkpoint上では完了済みだが生成物が存在しない場合がある
+    guidance: Checkpointだけでなく対象Artifactの存在も確認し、必要なStepを再実行する。
+
+  - situation: Directory ConceptやPackage Concept、README生成などを一連の処理として実行したい
+    guidance: 各処理をWorkflow Stepとして連携し、Workflowから各専門パッケージの処理を呼び出す。
+
+  - situation: CLI以外から同じ処理フローを利用したい
+    guidance: CLIなどの実行インターフェースとは分離されたWorkflowとして実装し、呼び出し元から再利用する。
+
+  - situation: Workflowの途中で処理が失敗した
+    guidance: 失敗したActionの結果をWorkflow Errorとして返し、後続のStepを実行せずに呼び出し元へ伝播する。
+
+examples:
+  - title: Workflow実行
+    input: |
+      Pythonプロジェクトの解析からConcept生成、README生成までを
+      一連の処理として実行したい。
+    output: |
+      定義されたWorkflow Stepを順番に実行し、各Stepの結果を後続のStepへ渡す。
+    explanation: |
+      個々の処理の実装をWorkflowから分離することで、Workflowは処理順序と
+      Step間の連携に専念できる。
+
+  - title: Workflow再開
+    input: |
+      Package Concept生成まで成功した状態でWorkflowが途中で失敗した。
+    output: |
+      Checkpointを確認し、完了済みのStepをスキップして未完了のStepから再開する。
+    explanation: |
+      Checkpointに処理の完了履歴を保持することで、最初からすべての処理を
+      繰り返す必要がなくなる。
+
+  - title: Artifact再生成
+    input: |
+      CheckpointにはPackage Concept完了と記録されているが、
+      Package Conceptのファイルが削除されている。
+    output: |
+      Checkpointだけでは処理をスキップせず、Artifactの存在を確認して
+      Package Concept生成処理を再実行する。
+    explanation: |
+      Checkpointは過去の成功履歴であり、現在のArtifactの存在を保証するもの
+      ではないため、両者を分離して扱う。
+
+  - title: README生成
+    input: |
+      Concept生成後にREADMEを生成したい。
+    output: |
+      Concept生成Stepの完了後、README生成Stepを実行する。
+    explanation: |
+      WorkflowがStep間の依存関係と実行順序を管理することで、README生成処理
+      自体はWorkflowから独立して実装できる。

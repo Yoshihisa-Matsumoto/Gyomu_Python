@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "DevelopmentFaq": {
+      "description": "A frequently asked question.",
+      "properties": {
+        "question": {
+          "description": "A frequently asked question.",
+          "title": "Question",
+          "type": "string"
+        },
+        "answer": {
+          "description": "The recommended answer.",
+          "title": "Answer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "question",
+        "answer"
+      ],
+      "title": "DevelopmentFaq",
+      "type": "object"
+    },
+    "DevelopmentKnownIssue": {
+      "description": "A known limitation or unresolved issue.",
+      "properties": {
+        "issue": {
+          "description": "Describe the known issue.",
+          "title": "Issue",
+          "type": "string"
+        },
+        "workaround": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Temporary workaround if available.",
+          "title": "Workaround"
+        }
+      },
+      "required": [
+        "issue"
+      ],
+      "title": "DevelopmentKnownIssue",
+      "type": "object"
+    },
+    "DevelopmentTip": {
+      "description": "A helpful development recommendation.",
+      "properties": {
+        "title": {
+          "description": "Short title of the development tip.",
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explain the recommendation or best practice.",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "description"
+      ],
+      "title": "DevelopmentTip",
+      "type": "object"
+    }
+  },
+  "description": "Developer-oriented operational knowledge including FAQ, known issues, and practical tips.",
+  "properties": {
+    "faq": {
+      "description": "Frequently asked questions for developers.",
+      "items": {
+        "$ref": "#/$defs/DevelopmentFaq"
+      },
+      "title": "Faq",
+      "type": "array"
+    },
+    "known_issues": {
+      "description": "Known limitations or unresolved issues.",
+      "items": {
+        "$ref": "#/$defs/DevelopmentKnownIssue"
+      },
+      "title": "Known Issues",
+      "type": "array"
+    },
+    "tips": {
+      "description": "Helpful recommendations that improve development experience.",
+      "items": {
+        "$ref": "#/$defs/DevelopmentTip"
+      },
+      "title": "Tips",
+      "type": "array"
+    }
+  },
+  "required": [
+    "faq",
+    "known_issues",
+    "tips"
+  ],
+  "title": "Development",
+  "type": "object"
+}

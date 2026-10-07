@@ -1,17 +1,19 @@
 {
-  "summary": "Houses generated database models representing core data entities such as market holidays and parameter masters.",
+  "summary": "Contains auto-generated database models and ORM schema definitions, including market holiday and parameter master entities that inherit from a shared base class.",
   "responsibilities": [
-    "Provide generated database models including market holiday and parameter master entities"
+    "Define auto-generated database models and schema definitions including market holidays and parameter master data."
   ],
   "concepts": [
     "Database Models",
-    "Generated Models",
+    "ORM Schema Definitions",
     "Market Holidays",
-    "Parameter Masters"
+    "Parameter Master Entities"
   ],
-  "relationships": [],
+  "relationships": [
+    "The generated models inherit from the common Base class."
+  ],
   "design_decisions": [
-    "Models are automatically generated"
+    "Auto-generated models inherit from a common base class."
   ],
   "importance": "Core"
 }

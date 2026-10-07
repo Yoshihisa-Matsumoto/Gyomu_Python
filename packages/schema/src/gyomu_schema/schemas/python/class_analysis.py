@@ -11,7 +11,7 @@ from gyomu_schema.schemas.python.symbol_base import (
     MemberAnalysisBase,
     SymbolAnalysisBase,
 )
-from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis, TypeExpression
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
 
 class ClassVariableAnalysis(MemberAnalysisBase):
@@ -26,8 +26,8 @@ class ClassVariableAnalysis(MemberAnalysisBase):
     value_source: str | None
     """The source of the variable value."""
 
-    value_expression: TypeExpression | None
-    """The value expression of the variable."""
+    # value_expression: TypeExpression | None
+    # """The value expression of the variable."""
 
     pydantic: PydanticFieldAnalysis | None
     """Pydantic-specific field analysis information."""

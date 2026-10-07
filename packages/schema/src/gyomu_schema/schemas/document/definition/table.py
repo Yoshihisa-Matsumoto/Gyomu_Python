@@ -1,0 +1,140 @@
+from gyomu_schema.schemas.document.content import DocumentContentType, Table, TableRow
+from gyomu_schema.schemas.document.definition.common import validate_text
+from gyomu_schema.schemas.document.section import (
+    DocumentContentDefinitionBase,
+    ReconciliationValidator,
+)
+from gyomu_schema.schemas.document.validation import ValidationIssue, ValidationResult
+
+
+def _validate_table_row(
+    source: TableRow,
+    destination: TableRow,
+    issues: list[ValidationIssue],
+    row_index: int | None = None,
+) -> None:
+    """Validate individual cells within a table row and record any validation issues.
+
+    Args:
+        source (TableRow): Source table row to validate against.
+        destination (TableRow): Destination table row to check.
+        issues (list[ValidationIssue]): List to accumulate validation issues found.
+        row_index (int | None): Optional row index for error location reporting.
+    """
+    for index, source_cell in enumerate(source.cells):
+        destination_cell = destination.cells[index]
+        validate_text(
+            source=source_cell,
+            destination=destination_cell,
+            location=f"header->cell({index})"
+            if row_index is None
+            else f"row({row_index})->cell({index})",
+            issues=issues,
+        )
+
+
+def _validate_table(source: Table, destination: Table) -> ValidationResult:
+    """Validate a table against a source table, checking header cell counts, row counts,
+    and row cell counts.
+
+    Returns:
+        ValidationResult: Validation result containing any issues found during table
+            validation.
+
+    Args:
+        source (Table): Source table to validate against.
+        destination (Table): Destination table to check.
+    """
+    issues: list[ValidationIssue] = []
+    if len(source.header.cells) != len(destination.header.cells):
+        issues.append(
+            ValidationIssue(
+                code="TABLE_HEADER_CELL_COUNT_CHANGED",
+                message=(
+                    "The translated table contains a different number "
+                    "of cells on header."
+                ),
+                details={
+                    "source_count": str(len(source.header.cells)),
+                    "translated_count": str(len(destination.header.cells)),
+                },
+                repair_instruction=(
+                    "Translate again while preserving every "
+                    "table cells on header & rows"
+                ),
+            )
+        )
+    if len(issues) == 0:
+        column_count = len(source.header.cells)
+        if len(source.rows) != len(destination.rows):
+            issues.append(
+                ValidationIssue(
+                    code="TABLE_ROWS_COUNT_CHANGED",
+                    message=(
+                        "The translated table contains a different number of rows."
+                    ),
+                    details={
+                        "source_count": str(len(source.rows)),
+                        "translated_count": str(len(destination.rows)),
+                    },
+                    repair_instruction=(
+                        "Translate again while preserving every table row."
+                    ),
+                )
+            )
+
+        if len(issues) == 0:
+            _validate_table_row(
+                source=source.header,
+                destination=destination.header,
+                issues=issues,
+                row_index=None,
+            )
+
+            for index, source_row in enumerate(source.rows):
+                destination_row = destination.rows[index]
+                if (
+                    len(source_row.cells) != len(destination_row.cells)
+                    or len(source_row.cells) != column_count
+                ):
+                    issues.append(
+                        ValidationIssue(
+                            code="TABLE_ROW_CELL_COUNT_CHANGED",
+                            message=(
+                                "The translated table row contains a "
+                                "different number of cells ."
+                            ),
+                            translation_id=index,
+                            details={
+                                "source_count": str(len(source_row.cells)),
+                                "translated_count": str(len(destination_row.cells)),
+                            },
+                            repair_instruction=(
+                                "Translate again while preserving "
+                                "every table cells on  rows"
+                            ),
+                        )
+                    )
+                else:
+                    _validate_table_row(
+                        source=source_row,
+                        destination=destination_row,
+                        issues=issues,
+                        row_index=index,
+                    )
+
+    return ValidationResult(issues=tuple(issues), is_valid=len(issues) == 0)
+
+
+table_definition = DocumentContentDefinitionBase[Table](
+    kind=DocumentContentType.TABLE,
+    content_schema=Table,
+    reconciliation=ReconciliationValidator[Table](validate=_validate_table),
+    translation_instruction=(
+        "Translate only the text content in `header.cells` and `rows[*].cells`. "
+        "Preserve the table structure, including the number of columns and rows."
+    ),
+)
+"""Definition for table document content, including its schema, reconciliation
+validator, and translation instructions.
+"""

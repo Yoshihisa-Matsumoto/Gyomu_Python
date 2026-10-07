@@ -1,8 +1,9 @@
 from gyomu_concept.package.concept import build_package_concept
+from gyomu_concept.package.internal.path import get_package_concept_path
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.utility.context import caller_context
-from returns.result import Failure, Result
+from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.checkpoint import (
     Checkpoint,
@@ -36,30 +37,41 @@ async def run_package_action(
             SnapshotActionResult upon success or a GyomuError on failure.
     """
     context = caller_context()
-    package_result = await build_package_concept(
-        context=request.project_context, option=option
+    package_concept_full_path = get_package_concept_path(
+        request.project_context, option
     )
-    if isinstance(package_result, Failure):
-        return package_result.alt(
-            lambda error: GyomuError(
-                message="fail to generate package concept",
-                domain="snapshot",
-                operation="run_actions",
-                reason="external_failure",
-                context=context,
-            ).chain(error)
+    if (
+        PipelineStep.PACKAGE_CONCEPT not in current_checkpoint.completed_steps
+        or not package_concept_full_path.exists()
+    ):
+        package_result = await build_package_concept(
+            context=request.project_context, option=option
         )
+        if isinstance(package_result, Failure):
+            return package_result.alt(
+                lambda error: GyomuError(
+                    message="fail to generate package concept",
+                    domain="snapshot",
+                    operation="run_actions",
+                    reason="external_failure",
+                    context=context,
+                ).chain(error)
+            )
 
-    snapshot_result = update_snapshot(request)
-    if isinstance(snapshot_result, Failure):
-        return snapshot_result
+        snapshot_result = update_snapshot(request)
+        if isinstance(snapshot_result, Failure):
+            return snapshot_result
 
-    return update_checkpoint(
-        checkpoint=current_checkpoint,
-        request=request,
-        status_to_add=PipelineStep.PACKAGE_CONCEPT,
-    ).map(
-        lambda checkpoint: SnapshotActionResult(
-            checkpoint=checkpoint, snapshot=snapshot_result.unwrap()
+        return update_checkpoint(
+            checkpoint=current_checkpoint,
+            request=request,
+            status_to_add=PipelineStep.PACKAGE_CONCEPT,
+        ).map(
+            lambda checkpoint: SnapshotActionResult(
+                checkpoint=checkpoint, snapshot=snapshot_result.unwrap()
+            )
         )
-    )
+    else:
+        return Success(
+            SnapshotActionResult(checkpoint=current_checkpoint, snapshot=None)
+        )

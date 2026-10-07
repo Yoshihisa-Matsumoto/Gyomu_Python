@@ -27,6 +27,7 @@ from gyomu_workflow.snapshot.normalize import normalize_filter
 from gyomu_workflow.snapshot.run_directory import run_directory_action
 from gyomu_workflow.snapshot.run_docstring import run_docstring_action
 from gyomu_workflow.snapshot.run_package import run_package_action
+from gyomu_workflow.snapshot.run_readme import run_readme_action
 from gyomu_workflow.snapshot.target import resolve_snapshot_target
 
 
@@ -174,18 +175,31 @@ async def run_actions(
                     return directory_result
                 action_result = directory_result.unwrap()
                 current_checkpoint = action_result.checkpoint
+                if action_result.snapshot is not None:
+                    current_snapshot = action_result.snapshot
+
+            package_result = await run_package_action(
+                request=request,
+                current_checkpoint=current_checkpoint,
+                option=concept_option,
+            )
+            if isinstance(package_result, Failure):
+                return package_result
+            action_result = package_result.unwrap()
+            current_checkpoint = action_result.checkpoint
+            if action_result.snapshot is not None:
                 current_snapshot = action_result.snapshot
 
-            if PipelineStep.PACKAGE_CONCEPT not in current_checkpoint.completed_steps:
-                package_result = await run_package_action(
-                    request=request,
-                    current_checkpoint=current_checkpoint,
-                    option=concept_option,
-                )
-                if isinstance(package_result, Failure):
-                    return package_result
-                action_result = package_result.unwrap()
-                current_checkpoint = action_result.checkpoint
+            readme_result = await run_readme_action(
+                request=request,
+                current_checkpoint=current_checkpoint,
+                option=concept_option,
+            )
+            if isinstance(readme_result, Failure):
+                return readme_result
+            action_result = readme_result.unwrap()
+            current_checkpoint = action_result.checkpoint
+            if action_result.snapshot is not None:
                 current_snapshot = action_result.snapshot
 
     return Success(current_snapshot)

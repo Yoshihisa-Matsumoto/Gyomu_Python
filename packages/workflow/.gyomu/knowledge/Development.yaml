@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../../../schemas/Development.json
+
+faq:
+  - question: |
+      このパッケージは単独で利用できますか？
+    answer: |
+      いいえ。gyomu-schema, gyomu-infra, gyomu-python-analysis, gyomu-docstring, gyomu-concept に依存しています
+
+known_issues: []
+
+tips: []

@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../../../../schemas/Development.json
+
+faq:
+  - question: |
+      このパッケージは単独で利用できますか？
+    answer: |
+      はい。ただし、多くの場合は Gyomu プロジェクト内で共通契約を提供するために利用します。
+
+known_issues: []
+
+tips:
+  - title: Pydantic Schema の Annotation
+    description: |
+      Pydantic SchemaのAnnotationは、ランタイムでの型情報だけでなく、AIによるコード生成、
+      ドキュメント生成、Knowledge生成にも利用されるため、可能な限り省略しない。

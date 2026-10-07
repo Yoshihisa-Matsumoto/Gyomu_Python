@@ -1,28 +1,22 @@
 {
-  "summary": "Provides database infrastructure and persistence components, including connection management, error handling, data mapping, models, repositories, and transaction management using SQLAlchemy.",
+  "summary": "Encapsulates database infrastructure functionality, including connection management, ORM models, repositories, transactions, error handling, and data mapping using SQLAlchemy.",
   "responsibilities": [
-    "Manage database connections and engine creation.",
-    "Handle and convert database-specific exceptions into internal error types.",
-    "Map between database models and domain schemas.",
-    "Define and house core database models for entities like market holidays and parameter masters.",
-    "Implement data management and querying operations through repositories.",
-    "Manage database transactions and nested savepoints."
+    "Manage database connections, ORM models, persistence repositories, transactions, error handling, and schema mapping."
   ],
   "concepts": [
     "database connection management",
-    "database error handling",
+    "error handling utilities",
     "data mapping utilities",
     "database models",
     "repository implementations",
-    "database transaction management"
+    "transaction management"
   ],
   "relationships": [
-    "The repository implementations and transaction managers utilize database connection and session infrastructure."
+    "The repository and transaction components depend on connection management and ORM models for database operations."
   ],
   "design_decisions": [
-    "Uses SQLAlchemy as the underlying persistence and ORM technology across components.",
-    "Implements protocol-based interfaces for transaction management and repositories.",
-    "Provides dedicated modules for connection, error conversion, mapping, models, repositories, and transactions."
+    "Organizes database infrastructure into modular subcomponents including connection management, models, repositories, transactions, mapping, and error handling.",
+    "Relies on SQLAlchemy as the underlying persistence and ORM framework across components."
   ],
   "importance": "Core"
 }

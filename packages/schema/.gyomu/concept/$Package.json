@@ -1,43 +1,40 @@
 {
-  "summary": "`gyomu-schema` defines the canonical schema models and data structures for the Gyomu system, providing robust Pydantic-based models for Python AST and code analysis, package structure analysis, conceptual modeling, error handling, and configuration management.",
+  "summary": "gyomu-schema provides canonical data models, validation rules, and schemas for the Gyomu ecosystem, focusing on Python code analysis structures, structured documents and translation strategies, domain error handling, and knowledge management definitions.",
   "responsibilities": [
-    "Define canonical schema models and data structures for Python code analysis, AST elements, and metadata.",
-    "Provide models and structures for package analysis, dependencies, and architectural concepts.",
-    "Define application error types, operational error phases, and automated retry/recovery strategies.",
-    "Manage configuration settings and options for system execution, analysis, and loaders.",
-    "Provide utility functions for file system operations, project snapshots, and object serialization."
+    "Define canonical data schemas and validation models for the Gyomu ecosystem.",
+    "Model Python code structures and AST components for static analysis and transformation tasks.",
+    "Provide structured document definitions and translation configuration models.",
+    "Establish standardized error handling, recovery, and logging structures across application layers."
   ],
   "capabilities": [
     {
-      "name": "Python AST and Code Analysis Schemas",
-      "description": "Defines schema models representing Python AST expressions, statements, types, and code structures for analysis."
+      "name": "Python Code Analysis Schemas",
+      "description": "Comprehensive data models for representing Python code structures, AST expressions, statements, types, and module analyses."
     },
     {
-      "name": "Package and Concept Modeling",
-      "description": "Provides comprehensive schema definitions for package analysis, dependency tracking, directory facts, and capability and package concepts."
+      "name": "Document and Translation Schemas",
+      "description": "Schemas, validation rules, and translation strategies for structured documents, sections, and content elements."
     },
     {
-      "name": "Error Handling and Retry Strategies",
-      "description": "Defines application-level error handling classes, operational phases, domain-specific errors, and retry strategies."
+      "name": "Error Handling and Recovery Schemas",
+      "description": "Core domain-specific error handling classes, resolution strategies, and retry policies for application operations."
     },
     {
-      "name": "Configuration and Process Options",
-      "description": "Defines configuration options and parameters for system processes, code analysis, LLM execution, and loaders."
+      "name": "Knowledge Management Schemas",
+      "description": "Schemas for representing developer-oriented operational knowledge, coding guidelines, roadmaps, and technical references."
     },
     {
-      "name": "System Utilities and File Management",
-      "description": "Provides utilities for file system management, project and file snapshots, serialization, execution timing, and asynchronous/synchronous execution wrapping."
+      "name": "Utility and Serialization Framework",
+      "description": "Serialization, validation, execution timing, and asynchronous/synchronous outcome utilities."
     }
   ],
   "design_decisions": [
-    "Built on Pydantic for rigorous data validation, schema modeling, and type safety across all domain objects.",
-    "Organizes codebase into specialized sub-packages separating Python language constructs, metadata, configuration, error management, and utilities.",
-    "Employs functional result types and protocols to support robust error handling, synchronization, and retry workflows."
+    "Utilizes Pydantic data models extensively for runtime type validation, serialization, and schema definition.",
+    "Organizes schemas hierarchically by domain (Python structures, documents, errors, knowledge, and system configurations).",
+    "Provides robust error handling and recovery abstractions with explicit retry and fallback strategies."
   ],
   "usage_guidance": [
-    "Use the schema models in `gyomu_schema.schemas` to construct, validate, and serialize Python code analyses, AST representations, and project snapshots.",
-    "Utilize `gyomu_schema.error` and associated retry strategies for consistent application error management and recovery.",
-    "Configure system processes and analysis options using the options defined in `gyomu_schema.option` and `gyomu_schema.config`.",
-    "Leverage utility functions in `gyomu_schema.utility` for serialization, execution timing, and safe result wrapping."
+    "Import schema models and validation tools directly from the appropriate domain submodules (e.g., Python AST models, document structures, or error definitions).",
+    "Utilize provided serialization and conversion utilities to validate and map data against Pydantic model definitions."
   ]
 }

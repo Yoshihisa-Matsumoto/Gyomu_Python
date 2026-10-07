@@ -181,3 +181,111 @@ async def test_run_package_action_returns_failure_when_checkpoint_update_fails(
         request=snapshot_request,
         status_to_add=PipelineStep.PACKAGE_CONCEPT,
     )
+
+
+@pytest.mark.asyncio
+async def test_run_package_action_skips_when_completed_and_concept_exists(
+    mocker,
+    snapshot_request,
+    checkpoint,
+    concept_option: ConceptOption,
+):
+    completed_checkpoint = Checkpoint(
+        package=checkpoint.package,
+        completed_steps=(PipelineStep.PACKAGE_CONCEPT,),
+    )
+
+    package_concept_path = mocker.Mock()
+    package_concept_path.exists.return_value = True
+    mocker.patch(
+        "gyomu_workflow.snapshot.run_package.get_package_concept_path",
+        return_value=package_concept_path,
+    )
+
+    build_package_concept = mocker.patch(
+        "gyomu_workflow.snapshot.run_package.build_package_concept"
+    )
+    update_snapshot = mocker.patch(
+        "gyomu_workflow.snapshot.run_package.update_snapshot"
+    )
+    update_checkpoint = mocker.patch(
+        "gyomu_workflow.snapshot.run_package.update_checkpoint"
+    )
+
+    result = await run_package_action(
+        current_checkpoint=completed_checkpoint,
+        request=snapshot_request,
+        option=concept_option,
+    )
+
+    assert isinstance(result, Success)
+
+    action_result = result.unwrap()
+    assert isinstance(action_result, SnapshotActionResult)
+    assert action_result.checkpoint == completed_checkpoint
+    assert action_result.snapshot is None
+
+    build_package_concept.assert_not_called()
+    update_snapshot.assert_not_called()
+    update_checkpoint.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_run_package_action_rebuilds_when_completed_but_concept_does_not_exist(
+    mocker,
+    snapshot_request,
+    checkpoint,
+    concept_option: ConceptOption,
+):
+    completed_checkpoint = Checkpoint(
+        package=checkpoint.package,
+        completed_steps=(PipelineStep.PACKAGE_CONCEPT,),
+    )
+
+    package_concept_path = mocker.Mock()
+    package_concept_path.exists.return_value = False
+    mocker.patch(
+        "gyomu_workflow.snapshot.run_package.get_package_concept_path",
+        return_value=package_concept_path,
+    )
+
+    package_concept = mocker.Mock()
+    mocker.patch(
+        "gyomu_workflow.snapshot.run_package.build_package_concept",
+        return_value=Success(package_concept),
+    )
+
+    snapshot = mocker.Mock(spec=ProjectSnapshot)
+    update_snapshot = mocker.patch(
+        "gyomu_workflow.snapshot.run_package.update_snapshot",
+        return_value=Success(snapshot),
+    )
+
+    updated_checkpoint = Checkpoint(
+        package=checkpoint.package,
+        completed_steps=(PipelineStep.PACKAGE_CONCEPT,),
+    )
+    update_checkpoint = mocker.patch(
+        "gyomu_workflow.snapshot.run_package.update_checkpoint",
+        return_value=Success(updated_checkpoint),
+    )
+
+    result = await run_package_action(
+        current_checkpoint=completed_checkpoint,
+        request=snapshot_request,
+        option=concept_option,
+    )
+
+    assert isinstance(result, Success)
+
+    action_result = result.unwrap()
+    assert isinstance(action_result, SnapshotActionResult)
+    assert action_result.checkpoint == updated_checkpoint
+    assert action_result.snapshot == snapshot
+
+    update_snapshot.assert_called_once_with(snapshot_request)
+    update_checkpoint.assert_called_once_with(
+        checkpoint=completed_checkpoint,
+        request=snapshot_request,
+        status_to_add=PipelineStep.PACKAGE_CONCEPT,
+    )

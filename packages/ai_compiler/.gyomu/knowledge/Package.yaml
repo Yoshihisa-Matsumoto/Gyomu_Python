@@ -1,0 +1,115 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu AI Compiler
+
+mission: |
+  GyomuプロジェクトにおけるAI処理のコンパイル・実行基盤を提供する。
+  上位パッケージから与えられたAI処理の定義やコンテキストを、
+  Route、Prompt、実行戦略、検証などの構成要素へ変換し、
+  gyomu-aiを介して一貫したAI処理として実行することを目的とする。
+
+policies:
+  - AIモデルやProviderへ直接アクセスせず、gyomu-aiの実行機構を利用する。
+  - AIタスクはRouteによって識別し、AI処理の内容とモデル構成を分離する。
+  - AIへの入力は明示的なPromptとして構築し、実行に必要なコンテキストを明確にする。
+  - AI出力は定義されたSchemaやValidatorによって検証してから利用する。
+  - AI実行のリトライは定義されたRetry戦略を利用して制御する。
+  - AI実行の失敗は構造化されたErrorとして扱い、原因や実行フェーズなどの診断情報を保持する。
+  - AI処理に必要な変換や組み立てをCompiler側で行い、Provider固有の処理を持ち込まない。
+  - Pipelineは再利用可能なコンポーネントとして構成する。
+
+constraints:
+  - AIモデルやProviderを直接呼び出してはならず、gyomu-aiを利用する。
+  - Provider固有のSDKや実装詳細を公開してはならない。
+  - AI出力を検証せずに後続処理へ渡してはならない。
+  - RouteやPromptの構築処理にアプリケーション固有のビジネスロジックを持ち込んではならない。
+  - AI実行結果をCompiler固有の永続化形式へ保存してはならない。
+  - 上位パッケージがAI ProviderやSDKの詳細を意識する構成を作ってはならない。
+
+non_goals:
+  - AIモデルやProviderを実装すること。
+  - AI Provider SDKを直接公開すること。
+  - アプリケーション固有のAIワークフローを実装すること。
+  - ソースコードやドキュメントを直接編集すること。
+  - AI実行結果をアプリケーション固有の形式で永続化すること。
+  - CLIやMCPなどの利用者向けインターフェースを提供すること。
+
+terminology:
+  - term: Pipeline
+    definition: AI処理を構成する一連の解析・生成・検証ステップ。
+
+  - term: AI Compiler
+    definition: 上位パッケージから与えられたAI処理の定義を、PromptやRouteなどの実行可能なAI処理へ変換する仕組み。
+
+  - term: Route
+    definition: AIタスクの実行経路を識別し、利用するAI実行構成を決定するための識別子。
+
+  - term: Prompt
+    definition: AIモデルへ渡す入力を構築した実行用のテキストまたは構造化された指示。
+
+  - term: Retry Strategy
+    definition: AI実行が一時的に失敗した場合に、再実行の方法や待機時間を決定する戦略。
+
+  - term: Validation
+    definition: AIから返された出力が期待するSchemaや条件を満たしているかを検証する処理。
+
+  - term: Translation Strategy
+    definition: Document Contentを対象言語へ変換する際の、内容種別や検証方法などの翻訳処理を定義する仕組み。
+
+rationale:
+  - AI ProviderとAI処理の定義を分離することで、上位パッケージがProvider固有の実装に依存することを防ぐ。
+  - Routeを利用してAIタスクとモデル構成を分離することで、AIモデル構成を変更してもAI処理の実装への影響を抑えられる。
+  - Prompt構築をCompiler側へ集約することで、AIへ渡すコンテキストと指示を一貫して管理できる。
+  - AI出力をSchemaやValidatorで検証することで、AIが生成した不確実なデータをそのまま後続処理へ渡すことを防ぐ。
+  - Retryを共通化することで、一時的なAI実行失敗を処理ごとに個別実装する必要をなくす。
+  - Document Contentの翻訳処理をCompilerに集約することで、ドキュメント生成側からAI実行の詳細を分離できる。
+  - Pipelineをモジュール化することで、新しいAI処理を容易に追加できる。
+
+usage:
+  - situation: 新しいAI処理を追加する
+    guidance: AI処理に必要なPrompt、Route、入力コンテキスト、出力SchemaやValidatorを定義して実装する。
+
+  - situation: AIモデルを変更する
+    guidance: AI処理側を変更せず、Routeの設定を変更して利用するモデル構成を切り替える。
+
+  - situation: AI出力を安全に利用する
+    guidance: 定義されたSchemaやValidatorを利用してAI出力を検証してから後続処理へ渡す。
+
+  - situation: AI実行が一時的に失敗する
+    guidance: 定義されたRetry Strategyを利用してAI実行を再試行する。
+
+  - situation: Document Contentを翻訳する
+    guidance: Translation Strategyと対象言語を指定して、AI Compilerの翻訳処理を利用する。
+
+examples:
+  - title: AI処理
+    input: |
+      新しいAI処理を追加したい。
+    output: |
+      入力コンテキスト、Prompt、Route、出力SchemaやValidatorを定義してAI処理を実装する。
+    explanation: |
+      AI処理の定義とAI Providerの実装を分離することで、Provider固有の詳細を処理側へ持ち込まない。
+
+  - title: モデル変更
+    input: |
+      AI処理で利用するモデルを変更したい。
+    output: |
+      Routeの設定を変更して利用するモデル構成を切り替える。
+    explanation: |
+      AI処理とモデル構成を分離しているため、Promptや処理ロジックを変更せずにモデルを切り替えられる。
+
+  - title: AI出力の検証
+    input: |
+      AIが生成した構造化データを後続処理で利用したい。
+    output: |
+      SchemaやValidatorを利用してAI出力を検証してから利用する。
+    explanation: |
+      AI出力をそのまま信頼せず、期待する形式を満たしていることを確認できる。
+
+  - title: Document Contentの翻訳
+    input: |
+      READMEのSection Contentを別の言語へ翻訳したい。
+    output: |
+      Translation Strategyと対象言語を指定して翻訳処理を実行する。
+    explanation: |
+      Document Contentの種類に応じた翻訳方法と検証を統一されたAI処理として扱える。

@@ -1,7 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from gyomu_schema.utility import execution_timer
 from gyomu_schema.utility.execution_timer import ExecutionTimer
 
 
@@ -22,8 +21,7 @@ class TestExecutionTimer:
         current_time = 100.0
 
         monkeypatch.setattr(
-            execution_timer.time,
-            "monotonic",
+            "gyomu_schema.utility.execution_timer.time.monotonic",
             lambda: current_time,
         )
 
@@ -43,8 +41,7 @@ class TestExecutionTimer:
         monotonic_time = 100.0
 
         monkeypatch.setattr(
-            execution_timer.time,
-            "monotonic",
+            "gyomu_schema.utility.execution_timer.time.monotonic",
             lambda: monotonic_time,
         )
         timer = ExecutionTimer.start()

@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=../../../../schemas/Package.json
+
+display_name: Gyomu Python Analysis
+
+mission: |
+  GyomuにおけるPythonソースコード解析基盤を提供します。
+  PythonプロジェクトおよびWorkspaceを解析し、ソースコードの構造、
+  宣言、依存関係などを構造化された解析モデルとして抽出します。
+  Project ContextやWorkspace Contextを通じて解析対象と設定を一貫して管理し、
+  解析結果とプロジェクト状態を再利用可能な形式で扱えるようにすることで、
+  Concept、Facts、Docstringなどの上位レイヤーが利用する共通の解析基盤を提供します。
+
+policies:
+  - 解析結果はソースコードおよびプロジェクト設定から決定的に導出されるものとする。
+  - Project ContextとWorkspace Contextを通じて解析対象と解析設定を一貫して管理する。
+  - プロジェクト解析とソースファイル解析は独立した責務として設計する。
+  - 解析結果は読み取り専用の構造化されたモデルとして提供し、解析処理によってソースコードを変更しない。
+  - パス解決はプロジェクトおよびWorkspace全体で一貫したルールに従う。
+  - Python固有の解析処理を共通基盤に集約し、上位レイヤーが解析ライブラリの実装詳細へ直接依存しない構造を維持する。
+  - 解析対象のプロジェクト境界とソースルートを明確に管理する。
+  - プロジェクトの状態はSnapshotとして永続化し、後続の処理から再利用できるようにする。
+  - Snapshotは解析対象の現在状態を表現する情報として扱い、ドキュメント更新などの上位処理とは分離する。
+
+constraints:
+  - ソースコードを書き換えてはならない。
+  - READMEや設計ドキュメントなどのドキュメント生成を担当してはならない。
+  - docstringの生成、更新、適用を担当してはならない。
+  - AIによる推論や意味解析を実装してはならない。
+  - 特定プロジェクト固有の解析ロジックを共通解析基盤へ持ち込んではならない。
+  - Python解析ライブラリの実装詳細を上位レイヤーの公開APIとして露出させてはならない。
+  - 解析結果を利用したアプリケーション固有の判断ロジックを実装してはならない。
+  - 解析処理とドキュメント更新処理を結合してはならない。
+
+non_goals:
+  - READMEや設計ドキュメントを生成すること。
+  - docstringを生成・更新・適用すること。
+  - ConceptやKnowledgeなどのプロジェクト知識を生成・管理すること。
+  - AIによるコード推論や意味解析を提供すること。
+  - コード変換やリファクタリングを実行すること。
+  - Pythonソースコードの品質改善やLint修正を実行すること。
+  - 解析結果を利用した重要度評価やアーキテクチャ判断を実行すること。
+  - 解析対象の変更を検出してUpdate Planを生成すること。
+
+terminology:
+  - term: Project Context
+    definition: |
+      Pythonプロジェクトのルート、ソースルート、パッケージ、
+      解析対象ファイルなど、プロジェクト解析に必要な情報を保持するコンテキスト。
+
+  - term: Workspace Context
+    definition: |
+      複数のPythonプロジェクトやパッケージを含むWorkspace全体の解析対象と
+      プロジェクト間の関係を管理するコンテキスト。
+
+  - term: File Analysis
+    definition: |
+      単一のPythonソースファイルから抽出された宣言、シンボル、
+      依存関係などの構造解析結果。
+
+  - term: Project Analysis
+    definition: |
+      Pythonプロジェクトの構造や設定、ソースファイルを解析し、
+      プロジェクト全体の解析情報を構築する処理。
+
+  - term: Snapshot
+    definition: |
+      特定時点におけるPythonプロジェクトの状態を表現する永続化された情報。
+      ファイルハッシュなどを用いて解析対象の状態を記録し、
+      後続の処理から現在のプロジェクト状態を参照できるようにする。
+
+  - term: Source Root
+    definition: |
+      Pythonプロジェクトにおいて解析対象となるソースコードのルートディレクトリ。
+
+  - term: Project Root
+    definition: |
+      Pythonプロジェクトを識別し、pyproject.tomlなどのプロジェクト設定や
+      ソースコードを解決するための基準となるディレクトリ。
+
+rationale:
+  - Pythonソースコードの解析を共通基盤化することで、上位レイヤーは解析ライブラリや解析方法を意識せず利用できる。
+  - Project ContextとWorkspace Contextを導入することで、プロジェクト境界や解析対象を一貫したルールで管理できる。
+  - 解析結果を構造化されたモデルとして提供することで、Concept、Facts、Docstringなど複数の上位処理から再利用できる。
+  - パス解決を共通化することで、プロジェクトルート、ソースルート、ファイルなどの対応を安定して管理できる。
+  - Snapshotによってプロジェクトの特定時点の状態を永続化することで、上位の状態管理処理が現在の解析対象を一貫して参照できる。
+  - Python固有の解析処理を集約することで、上位パッケージがGriffeなどの解析実装へ直接依存することを防げる。
+  - 解析処理とドキュメント生成・更新処理を分離することで、解析結果を複数の用途へ安全に再利用できる。
+
+usage:
+  - situation: Pythonプロジェクトを解析したい
+    guidance: Project Contextを初期化し、プロジェクトのソースルートと解析対象を解決して解析を実行する。
+
+  - situation: Workspace内のPythonプロジェクトを解析したい
+    guidance: Workspace Contextから対象プロジェクトを解決し、そのProject Contextを利用して解析する。
+
+  - situation: 単一のPythonソースファイルを解析したい
+    guidance: File Analysisを利用して、ファイルに含まれる宣言や依存関係などの構造情報を取得する。
+
+  - situation: Pythonプロジェクト全体の構造を取得したい
+    guidance: Project Analysisを利用して、プロジェクトのソースコードと設定から構造化された解析情報を構築する。
+
+  - situation: プロジェクトの現在状態を記録したい
+    guidance: Snapshotを生成して、解析対象の状態を永続化する。
+
+  - situation: ConceptやFactsなどの上位処理で解析結果を利用したい
+    guidance: Python Analysisが提供する構造化された解析モデルを利用し、解析ライブラリの実装へ直接依存しない。
+
+  - situation: テストでPython解析を利用したい
+    guidance: テスト用のプロジェクト構造を用意し、Project Contextを初期化して実際のファイルシステム上で解析する。
+
+examples:
+  - title: プロジェクト解析
+    input: |
+      Pythonプロジェクト全体の構造を解析したい。
+    output: |
+      Project Contextを初期化してPythonプロジェクトを解析する。
+    explanation: |
+      プロジェクトルートとソースルートを基準として解析対象を一貫して解決できる。
+
+  - title: ファイル解析
+    input: |
+      Pythonソースファイルに含まれる公開宣言や依存関係を取得したい。
+    output: |
+      File Analysisを実行して構造化された解析結果を取得する。
+    explanation: |
+      ソースコードを変更せず、ファイルの構造情報のみを取得できる。
+
+  - title: Workspace解析
+    input: |
+      複数のPythonプロジェクトを含むWorkspaceを解析したい。
+    output: |
+      Workspace Contextから対象プロジェクトを解決し、それぞれのProject Contextを利用して解析する。
+    explanation: |
+      Workspace内の複数プロジェクトを、それぞれのプロジェクト境界を維持したまま一貫して解析できる。
+
+  - title: Snapshotの作成
+    input: |
+      Pythonプロジェクトの特定時点の状態を記録したい。
+    output: |
+      Snapshotを生成して解析対象ファイルの状態を永続化する。
+    explanation: |
+      プロジェクトの状態を再利用可能な形式で記録できるため、
+      後続の状態管理処理から一貫して参照できる。
+
+  - title: 上位処理からの解析結果利用
+    input: |
+      ConceptやFactsの処理でPythonソースコードの構造を利用したい。
+    output: |
+      Python Analysisが提供する解析モデルを利用する。
+    explanation: |
+      上位レイヤーはPython解析ライブラリの実装詳細に依存せず、
+      共通化された解析結果を利用できる。

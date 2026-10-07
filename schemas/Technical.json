@@ -1,0 +1,187 @@
+{
+  "$defs": {
+    "Compatibility": {
+      "description": "Describes one compatibility requirement or supported environment.",
+      "properties": {
+        "name": {
+          "description": "The technology, runtime, library, or platform this compatibility note applies to.",
+          "title": "Name",
+          "type": "string"
+        },
+        "supported": {
+          "description": "Describe the supported version, platform, or compatibility requirement.",
+          "title": "Supported",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Additional notes about compatibility, limitations, or recommendations.",
+          "title": "Description"
+        }
+      },
+      "required": [
+        "name",
+        "supported"
+      ],
+      "title": "Compatibility",
+      "type": "object"
+    },
+    "Dependency": {
+      "description": "Describes one important dependency that developers should be aware of.",
+      "properties": {
+        "package": {
+          "description": "The package name or dependency identifier.",
+          "title": "Package",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explain why this dependency exists and how it is used within this package.",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "package",
+        "description"
+      ],
+      "title": "Dependency",
+      "type": "object"
+    },
+    "Installation": {
+      "description": "One installation or setup step required before using this package.",
+      "properties": {
+        "command": {
+          "description": "The command required to install or set up this package.",
+          "title": "Command",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explain when or why this installation step is required.",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command",
+        "description"
+      ],
+      "title": "Installation",
+      "type": "object"
+    },
+    "TechnicalConfiguration": {
+      "description": "One configuration item.",
+      "properties": {
+        "key": {
+          "description": "Configuration key, option name, or environment variable.",
+          "title": "Key",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explain the purpose of this configuration item.",
+          "title": "Description",
+          "type": "string"
+        },
+        "default_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Default value if one exists.",
+          "title": "Default Value"
+        }
+      },
+      "required": [
+        "key",
+        "description"
+      ],
+      "title": "TechnicalConfiguration",
+      "type": "object"
+    },
+    "TechnicalMigration": {
+      "description": "One migration note.",
+      "properties": {
+        "version": {
+          "description": "Version where the migration became necessary.",
+          "title": "Version",
+          "type": "string"
+        },
+        "description": {
+          "description": "Explain the migration and required changes.",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "description"
+      ],
+      "title": "TechnicalMigration",
+      "type": "object"
+    }
+  },
+  "description": "Technical reference for installing, configuring, and integrating this package.",
+  "properties": {
+    "installation": {
+      "description": "Instructions for installing or enabling this package. Include only information that is required by developers.",
+      "items": {
+        "$ref": "#/$defs/Installation"
+      },
+      "title": "Installation",
+      "type": "array"
+    },
+    "configuration": {
+      "description": "Configuration options supported by this package.",
+      "items": {
+        "$ref": "#/$defs/TechnicalConfiguration"
+      },
+      "title": "Configuration",
+      "type": "array"
+    },
+    "dependencies": {
+      "description": "Important runtime, build-time, or peer dependencies that users of this package should know about.",
+      "items": {
+        "$ref": "#/$defs/Dependency"
+      },
+      "title": "Dependencies",
+      "type": "array"
+    },
+    "compatibility": {
+      "description": "Supported runtimes, libraries, module systems, and other compatibility information.",
+      "items": {
+        "$ref": "#/$defs/Compatibility"
+      },
+      "title": "Compatibility",
+      "type": "array"
+    },
+    "migration": {
+      "description": "Migration guides for breaking or important changes.",
+      "items": {
+        "$ref": "#/$defs/TechnicalMigration"
+      },
+      "title": "Migration",
+      "type": "array"
+    }
+  },
+  "required": [
+    "installation",
+    "configuration",
+    "dependencies",
+    "compatibility",
+    "migration"
+  ],
+  "title": "Technical",
+  "type": "object"
+}

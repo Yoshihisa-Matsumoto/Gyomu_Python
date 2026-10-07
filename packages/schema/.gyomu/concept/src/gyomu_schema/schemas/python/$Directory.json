@@ -1,19 +1,20 @@
 {
-  "summary": "Defines schema models and data structures representing Python code elements, symbols, classes, functions, modules, dependencies, and analysis metadata.",
+  "summary": "Defines Python code structure analysis schemas and data models covering classes, functions, modules, symbols, parameters, dependencies, and documentation strings.",
   "responsibilities": [
-    "Define schema models and data structures representing Python code structures, analysis elements, symbols, and metadata."
+    "Defines schema definitions and analysis models for Python code structures, symbols, modules, files, and project configuration.",
+    "Provides data models for representing Python classes, functions, methods, parameters, decorators, variables, type aliases, and docstring sections."
   ],
   "concepts": [
     "Python schema models",
-    "AST analysis structures",
-    "Symbol analysis types",
-    "Python code metadata"
+    "Python AST analysis",
+    "symbol analysis",
+    "code structure analysis"
   ],
   "relationships": [
-    "Defines schemas used to represent Python code elements such as classes, functions, methods, callables, modules, variables, and dependencies."
+    "Python schema models and union types represent code structures including classes, functions, methods, callables, variables, imports, dependencies, and docstrings."
   ],
   "design_decisions": [
-    "Defines schemas, typed dicts, and union types for representing Python code structure and analysis metadata."
+    "Defines schema models and union types for Python code elements, classes, functions, modules, and source structure analyses."
   ],
   "importance": "Core"
 }

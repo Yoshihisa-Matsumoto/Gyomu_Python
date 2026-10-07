@@ -3,6 +3,11 @@ from dataclasses import dataclass
 
 from gyomu_schema.schemas.python.types import PythonPath
 
+type AstTargetSymbolType = (
+    ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef | ast.Assign | ast.AnnAssign
+)
+"""Represents target AST nodes for symbol analysis."""
+
 
 @dataclass(frozen=True)
 class AstClassFunctionKey:
@@ -19,7 +24,10 @@ class AstClassFunctionKey:
 
 def _analyze_ast_module(
     source: str, source_path: PythonPath
-) -> dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]:
+) -> dict[
+    AstClassFunctionKey,
+    AstTargetSymbolType,
+]:
     """Analyzes a Python module from source code and builds a class/function index.
 
     Args:
@@ -27,8 +35,8 @@ def _analyze_ast_module(
         source_path (PythonPath): The file path of the source code.
 
     Returns:
-        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef]: A dictionary mapping AST class or function keys to
+        dict[AstClassFunctionKey, AstTargetSymbolType]: A dictionary mapping AST class
+            or function keys to
             their definitions.
     """
     tree = ast.parse(source=source, filename=source_path)
@@ -37,24 +45,27 @@ def _analyze_ast_module(
 
 def get_ast_index(
     index: dict[
-        AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+        AstClassFunctionKey,
+        AstTargetSymbolType,
     ]
     | None,
     source: str,
     source_path: PythonPath,
-) -> dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]:
+) -> dict[
+    AstClassFunctionKey,
+    AstTargetSymbolType,
+]:
     """Returns the provided AST index if available, otherwise analyzes the module to
     build one.
 
     Args:
-        index (dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef] | None): An existing index to reuse, if available.
+        index (str): The Python source code content.
         source (str): The Python source code content.
         source_path (PythonPath): The file path of the source code.
 
     Returns:
-        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef]: The AST class and function index.
+        dict[AstClassFunctionKey, AstTargetSymbolType]: The AST class and function
+            index.
     """
     if index is not None:
         return index
@@ -63,7 +74,10 @@ def get_ast_index(
 
 def build_class_function_index(
     tree: ast.Module | ast.ClassDef,
-) -> dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef]:
+) -> dict[
+    AstClassFunctionKey,
+    AstTargetSymbolType,
+]:
     """Builds an index of classes and functions from an AST tree.
 
     Args:
@@ -71,14 +85,16 @@ def build_class_function_index(
             process.
 
     Returns:
-        dict[AstClassFunctionKey, ast.ClassDef | ast.FunctionDef |
-            ast.AsyncFunctionDef]: A dictionary mapping AstClassFunctionKey to class and
+        dict[AstClassFunctionKey, AstTargetSymbolType]: A dictionary mapping
+            AstClassFunctionKey to class and
             function definitions.
     """
     index: dict[
-        AstClassFunctionKey, ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+        AstClassFunctionKey,
+        AstTargetSymbolType,
     ] = {}
 
+    # logger.debug("build_class_function_index")
     for child in ast.iter_child_nodes(tree):
         if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             assert child.end_lineno
@@ -87,4 +103,17 @@ def build_class_function_index(
                 child.end_lineno,
             )
             index[key] = child
+        if isinstance(child, ast.Assign):  # noqa: SIM102
+            # logger.debug_object(child)
+            if child.end_lineno is not None:
+                for target in child.targets:
+                    if isinstance(target, ast.Name):
+                        key = AstClassFunctionKey(target.id, child.end_lineno)
+                        index[key] = child
+        if isinstance(child, ast.AnnAssign):  # noqa: SIM102
+            # logger.debug_object(child)
+            if child.end_lineno is not None:  # noqa: SIM102
+                if isinstance(child.target, ast.Name):
+                    key = AstClassFunctionKey(child.target.id, child.end_lineno)
+                    index[key] = child
     return index

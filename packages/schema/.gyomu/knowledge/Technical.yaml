@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=../../../../schemas/Technical.json
+
+installation:
+  - command: uv add gyomu-schema
+    description: |
+      通常のPythonパッケージと同様にインストールする。
+      特別なセットアップは不要。
+
+configuration: []
+
+dependencies:
+  - package: pydantic
+    description: |
+      Pydantic Schemaの定義、データの検証、
+      シリアライズ・デシリアライズなどに利用する。
+
+  - package: returns
+    description: |
+      Success / Failure / Result による明示的な成功・失敗表現に利用する。
+
+compatibility:
+  - name: pydantic
+    supported: 2.x
+    description: |
+      Pydantic Version 2 を前提として設計されている。
+
+migration: []

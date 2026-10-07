@@ -31,3 +31,22 @@ Confidence2 = Annotated[
         description="AI decision confidence used for merge strategy routing",
     ),
 ]
+
+Confidence3 = Annotated[
+    float | None,
+    Field(
+        ge=0.0,
+        le=1.0,
+        description="AI decision confidence used for merge strategy routing",
+    ),
+]
+
+
+Confidence4 = Annotated[
+    float | int | None,
+    Field(
+        ge=0.0,
+        le=1.0,
+        description="AI decision confidence used for merge strategy routing",
+    ),
+]

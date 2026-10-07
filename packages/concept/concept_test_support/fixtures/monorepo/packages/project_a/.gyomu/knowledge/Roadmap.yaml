@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../../../../../../../../../schemas/Roadmap.json
+planned: []
+
+in_progress: []
+
+completed: []
+
+backlog:
+  - title: DB Entity の拡充
+    description: |
+      現状拡張可能なメソッドが参照（Select）のみなので、複数テーブルにまたがる同一トランザクションCUDに標準対応できるようにする（主にInfra側）
+      現在のUI metadata で、Select（コンボボックス）を指定時に、動的に値をとってこれるような仕組み (infra/ui-core)
+    priority: medium
