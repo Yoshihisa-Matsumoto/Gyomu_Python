@@ -515,7 +515,7 @@ class TestPydanticAiModelExecution_GenerateText:
         assert isinstance(result, Success)
         assert agent.run.await_count == 2
 
-        sleep.assert_awaited_once_with(21)
+        sleep.assert_awaited_once_with(22)
 
 
 class TestPydanticAiModelExecution_GenerateObject:

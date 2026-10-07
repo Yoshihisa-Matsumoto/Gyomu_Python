@@ -86,7 +86,7 @@ async def test_build_with_real_llm(
     "Utilize the provided result abstractions and data models for consistent error handling and data validation."
   ]
 }
-""",
+""",  # noqa: E501
     )
     result = initialize_project_context(
         project_root=FullPath(project_path / "packages" / "project_a"),

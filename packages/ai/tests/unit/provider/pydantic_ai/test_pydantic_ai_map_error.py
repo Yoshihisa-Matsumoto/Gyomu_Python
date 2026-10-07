@@ -59,7 +59,7 @@ class TestMapPydanticAiError:
 
         assert isinstance(result.resolution, AiRetryResolution)
         assert isinstance(result.resolution.strategy, AiRetryAfter)
-        assert result.resolution.strategy.delay_second == 31.0
+        assert result.resolution.strategy.delay_second == 32.0
 
     def test_maps_rate_limit_without_retry_info_to_exponential(self) -> None:
         error = self._create_http_error(

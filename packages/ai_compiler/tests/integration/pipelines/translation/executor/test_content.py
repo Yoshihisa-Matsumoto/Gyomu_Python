@@ -20,6 +20,7 @@ from packages.schema.schema_test_support.concept_helpers import create_paragraph
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_returns_translated_context_when_first_translation_is_valid(
     project_dot_env: Path,
     mocker: MockerFixture,

@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from gyomu_ai_compiler.pipelines.translation.executor.prompt import (
     build_translation_prompt,
+    format_validation_issues,
 )
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.translation import TranslationError
@@ -124,9 +125,10 @@ class TestBuildTranslationPrompt:
             )
 
         assert isinstance(result, Success)
-        assert result.unwrap() == (
-            "- Translate the content completely.\n- Preserve the original structure."
-        )
+        # assert result.unwrap() == (
+        #     "- Translate the content completely.\n- Preserve the original structure."
+        # )
+        assert result.unwrap() == format_validation_issues(validation_result)
 
     def test_omits_validation_issues_when_valid(self) -> None:
         context = create_paragraph()

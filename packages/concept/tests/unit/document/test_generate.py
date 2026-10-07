@@ -239,7 +239,7 @@ async def test_generate_document_wraps_translation_error(
         return_value=Success((section,)),
     )
 
-    translate_mock = mocker.patch(
+    mocker.patch(
         "gyomu_concept.document.generate.translate_section",
         new_callable=AsyncMock,
         return_value=Failure(translation_error),

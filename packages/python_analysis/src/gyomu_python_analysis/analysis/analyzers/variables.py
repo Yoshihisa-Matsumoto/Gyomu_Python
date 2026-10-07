@@ -15,6 +15,7 @@ from gyomu_python_analysis.analysis.analyzers.context import (
 from gyomu_python_analysis.analysis.analyzers.internal.common import build_symbol_common
 from gyomu_python_analysis.analysis.analyzers.pydantic import (
     analyze_pydantic,
+    get_pydantic_from_value_only,
 )
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
 
@@ -59,11 +60,6 @@ def analyze_variable(
         else None
     )
 
-    # field_types: tuple[TypeExpression, CallExpressionAnalysis] | None = (
-    #     get_pydantic_field_from_annotated_type_expression(
-    #         value_expression, ast_value_expression
-    #     )
-    # )
     pydantic: PydanticFieldAnalysis | None = None
     # if field_types is not None:
     #     assumed_type = field_types[0]
@@ -77,6 +73,8 @@ def analyze_variable(
         and ast_value_expression is not None
         else None
     )
+    if pydantic is None and ast_value_expression is not None:
+        pydantic = get_pydantic_from_value_only(ast_value_expression)
 
     return VariableAnalysis(
         **variable_common,
