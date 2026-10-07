@@ -1,0 +1,18 @@
+{
+  "summary": "The translation directory provides core components and functions for translating documents and their individual sections within the application.",
+  "responsibilities": [
+    "Provide data structures and functions for translating documents and their sections."
+  ],
+  "concepts": [
+    "TranslatedDocument",
+    "translate_section",
+    "document translation"
+  ],
+  "relationships": [
+    "translate_section processes individual sections to support document translation."
+  ],
+  "design_decisions": [
+    "Modular organization of document translation logic into separate components for documents and sections."
+  ],
+  "importance": "Core"
+}

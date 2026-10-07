@@ -1,28 +1,28 @@
 {
-  "summary": "Provides the core application logic by organizing modules responsible for directory concept construction, domain error handling, and package analysis and concept generation.",
+  "summary": "Provides the core application modules for building directory concepts, generating and rendering structured documentation and README files, performing package analysis, and handling domain-specific errors.",
   "responsibilities": [
-    "Manage directory concept construction and define build result data structures",
-    "Define domain-specific errors and phase classifications for error handling",
-    "Provide core logic for package analysis, concept generation, dependency collection, and path processing"
+    "Manages directory concept construction and build results.",
+    "Handles core workflows for document generation, translation, rendering, and construction.",
+    "Defines domain-specific error classes and phase classifications for conceptual operations.",
+    "Performs package analysis, concept building, dependency collection, and path processing.",
+    "Orchestrates the generation and configuration of project README documentation files."
   ],
   "concepts": [
-    "directory concept construction",
-    "build result types",
-    "domain-specific errors",
-    "phase classifications",
-    "package analysis",
-    "concept generation",
-    "dependency collection",
-    "path processing"
+    "Directory Concept Construction",
+    "Document Generation Workflow",
+    "Error Handling and Phase Classification",
+    "Package Analysis and Concept Generation",
+    "README Documentation Generation"
   ],
   "relationships": [
-    "The build module uses types defined in the types module to represent build outcomes.",
+    "The readme generation process utilizes context initialization, definitions, and child packages for building and rendering documentation files.",
+    "Document generation relies on document context initialization, models, builders, translation, and rendering components.",
     "ConceptError relates to ConceptPhase to classify errors during conceptual execution.",
-    "Package analysis and package concept generation utilize internal package utilities to support operations."
+    "Package analysis and package concept generation utilize internal package utilities to support operations.",
+    "The build module uses types defined in the types module to represent build outcomes."
   ],
   "design_decisions": [
-    "Organizes core logic into modular subdirectories covering directory concepts, error handling, and package analysis.",
-    "Defines domain-specific error classes alongside phase classifications for handling exceptions."
+    "Modular organization separating core business logic domains like directory concepts, document handling, error definitions, package analysis, and readme generation into distinct subdirectories."
   ],
   "importance": "Core"
 }

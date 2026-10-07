@@ -1,0 +1,24 @@
+{
+  "summary": "The document directory manages the core workflow for generating, translating, rendering, and constructing structured documentation using definitions, contexts, and path utilities.",
+  "responsibilities": [
+    "Initializes document base contexts and knowledge paths.",
+    "Generates documentation based on document definitions and project contexts.",
+    "Defines data structures and models for rendered documents, outputs, definitions, and resolvers."
+  ],
+  "concepts": [
+    "Document context initialization",
+    "Document generation",
+    "Document models",
+    "Document construction",
+    "Document path utilities",
+    "Document rendering",
+    "Document translation"
+  ],
+  "relationships": [
+    "Document generation relies on document context initialization, models, builders, translation, and rendering components."
+  ],
+  "design_decisions": [
+    "Modular organization supporting document generation, construction, translation, and rendering workflows."
+  ],
+  "importance": "Core"
+}

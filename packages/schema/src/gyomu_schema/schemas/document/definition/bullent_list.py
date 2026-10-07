@@ -3,6 +3,7 @@ from gyomu_schema.schemas.document.content import (
     BulletListItem,
     DocumentContentType,
 )
+from gyomu_schema.schemas.document.definition.common import validate_text
 from gyomu_schema.schemas.document.section import (
     DocumentContentDefinitionBase,
     ReconciliationValidator,
@@ -17,6 +18,13 @@ def _validate_bullet_list_item(
     issues: list[ValidationIssue],
 ) -> None:
     """Validate bullet list item translation consistency."""
+
+    validate_text(
+        source=source.text,
+        destination=destination.text,
+        location=f"id={translation_id}",
+        issues=issues,
+    )
 
     source_item_count = 0 if source.children is None else len(source.children)
     destination_item_count = (

@@ -1,36 +1,35 @@
 {
-  "summary": "The gyomu-concept package provides core functionality for analyzing, constructing, processing, and persisting architectural concepts at both the directory and package levels. It orchestrates file aggregation, dependency collection, path resolution, and robust domain error management to support higher-level architectural tooling.",
+  "summary": "Gyomu Concept is a core architectural tool for analyzing, building, and managing structured software project concepts, directories, and packages. It provides comprehensive capabilities for generating, translating, and rendering structured documentation and project README files using dedicated builders and context management.",
   "responsibilities": [
-    "Model and construct directory and package concepts from filesystem paths.",
-    "Analyze packages by aggregating files and directories and collecting dependencies.",
-    "Persist, load, and process concept records across the application.",
-    "Provide centralized domain error definitions and phase classifications."
+    "Model and process structural concepts for software packages and directories.",
+    "Generate structured documentation and markdown files from definitions and project contexts.",
+    "Manage project README generation and coordinate specialized section builders."
   ],
   "capabilities": [
     {
       "name": "Directory Concept Management",
-      "description": "Construct, analyze, and manage structured directory concepts and file summaries from file system paths."
+      "description": "Builds, processes, loads, and saves structured conceptual representations of source code directories and their file summaries."
     },
     {
-      "name": "Package Analysis and Concept Generation",
-      "description": "Perform package analysis, aggregate files and directories, and build comprehensive package-level concepts."
+      "name": "Package Concept Management",
+      "description": "Analyzes, builds, loads, saves, and processes package-level concepts and their dependency collections."
     },
     {
-      "name": "Serialization and Dependency Resolution",
-      "description": "Collect dependencies, resolve concept paths, and handle serialization and persistence operations."
+      "name": "Documentation Generation and Rendering",
+      "description": "Generates, translates, renders, and constructs structured documentation and sections asynchronously using definitions and contexts."
     },
     {
-      "name": "Domain Error Handling",
-      "description": "Provide domain-specific error classes and phase classifications for robust error handling."
+      "name": "README Orchestration",
+      "description": "Orchestrates the generation and configuration of project README files with specialized builders for overview, architecture, dependencies, and development sections."
     }
   ],
   "design_decisions": [
-    "Separates core domain logic into distinct directory and package tiers to maintain a clear hierarchical boundary.",
-    "Encapsulates internal implementation details within internal submodules while exposing clean public interfaces for building, loading, saving, and processing.",
-    "Defines domain-specific errors with phase classifications to categorize and handle exceptions across different processing stages."
+    "Uses distinct modular boundaries for directories, packages, documentation, and README generation.",
+    "Employs an asynchronous builder pattern for constructing document sections and elements.",
+    "Integrates specialized analysis and AI compilation components to support concept and documentation generation."
   ],
   "usage_guidance": [
-    "Use the package and directory modules to build, load, save, and process structural concepts for your codebase.",
-    "Rely on the provided error handling classes and phase classifications to manage and diagnose domain-specific exceptions."
+    "Use the package and directory modules to analyze, build, and process structural concepts across project paths.",
+    "Leverage the document and README modules to initialize build contexts and generate structured markdown documentation using asynchronous builders and custom definitions."
   ]
 }

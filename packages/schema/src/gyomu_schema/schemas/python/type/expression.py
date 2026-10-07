@@ -1313,6 +1313,7 @@ class StatementKind(StrEnum):
 
     The annassign member.
     """
+    NONLOCAL = "nonlocal"
 
 
 class GlobalStatementAnalysis(BaseModel):
@@ -1322,6 +1323,25 @@ class GlobalStatementAnalysis(BaseModel):
     """
 
     kind: StatementKind = StatementKind.GLOBAL
+    """The kind field.
+
+    The kind field.
+    """
+
+    names: tuple[str, ...]
+    """The names field.
+
+    The names field.
+    """
+
+
+class NonLocalStatementAnalysis(BaseModel):
+    """Represents an analysis of a global statement.
+
+    Represents an analysis of a global statement.
+    """
+
+    kind: StatementKind = StatementKind.NONLOCAL
     """The kind field.
 
     The kind field.
@@ -1573,6 +1593,7 @@ type StatementAnalysis = (
     | AugAssignStatementAnalysis
     | FunctionDefStatementAnalysis
     | GlobalStatementAnalysis
+    | NonLocalStatementAnalysis
 )
 """Union type representing any supported statement analysis model.
 

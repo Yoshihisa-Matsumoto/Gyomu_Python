@@ -1,9 +1,28 @@
-from gyomu_schema.schemas.document.content import DocumentContentType, Table
+from gyomu_schema.schemas.document.content import DocumentContentType, Table, TableRow
+from gyomu_schema.schemas.document.definition.common import validate_text
 from gyomu_schema.schemas.document.section import (
     DocumentContentDefinitionBase,
     ReconciliationValidator,
 )
 from gyomu_schema.schemas.document.validation import ValidationIssue, ValidationResult
+
+
+def _validate_table_row(
+    source: TableRow,
+    destination: TableRow,
+    issues: list[ValidationIssue],
+    row_index: int | None = None,
+) -> None:
+    for index, source_cell in enumerate(source.cells):
+        destination_cell = destination.cells[index]
+        validate_text(
+            source=source_cell,
+            destination=destination_cell,
+            location=f"header->cell({index})"
+            if row_index is None
+            else f"row({row_index})->cell({index})",
+            issues=issues,
+        )
 
 
 def _validate_table(source: Table, destination: Table) -> ValidationResult:
@@ -47,12 +66,19 @@ def _validate_table(source: Table, destination: Table) -> ValidationResult:
                         "translated_count": str(len(destination.rows)),
                     },
                     repair_instruction=(
-                        "Translate again while preserving every table rows"
+                        "Translate again while preserving every table row."
                     ),
                 )
             )
 
         if len(issues) == 0:
+            _validate_table_row(
+                source=source.header,
+                destination=destination.header,
+                issues=issues,
+                row_index=None,
+            )
+
             for index, source_row in enumerate(source.rows):
                 destination_row = destination.rows[index]
                 if (
@@ -76,6 +102,13 @@ def _validate_table(source: Table, destination: Table) -> ValidationResult:
                                 "every table cells on  rows"
                             ),
                         )
+                    )
+                else:
+                    _validate_table_row(
+                        source=source_row,
+                        destination=destination_row,
+                        issues=issues,
+                        row_index=index,
                     )
 
     return ValidationResult(issues=tuple(issues), is_valid=len(issues) == 0)

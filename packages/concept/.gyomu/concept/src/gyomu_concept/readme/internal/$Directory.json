@@ -1,0 +1,14 @@
+{
+  "summary": "Internal utilities supporting readme file handling and naming conventions.",
+  "responsibilities": [
+    "Provides internal utilities for determining readme filenames within the readme module."
+  ],
+  "concepts": [
+    "readme filename"
+  ],
+  "relationships": [],
+  "design_decisions": [
+    "Internal helper module for readme handling"
+  ],
+  "importance": "Supporting"
+}

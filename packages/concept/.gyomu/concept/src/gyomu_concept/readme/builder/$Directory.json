@@ -1,0 +1,17 @@
+{
+  "summary": "Coordinates the construction of README documentation by assembling individual sections such as architecture, dependencies, development, installation, and public API.",
+  "responsibilities": [
+    "Coordinate the assembly and construction of README documentation using specialized section builders."
+  ],
+  "concepts": [
+    "README documentation builder",
+    "README sections"
+  ],
+  "relationships": [
+    "The README builder utilizes section builders to construct specific parts of the documentation."
+  ],
+  "design_decisions": [
+    "Modular section builders compose the complete README documentation."
+  ],
+  "importance": "Supporting"
+}

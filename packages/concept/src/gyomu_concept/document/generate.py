@@ -1,10 +1,5 @@
 from pathlib import Path
 
-from gyomu_concept.document.builder.section import build_sections
-from gyomu_concept.document.models import DocumentDefinition
-from gyomu_concept.document.translation.document import TranslatedDocument
-from gyomu_concept.document.translation.section import translate_section
-from gyomu_concept.error.document import DocumentBuilderError
 from gyomu_infra.filesystem.file_io import write_text
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext
@@ -14,6 +9,12 @@ from gyomu_schema.schemas.document.section import Section
 from gyomu_schema.utility.context import caller_context
 from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
+
+from gyomu_concept.document.builder.section import build_sections
+from gyomu_concept.document.models import DocumentDefinition
+from gyomu_concept.document.translation.document import TranslatedDocument
+from gyomu_concept.document.translation.section import translate_section
+from gyomu_concept.error.document import DocumentBuilderError
 
 
 async def generate_document[
@@ -26,6 +27,19 @@ async def generate_document[
     project: ProjectContext,
     option: TOption | None = None,
 ) -> Result[None, DocumentBuilderError]:
+    """Generates documentation based on a provided document definition and project
+    context.
+
+    Args:
+        definition (DocumentDefinition[TSectionId, TContext, TOption, TRendererOption]):
+            Document definition containing builders, outputs, and options.
+        project (ProjectContext): Project context for analysis and generation.
+        option (TOption | None): Optional concept generation options.
+
+    Returns:
+        Result[None, DocumentBuilderError]: A Result indicating success with None or a
+            DocumentBuilderError on failure.
+    """
     caller = caller_context()
     context_result = definition.create_context(project, option)
     if isinstance(context_result, Failure):
@@ -68,7 +82,8 @@ async def generate_document[
                         context=caller,
                     ).chain(error)
                 )
-
+            print(f"Section: {section_id}")
+            print(format_object(translate_result.unwrap(), depth=10))
             translated_sections.append(translate_result.unwrap())
 
         translated_document = TranslatedDocument(

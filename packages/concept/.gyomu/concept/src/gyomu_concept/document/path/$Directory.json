@@ -1,0 +1,18 @@
+{
+  "summary": "Provides utilities for determining and retrieving file system paths associated with knowledge documents within the system.",
+  "responsibilities": [
+    "Resolving and providing file system paths specifically related to knowledge documents."
+  ],
+  "concepts": [
+    "Knowledge Path",
+    "Root Knowledge Path",
+    "Document Path"
+  ],
+  "relationships": [
+    "Knowledge path retrieval functions depend on path utilities."
+  ],
+  "design_decisions": [
+    "Functions are provided for retrieving document and knowledge paths."
+  ],
+  "importance": "Supporting"
+}

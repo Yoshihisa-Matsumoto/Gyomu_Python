@@ -39,8 +39,10 @@ def test_returns_issue_when_source_title_is_missing_in_destination() -> None:
 
     issue = result.issues[0]
     assert issue.code == "CODE_BLOCK_TITLE_MISMATCH"
-    assert issue.message == "Title is not translated"
-    assert issue.repair_instruction == "Translate code block title properly"
+    assert issue.message == "Code block title is missing from the translation."
+    assert issue.repair_instruction == (
+        "Translate the code block title when the source has one."
+    )
 
 
 def test_returns_issue_when_destination_creates_title() -> None:
@@ -61,9 +63,40 @@ def test_returns_issue_when_destination_creates_title() -> None:
 
     issue = result.issues[0]
     assert issue.code == "CODE_BLOCK_TITLE_MISMATCH"
-    assert issue.message == "Title is created from nothing"
+    assert issue.message == (
+        "Code block title was created although the source has no title."
+    )
     assert issue.repair_instruction == (
-        "Must not create sentense from non-existence title"
+        "Must not create a title from when the source has no title."
+    )
+
+
+def test_returns_issue_when_codeblock_title_contains_line_break() -> None:
+    source = create_codeblock(
+        language="python",
+        code="print('hello')",
+        title="Example",
+    )
+    destination = create_codeblock(
+        language="python",
+        code="print('hello')",
+        title="例\n題",
+    )
+
+    result = _validate_codeblock(source, destination)
+
+    assert not result.is_valid
+    assert len(result.issues) == 1
+
+    issue = result.issues[0]
+    assert issue.code == "CODE_BLOCK_TITLE_MULTILINE"
+    assert issue.message == "Code block title must be a single line."
+    assert issue.details == {
+        "line_break_count": "1",
+    }
+    assert issue.repair_instruction == (
+        "- Keep the code block title on a single line.\n"
+        "- Remove all line breaks from the code block title."
     )
 
 

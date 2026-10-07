@@ -1,7 +1,5 @@
 from gyomu_ai_compiler.pipelines.document.executor.item import build_section_item
 from gyomu_ai_compiler.pipelines.readme.prompt import readme_prompt_provider
-from gyomu_concept.document.builder.section import SectionBuilder
-from gyomu_concept.error.document import DocumentBuilderError
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.base import DocumentBaseContext
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
@@ -14,12 +12,26 @@ from gyomu_schema.schemas.document.section import (
 from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
+from gyomu_concept.document.builder.section import SectionBuilder
+from gyomu_concept.error.document import DocumentBuilderError
+
 _section_id: ReadmeSectionId = "development"
+"""Internal section ID for the development readme section."""
 
 
 async def _build(
     context: DocumentBaseContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[ReadmeSectionId], DocumentBuilderError]:
+    """Builds the development section for the readme.
+
+    Args:
+        context (DocumentBaseContext): The document base context.
+        option (ConceptOption | None): Optional concept options.
+
+    Returns:
+        Result[SectionWithInstruction[ReadmeSectionId], DocumentBuilderError]: A Result
+            containing the section with instructions or a document builder error.
+    """
 
     development_result = await build_section_item(
         _section_id, context, readme_prompt_provider
@@ -45,6 +57,14 @@ async def _build(
 
 
 def _enabled(_: DocumentBaseContext) -> bool:
+    """Determines whether the development section is enabled.
+
+    Args:
+        _ (DocumentBaseContext): The document base context.
+
+    Returns:
+        bool: True if enabled.
+    """
     return True
 
 
@@ -56,3 +76,4 @@ build_development: SectionBuilder[ReadmeSectionId, DocumentBaseContext] = (
         build=_build,
     )
 )
+"""Section builder for the development section of the readme."""

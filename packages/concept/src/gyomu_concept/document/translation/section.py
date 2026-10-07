@@ -18,6 +18,19 @@ async def translate_section[TSectionId: str](
     language: LanguageCodes,
     option: ConceptOption | None = None,
 ) -> Result[Section[TSectionId], TranslationError]:
+    """Translate a built section into a target language.
+
+    Translates a built section into the specified language.
+
+    Args:
+        section (BuiltSection[TSectionId]): The built section to translate.
+        language (LanguageCodes): The target language code.
+        option (ConceptOption | None): Optional translation options.
+
+    Returns:
+        Result[Section[TSectionId], TranslationError]: A Result containing the
+            translated Section or a TranslationError.
+    """
     contents: list[DocumentContent] = []
     for index, content in enumerate(section.section.contents):
         if not isinstance(section.translation, SectionTranslationInstruction):

@@ -15,6 +15,41 @@ from returns.result import Failure, Result, Success
 from gyomu_ai_compiler.prompts.load import load_prompt
 
 
+def format_validation_issues(
+    validation_result: ValidationResult | None,
+) -> str:
+    if validation_result is None or validation_result.is_valid:
+        return ""
+
+    formatted_issues: list[str] = []
+
+    for index, issue in enumerate(validation_result.issues, start=1):
+        lines = [
+            f"### Issue {index}",
+            f"- Code: `{issue.code}`",
+            f"- Message: {issue.message}",
+        ]
+
+        if issue.translation_id is not None:
+            lines.append(f"- Translation ID: `{issue.translation_id}`")
+
+        if issue.details:
+            lines.append("- Details:")
+            for key, value in issue.details.items():
+                lines.append(f"  - {key}: {value}")
+
+        lines.extend(
+            [
+                "- Repair instruction:",
+                f"  - {issue.repair_instruction}",
+            ]
+        )
+
+        formatted_issues.append("\n".join(lines))
+
+    return "\n\n".join(formatted_issues)
+
+
 def build_translation_prompt[TSchema: DocumentContent](
     language: LanguageCodes,
     section_id: str,
@@ -72,13 +107,6 @@ def build_translation_prompt[TSchema: DocumentContent](
             "{{TRANSLATION_TARGETS}}",
             dump_json(value=context, model_type=type(context)),
         )
-        .replace(
-            "{{VALIDATION_ISSUES}}",
-            ""
-            if validation_result is None or validation_result.is_valid
-            else "\n".join(
-                f"- {issue.repair_instruction}" for issue in validation_result.issues
-            ),
-        )
+        .replace("{{VALIDATION_ISSUES}}", format_validation_issues(validation_result))
     )
     return Success(prompt)

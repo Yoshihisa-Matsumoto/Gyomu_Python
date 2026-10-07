@@ -18,18 +18,41 @@ def _validate_codeblock(source: CodeBlock, destination: CodeBlock) -> Validation
         issues.append(
             ValidationIssue(
                 code="CODE_BLOCK_TITLE_MISMATCH",
-                message="Title is not translated",
-                repair_instruction="Translate code block title properly",
+                message=("Code block title is missing from the translation."),
+                repair_instruction=(
+                    "Translate the code block title when the source has one."
+                ),
             )
         )
     elif not source.title and destination.title:
         issues.append(
             ValidationIssue(
                 code="CODE_BLOCK_TITLE_MISMATCH",
-                message="Title is created from nothing",
-                repair_instruction="Must not create sentense from non-existence title",
+                message=(
+                    "Code block title was created although the source has no title."
+                ),
+                repair_instruction=(
+                    "Must not create a title from when the source has no title."
+                ),
             )
         )
+
+    if destination.title:
+        destination_count = destination.title.count("\n")
+        if destination_count > 0:
+            issue = ValidationIssue(
+                code="CODE_BLOCK_TITLE_MULTILINE",
+                message="Code block title must be a single line.",
+                details={
+                    "line_break_count": str(destination_count),
+                },
+                repair_instruction=(
+                    "- Keep the code block title on a single line.\n"
+                    "- Remove all line breaks from the code block title."
+                ),
+            )
+            issues.append(issue)
+
     if source.code != destination.code:
         issues.append(
             ValidationIssue(

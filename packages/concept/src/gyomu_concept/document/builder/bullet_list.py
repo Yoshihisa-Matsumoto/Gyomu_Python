@@ -13,7 +13,17 @@ from returns.result import Failure, Result, Success
 
 
 class GeneratedBulletListItem(BaseModel):
+    """Represents a generated bullet list item.
+
+    Represents a generated bullet list item containing text content and optional nested
+    children items.
+    """
+
     text: str = Field(description=("The text content of this bullet point."))
+    """The text content of this bullet point.
+
+    The text content of this bullet point.
+    """
     children: tuple[GeneratedBulletListItem, ...] | None = Field(
         description=(
             "Nested bullet points. Omit this field when there are "
@@ -21,14 +31,32 @@ class GeneratedBulletListItem(BaseModel):
         ),
         default=None,
     )
+    """Nested bullet points.
+
+    Nested bullet points. Omit this field when there are no nested bullet points.
+    """
 
 
 class GeneratedBulletList(BaseModel):
+    """Represents a generated bullet list schema.
+
+    Represents a generated bullet list containing a list of bullet items.
+    """
+
     kind: Literal["bullet-list"] = "bullet-list"
+    """The kind identifier for the bullet list."""
+
     items: tuple[GeneratedBulletListItem, ...]
+    """The items contained in the bullet list."""
 
 
 def _create_translation_id_generator() -> Callable[[], int]:
+    """Creates a stateful translation ID generator function.
+
+    Returns:
+        Callable[[], int]: A generator function that returns the next sequential integer
+            ID.
+    """
     next_id = 0
 
     def create_translation_id() -> int:
@@ -43,6 +71,17 @@ def _to_bullet_list(
     generated: GeneratedBulletList,
     create_translation_id: Callable[[], int],
 ) -> BulletList:
+    """Converts a GeneratedBulletList structure into a BulletList structure.
+
+    Args:
+        generated (GeneratedBulletList): The generated bullet list data structure to
+            convert.
+        create_translation_id (Callable[[], int]): A callable that generates unique
+            translation IDs.
+
+    Returns:
+        BulletList: The converted BulletList structure.
+    """
     return BulletList(
         items=tuple(
             _to_bullet_list_item(item, create_translation_id)
@@ -55,6 +94,16 @@ def _to_bullet_list_item(
     item: GeneratedBulletListItem,
     create_translation_id: Callable[[], int],
 ) -> BulletListItem:
+    """Converts a GeneratedBulletListItem into a BulletListItem recursively.
+
+    Args:
+        item (GeneratedBulletListItem): The generated bullet list item to convert.
+        create_translation_id (Callable[[], int]): A callable that generates unique
+            translation IDs.
+
+    Returns:
+        BulletListItem: The converted BulletListItem with assigned translation IDs.
+    """
     translation_id = create_translation_id()
     children = (
         tuple(
@@ -77,6 +126,18 @@ async def build_bullet_list[TSectionId: str, TContext: BaseModel](
     context: TContext,
     provider: SectionPromptProvider[TSectionId, TContext],
 ) -> Result[BulletList, GyomuIOError | AiError]:
+    """Builds a bullet list section asynchronously.
+
+    Args:
+        section_id (TSectionId): The identifier of the section being built.
+        context (TContext): The context object used for section generation.
+        provider (SectionPromptProvider[TSectionId, TContext]): The prompt provider for
+            the section.
+
+    Returns:
+        Result[BulletList, GyomuIOError | AiError]: A Result containing the built
+            BulletList or a GyomuIOError or AiError on failure.
+    """
     generate_result = await build_section_object(
         section_id=section_id,
         context=context,

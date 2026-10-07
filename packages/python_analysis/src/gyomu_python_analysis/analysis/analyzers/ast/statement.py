@@ -55,6 +55,7 @@ from gyomu_schema.schemas.python.type.expression import (
     NamedExpressionAnalysis,
     NameExpressionAnalysis,
     NoneExpressionAnalysis,
+    NonLocalStatementAnalysis,
     ParamSpecAnalysis,
     PassStatementAnalysis,
     PatternAnalysis,
@@ -139,6 +140,9 @@ def analyze_statement(
         )
     if isinstance(statement, ast.Global):
         return _analyze_global(statement)
+
+    if isinstance(statement, ast.Nonlocal):
+        return _analyze_nonlocal(statement)
 
     logger.debug(f"unsupported statement: {repr(statement)}")
     return UnknownStatementAnalysis()
@@ -1111,6 +1115,12 @@ def _analyze_global(
     statement: ast.Global,
 ) -> GlobalStatementAnalysis:
     return GlobalStatementAnalysis(names=tuple(statement.names))
+
+
+def _analyze_nonlocal(
+    statement: ast.Nonlocal,
+) -> NonLocalStatementAnalysis:
+    return NonLocalStatementAnalysis(names=tuple(statement.names))
 
 
 def _analyze_assert(

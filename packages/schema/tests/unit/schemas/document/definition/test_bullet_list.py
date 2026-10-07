@@ -224,3 +224,144 @@ def test_returns_issue_when_nested_child_translation_id_changes() -> None:
     issue = result.issues[0]
     assert issue.code == "BULLET_LIST_ITEM_TRANSLATIONID_MISMATCH"
     assert issue.translation_id == 2
+
+
+def test_returns_valid_when_literal_newlines_are_preserved() -> None:
+    source = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text=r"First item.\nAdditional text.",
+            ),
+        ),
+    )
+    destination = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text=r"最初の項目です。\n追加のテキストです。",
+            ),
+        ),
+    )
+
+    result = _validate_bullet_list(source, destination)
+
+    assert result.is_valid is True
+    assert result.issues == ()
+
+
+def test_returns_issue_when_literal_newline_is_added() -> None:
+    source = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text="First item.",
+            ),
+        ),
+    )
+    destination = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text=r"最初の項目です。\n追加のテキストです。",
+            ),
+        ),
+    )
+
+    result = _validate_bullet_list(source, destination)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+
+    issue = result.issues[0]
+    assert issue.code == "LITERAL_NEWLINE_MISMATCH"
+    # assert issue.translation_id == 0
+    assert issue.details == {
+        "source_count": "0",
+        "translated_count": "1",
+    }
+    assert issue.message == (
+        "The number of literal '\\n' sequences is different in id=0."
+    )
+
+
+def test_returns_issue_when_literal_newline_is_removed() -> None:
+    source = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text=r"First item.\nAdditional text.",
+            ),
+        ),
+    )
+    destination = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text="最初の項目です。",
+            ),
+        ),
+    )
+
+    result = _validate_bullet_list(source, destination)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+
+    issue = result.issues[0]
+    assert issue.code == "LITERAL_NEWLINE_MISMATCH"
+    # assert issue.translation_id == 0
+    assert issue.details == {
+        "source_count": "1",
+        "translated_count": "0",
+    }
+    assert issue.message == (
+        "The number of literal '\\n' sequences is different in id=0."
+    )
+
+
+def test_returns_issue_when_nested_item_literal_newline_is_added() -> None:
+    source = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text="Parent item.",
+                children=(
+                    create_bullet_list_item(
+                        translation_id=1,
+                        text="Child item.",
+                    ),
+                ),
+            ),
+        ),
+    )
+    destination = create_bullet_list(
+        items=(
+            create_bullet_list_item(
+                translation_id=0,
+                text="親項目です。",
+                children=(
+                    create_bullet_list_item(
+                        translation_id=1,
+                        text=r"子項目です。\n追加のテキストです。",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    result = _validate_bullet_list(source, destination)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+
+    issue = result.issues[0]
+    assert issue.code == "LITERAL_NEWLINE_MISMATCH"
+    # assert issue.translation_id == 1
+    assert issue.details == {
+        "source_count": "0",
+        "translated_count": "1",
+    }
+    assert issue.message == (
+        "The number of literal '\\n' sequences is different in id=1."
+    )
