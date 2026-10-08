@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Any
 
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
 from gyomu_schema.schemas.document.content import DocumentContent, DocumentContentType
 from gyomu_schema.schemas.document.section import (
     BuiltSection,
@@ -29,10 +28,7 @@ from gyomu_concept.error.document import DocumentBuilderError
 
 
 @dataclass
-class SectionBuilder[
-    TSectionId: str,
-    TContext: DocumentBaseContext,
-]:
+class SectionBuilder[TSectionId: str, TContext]:
     """Represents a builder for document sections with translation and enablement
     definitions.
     """
@@ -104,7 +100,7 @@ def _create_built_section[TSectionId: str](
     )
 
 
-async def build_sections[TSectionId: str, TContext: DocumentBaseContext](
+async def build_sections[TSectionId: str, TContext](
     context: TContext,
     builders: tuple[SectionBuilder[TSectionId, TContext], ...],
     option: ConceptOption | None = None,

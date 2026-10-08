@@ -1,5 +1,5 @@
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
 from gyomu_schema.schemas.document.content import Paragraph
 from gyomu_schema.schemas.document.section import (
@@ -17,7 +17,7 @@ _section_id: ReadmeSectionId = "license"
 
 
 async def _build(
-    context: DocumentBaseContext, option: ConceptOption | None = None
+    context: DocumentBaseContext[Knowledge], option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[ReadmeSectionId], DocumentBuilderError]:
     """Builds the license section for the readme.
 
@@ -40,7 +40,7 @@ async def _build(
     )
 
 
-def _enabled(_: DocumentBaseContext) -> bool:
+def _enabled(_: DocumentBaseContext[Knowledge]) -> bool:
     """Determines whether the license section is enabled.
 
     Args:
@@ -52,12 +52,12 @@ def _enabled(_: DocumentBaseContext) -> bool:
     return True
 
 
-build_license: SectionBuilder[ReadmeSectionId, DocumentBaseContext] = SectionBuilder[
-    ReadmeSectionId, DocumentBaseContext
-](
-    id=_section_id,
-    translation=SectionNoTranslation(),
-    enabled=_enabled,
-    build=_build,
+build_license: SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]] = (
+    SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]](
+        id=_section_id,
+        translation=SectionNoTranslation(),
+        enabled=_enabled,
+        build=_build,
+    )
 )
 """Section builder for the license section."""

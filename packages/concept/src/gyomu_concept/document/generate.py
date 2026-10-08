@@ -1,10 +1,11 @@
 from pathlib import Path
+from typing import Protocol
 
 from gyomu_infra.filesystem.file_io import write_text
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.package.analysis import PackageAnalysis
 from gyomu_schema.schemas.document.section import Section
 from gyomu_schema.utility.context import caller_context
 from gyomu_schema.utility.fromatting import format_object
@@ -17,9 +18,13 @@ from gyomu_concept.document.translation.section import translate_section
 from gyomu_concept.error.document import DocumentBuilderError
 
 
+class DocumentBuildContext(Protocol):
+    analysis: PackageAnalysis
+
+
 async def generate_document[
     TSectionId: str,
-    TContext: DocumentBaseContext,
+    TContext: DocumentBuildContext,
     TOption: ConceptOption,
     TRendererOption,
 ](

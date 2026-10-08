@@ -1,6 +1,6 @@
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from returns.result import Failure, Result
 
 from gyomu_concept.document.context import initialize_document_base_context
@@ -9,7 +9,7 @@ from gyomu_concept.error.document import DocumentBuilderError
 
 def initialize_readme_build_context(
     context: ProjectContext, option: ConceptOption | None = None
-) -> Result[DocumentBaseContext, DocumentBuilderError]:
+) -> Result[DocumentBaseContext[Knowledge], DocumentBuilderError]:
     """Initializes the README build context.
 
     Args:

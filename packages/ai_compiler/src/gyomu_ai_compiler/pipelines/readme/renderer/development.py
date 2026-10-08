@@ -1,14 +1,14 @@
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
 from gyomu_schema.error.io import GyomuIOError
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from returns.result import Failure, Result, Success
 
 from gyomu_ai_compiler.prompts.load import load_prompt
 
 
 def build_development_messages(
-    context: DocumentBaseContext,
+    context: DocumentBaseContext[Knowledge],
 ) -> Result[ConversationSchema, GyomuIOError]:
     """Builds development conversation messages for the README pipeline renderer.
 

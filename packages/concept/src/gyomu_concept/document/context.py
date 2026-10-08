@@ -19,7 +19,7 @@ from gyomu_concept.package.internal.load import load_package_concept
 from gyomu_concept.package.internal.path import get_package_concept_path
 
 
-class DocumentBaseContextResult(BaseModel):
+class DocumentBaseContextResult[TKnowledge: Knowledge](BaseModel):
     """Result container for the initialized document base context and its knowledge
     path.
 
@@ -27,7 +27,7 @@ class DocumentBaseContextResult(BaseModel):
     context and knowledge path.
     """
 
-    context: DocumentBaseContext
+    context: DocumentBaseContext[TKnowledge]
     """Document base context.
 
     The initialized document base context containing analysis, concept, and knowledge.
@@ -66,7 +66,7 @@ def _wrap_error(
 
 def initialize_document_base_context(
     context: ProjectContext, option: ConceptOption | None = None
-) -> Result[DocumentBaseContextResult, DocumentBuilderError]:
+) -> Result[DocumentBaseContextResult[Knowledge], DocumentBuilderError]:
     """Initializes the document base context and loads required package knowledge files.
 
     Initializes the document base context by loading package analysis, concept data, and

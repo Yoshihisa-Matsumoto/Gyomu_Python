@@ -1,4 +1,4 @@
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
 
 from gyomu_concept.document.builder.section import SectionBuilder
@@ -11,7 +11,7 @@ from gyomu_concept.readme.builder.section.overview import build_overview
 from gyomu_concept.readme.builder.section.public_api import build_public_api
 
 README_SECTION_BUILDERS: tuple[
-    SectionBuilder[ReadmeSectionId, DocumentBaseContext], ...
+    SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]], ...
 ] = (
     build_overview,  # paragraph + AI
     build_architecture,  # paragraph + AI

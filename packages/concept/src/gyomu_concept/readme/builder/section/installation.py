@@ -1,5 +1,5 @@
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
 from gyomu_schema.schemas.document.content import CodeBlock, Paragraph
 from gyomu_schema.schemas.document.section import (
@@ -17,7 +17,7 @@ _section_id: ReadmeSectionId = "installation"
 
 
 async def _build(
-    context: DocumentBaseContext, option: ConceptOption | None = None
+    context: DocumentBaseContext[Knowledge], option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[ReadmeSectionId], DocumentBuilderError]:
     """Build the installation section of the README.
 
@@ -46,7 +46,7 @@ async def _build(
     )
 
 
-def _enabled(_: DocumentBaseContext) -> bool:
+def _enabled(_: DocumentBaseContext[Knowledge]) -> bool:
     """Check whether the installation section is enabled.
 
     Args:
@@ -58,8 +58,8 @@ def _enabled(_: DocumentBaseContext) -> bool:
     return True
 
 
-build_installation: SectionBuilder[ReadmeSectionId, DocumentBaseContext] = (
-    SectionBuilder[ReadmeSectionId, DocumentBaseContext](
+build_installation: SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]] = (
+    SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]](
         id=_section_id,
         translation=SectionTranslationInstruction(translation_strategies=()),
         enabled=_enabled,

@@ -4,7 +4,6 @@ from typing import Literal, Never
 
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
 from gyomu_schema.schemas.document.section import LanguageCodes
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Result
@@ -51,7 +50,7 @@ class FilepathResolver:
 @dataclass
 class DocumentRenderer[
     TSectionId: str,
-    TContext: DocumentBaseContext,
+    TContext,
     TOption: ConceptOption,
     TRendererOption,
 ]:
@@ -72,7 +71,7 @@ class DocumentRenderer[
 @dataclass
 class DocumentOutput[
     TSectionId: str,
-    TContext: DocumentBaseContext,
+    TContext,
     TOption: ConceptOption,
     TRendererOption,
 ]:
@@ -90,7 +89,7 @@ class DocumentOutput[
 @dataclass
 class DocumentDefinition[
     TSectionId: str,
-    TContext: DocumentBaseContext,
+    TContext,
     TOption: ConceptOption,
     TRendererOption = Never,
 ]:

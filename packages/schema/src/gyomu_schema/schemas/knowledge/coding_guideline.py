@@ -57,3 +57,17 @@ class CodingGuideline(BaseModel):
         description="Forbidden coding practices.",
     )
     """Forbidden coding practices."""
+
+
+def merge_coding_guideline(
+    root: CodingGuideline, project: CodingGuideline | None
+) -> CodingGuideline:
+    if project is None:
+        return root
+
+    return CodingGuideline(
+        display_name=project.display_name,
+        rules=(*root.rules, *project.rules),
+        forbidden=(*root.forbidden, *project.forbidden),
+        principles=(*root.principles, *project.principles),
+    )

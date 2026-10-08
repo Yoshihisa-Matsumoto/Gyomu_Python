@@ -1,7 +1,7 @@
 from gyomu_ai_compiler.pipelines.document.executor.item import build_section_item
 from gyomu_ai_compiler.pipelines.readme.prompt import readme_prompt_provider
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
 from gyomu_schema.schemas.document.content import Paragraph
 from gyomu_schema.schemas.document.section import (
@@ -20,7 +20,7 @@ _section_id: ReadmeSectionId = "architecture"
 
 
 async def _build(
-    context: DocumentBaseContext, option: ConceptOption | None = None
+    context: DocumentBaseContext[Knowledge], option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[ReadmeSectionId], DocumentBuilderError]:
     """Builds the architecture section for the readme.
 
@@ -56,7 +56,7 @@ async def _build(
     )
 
 
-def _enabled(_: DocumentBaseContext) -> bool:
+def _enabled(_: DocumentBaseContext[Knowledge]) -> bool:
     """Determines whether the architecture section is enabled.
 
     Args:
@@ -68,8 +68,8 @@ def _enabled(_: DocumentBaseContext) -> bool:
     return True
 
 
-build_architecture: SectionBuilder[ReadmeSectionId, DocumentBaseContext] = (
-    SectionBuilder[ReadmeSectionId, DocumentBaseContext](
+build_architecture: SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]] = (
+    SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]](
         id=_section_id,
         translation=SectionTranslationInstruction(translation_strategies=()),
         enabled=_enabled,
