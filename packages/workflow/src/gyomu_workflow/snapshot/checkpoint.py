@@ -17,6 +17,8 @@ from gyomu_workflow.snapshot.models import SnapshotRequest
 class PipelineStep(StrEnum):
     """Defines the steps in the workflow pipeline."""
 
+    DOCSTRING = "docstring"
+
     DIRECTORY_CONCEPT = "directoryConcept"
     """Directory concept step."""
 
@@ -69,7 +71,7 @@ def _is_complete(checkpoint: Checkpoint) -> bool:
     Args:
         checkpoint (Checkpoint):
     """
-    return PipelineStep.README in checkpoint.completed_steps
+    return PipelineStep.LLM_CONTEXT in checkpoint.completed_steps
 
 
 def load_checkpoint(

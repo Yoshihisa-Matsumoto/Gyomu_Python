@@ -26,6 +26,7 @@ from gyomu_workflow.snapshot.models import SnapshotRequest, SnapshotTarget
 from gyomu_workflow.snapshot.normalize import normalize_filter
 from gyomu_workflow.snapshot.run_directory import run_directory_action
 from gyomu_workflow.snapshot.run_docstring import run_docstring_action
+from gyomu_workflow.snapshot.run_llm_context import run_llm_context_action
 from gyomu_workflow.snapshot.run_package import run_package_action
 from gyomu_workflow.snapshot.run_readme import run_readme_action
 from gyomu_workflow.snapshot.target import resolve_snapshot_target
@@ -198,6 +199,18 @@ async def run_actions(
             if isinstance(readme_result, Failure):
                 return readme_result
             action_result = readme_result.unwrap()
+            current_checkpoint = action_result.checkpoint
+            if action_result.snapshot is not None:
+                current_snapshot = action_result.snapshot
+
+            llm_context_result = await run_llm_context_action(
+                request=request,
+                current_checkpoint=current_checkpoint,
+                option=concept_option,
+            )
+            if isinstance(llm_context_result, Failure):
+                return llm_context_result
+            action_result = llm_context_result.unwrap()
             current_checkpoint = action_result.checkpoint
             if action_result.snapshot is not None:
                 current_snapshot = action_result.snapshot

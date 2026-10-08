@@ -275,13 +275,34 @@ async def test_run_actions_runs_directory_and_package_concept(
         ),
     )
 
+    llm_context_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+            PipelineStep.README,
+            PipelineStep.LLM_CONTEXT,
+        ),
+    )
+    llm_context_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
+    run_llm_context_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_llm_context_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=llm_context_checkpoint,
+                snapshot=llm_context_snapshot,
+            )
+        ),
+    )
+
     result = await run_actions(
         request=snapshot_request,
         target=snapshot_target,
     )
 
     assert isinstance(result, Success)
-    assert result.unwrap() is readme_snapshot
+    assert result.unwrap() is llm_context_snapshot
 
     run_directory_action.assert_awaited_once()
 
@@ -291,6 +312,11 @@ async def test_run_actions_runs_directory_and_package_concept(
         option=run_package_action.call_args.kwargs["option"],
     )
     run_readme_action.assert_awaited_once()
+    run_llm_context_action.assert_awaited_once_with(
+        request=snapshot_request,
+        current_checkpoint=readme_checkpoint,
+        option=run_llm_context_action.call_args.kwargs["option"],
+    )
 
 
 @pytest.mark.asyncio
@@ -326,6 +352,17 @@ async def test_run_actions_skips_completed_directory_concept(
     )
     readme_snapshot = mocker.Mock(spec=ProjectSnapshot)
 
+    llm_context_checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+            PipelineStep.README,
+            PipelineStep.LLM_CONTEXT,
+        ),
+    )
+    llm_context_snapshot = mocker.Mock(spec=ProjectSnapshot)
+
     mocker.patch(
         "gyomu_workflow.snapshot.run.analyze_project_changes",
         return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
@@ -356,6 +393,15 @@ async def test_run_actions_skips_completed_directory_concept(
             )
         ),
     )
+    run_llm_context_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_llm_context_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=llm_context_checkpoint,
+                snapshot=llm_context_snapshot,
+            )
+        ),
+    )
 
     result = await run_actions(
         request=snapshot_request,
@@ -363,7 +409,7 @@ async def test_run_actions_skips_completed_directory_concept(
     )
 
     assert isinstance(result, Success)
-    assert result.unwrap() is readme_snapshot
+    assert result.unwrap() is llm_context_snapshot
 
     run_directory_action.assert_not_awaited()
     run_package_action.assert_awaited_once_with(
@@ -372,6 +418,7 @@ async def test_run_actions_skips_completed_directory_concept(
         option=run_package_action.call_args.kwargs["option"],
     )
     run_readme_action.assert_awaited_once()
+    run_llm_context_action.assert_awaited_once()
 
 
 # @pytest.mark.asyncio
@@ -604,6 +651,9 @@ async def test_run_actions_returns_readme_failure(
         "gyomu_workflow.snapshot.run.run_package_action",
         return_value=Success(mocker.Mock(checkpoint=checkpoint)),
     )
+    run_llm_context_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_llm_context_action",
+    )
 
     mocker.patch(
         "gyomu_workflow.snapshot.run.run_readme_action",
@@ -620,3 +670,81 @@ async def test_run_actions_returns_readme_failure(
 
     run_directory_action.assert_not_awaited()
     run_package_action.assert_awaited_once()
+    run_llm_context_action.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_run_actions_returns_llm_context_failure(
+    mocker,
+    snapshot_request,
+    snapshot_target,
+):
+    snapshot_request.option.action.project_context = True
+    snapshot_request.option.action.docstring.enabled = False
+
+    checkpoint = Checkpoint(
+        package="test",
+        completed_steps=(
+            PipelineStep.DIRECTORY_CONCEPT,
+            PipelineStep.PACKAGE_CONCEPT,
+        ),
+    )
+
+    error = GyomuError(
+        message="LLM Context failed",
+        domain="test",
+        operation="test",
+        reason="invalid_input",
+    )
+
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.analyze_project_changes",
+        return_value=Success(mocker.Mock(current_snapshot=snapshot_target.snapshot)),
+    )
+    mocker.patch(
+        "gyomu_workflow.snapshot.run.load_checkpoint",
+        return_value=checkpoint,
+    )
+
+    run_directory_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_directory_action",
+    )
+    run_package_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_package_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=checkpoint,
+                snapshot=None,
+            )
+        ),
+    )
+    run_readme_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_readme_action",
+        return_value=Success(
+            SnapshotActionResult(
+                checkpoint=checkpoint,
+                snapshot=None,
+            )
+        ),
+    )
+    run_llm_context_action = mocker.patch(
+        "gyomu_workflow.snapshot.run.run_llm_context_action",
+        return_value=Failure(error),
+    )
+
+    result = await run_actions(
+        request=snapshot_request,
+        target=snapshot_target,
+    )
+
+    assert isinstance(result, Failure)
+    assert result.failure() is error
+
+    run_directory_action.assert_not_awaited()
+    run_package_action.assert_awaited_once()
+    run_readme_action.assert_awaited_once()
+    run_llm_context_action.assert_awaited_once_with(
+        request=snapshot_request,
+        current_checkpoint=checkpoint,
+        option=run_llm_context_action.call_args.kwargs["option"],
+    )

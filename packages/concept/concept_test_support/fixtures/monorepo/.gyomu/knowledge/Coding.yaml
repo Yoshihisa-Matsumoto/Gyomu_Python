@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=../../../../../../../schemas/Coding.json
+
+display_name: Coding Guideline for Gyomu
+
+principles:
+  - ビジネスロジックは可能な限り純粋関数として実装する。
+  - ドメインモデルは Pydantic Schema を起点として設計する。
+  - 解析・Concept生成・ドキュメント生成・レンダリングは独立した責務として設計する。
+  - Markdownなどの文字列を直接組み立てるのではなく、構造化された中間表現を経由する。
+  - 人だけでなくAIによる保守も考慮した設計を行う。
+
+rules:
+  - category: Schema
+    rule: 永続化または外部とのやり取りを行うデータ構造は、必ず Effect Schema で定義する。
+    rationale: Schemaを唯一の真実の情報源とし、バリデーション・シリアライズ・AI連携を一貫して行うため。
+
+  - category: Schema
+    rule: 可能な限り自由形式の文字列ではなく、構造化されたモデルを設計する。
+    rationale: 構造化データは検証・差分更新・再利用が容易になるため。
+
+  - category: Architecture
+    rule: 解析・Concept生成・ドキュメント生成・レンダリングを密結合にしない。
+    rationale: 各工程を独立して改善・再利用できるようにするため。
+
+  - category: Architecture
+    rule: パッケージ間の循環依存を導入しない。
+    rationale: 責務と依存関係を明確に保つため。
+
+  - category: Effect
+    rule: 副作用は可能な限り Effect を利用して表現する。
+    rationale: 副作用を明示的に管理し、合成しやすくするため。
+
+  - category: Effect
+    rule: 例外を送出するのではなく、EffectのError Channelでエラーを表現する。
+    rationale: エラーを型システムで扱えるようにするため。
+
+  - category: AI
+    rule: AIが生成したデータは利用前に必ず Effect Schema で検証する。
+    rationale: AIの出力は信頼できない入力として扱うため。
+
+  - category: AI
+    rule: Infrastructure層以外でAIプロバイダー固有のAPIへ依存しない。
+    rationale: AIプロバイダーを容易に切り替えられるようにするため。
+
+  - category: Documentation
+    rule: ドキュメントは可能な限りConceptなどの構造化データから生成する。
+    rationale: ソースコードとの整合性を維持しやすくするため。
+
+  - category: Documentation
+    rule: 同じ知識を複数のドキュメントへ重複して記述しない。
+    rationale: 知識の唯一の管理場所を維持するため。
+
+  - category: Dependencies
+    rule: 他パッケージの公開APIのみに依存し、内部実装へ依存しない。
+    rationale: 内部構造の変更による影響を防ぐため。
+
+  - category: Dependencies
+    rule: 共通化可能な処理は既存の共有パッケージへ集約し、重複実装を避ける。
+    rationale: 共通ロジックを一元管理するため。
+
+  - category: Testing
+    rule: 外部から観測可能な振る舞いを変更した場合は、必ずテストを追加または更新する。
+    rationale: 振る舞いの正しさを継続的に保証するため。
+
+  - category: Testing
+    rule: テストは可能な限り決定的で、外部サービスへ依存しないものとする。
+    rationale: 環境によらず安定して実行できるようにするため。
+
+  - category: Knowledge
+    rule: 人が管理するKnowledgeとソースコードから導出したKnowledgeは独立した情報源として扱う。
+    rationale: それぞれ異なる責任者とライフサイクルを持つため。
+
+  - category: Documents
+    rule: ドキュメントはMarkdown文字列を直接組み立てるのではなく、Documentモデルを経由して生成する。
+    rationale: Markdown以外の形式にも一貫してレンダリングできるようにするため。
+
+forbidden:
+  - Infrastructure層以外でAIプロバイダー固有のAPIへ依存すること。
+  - 解析処理とドキュメント生成処理を混在させること。
+  - Effect Schemaで表現すべきドメインモデルを重複定義すること。
+  - パッケージ間の循環依存を導入すること。
+  - AI生成データをSchema検証せず利用すること。
