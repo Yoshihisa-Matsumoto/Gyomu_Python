@@ -60,12 +60,12 @@ def enumerate_target_files(
     files = set(project_context.included_files)
     files.add(ProjectRelativePath(Path("pyproject.toml")))
     concept_files = FileSearch.search(
-        project_context.project_root,
+        project_context.project_root / ".gyomu" / "knowledge",
         [
             FileFilterInfo(
                 kind=FileFilterType.FILE_NAME,
                 operator=FileCompareType.EQUAL,
-                value=[".gyomu/knowledge/*"],
+                value=r".*",
             )
         ],
     )

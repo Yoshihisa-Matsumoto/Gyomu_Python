@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.project.workspace import WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceProject
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
 from gyomu_schema.schemas.types import FullPath
@@ -133,6 +133,7 @@ class SnapshotRequest:
 
     Workspace project.
     """
+    workspace: WorkspaceContext
 
 
 class SnapshotTarget(BaseModel):

@@ -11,7 +11,7 @@ from gyomu_workflow.snapshot.checkpoint import (
     SnapshotActionResult,
     update_checkpoint,
 )
-from gyomu_workflow.snapshot.models import SnapshotRequest
+from gyomu_workflow.snapshot.models import SnapshotRequest, SnapshotTarget
 from gyomu_workflow.snapshot.snapshot import update_snapshot
 
 
@@ -19,6 +19,7 @@ async def run_package_action(
     current_checkpoint: Checkpoint,
     request: SnapshotRequest,
     option: ConceptOption,
+    target: SnapshotTarget,
 ) -> Result[SnapshotActionResult, GyomuError]:
     """Execute the package action for the snapshot workflow.
 
@@ -66,6 +67,7 @@ async def run_package_action(
             checkpoint=current_checkpoint,
             request=request,
             status_to_add=PipelineStep.PACKAGE_CONCEPT,
+            target=target,
         ).map(
             lambda checkpoint: SnapshotActionResult(
                 checkpoint=checkpoint, snapshot=snapshot_result.unwrap()

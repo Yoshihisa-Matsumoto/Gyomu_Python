@@ -20,8 +20,8 @@ from packages.python_analysis.python_analysis_test_support.helpers import (
     create_analyze_project_change,
     create_file_added,
     create_file_deleted,
+    create_file_snapshot,
     create_file_updated,
-    create_test_file_snapshot,
 )
 
 
@@ -114,20 +114,20 @@ class TestResolveSnapshotTarget:
     ) -> None:
         diff = (
             create_file_added(
-                current=create_test_file_snapshot(
+                current=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("foo.py"))
                 )
             ),
             create_file_updated(
-                current=create_test_file_snapshot(
+                current=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("bar.py"))
                 ),
-                previous=create_test_file_snapshot(
+                previous=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("bar.py"))
                 ),
             ),
             create_file_deleted(
-                previous=create_test_file_snapshot(
+                previous=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("par.py"))
                 ),
             ),
@@ -193,19 +193,19 @@ class TestResolveSnapshotTarget:
                 create_analyze_project_change(
                     diff=(
                         create_file_added(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("foo.py")
                                 )
                             )
                         ),
                         create_file_updated(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )
                             ),
-                            previous=create_test_file_snapshot(
+                            previous=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )
@@ -254,19 +254,19 @@ class TestResolveSnapshotTarget:
                 create_analyze_project_change(
                     diff=(
                         create_file_added(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("foo.py")
                                 )
                             )
                         ),
                         create_file_updated(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )
                             ),
-                            previous=create_test_file_snapshot(
+                            previous=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )

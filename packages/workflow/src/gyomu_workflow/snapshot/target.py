@@ -1,5 +1,6 @@
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
+from gyomu_python_analysis.snapshot.models import AnalyzeProjectChangesResult
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.snapshot.types import FileDeleted
@@ -15,7 +16,7 @@ def resolve_snapshot_target(
     repository_root_path: FullPath,
     project_context: ProjectContext,
     option: SnapshotTargetOption,
-) -> Result[SnapshotTarget, GyomuError]:
+) -> Result[tuple[SnapshotTarget, AnalyzeProjectChangesResult], GyomuError]:
     """Resolve snapshot target files and current snapshot.
 
     Resolves the snapshot target files and current snapshot based on project changes and
@@ -64,29 +65,35 @@ def resolve_snapshot_target(
     if option.file_filter is None:
         diff = change_result.diff
         return Success(
-            SnapshotTarget(
-                files=frozenset(
-                    change.project_relative_path
-                    for change in diff
-                    if not isinstance(change, FileDeleted)
+            (
+                SnapshotTarget(
+                    files=frozenset(
+                        change.project_relative_path
+                        for change in diff
+                        if not isinstance(change, FileDeleted)
+                    ),
+                    deleted_files=frozenset(
+                        change.project_relative_path
+                        for change in diff
+                        if isinstance(change, FileDeleted)
+                    ),
+                    snapshot=change_result.current_snapshot,
                 ),
-                deleted_files=frozenset(
-                    change.project_relative_path
-                    for change in diff
-                    if isinstance(change, FileDeleted)
-                ),
-                snapshot=change_result.current_snapshot,
+                change_result,
             )
         )
     else:
         return Success(
-            SnapshotTarget(
-                deleted_files=frozenset(),
-                files=filter_included_files(
-                    project_context.included_files,
-                    option.file_filter.pattern,
+            (
+                SnapshotTarget(
+                    deleted_files=frozenset(),
+                    files=filter_included_files(
+                        project_context.included_files,
+                        option.file_filter.pattern,
+                    ),
+                    snapshot=change_result.current_snapshot,
                 ),
-                snapshot=change_result.current_snapshot,
+                change_result,
             )
         )
 

@@ -3,6 +3,8 @@ from tomllib import loads
 from typing import Any
 
 from gyomu_infra.filesystem.file_io import read_text
+from gyomu_infra.filesystem.file_search import FileSearch
+from gyomu_schema.filesystem.file import FileCompareType, FileFilterInfo, FileFilterType
 from gyomu_schema.schemas.python.types import PythonPath, WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
@@ -234,15 +236,23 @@ def initialize_workspace_context(
         )
 
 
-# if __name__ == "__main__":
-#     result = initialize_workspace_context(
-#         WorkspaceRoot(
-#             path=FullPath(Path("c:/data/program/python/gyomu-python")),
-#             kind=WorkspaceRootKind.UV_WORKSPACE,
-#         )
-#     )
-#     if isinstance(result, Success):
-#         print(vars(result.unwrap()))
-#     else:
-#         failure = result.failure()
-#         print(vars(failure))
+def enumerate_workspace_target_files(
+    workspace_context: WorkspaceContext,
+) -> tuple[WorkspaceRelativePath, ...]:
+    files: list[WorkspaceRelativePath] = []
+    concept_files = FileSearch.search(
+        workspace_context.path / ".gyomu" / "knowledge",
+        [
+            FileFilterInfo(
+                kind=FileFilterType.FILE_NAME,
+                operator=FileCompareType.EQUAL,
+                value=r".*",
+            )
+        ],
+    )
+    for info in concept_files:
+        files.append(
+            WorkspaceRelativePath(info.full_path.relative_to(workspace_context.path))
+        )
+
+    return tuple(files)

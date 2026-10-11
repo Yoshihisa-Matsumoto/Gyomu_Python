@@ -2,13 +2,23 @@ from pathlib import Path
 
 from gyomu_docstring.update.process import process_docstring_update
 from gyomu_infra.logger import logger
+from gyomu_python_analysis.analysis.delete_cache import delete_module_cache
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_schema.error.gyomu import GyomuError
-from gyomu_schema.option.update import UpdateOption
+from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
+
+from gyomu_workflow.snapshot.checkpoint import (
+    Checkpoint,
+    PipelineStep,
+    SnapshotActionResult,
+    update_checkpoint,
+)
+from gyomu_workflow.snapshot.models import SnapshotRequest, SnapshotTarget
 
 
 def is_source_docstring_target(
@@ -99,3 +109,113 @@ async def run_docstring_action(
             ).chain(error)
         )
     return Success(None)
+
+
+def is_source_file(
+    file_path: ProjectRelativePath, source_root: ProjectRelativePath
+) -> bool:
+    """Check whether a file path is a source file.
+
+    Args:
+        file_path (ProjectRelativePath): Path of the file to check.
+        source_root (ProjectRelativePath): Root directory path of the source files.
+
+    Returns:
+        bool: True if the file is a source file, False otherwise.
+    """
+    return file_path.is_relative_to(source_root)
+
+
+def build_docstring_update_option(
+    log_keyword: str | None,
+) -> UpdateOption:
+    """Construct the docstring update option configuration.
+
+    Args:
+        log_keyword (str | None): Optional keyword for logging.
+
+    Returns:
+        UpdateOption: The constructed UpdateOption configuration.
+    """
+    return UpdateOption(
+        debug_info=UpdateDebugInfoOption(
+            dump_to_file=True,
+            updated_symbol_docstring=True,
+            file_update_plan=True,
+            rendered_symbol_docstring=True,
+            docstring_update_plan=True,
+            docstring_update_context=True,
+            keyword=log_keyword,
+        ),
+        no_check_cache=True,
+    )
+
+
+async def run_docstring_actions(
+    current_checkpoint: Checkpoint,
+    request: SnapshotRequest,
+    target: SnapshotTarget,
+) -> Result[SnapshotActionResult, GyomuError]:
+    context = caller_context()
+    option = build_docstring_update_option(request.option.action.docstring.log_keyword)
+    if PipelineStep.DOCSTRING not in current_checkpoint.completed_steps:
+        for deleted in target.deleted_files:
+            if is_source_file(deleted, request.project_context.source_root):
+                delete_result = delete_module_cache(
+                    request.project_context, file_path=deleted
+                )
+                if isinstance(delete_result, Failure):
+                    return delete_result.alt(
+                        lambda error: GyomuError(
+                            "fail to delete unnecessary module cache",
+                            domain="snapshot",
+                            operation="run_actions",
+                            reason="external_failure",
+                            context=context,
+                        ).chain(error)
+                    )
+        project_context = request.project_context
+
+        for file in target.files:
+            if is_source_file(file, request.project_context.source_root):
+                if request.option.action.docstring.enabled:
+                    docstring_action_result = await run_docstring_action(
+                        project_context=project_context,
+                        source_project_relative_path=file,
+                        option=option,
+                    )
+                    if isinstance(docstring_action_result, Failure):
+                        return docstring_action_result
+                if request.option.action.unit_test:
+                    pass
+
+        analysis_result = analyze_project_changes(
+            repository_root_path=request.repository_root_path,
+            project_context=request.project_context,
+        )
+        if isinstance(analysis_result, Failure):
+            return analysis_result.alt(
+                lambda error: GyomuError(
+                    message="fail to analyze project change",
+                    domain="snapshot",
+                    operation="run_actions",
+                    reason="external_failure",
+                    context=context,
+                ).chain(error)
+            )
+        analysis = analysis_result.unwrap()
+        current_snapshot = analysis.current_snapshot
+        return update_checkpoint(
+            checkpoint=current_checkpoint,
+            request=request,
+            status_to_add=PipelineStep.DOCSTRING,
+            target=target,
+        ).map(
+            lambda checkpoint: SnapshotActionResult(
+                checkpoint=checkpoint, snapshot=current_snapshot
+            )
+        )
+    else:
+        return Success(
+            SnapshotActionResult(checkpoint=current_checkpoint, snapshot=None)
+        )

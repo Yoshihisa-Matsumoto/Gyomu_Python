@@ -10,6 +10,11 @@ from gyomu_workflow.snapshot.checkpoint import (
 from gyomu_workflow.snapshot.run_llm_context import run_llm_context_action
 from returns.result import Failure, Success
 
+from packages.workflow.test_support.helper import (
+    create_fingerprints,
+    create_snapshot_target,
+)
+
 
 @pytest.mark.asyncio
 async def test_run_llm_context_action_success(
@@ -34,16 +39,19 @@ async def test_run_llm_context_action_success(
     updated_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.LLM_CONTEXT,),
+        fingerprints=create_fingerprints(),
     )
     update_checkpoint = mocker.patch(
         "gyomu_workflow.snapshot.run_llm_context.update_checkpoint",
         return_value=Success(updated_checkpoint),
     )
 
+    target = create_snapshot_target()
     result = await run_llm_context_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Success)
@@ -58,6 +66,7 @@ async def test_run_llm_context_action_success(
         checkpoint=checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.LLM_CONTEXT,
+        target=target,
     )
 
 
@@ -87,10 +96,12 @@ async def test_run_llm_context_action_returns_failure_when_build_fails(
         "gyomu_workflow.snapshot.run_llm_context.update_checkpoint"
     )
 
+    target = create_snapshot_target()
     result = await run_llm_context_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Failure)
@@ -126,10 +137,12 @@ async def test_run_llm_context_action_returns_failure_when_snapshot_update_fails
         "gyomu_workflow.snapshot.run_llm_context.update_checkpoint"
     )
 
+    target = create_snapshot_target()
     result = await run_llm_context_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Failure)
@@ -167,10 +180,12 @@ async def test_run_llm_context_action_returns_failure_when_checkpoint_update_fai
         return_value=Failure(error),
     )
 
+    target = create_snapshot_target()
     result = await run_llm_context_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Failure)
@@ -180,6 +195,7 @@ async def test_run_llm_context_action_returns_failure_when_checkpoint_update_fai
         checkpoint=checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.LLM_CONTEXT,
+        target=target,
     )
 
 
@@ -193,6 +209,7 @@ async def test_run_llm_context_action_skips_when_completed_and_files_exist(
     completed_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.LLM_CONTEXT,),
+        fingerprints=create_fingerprints(),
     )
 
     output_file_path = mocker.Mock()
@@ -214,10 +231,12 @@ async def test_run_llm_context_action_skips_when_completed_and_files_exist(
         "gyomu_workflow.snapshot.run_llm_context.update_checkpoint"
     )
 
+    target = create_snapshot_target()
     result = await run_llm_context_action(
         current_checkpoint=completed_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Success)
@@ -241,6 +260,7 @@ async def test_run_llm_context_action_regenerates_when_llm_context_file_is_missi
     completed_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.LLM_CONTEXT,),
+        fingerprints=create_fingerprints(),
     )
 
     existing_path = mocker.Mock()
@@ -269,16 +289,19 @@ async def test_run_llm_context_action_regenerates_when_llm_context_file_is_missi
     updated_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.LLM_CONTEXT,),
+        fingerprints=create_fingerprints(),
     )
     update_checkpoint = mocker.patch(
         "gyomu_workflow.snapshot.run_llm_context.update_checkpoint",
         return_value=Success(updated_checkpoint),
     )
 
+    target = create_snapshot_target()
     result = await run_llm_context_action(
         current_checkpoint=completed_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Success)
@@ -292,4 +315,5 @@ async def test_run_llm_context_action_regenerates_when_llm_context_file_is_missi
         checkpoint=completed_checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.LLM_CONTEXT,
+        target=target,
     )

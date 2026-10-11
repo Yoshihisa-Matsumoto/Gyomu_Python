@@ -12,7 +12,7 @@ from gyomu_workflow.snapshot.checkpoint import (
     SnapshotActionResult,
     update_checkpoint,
 )
-from gyomu_workflow.snapshot.models import SnapshotRequest
+from gyomu_workflow.snapshot.models import SnapshotRequest, SnapshotTarget
 from gyomu_workflow.snapshot.snapshot import update_snapshot
 
 
@@ -20,6 +20,7 @@ async def run_llm_context_action(
     current_checkpoint: Checkpoint,
     request: SnapshotRequest,
     option: ConceptOption,
+    target: SnapshotTarget,
 ) -> Result[SnapshotActionResult, GyomuError]:
     """Runs the LLM Context generation action for the snapshot pipeline.
 
@@ -54,6 +55,7 @@ async def run_llm_context_action(
             checkpoint=current_checkpoint,
             request=request,
             status_to_add=PipelineStep.LLM_CONTEXT,
+            target=target,
         ).map(
             lambda checkpoint: SnapshotActionResult(
                 checkpoint=checkpoint, snapshot=snapshot_result.unwrap()

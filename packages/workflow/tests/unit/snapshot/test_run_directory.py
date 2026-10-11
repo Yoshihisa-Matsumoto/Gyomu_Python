@@ -15,6 +15,11 @@ from gyomu_workflow.snapshot.models import SnapshotRequest
 from gyomu_workflow.snapshot.run_directory import run_directory_action
 from returns.result import Failure, Success
 
+from packages.workflow.test_support.helper import (
+    create_fingerprints,
+    create_snapshot_target,
+)
+
 
 @pytest.mark.asyncio
 async def test_run_directory_action_success(
@@ -23,12 +28,12 @@ async def test_run_directory_action_success(
     concept_option: ConceptOption,
 ) -> None:
     current_checkpoint = Checkpoint(
-        package="example",
-        completed_steps=(),
+        package="example", completed_steps=(), fingerprints=create_fingerprints()
     )
     updated_checkpoint = Checkpoint(
         package="example",
         completed_steps=(PipelineStep.DIRECTORY_CONCEPT,),
+        fingerprints=create_fingerprints(),
     )
     current_snapshot = ProjectSnapshot(
         project_root=WorkspaceRelativePath(Path("/tmp")), files=tuple()
@@ -48,10 +53,12 @@ async def test_run_directory_action_success(
         return_value=Success(updated_checkpoint),
     )
 
+    target = create_snapshot_target()
     result = await run_directory_action(
         current_checkpoint=current_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert result == Success(
@@ -67,6 +74,7 @@ async def test_run_directory_action_success(
         checkpoint=current_checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.DIRECTORY_CONCEPT,
+        target=target,
     )
 
 
@@ -77,8 +85,7 @@ async def test_run_directory_action_build_failure(
     concept_option: ConceptOption,
 ) -> None:
     current_checkpoint = Checkpoint(
-        package="example",
-        completed_steps=(),
+        package="example", completed_steps=(), fingerprints=create_fingerprints()
     )
     error = ConceptError(
         message="failed to build directory concept",
@@ -100,10 +107,12 @@ async def test_run_directory_action_build_failure(
         "gyomu_workflow.snapshot.run_directory.update_checkpoint",
     )
 
+    target = create_snapshot_target()
     result = await run_directory_action(
         current_checkpoint=current_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Failure)
@@ -130,8 +139,7 @@ async def test_run_directory_action_snapshot_failure(
     concept_option: ConceptOption,
 ) -> None:
     current_checkpoint = Checkpoint(
-        package="example",
-        completed_steps=(),
+        package="example", completed_steps=(), fingerprints=create_fingerprints()
     )
     snapshot_error = GyomuError(
         message="failed to update snapshot",
@@ -153,10 +161,12 @@ async def test_run_directory_action_snapshot_failure(
         "gyomu_workflow.snapshot.run_directory.update_checkpoint",
     )
 
+    target = create_snapshot_target()
     result = await run_directory_action(
         current_checkpoint=current_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert result == Failure(snapshot_error)
@@ -170,8 +180,7 @@ async def test_run_directory_action_checkpoint_failure(
     concept_option: ConceptOption,
 ) -> None:
     current_checkpoint = Checkpoint(
-        package="example",
-        completed_steps=(),
+        package="example", completed_steps=(), fingerprints=create_fingerprints()
     )
     checkpoint_error = GyomuError(
         message="failed to update checkpoint",
@@ -194,10 +203,12 @@ async def test_run_directory_action_checkpoint_failure(
         return_value=Failure(checkpoint_error),
     )
 
+    target = create_snapshot_target()
     result = await run_directory_action(
         current_checkpoint=current_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert result == Failure(checkpoint_error)
@@ -206,4 +217,5 @@ async def test_run_directory_action_checkpoint_failure(
         checkpoint=current_checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.DIRECTORY_CONCEPT,
+        target=target,
     )

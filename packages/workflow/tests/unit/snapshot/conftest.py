@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.project.workspace import WorkspaceProject
+from gyomu_python_analysis.snapshot.models import AnalyzeProjectChangesResult
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.option.update import UpdateOption
 from gyomu_schema.schemas.python.types import WorkspaceRelativePath
@@ -17,12 +18,15 @@ from gyomu_workflow.snapshot.models import (
     SnapshotTarget,
     SnapshotTargetOption,
 )
-from gyomu_workflow.snapshot.run import build_docstring_update_option
+from gyomu_workflow.snapshot.run_docstring import build_docstring_update_option
 
+from packages.concept.concept_test_support.helpers import create_workspace_context
 from packages.python_analysis.python_analysis_test_support.helpers import (
     _create_context,
+    create_analyze_project_change,
     create_project_snapshot,
 )
+from packages.workflow.test_support.helper import create_fingerprints
 
 
 @pytest.fixture
@@ -48,8 +52,15 @@ def snapshot_target(current_snapshot) -> SnapshotTarget:
 
 
 @pytest.fixture
+def analysis(current_snapshot) -> AnalyzeProjectChangesResult:
+    return create_analyze_project_change(current_snapshot=current_snapshot)
+
+
+@pytest.fixture
 def checkpoint() -> Checkpoint:
-    return Checkpoint(package="test", completed_steps=tuple())
+    return Checkpoint(
+        package="test", completed_steps=tuple(), fingerprints=create_fingerprints()
+    )
 
 
 @pytest.fixture
@@ -80,4 +91,5 @@ def snapshot_request(project_context: ProjectContext) -> SnapshotRequest:
                 _toml_data={},
             ),
         ),
+        workspace=create_workspace_context(),
     )
