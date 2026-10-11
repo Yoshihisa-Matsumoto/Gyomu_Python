@@ -1,19 +1,20 @@
 {
-  "summary": "Defines schema definitions and data structures for directory concepts, package analysis, dependency analysis, and capability models within the schema package.",
+  "summary": "Provides base context schemas, knowledge models, and file summary structures supporting concept definitions within the schema package.",
   "responsibilities": [
-    "Provides schema definitions, data structures, and input models for directory concepts, package analysis, dependency analysis, and capability models."
+    "Define base context structures and schema models for knowledge and file summaries."
   ],
   "concepts": [
-    "directory concepts",
-    "package analysis",
-    "dependency analysis",
-    "schema definitions"
+    "Knowledge Information",
+    "Document Base Context",
+    "Public Declaration Summary",
+    "Dependency Summary",
+    "File Summary"
   ],
   "relationships": [
-    "The package sub-directory defines schema structures utilized in package analysis."
+    "DocumentBaseContext includes knowledge information."
   ],
   "design_decisions": [
-    "Organizes data structures and schema definitions into dedicated sub-directories for concepts and package-level analysis."
+    "Schema definitions and data models are organized into sub-packages and base modules to represent conceptual and context-driven data structures."
   ],
   "importance": "Core"
 }

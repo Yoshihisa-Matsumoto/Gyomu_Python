@@ -1,18 +1,19 @@
 {
-  "summary": "Serves as the root schema package providing utilities for converting and validating values against Pydantic models, alongside market holiday representations.",
+  "summary": "Provides core schema conversion and validation utilities along with domain models such as market holidays.",
   "responsibilities": [
     "Convert and validate input values and JSON strings against Pydantic models.",
-    "Represent market holiday data structures."
+    "Provide market holiday definitions."
   ],
   "concepts": [
     "Pydantic model conversion",
-    "Market holiday schema"
+    "Market holiday schema",
+    "Core schema package"
   ],
   "relationships": [
-    "The package provides functions to convert and validate input values and JSON strings against Pydantic models."
+    "convert and convert_json operate on Pydantic models to validate and convert input values and JSON strings."
   ],
   "design_decisions": [
-    "Uses Pydantic models for data conversion, validation, and market holiday representation."
+    "Uses Pydantic models for validation and conversion of input values and JSON strings."
   ],
   "importance": "Core"
 }

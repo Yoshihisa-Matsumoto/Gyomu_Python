@@ -15,6 +15,8 @@ LlmContextSectionId = Literal[
     "editing-rules",
     "navigation",
 ]
+"""Literal type representing the section IDs available in an LLM context."""
+
 
 LLM_CONTEXT_SECTION_TITLES: dict[LanguageCodes, dict[LlmContextSectionId, str]] = {
     "en": {
@@ -31,3 +33,6 @@ LLM_CONTEXT_SECTION_TITLES: dict[LanguageCodes, dict[LlmContextSectionId, str]] 
         "navigation": "Navigation",
     },
 }
+"""Dictionary mapping language codes and LLM context section IDs to their localized
+section titles.
+"""

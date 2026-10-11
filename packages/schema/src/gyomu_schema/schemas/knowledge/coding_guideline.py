@@ -62,6 +62,18 @@ class CodingGuideline(BaseModel):
 def merge_coding_guideline(
     root: CodingGuideline, project: CodingGuideline | None
 ) -> CodingGuideline:
+    """Merges root and project coding guidelines, combining their rules, forbidden
+    practices, and principles.
+
+    Args:
+        root (CodingGuideline): Base coding guideline configuration.
+        project (CodingGuideline | None): Optional project-specific coding guideline
+            configuration to merge.
+
+    Returns:
+        CodingGuideline: The merged coding guideline containing combined rules,
+            principles, and forbidden practices.
+    """
     if project is None:
         return root
 

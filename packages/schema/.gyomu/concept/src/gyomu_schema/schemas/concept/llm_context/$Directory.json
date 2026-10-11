@@ -1,0 +1,20 @@
+{
+  "summary": "Defines schemas, types, and input models for structuring and building LLM context data within the gyomu_schema package.",
+  "responsibilities": [
+    "Define data structures and input schemas for building LLM context.",
+    "Provide type definitions and section title mappings for LLM contexts."
+  ],
+  "concepts": [
+    "LLM context schema",
+    "LLM knowledge input",
+    "LLM context section identifiers"
+  ],
+  "relationships": [
+    "Input schemas utilize types and constants defined within the llm_context package."
+  ],
+  "design_decisions": [
+    "Schema definitions using Pydantic or similar dataclasses",
+    "Type definitions and constants for LLM context sections"
+  ],
+  "importance": "Core"
+}

@@ -1,21 +1,20 @@
 {
-  "summary": "Defines data schemas for knowledge management, including coding guidelines, development FAQs and tips, structured package knowledge, roadmaps, and technical integration references.",
+  "summary": "Defines schemas for structuring and representing various knowledge domains, including coding guidelines, development operational knowledge, package usage and terminology, project roadmaps, and technical integration references.",
   "responsibilities": [
-    "Define schemas for knowledge representation including coding guidelines, development operational knowledge, package definitions, roadmaps, and technical references."
+    "Define schemas for structuring knowledge domains including coding guidelines, developer operational knowledge, package metadata/usage, project roadmaps, and technical integration/installation references."
   ],
   "concepts": [
-    "Knowledge Schemas",
-    "Coding Guidelines",
-    "Development Knowledge",
-    "Package Knowledge",
-    "Roadmap",
-    "Technical Reference"
+    "coding guidelines",
+    "development knowledge",
+    "package structure",
+    "roadmap items",
+    "technical reference"
   ],
   "relationships": [
-    "Knowledge schemas define structured representations for coding guidelines, development knowledge, package definitions, roadmaps, and technical references."
+    "Coding guidelines, development knowledge, package structures, roadmaps, and technical references are grouped together under knowledge schemas."
   ],
   "design_decisions": [
-    "Schema-based structuring using classes for knowledge representation"
+    "Defines data structures and schemas representing various knowledge domains such as coding guidelines, development guides, package usage, roadmaps, and technical specifications."
   ],
   "importance": "Core"
 }
