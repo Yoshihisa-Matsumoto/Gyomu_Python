@@ -1,20 +1,21 @@
 {
-  "summary": "Performs project and workspace initialization, reads project configurations, manages module loading, caching, and file analysis contexts.",
+  "summary": "Provides core orchestration for Python source code analysis, including project and workspace initialization, module and file context loading, cache management, and metadata registration.",
   "responsibilities": [
-    "Initialize project contexts and parse project configurations from workspace structures, load and manage module and file analysis contexts, and delete module caches."
+    "Initialize project and workspace contexts for Python analysis.,Load modules and files for analysis.,Manage module cache and metadata creation.,Resolve source roots and package configurations."
   ],
   "concepts": [
+    "Python code analysis",
     "project initialization",
-    "module loading and analysis",
-    "workspace configuration",
+    "workspace management",
+    "module loading and caching",
     "file analysis context",
-    "cache management"
+    "metadata registration"
   ],
   "relationships": [
-    "Project initialization handles workspace configurations and source roots."
+    "Project initialization uses workspace configuration and source root resolution to set up analysis contexts."
   ],
   "design_decisions": [
-    "Modular functions for project initialization, module loading, caching, workspace handling, and file context loading."
+    "Modular organization of analysis steps including initialization, workspace resolution, module loading, cache deletion, and metadata handling."
   ],
   "importance": "Core"
 }

@@ -239,6 +239,16 @@ def initialize_workspace_context(
 def enumerate_workspace_target_files(
     workspace_context: WorkspaceContext,
 ) -> tuple[WorkspaceRelativePath, ...]:
+    """Enumerates target files within the workspace.
+
+    Args:
+        workspace_context (WorkspaceContext): The workspace context containing the root
+            path.
+
+    Returns:
+        tuple[WorkspaceRelativePath, ...]: A tuple of workspace-relative target file
+            paths.
+    """
     files: list[WorkspaceRelativePath] = []
     concept_files = FileSearch.search(
         workspace_context.path / ".gyomu" / "knowledge",

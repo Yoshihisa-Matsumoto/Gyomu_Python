@@ -108,13 +108,14 @@ def get_pydantic_from_value_only(
     """Extract a Pydantic Field call structure and its underlying type from an Annotated
     type expression.
 
+    Extract a Pydantic Field call structure and its underlying type from an Annotated
+    type expression.
+
     Args:
-        expression (TypeExpression | None): The type expression to inspect, or None.
-        ast_expression (ExpressionAnalysis | None): The AST expression to inspect, or
-            None.
+        ast_expression (ExpressionAnalysis): The AST expression to inspect, or None.
 
     Returns:
-        tuple[TypeExpression, CallExpressionAnalysis] | None: A tuple containing the
+        PydanticFieldAnalysis | None: A tuple containing the
             assumed type and the Field call structure analysis, or None if not found.
     """
     if not (

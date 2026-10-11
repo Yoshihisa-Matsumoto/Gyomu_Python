@@ -1,24 +1,26 @@
 {
-  "summary": "Provides core analyzer modules for examining Python language constructs such as classes, functions, dependencies, docstrings, imports, Pydantic models, type aliases, types, and variables, along with symbol context management.",
+  "summary": "Provides core analyzers for extracting structure and metadata from Python code elements, including classes, functions, variables, types, decorators, imports, docstrings, and dependencies.",
   "responsibilities": [
-    "Analyze Python classes, functions, dependencies, docstrings, imports, Pydantic models, type aliases, types, and variables, and manage symbol context and identity during code analysis."
+    "Analyze Python code constructs including classes, functions, variables, type aliases, imports, decorators, docstrings, dependencies, and Pydantic definitions.",
+    "Maintain symbol context and dependency resolution information during analysis."
   ],
   "concepts": [
-    "class analysis",
-    "function analysis",
-    "dependency analysis",
-    "docstring analysis",
-    "import analysis",
-    "pydantic analysis",
-    "type analysis",
-    "variable analysis",
-    "symbol context"
+    "Class analysis",
+    "Function analysis",
+    "Dependency resolution",
+    "Docstring parsing",
+    "Symbol context",
+    "Pydantic analysis",
+    "Type analysis",
+    "Variable analysis",
+    "Import analysis",
+    "Decorator analysis"
   ],
   "relationships": [
-    "Code analysis uses specialized analyzers for classes, functions, dependencies, docstrings, imports, pydantic models, type aliases, types, and variables alongside symbol context management."
+    "Analyzers utilize symbol context, dependency resolution, and specialized modules for classes, functions, variables, types, pydantic definitions, imports, decorators, and docstrings to perform code analysis."
   ],
   "design_decisions": [
-    "Modular analysis routines for specific Python code constructs and features"
+    "Modularized analyzers for different Python language constructs and structures."
   ],
   "importance": "Core"
 }

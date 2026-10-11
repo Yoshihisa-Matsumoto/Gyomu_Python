@@ -1,25 +1,24 @@
 {
-  "summary": "Manages project snapshots, tracking file modifications, diffing changes between snapshots, and handling snapshot creation, validation, and commit workflows.",
+  "summary": "Manages project snapshots, including creation, file enumeration, difference computation, change analysis, validation, and workspace management.",
   "responsibilities": [
-    "Create and manage project snapshots including target files, hashes, and modification timestamps.",
-    "Analyze, diff, and commit project changes by comparing snapshots.",
-    "Manage project snapshot workspaces and persistence."
+    "Create project snapshots by enumerating target files and generating file metadata.",
+    "Compute and analyze differences between project snapshots.",
+    "Validate and commit project snapshot changes.",
+    "Manage filesystem workspaces and identification for project snapshots."
   ],
   "concepts": [
-    "project snapshot",
-    "project changes",
-    "file snapshots",
-    "snapshot diff",
-    "snapshot workspace"
+    "Project Snapshot",
+    "Snapshot Analysis",
+    "Project Workspace"
   ],
   "relationships": [
-    "Project changes analysis compares previous and current snapshots.",
-    "Diffing computes differences between previous and current project snapshots.",
-    "Committing validates the project snapshot and commits changes.",
-    "Creating a project snapshot enumerates target files and generates file snapshots."
+    "Project change analysis compares previous and current snapshots.",
+    "Project snapshot creation enumerates target files and generates file snapshots containing hashes and modification timestamps.",
+    "Snapshot diffing computes differences between previous and current project snapshots."
   ],
   "design_decisions": [
-    "Exports functions for creating, validating, committing, analyzing, and diffing project snapshots."
+    "Modular organization of snapshot creation, diffing, analysis, and commitment into separate modules.",
+    "Dataclasses or structured models representing project change analysis results."
   ],
   "importance": "Core"
 }
