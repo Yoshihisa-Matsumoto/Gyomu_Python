@@ -1,34 +1,29 @@
 {
-  "summary": "Serves as the root infrastructure and domain package, organizing modular subcomponents for database persistence, filesystem operations, CSV processing, archive management, configuration, logging, core business services, and system utilities.",
+  "summary": "Provides comprehensive infrastructure components and core domain logic, encompassing database management, file system operations, configuration, logging, process execution, and specialized data processing utilities.",
   "responsibilities": [
-    "Manage ZIP archives and metadata entries",
-    "Load and manage configuration settings",
-    "Parse and serialize CSV data using Pydantic models",
-    "Handle database connections, ORM models, repositories, and transactions via SQLAlchemy",
-    "Provide filesystem I/O, search, and operation helper utilities",
-    "Perform core domain services including business calendars, parameter access, and variable translation",
-    "Compute cryptographic hashes for strings, bytes, and files",
-    "Provide application-wide logging facilities and factories",
-    "Execute system processes and manage execution results and errors",
-    "Provide lazy stream processing and byte stream I/O utilities"
+    "Provide infrastructure utilities for file I/O, archives, hashing, streams, CSV parsing, and process execution",
+    "Manage database connections, persistence, and ORM mapping",
+    "Handle configuration loading and logging infrastructure",
+    "Implement core domain logic including business calendars and parameter access"
   ],
   "concepts": [
-    "archive management",
-    "configuration loading",
+    "ZIP archives",
+    "Configuration management",
     "CSV parsing and serialization",
-    "database infrastructure",
-    "filesystem utilities",
-    "domain services",
-    "hashing utilities",
-    "logging infrastructure",
-    "process execution",
-    "stream processing"
+    "Database infrastructure",
+    "Filesystem utilities",
+    "Core domain logic",
+    "Hashing utilities",
+    "Logging infrastructure",
+    "Process execution",
+    "Stream processing"
   ],
   "relationships": [
-    "The package groups various independent infrastructure utilities and domain services under a unified root package namespace."
+    "The gyomu package encapsulates core domain logic and services supporting the infrastructure package."
   ],
   "design_decisions": [
-    "Modularizes infrastructure and domain components into cohesive subdirectories covering data persistence, file handling, configuration, logging, and core business logic services."
+    "Organizes infrastructure and domain logic into modular subcomponents across specialized domains",
+    "Leverages external frameworks such as SQLAlchemy and Pydantic for data handling and persistence"
   ],
   "importance": "Core"
 }

@@ -1,24 +1,26 @@
 {
-  "summary": "Provides core Python analysis capabilities, including project and workspace initialization, configuration management, path conversion, custom error handling, and snapshot tracking workflows.",
+  "summary": "Provides the core orchestration, project configuration, workspace management, path utilities, snapshot analysis, and error handling for Python source code analysis.",
   "responsibilities": [
-    "Initialize project and workspace contexts, parse configurations, and manage file and module analysis.",
-    "Define custom error types and analysis phases for Python analysis operations.",
-    "Translate between various path formats including project-relative, source-relative, python, and full paths.",
-    "Manage project configurations and workspace structures.",
-    "Track file modifications, compute diffs, and handle snapshot creation, validation, and commit workflows."
+    "Orchestrate Python source code analysis and workspace initialization.",
+    "Manage project configuration settings, metadata, and workspace definitions.",
+    "Provide path conversion and manipulation between various formats.",
+    "Manage project snapshots, change analysis, and difference computation.",
+    "Define custom error types and analysis phases for Python analysis operations."
   ],
   "concepts": [
-    "project analysis",
-    "configuration management",
-    "path conversion",
-    "error handling",
-    "project snapshot"
+    "Python analysis orchestration",
+    "project configuration and context",
+    "path conversion utilities",
+    "project snapshots and change analysis",
+    "error handling and analysis phases"
   ],
   "relationships": [
-    "Project and workspace contexts configure project analysis and snapshot management workflows."
+    "Analysis orchestration utilizes project and workspace configurations, path conversion utilities, and snapshot management.",
+    "Project change analysis and snapshot management interact with project configuration and path structures."
   ],
   "design_decisions": [
-    "Modular structure organizing core analysis functions into domain-specific subpackages such as analysis, error, path, project, and snapshot."
+    "Modular organization across core analysis, error handling, path utilities, project management, and snapshots.",
+    "Object-oriented encapsulation of project and workspace configurations."
   ],
   "importance": "Core"
 }

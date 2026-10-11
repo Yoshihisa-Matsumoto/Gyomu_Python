@@ -20,12 +20,18 @@ from returns.result import Failure, Success
 
 from packages.python_analysis.python_analysis_test_support.helpers import (
     _create_context,
+    create_monorepo_context,
 )
 
 
 @pytest.fixture
 def project_context() -> ProjectContext:
     return _create_context()
+
+
+@pytest.fixture
+def monorepo_project_context() -> ProjectContext:
+    return create_monorepo_context()
 
 
 def test_create_file_snapshot_success(mocker):
@@ -105,6 +111,15 @@ def test_enumerate_target_files(mocker, project_context):
             ProjectRelativePath(Path(".gyomu/knowledge/example.md")),
         }
     )
+
+
+def test_enumerate_target_files_includes_knowledge_files(
+    monorepo_project_context,
+) -> None:
+
+    result = enumerate_target_files(monorepo_project_context)
+
+    assert ProjectRelativePath(Path(".gyomu/knowledge/Development.yaml")) in result
 
 
 def test_create_snapshot(mocker, project_context):

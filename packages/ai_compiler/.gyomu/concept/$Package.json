@@ -1,30 +1,40 @@
 {
-  "summary": "The gyomu-ai-compiler package provides compilation pipelines for AI-driven code analysis and documentation generation. It defines data schemas, execution contexts, and renderers for updating Python docstrings and analyzing package and directory concepts.",
+  "summary": "The gyomu-ai-compiler package provides a collection of AI compilation pipelines focused on automating developer documentation tasks, including docstring generation, README creation, document translation, and architectural concept compilation. It structures these workflows into modular components comprising schemas, context models, renderers, and execution logic.",
   "responsibilities": [
-    "Provide compilation pipelines for generating AI-driven documentation and package concept analysis.",
-    "Define data models and schemas for tracking declaration contexts, file contexts, and AI update plans.",
-    "Manage prompt templates and configurations for AI interactions within the compiler framework."
+    "Provide pipeline execution logic and prompt rendering for AI-driven code documentation and compilation tasks.",
+    "Define structured data schemas, actions, and context models for documentation and translation workflows.",
+    "Manage execution state, retries, and validation handling during content generation processes."
   ],
   "capabilities": [
     {
-      "name": "Docstring Generation and Updates",
-      "description": "Defines structured schemas and execution plans for deterministic AI-driven code docstring updates, including replacement actions, parameter changes, raises, and returns."
+      "name": "Docstring Update Generation",
+      "description": "Builds deterministic AI plans, actions, and schemas for automatically updating function, method, and class docstrings."
     },
     {
-      "name": "Package and Directory Analysis",
-      "description": "Processes package-level and directory-level concepts, synthesizing public API symbols, dependencies, and code structure into structured inputs and analysis summaries."
+      "name": "LLM Context Rendering",
+      "description": "Renders and formats conversation messages and prompts for generating LLM context across various document sections."
     },
     {
-      "name": "Prompt Management",
-      "description": "Manages and loads prompt templates and base configurations to drive AI compilation tasks."
+      "name": "README Documentation Generation",
+      "description": "Constructs prompts, user data structures, and message flows for automatically generating project README documentation."
+    },
+    {
+      "name": "Document Translation Execution",
+      "description": "Executes document translation pipelines with built-in validation handling, retry support, and state management."
+    },
+    {
+      "name": "Package and Directory Compilation",
+      "description": "Analyzes and compiles high-level package and directory architectural concepts from source code inputs."
     }
   ],
   "design_decisions": [
-    "Utilizes structured schemas to enforce deterministic AI plans and actions for code documentation modifications.",
-    "Organizes compiler logic into modular, pipeline-specific execution contexts and renderers."
+    "Organizes functionality into discrete, task-oriented pipelines (e.g., docstring updates, README generation, translation, LLM context).",
+    "Separates core schema definitions, execution logic, and rendering mechanisms within each pipeline.",
+    "Leverages external AI, infrastructure, and schema support libraries for underlying execution and data modeling."
   ],
   "usage_guidance": [
-    "Use the docstring update pipeline executors and schemas to parse, evaluate, and apply deterministic AI-driven documentation changes to Python codebases.",
-    "Leverage the package concept and directory analysis pipelines to extract public APIs, dependencies, and structural summaries for package exploration."
+    "Use the specific pipeline modules (such as docstring_update, readme, or translation) to execute automated documentation and compilation workflows.",
+    "Leverage the rendering components to construct LLM conversation messages and prompts tailored to particular document sections.",
+    "Utilize schema and context definitions to model inputs and structured AI update actions safely."
   ]
 }

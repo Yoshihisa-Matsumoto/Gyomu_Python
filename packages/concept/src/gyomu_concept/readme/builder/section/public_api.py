@@ -1,5 +1,5 @@
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
 from gyomu_schema.schemas.document.content import (
     BulletList,
@@ -20,7 +20,7 @@ _section_id: ReadmeSectionId = "public-api"
 
 
 async def _build(
-    context: DocumentBaseContext, option: ConceptOption | None = None
+    context: DocumentBaseContext[Knowledge], option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[ReadmeSectionId], DocumentBuilderError]:
     """Builds the public API readme section from the document context.
 
@@ -54,7 +54,7 @@ async def _build(
     )
 
 
-def _enabled(_: DocumentBaseContext) -> bool:
+def _enabled(_: DocumentBaseContext[Knowledge]) -> bool:
     """Determines whether the public API section is enabled.
 
     Args:
@@ -66,12 +66,12 @@ def _enabled(_: DocumentBaseContext) -> bool:
     return True
 
 
-build_public_api: SectionBuilder[ReadmeSectionId, DocumentBaseContext] = SectionBuilder[
-    ReadmeSectionId, DocumentBaseContext
-](
-    id=_section_id,
-    translation=SectionTranslationInstruction(translation_strategies=()),
-    enabled=_enabled,
-    build=_build,
+build_public_api: SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]] = (
+    SectionBuilder[ReadmeSectionId, DocumentBaseContext[Knowledge]](
+        id=_section_id,
+        translation=SectionTranslationInstruction(translation_strategies=()),
+        enabled=_enabled,
+        build=_build,
+    )
 )
 """Section builder for the public API readme section."""

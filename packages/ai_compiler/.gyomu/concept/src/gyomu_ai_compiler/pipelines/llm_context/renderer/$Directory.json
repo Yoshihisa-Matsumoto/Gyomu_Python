@@ -1,0 +1,19 @@
+{
+  "summary": "Provides rendering logic to build LLM conversation messages and structures from document context across various sections such as architecture, design principles, editing rules, constraints, and overview.",
+  "responsibilities": [
+    "Build LLM conversation messages from document context for different sections including architecture, design principles, editing rules, important constraints, and overview."
+  ],
+  "concepts": [
+    "LLM context renderer",
+    "conversation messages",
+    "document context"
+  ],
+  "relationships": [
+    "LLM context renderer builds architecture conversation messages from document context.",
+    "LLM context renderer builds overview conversation messages using user data representing a mission and concept summary."
+  ],
+  "design_decisions": [
+    "Functions build conversation messages from document context for various sections such as architecture, design principles, editing rules, constraints, and overview."
+  ],
+  "importance": "Core"
+}

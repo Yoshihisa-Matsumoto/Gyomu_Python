@@ -1,17 +1,17 @@
 {
-  "summary": "Handles the rendering of Markdown content specifically tailored for generating readme documentation within the application.",
+  "summary": "Provides functionality to render the README document in Markdown format.",
   "responsibilities": [
-    "Renders documentation and readme content in Markdown format."
+    "Renders the README document as Markdown."
   ],
   "concepts": [
     "Markdown rendering",
-    "Readme generation"
+    "README document"
   ],
   "relationships": [
-    "Markdown rendering is used to render readme markdown."
+    "Markdown rendering is used to generate the README document."
   ],
   "design_decisions": [
-    "Exposes a markdown rendering function for readme generation."
+    "Functions are exported for rendering documentation to Markdown format."
   ],
   "importance": "Supporting"
 }

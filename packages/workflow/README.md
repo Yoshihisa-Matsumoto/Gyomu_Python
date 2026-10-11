@@ -4,13 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-The package powers the snapshot workflow engine for the Gyomu CLI, providing an orchestration foundation to execute code analysis, concept generation, and documentation generation as a unified pipeline. Its primary purpose is to manage execution order and monitor artifact states with checkpoints, enabling process resumption and incremental updates. By separating individual processing logic from overall workflow control, the package achieves reproducible and maintainable project operations. It handles execution pipelines, checkpoint management, target file resolution, and project structure validation to ensure consistent execution.
+`gyomu-workflow` serves as the core workflow engine for the Gyomu CLI, providing an orchestration foundation that executes code analysis, concept generation, and documentation processes as a cohesive pipeline. Its primary purpose is to manage execution order and track checkpoints and artifact states, ensuring that only necessary tasks are performed to enable seamless resumption and incremental updates. 
+
+By decoupling individual task implementations from overall workflow control, the package establishes a reproducible and maintainable project environment. It drives the snapshot pipeline by coordinating request translation, validation, checkpoint tracking, target resolution, and specialized project actions.
 
 ## Architecture
 
-The `gyomu-workflow` package is organized around a core snapshot module that drives the workflow engine for the Gyomu CLI. Responsibilities are divided into distinct components that handle workflow orchestration, state persistence, target resolution, and validation.
+The package is organized around a core snapshot workflow pipeline that drives request processing and execution. Responsibilities are divided into distinct collaborative components handling request validation, state tracking, target resolution, and action execution. 
 
-The top-level `src/gyomu_workflow` package coordinates overall snapshot workflows, while the nested `snapshot` directory houses the concrete mechanisms for execution and validation. Together, these components collaborate to run pipeline steps, execute actions on target files, manage checkpoints for state tracking, and enforce configuration schemas and package structure rules.
+The architecture centers on the snapshot module, which serves as the primary execution runner. It coordinates the workflow by first translating and validating user requests and package structures. It then tracks pipeline state and step completion through persistent checkpoints and input fingerprints, while resolving and filtering target source files. 
+
+Once targets and state are verified, the runner delegates the execution of specialized project actions—such as generating docstrings, READMEs, packages, and LLM contexts—ensuring a modular and structured workflow pipeline.
 
 ## Installation
 
@@ -22,22 +26,24 @@ uv add gyomu-workflow
 
 ## Dependencies
 
-This package is designed for Pydantic version 2.x compatibility. 
+This package requires Pydantic version 2.x for schema definition, data validation, and serialization. 
 
-Runtime dependencies include `pydantic` for schema definition, data validation, and serialization or deserialization. It also relies on `gyomu-schema` for schemas and common types, `gyomu-infra` for general infrastructure processing such as I/O, `gyomu-python-analysis` for Python package and file analysis, `gyomu-docstring` for updating Python file docstrings, and `gyomu-concept` for creating directory concepts, package concepts, and README.md files.
+Additionally, it relies on several runtime dependencies including gyomu-schema for common types and schemas, gyomu-infra for I/O and general infrastructure processing, gyomu-python-analysis for file and package analysis, gyomu-docstring for updating docstrings, and gyomu-concept for generating directory and package concepts as well as README.md files.
 
 ## Development
 
-Contributors must enforce a strict separation between workflow orchestration and the underlying task implementations. The workflow engine manages execution order, step conditions, and state transitions, but it must delegate specialized tasks—such as snapshots and change detection—to their respective dedicated packages through defined interfaces rather than depending on implementation details. Furthermore, the orchestration layer must remain completely agnostic of delivery mechanisms like CLIs or MCPs, ensuring that workflow logic remains reusable and isolated from external interfaces.
+Contributors must strictly separate the execution order of the workflow from the detailed implementation of individual processing steps. Every workflow step must be treated as an independent Action, ensuring that the workflow engine manages only sequencing and execution conditions while delegating concrete domain tasks—such as snapshots and change detection—to specialized subordinate packages through defined interfaces. Furthermore, the package must remain agnostic to execution interfaces like CLI or MCP, ensuring that all processing logic is reusable and decoupled from specific user interaction layers.
 
-To ensure reproducible and maintainable project processing, the state management system relies on checkpoints that record successful step execution independently of physical artifact existence. If a required artifact is missing, the workflow must re-execute the necessary step even if the checkpoint marks it as completed. Contributors must implement steps as independent actions that handle success and failure explicitly, halting execution immediately upon any step failure and executing only the steps required based on current checkpoints and artifact states.
+State management relies on persistent checkpoints and input fingerprinting to track step completion, but checkpoints must be treated strictly as historical records of past success rather than proxies for current artifact existence. If a required generated artifact is missing, the corresponding step must be re-executed even if marked as completed in the checkpoint, thereby supporting incremental updates and resilient workflow resumption. Contributors must preserve this decoupling between historical state tracking and physical artifact validation to maintain predictable pipeline recovery.
+
+Pipeline execution must adhere to fail-fast principles where the success and failure of each step are explicitly handled, preventing any downstream execution after a step fails. Contributors are strictly prohibited from introducing direct dependencies from the workflow layer onto the implementation details of lower-level packages. All interactions with domain-specific logic must strictly traverse established interfaces, preserving the boundaries required for reproducible, maintainable, and modular project processing.
 
 ## Public API
 
-- Workflow Orchestration - Orchestrates the execution of snapshot workflows, coordinating pipeline steps, validating request parameters, and running actions on target files.
-- Checkpoint Management - Manages snapshot state, persistence through checkpoints, and history tracking across workflow runs.
-- Target Resolution and Filtering - Resolves target files and directories for snapshot execution, applying file filters and pattern matching.
-- Configuration and Validation - Defines core data models, request configurations, and validation rules for snapshot execution and Python package structures.
+- Request Validation and Translation - Translates and validates user requests and structural requirements for generating project snapshots.
+- Checkpoint and State Tracking - Tracks execution progress, file changes, and step completion using checkpoints and input fingerprints.
+- Target Resolution and Filtering - Resolves snapshot targets and filters project files according to specified path patterns.
+- Workflow Action Execution - Executes modular workflow actions including docstring processing, package analysis, README generation, and LLM context creation.
 
 ## License
 

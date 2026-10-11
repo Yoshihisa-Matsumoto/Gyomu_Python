@@ -85,11 +85,18 @@ def _create_context() -> ProjectContext:
     ).unwrap()
 
 
-def create_test_file_snapshot(
+def create_monorepo_context() -> ProjectContext:
+    return initialize_project_context(
+        project_root=MONOREPO_FIXTURES_ROOT / "packages" / "project_a",
+        source_root=ProjectRelativePath(Path("src")),
+    ).unwrap()
+
+
+def create_file_snapshot(
     project_relative_path: ProjectRelativePath,
     raw_hash: str = "ABCDE",
+    modified_at: datetime = datetime.now(),  # noqa: B008
 ) -> FileSnapshot:
-    modified_at: datetime = datetime.now()
     return FileSnapshot(
         project_relative_path=project_relative_path,
         raw_hash=raw_hash,

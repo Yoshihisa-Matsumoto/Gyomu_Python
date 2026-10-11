@@ -1,4 +1,5 @@
 import hashlib
+import json
 from pathlib import Path
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
@@ -18,6 +19,21 @@ def sha256(value: str | bytes) -> str:
     """
     data = value.encode("utf-8") if isinstance(value, str) else value
     return hashlib.sha256(data).hexdigest()
+
+
+def hash_object(target: object) -> str:
+    """Compute the SHA-256 hash of an object.
+
+    Compute the SHA-256 hash of a JSON-serialized object.
+
+    Args:
+        target (object): The object to serialize and hash.
+
+    Returns:
+        str: The hexadecimal digest of the SHA-256 hash.
+    """
+    payload = json.dumps(target, ensure_ascii=False, separators=(",", ":"))
+    return sha256(payload)
 
 
 def short_sha256(value: str | bytes) -> str:

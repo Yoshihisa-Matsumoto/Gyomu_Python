@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
 from returns.result import Success
 
@@ -27,7 +27,10 @@ class ReadmeMarkdownRendererOption:
 
 
 _readme_markdown_renderer = DocumentRenderer[
-    ReadmeSectionId, DocumentBaseContext, ConceptOption, ReadmeMarkdownRendererOption
+    ReadmeSectionId,
+    DocumentBaseContext[Knowledge],
+    ConceptOption,
+    ReadmeMarkdownRendererOption,
 ](
     render=(
         lambda context, document, option, render_option: Success(
@@ -68,7 +71,10 @@ def _is_scope_of_debug(option: ConceptOption) -> bool:
 
 
 README_DOCUMENT_DEFINITION = DocumentDefinition[
-    ReadmeSectionId, DocumentBaseContext, ConceptOption, ReadmeMarkdownRendererOption
+    ReadmeSectionId,
+    DocumentBaseContext[Knowledge],
+    ConceptOption,
+    ReadmeMarkdownRendererOption,
 ](
     create_context=initialize_readme_build_context,
     supported_languages=("en", "ja"),
@@ -76,7 +82,7 @@ README_DOCUMENT_DEFINITION = DocumentDefinition[
     renderer_options=ReadmeMarkdownRendererOption(need_link=True),
     output=DocumentOutput[
         ReadmeSectionId,
-        DocumentBaseContext,
+        DocumentBaseContext[Knowledge],
         ConceptOption,
         ReadmeMarkdownRendererOption,
     ](renderer=_readme_markdown_renderer, filepath_resolver=_filepath_resolver),

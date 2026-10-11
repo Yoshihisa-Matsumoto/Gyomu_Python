@@ -26,7 +26,7 @@ class Knowledge(BaseModel):
     """Roadmap details, if available."""
 
 
-class DocumentBaseContext(BaseModel):
+class DocumentBaseContext[KnowledgeT: Knowledge](BaseModel):
     """Defines base context for documentation containing analysis, concept, and
     knowledge.
     """
@@ -37,5 +37,5 @@ class DocumentBaseContext(BaseModel):
     concept: PackageConcept
     """Package concept details."""
 
-    knowledge: Knowledge
+    knowledge: KnowledgeT
     """Knowledge details."""

@@ -2,7 +2,7 @@ from gyomu_facts.package.analysis import PackageFacts, TopScoreDirectorySelectio
 from gyomu_schema.conversation.conversation import ConversationSchema
 from gyomu_schema.conversation.message import MessageSchema
 from gyomu_schema.error.io import GyomuIOError
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.package.concept import CapabilityConcept
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.utility.serialization import dump_json
@@ -49,7 +49,7 @@ class UserData(BaseModel):
 
 
 def build_architecture_messages(
-    context: DocumentBaseContext,
+    context: DocumentBaseContext[Knowledge],
 ) -> Result[ConversationSchema, GyomuIOError]:
     """Builds architecture conversation messages from document context.
 

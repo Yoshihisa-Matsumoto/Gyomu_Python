@@ -854,6 +854,8 @@ requires-dist = [
 name = "gyomu-cli"
 source = { editable = "apps/cli" }
 dependencies = [
+    { name = "gyomu-ai" },
+    { name = "gyomu-ai-compiler" },
     { name = "gyomu-infra" },
     { name = "gyomu-schema" },
     { name = "gyomu-workflow" },
@@ -863,6 +865,8 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "gyomu-ai", editable = "packages/ai" },
+    { name = "gyomu-ai-compiler", editable = "packages/ai_compiler" },
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-schema", editable = "packages/schema" },
     { name = "gyomu-workflow", editable = "packages/workflow" },

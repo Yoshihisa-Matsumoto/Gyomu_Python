@@ -4,13 +4,15 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-The gyomu-facts package provides a foundational infrastructure for structuring, retrieving, and referencing project facts in a type-safe and consistent manner. Its primary purpose is to enable applications to understand development contexts by modeling project structures, configurations, and related facts through a shared framework. 
+The package structures project facts and configuration data, providing a type-safe and consistent foundation to retrieve and reference development context across upper-layer processes. 
 
-By separating fact definitions and retrieval logic from consuming code, the package shields users from underlying changes in data sources. It delivers core analysis and directory ranking capabilities that compile package facts and compute importance scores, ultimately supporting automated architectural assessment and reusable development context management.
+It supplies core analysis capabilities to compile package information alongside directory ranking mechanisms to evaluate codebase importance. By treating structural details as uniform facts, it enables systems to consistently utilize project context and assess directory relevance.
 
 ## Architecture
 
-The gyomu-facts package is structured around two primary architectural capabilities: package analysis and directory ranking. Responsibilities are divided cleanly to separate the compilation of structural package metadata from the evaluation and scoring processes. At the organizational level, the codebase utilizes a centralized module structure rooted in `src/gyomu_facts`, with specialized logic isolated within the `src/gyomu_facts/package` directory. These components collaborate directly to support automated architectural assessments. Specifically, the core package analysis routines consume directory selection options alongside score calculations to evaluate and rank directories based on defined importance criteria.
+The gyomu-facts package is organized around a core analytical structure designed to evaluate software projects. Responsibilities are divided into components that handle package analysis, directory ranking, and targeted selection. The package roots coordinate the primary analysis routines and compile comprehensive factual summaries representing package structures.
+
+Within this structure, specialized modules implement scoring and ranking algorithms. These components evaluate directories based on structural importance and feed score calculations directly into the broader package analysis routines. Simultaneously, flexible selection options filter and target specific areas of the codebase, working collaboratively with the ranking logic to assess codebase importance.
 
 ## Installation
 
@@ -22,18 +24,19 @@ uv add gyomu-facts
 
 ## Dependencies
 
-This package relies on several runtime dependencies to function. It uses the `returns` library for explicit success and failure expression through Success, Failure, and Result. Additionally, it integrates `gyomu-schema` for schemas and common types, `gyomu-infra` for general infrastructure processing such as I/O, and `gyomu-python-analysis` for Python analysis tasks.
+This package relies on several runtime dependencies to function. The `returns` package is used for explicit success and failure expression using Success, Failure, and Result. Additionally, `gyomu-schema` serves as a storage location for schemas and common types, `gyomu-infra` handles general foundational processes such as I/O, and `gyomu-python-analysis` is utilized for Python analysis.
 
 ## Development
 
-Contributors must maintain a strict separation between Fact definitions and their retrieval mechanisms to ensure that consumers remain isolated from implementation details. The architecture relies on dependency injection for Fact retrieval processes, preventing consumers from depending directly on concrete implementations. Furthermore, the model must be designed so that introducing new types of Facts does not require unnecessary modifications from existing Fact consumers, preserving extensibility as the package evolves.
+To achieve the core objective of providing a type-safe and consistent foundation for project and package facts, contributors must strictly decouple fact definitions from their retrieval mechanisms. Fact models must be defined declaratively and with strict type safety, avoiding any implicit type conversions on the consumer side. By separating how facts are defined from how they are fetched, the architecture ensures that consuming code never depends on the implementation details of data retrieval. Furthermore, new kinds of facts must be designed to integrate seamlessly without requiring unnecessary modifications to existing fact consumers, and related facts must be grouped into type-safe collections to maintain uniform access patterns.
 
-All Fact models must be defined declaratively and in a strictly type-safe manner, avoiding any implicit type conversions on the consumer side. Related Facts should be grouped into type-safe collections to allow consistent handling across the application. Contributors must ensure that Fact implementations strictly represent facts obtainable from source code or project settings, leaving any analysis, judgment, or derived processing entirely outside the scope of the Fact definitions and retrieval layer.
+The internal architecture enforces a clear boundary between the structural analysis of source code and configuration data, and the subsequent evaluation processes. Specifically, Package Analysis is strictly responsible for structuring verifiable facts from project sources, while Directory Ranking handles the evaluation of directory importance based explicitly on defined scoring criteria. Contributors must maintain this separation of concerns, ensuring that the acquisition of facts remains entirely isolated from the higher-level analytical and decision-making logic that consumes them.
 
 ## Public API
 
-- Package Analysis - Analyze package structures and compile comprehensive package metadata and facts.
-- Directory Ranking - Calculate scores and rank directories using configurable selection criteria.
+- Package Analysis - Compile comprehensive factual summaries and data models representing package structures.
+- Directory Ranking - Evaluate and score directories based on structural importance and configurable criteria.
+- Directory Selection - Configure flexible strategies for filtering and selecting relevant target directories.
 
 ## License
 

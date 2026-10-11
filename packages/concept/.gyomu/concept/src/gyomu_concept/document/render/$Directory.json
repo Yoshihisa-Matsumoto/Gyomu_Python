@@ -1,17 +1,17 @@
 {
-  "summary": "Provides document rendering capabilities to convert translated documents into output formats like markdown.",
+  "summary": "Provides functionality for rendering translated documents into markdown format within the document package.",
   "responsibilities": [
-    "Renders translated documents into specific output formats such as markdown."
+    "Renders translated documents into markdown format"
   ],
   "concepts": [
-    "Document rendering",
-    "Markdown rendering"
+    "Markdown rendering",
+    "Document rendering"
   ],
   "relationships": [
-    "Markdown rendering formats a translated document into markdown text."
+    "Document rendering converts translated documents into markdown format"
   ],
   "design_decisions": [
-    "Functional rendering approach using standalone functions"
+    "Exposes rendering functionality via modular functions"
   ],
   "importance": "Core"
 }

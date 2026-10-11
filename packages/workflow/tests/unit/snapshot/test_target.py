@@ -20,8 +20,8 @@ from packages.python_analysis.python_analysis_test_support.helpers import (
     create_analyze_project_change,
     create_file_added,
     create_file_deleted,
+    create_file_snapshot,
     create_file_updated,
-    create_test_file_snapshot,
 )
 
 
@@ -114,20 +114,20 @@ class TestResolveSnapshotTarget:
     ) -> None:
         diff = (
             create_file_added(
-                current=create_test_file_snapshot(
+                current=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("foo.py"))
                 )
             ),
             create_file_updated(
-                current=create_test_file_snapshot(
+                current=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("bar.py"))
                 ),
-                previous=create_test_file_snapshot(
+                previous=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("bar.py"))
                 ),
             ),
             create_file_deleted(
-                previous=create_test_file_snapshot(
+                previous=create_file_snapshot(
                     project_relative_path=ProjectRelativePath(Path("par.py"))
                 ),
             ),
@@ -164,18 +164,18 @@ class TestResolveSnapshotTarget:
 
         target = result.unwrap()
 
-        assert target.files == frozenset(
+        assert target[0].files == frozenset(
             {
                 diff[0].project_relative_path,
                 diff[1].project_relative_path,
             }
         )
-        assert target.deleted_files == frozenset(
+        assert target[0].deleted_files == frozenset(
             {
                 diff[2].project_relative_path,
             }
         )
-        assert target.snapshot == current_snapshot
+        assert target[0].snapshot == current_snapshot
 
         analyze_project_changes.assert_called_once_with(
             repository_root_path=repository_root_path,
@@ -193,19 +193,19 @@ class TestResolveSnapshotTarget:
                 create_analyze_project_change(
                     diff=(
                         create_file_added(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("foo.py")
                                 )
                             )
                         ),
                         create_file_updated(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )
                             ),
-                            previous=create_test_file_snapshot(
+                            previous=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )
@@ -254,19 +254,19 @@ class TestResolveSnapshotTarget:
                 create_analyze_project_change(
                     diff=(
                         create_file_added(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("foo.py")
                                 )
                             )
                         ),
                         create_file_updated(
-                            current=create_test_file_snapshot(
+                            current=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )
                             ),
-                            previous=create_test_file_snapshot(
+                            previous=create_file_snapshot(
                                 project_relative_path=ProjectRelativePath(
                                     Path("bar.py")
                                 )
@@ -300,13 +300,13 @@ class TestResolveSnapshotTarget:
 
         target = result.unwrap()
 
-        assert target.files == frozenset(
+        assert target[0].files == frozenset(
             {
                 ProjectRelativePath(Path("foo.py")),
             }
         )
-        assert target.deleted_files == frozenset()
-        assert target.snapshot == current_snapshot
+        assert target[0].deleted_files == frozenset()
+        assert target[0].snapshot == current_snapshot
 
     # def test_resolve_snapshot_target_with_file_filter_does_not_analyze_snapshot(
     #     self,

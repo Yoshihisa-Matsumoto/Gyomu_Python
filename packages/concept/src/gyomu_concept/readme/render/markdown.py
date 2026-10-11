@@ -1,5 +1,5 @@
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import (
     README_LINK,
     README_SECTION_TITLES,
@@ -12,7 +12,7 @@ from gyomu_concept.document.translation.document import TranslatedDocument
 from gyomu_concept.readme.internal.filename import get_readme_filename
 
 
-def _get_title(context: DocumentBaseContext) -> str:
+def _get_title(context: DocumentBaseContext[Knowledge]) -> str:
     """Get the document title from the package knowledge.
 
     Get the document title from the package display name.
@@ -69,7 +69,7 @@ def _get_language_link(
 
 
 def render_readme_markdown(
-    context: DocumentBaseContext,
+    context: DocumentBaseContext[Knowledge],
     plan: TranslatedDocument[ReadmeSectionId],
     option: ConceptOption | None = None,
     need_link: bool = False,

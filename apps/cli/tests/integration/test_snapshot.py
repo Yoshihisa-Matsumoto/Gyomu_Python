@@ -18,6 +18,8 @@ from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 from typer.testing import CliRunner
 
+from packages.concept.concept_test_support.helpers import create_workspace_context
+
 runner = CliRunner()
 
 
@@ -44,6 +46,7 @@ def snapshot_request(mocker: MockerFixture) -> SnapshotRequest:
                 _toml_data={},
             ),
         ),
+        workspace=create_workspace_context(),
     )
 
 
@@ -77,6 +80,8 @@ def test_snapshot_success(mocker: MockerFixture, snapshot_request: SnapshotReque
             "test",
         ],
     )
+    print(f"output:\n{result.output}")
+    print(f"exception: {result.exception!r}")
 
     assert result.exit_code == 0
 

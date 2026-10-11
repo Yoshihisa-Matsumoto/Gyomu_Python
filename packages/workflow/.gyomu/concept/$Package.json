@@ -1,36 +1,37 @@
 {
-  "summary": "The gyomu-workflow package powers the snapshot workflow engine for the Gyomu CLI. It provides robust capabilities for orchestrating execution pipelines, managing checkpoints, resolving target files, and validating project structures.",
+  "summary": "`gyomu-workflow` is the core workflow engine for the Gyomu CLI, responsible for driving the snapshot pipeline. It coordinates request translation, validation, checkpoint tracking, target resolution, and the execution of specialized project actions such as docstrings, READMEs, packages, and LLM contexts.",
   "responsibilities": [
-    "Manage the end-to-end execution of snapshot workflows and associated actions.",
-    "Persist and update workflow state and execution checkpoints.",
-    "Resolve, filter, and validate target files and Python package structures.",
-    "Define configuration schemas and request models for workflow operations."
+    "Manage the execution of the snapshot workflow pipeline from initial request translation to final action execution.",
+    "Validate request parameters and Python package structures.",
+    "Track pipeline state and step completion via persistent checkpoints and input fingerprinting.",
+    "Resolve and filter target source files for snapshot generation."
   ],
   "capabilities": [
     {
-      "name": "Workflow Orchestration",
-      "description": "Orchestrates the execution of snapshot workflows, coordinating pipeline steps, validating request parameters, and running actions on target files."
+      "name": "Request Validation and Translation",
+      "description": "Translates and validates user requests and structural requirements for generating project snapshots."
     },
     {
-      "name": "Checkpoint Management",
-      "description": "Manages snapshot state, persistence through checkpoints, and history tracking across workflow runs."
+      "name": "Checkpoint and State Tracking",
+      "description": "Tracks execution progress, file changes, and step completion using checkpoints and input fingerprints."
     },
     {
       "name": "Target Resolution and Filtering",
-      "description": "Resolves target files and directories for snapshot execution, applying file filters and pattern matching."
+      "description": "Resolves snapshot targets and filters project files according to specified path patterns."
     },
     {
-      "name": "Configuration and Validation",
-      "description": "Defines core data models, request configurations, and validation rules for snapshot execution and Python package structures."
+      "name": "Workflow Action Execution",
+      "description": "Executes modular workflow actions including docstring processing, package analysis, README generation, and LLM context creation."
     }
   ],
   "design_decisions": [
-    "Encapsulates workflow execution logic into modular components handling distinct concerns such as action execution, state management, and target resolution.",
-    "Leverages dedicated error models and validation steps to ensure correctness of snapshot requests and project structures before execution."
+    "Employs a pipelined workflow architecture with explicit checkpointing to manage long-running snapshot tasks.",
+    "Separates request validation, target resolution, and action execution into distinct processing stages.",
+    "Organizes functionality around specialized domain actions such as docstrings, packages, directories, and LLM contexts."
   ],
   "usage_guidance": [
-    "Use the core run and translation modules to initiate and configure snapshot workflows based on project requirements.",
-    "Rely on checkpoint utilities to track state and maintain execution history across workflow runs.",
-    "Configure file filters and target options using the provided models to scope snapshot operations accurately."
+    "Use the snapshot runner entry point to execute the complete workflow pipeline based on validated snapshot requests.",
+    "Leverage checkpoint mechanisms to resume or optimize pipeline execution based on file fingerprints and completed steps.",
+    "Configure snapshot actions and filters using the provided option and filter models."
   ]
 }

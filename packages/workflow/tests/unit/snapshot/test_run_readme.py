@@ -10,6 +10,11 @@ from gyomu_workflow.snapshot.checkpoint import (
 from gyomu_workflow.snapshot.run_readme import run_readme_action
 from returns.result import Failure, Success
 
+from packages.workflow.test_support.helper import (
+    create_fingerprints,
+    create_snapshot_target,
+)
+
 
 @pytest.mark.asyncio
 async def test_run_readme_action_success(
@@ -34,16 +39,18 @@ async def test_run_readme_action_success(
     updated_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.PACKAGE_CONCEPT,),
+        fingerprints=create_fingerprints(),
     )
     update_checkpoint = mocker.patch(
         "gyomu_workflow.snapshot.run_readme.update_checkpoint",
         return_value=Success(updated_checkpoint),
     )
-
+    target = create_snapshot_target()
     result = await run_readme_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Success)
@@ -58,6 +65,7 @@ async def test_run_readme_action_success(
         checkpoint=checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.README,
+        target=target,
     )
 
 
@@ -84,11 +92,13 @@ async def test_run_readme_action_returns_failure_when_build_fails(
     update_checkpoint = mocker.patch(
         "gyomu_workflow.snapshot.run_readme.update_checkpoint"
     )
+    target = create_snapshot_target()
 
     result = await run_readme_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Failure)
@@ -124,10 +134,12 @@ async def test_run_readme_action_returns_failure_when_snapshot_update_fails(
         "gyomu_workflow.snapshot.run_readme.update_checkpoint"
     )
 
+    target = create_snapshot_target()
     result = await run_readme_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Failure)
@@ -165,10 +177,12 @@ async def test_run_readme_action_returns_failure_when_checkpoint_update_fails(
         return_value=Failure(error),
     )
 
+    target = create_snapshot_target()
     result = await run_readme_action(
         current_checkpoint=checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Failure)
@@ -178,6 +192,7 @@ async def test_run_readme_action_returns_failure_when_checkpoint_update_fails(
         checkpoint=checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.README,
+        target=target,
     )
 
 
@@ -191,6 +206,7 @@ async def test_run_readme_action_skips_when_completed_and_files_exist(
     completed_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.README,),
+        fingerprints=create_fingerprints(),
     )
 
     output_file_path = mocker.Mock()
@@ -209,11 +225,13 @@ async def test_run_readme_action_skips_when_completed_and_files_exist(
     update_checkpoint = mocker.patch(
         "gyomu_workflow.snapshot.run_readme.update_checkpoint"
     )
+    target = create_snapshot_target()
 
     result = await run_readme_action(
         current_checkpoint=completed_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Success)
@@ -237,6 +255,7 @@ async def test_run_readme_action_regenerates_when_readme_file_is_missing(
     completed_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.README,),
+        fingerprints=create_fingerprints(),
     )
 
     existing_path = mocker.Mock()
@@ -265,16 +284,19 @@ async def test_run_readme_action_regenerates_when_readme_file_is_missing(
     updated_checkpoint = Checkpoint(
         package=checkpoint.package,
         completed_steps=(PipelineStep.README,),
+        fingerprints=create_fingerprints(),
     )
     update_checkpoint = mocker.patch(
         "gyomu_workflow.snapshot.run_readme.update_checkpoint",
         return_value=Success(updated_checkpoint),
     )
 
+    target = create_snapshot_target()
     result = await run_readme_action(
         current_checkpoint=completed_checkpoint,
         request=snapshot_request,
         option=concept_option,
+        target=target,
     )
 
     assert isinstance(result, Success)
@@ -288,4 +310,5 @@ async def test_run_readme_action_regenerates_when_readme_file_is_missing(
         checkpoint=completed_checkpoint,
         request=snapshot_request,
         status_to_add=PipelineStep.README,
+        target=target,
     )

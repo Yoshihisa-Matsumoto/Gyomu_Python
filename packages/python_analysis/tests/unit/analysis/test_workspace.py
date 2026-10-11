@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 from gyomu_python_analysis.analysis.workspace import (
+    enumerate_workspace_target_files,
     find_root,
     get_uv_workspace_members,
     initialize_workspace_context,
@@ -10,10 +11,11 @@ from gyomu_python_analysis.analysis.workspace import (
     read_pyproject_toml,
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.workspace import WorkspaceRootKind
+from gyomu_python_analysis.project.workspace import WorkspaceRoot, WorkspaceRootKind
 from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 from python_analysis_test_support.helpers import (
+    MONOREPO_FIXTURES_ROOT,
     TEST_SUPPORT_ROOT,
 )
 from returns.result import Failure, Success
@@ -224,3 +226,21 @@ class TestInitializeWorkspaceContext:
 
         assert project.path == Path(".")
         assert project.config.path == Path(".")
+
+
+class TestEnumerateWorkspaceTargetFiles:
+    def test_includes_knowledge_files(self, project_path: Path) -> None:
+
+        result = initialize_workspace_context(
+            root=WorkspaceRoot(
+                path=MONOREPO_FIXTURES_ROOT, kind=WorkspaceRootKind.UV_WORKSPACE
+            )
+        )
+
+        assert isinstance(result, Success)
+
+        context = result.unwrap()
+
+        result = enumerate_workspace_target_files(context)
+
+        assert result == (WorkspaceRelativePath(Path(".gyomu/knowledge/Coding.yaml")),)

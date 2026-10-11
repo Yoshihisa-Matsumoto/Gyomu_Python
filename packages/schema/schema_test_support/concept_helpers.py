@@ -15,6 +15,10 @@ from gyomu_schema.schemas.concept.file_summary import (
     FileSummary,
     PublicDeclarationSummary,
 )
+from gyomu_schema.schemas.concept.llm_context.input import (
+    LlmContextBuildContext,
+    LlmKnowledge,
+)
 from gyomu_schema.schemas.concept.package.analysis import (
     DirectoryAnalysis,
     DirectoryAnalysisFact,
@@ -618,3 +622,29 @@ def create_document_base_context(
     knowledge: Knowledge = create_knowledge(),  # noqa: B008
 ) -> DocumentBaseContext:
     return DocumentBaseContext(analysis=analysis, concept=concept, knowledge=knowledge)
+
+
+def create_llm_knowledge(
+    package: Package = create_package(),  # noqa: B008
+    technical: Technical = create_technical(),  # noqa: B008
+    development: Development = create_development(),  # noqa: B008
+    roadmap: Roadmap | None = create_roadmap(),  # noqa: B008
+    coding_guideline: CodingGuideline = create_coding_guideline(),  # noqa: B008
+) -> LlmKnowledge:
+    return LlmKnowledge(
+        package=package,
+        technical=technical,
+        development=development,
+        roadmap=roadmap,
+        coding_guideline=coding_guideline,
+    )
+
+
+def create_llm_context_build_context(
+    analysis: PackageAnalysis = create_package_analysis__default(),  # noqa: B008
+    concept: PackageConcept = create_package_concept(),  # noqa: B008
+    knowledge: LlmKnowledge = create_llm_knowledge(),  # noqa: B008
+) -> LlmContextBuildContext:
+    return LlmContextBuildContext(
+        analysis=analysis, concept=concept, knowledge=knowledge
+    )

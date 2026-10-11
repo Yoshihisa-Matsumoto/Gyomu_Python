@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.concept.base import Knowledge
 from gyomu_schema.schemas.document.content import (
     BulletList,
     BulletListItem,
@@ -18,7 +18,7 @@ from gyomu_schema.schemas.document.section import (
 from gyomu_concept.document.translation.document import TranslatedDocument
 
 
-def render_markdown[TSectionId: str, TContext: DocumentBaseContext](
+def render_markdown[TSectionId: str, TKnowledge: Knowledge, TContext](
     context: TContext,
     plan: TranslatedDocument[TSectionId],
     get_title: Callable[[TContext], str],

@@ -1,0 +1,20 @@
+{
+  "summary": "Manages LLM context generation by providing prompt providers and coordination logic for constructing conversation messages and document structures across multiple system sections.",
+  "responsibilities": [
+    "Provide LLM context prompts and integration points for building conversation structures from document context."
+  ],
+  "concepts": [
+    "LLM context",
+    "Prompt provider",
+    "Document context",
+    "Conversation messages"
+  ],
+  "relationships": [
+    "LLM context prompt provider utilizes rendering components to build conversation messages and structures from document context."
+  ],
+  "design_decisions": [
+    "Provides prompt provider variables for LLM context configuration.",
+    "Delegates message and structure rendering to child rendering components."
+  ],
+  "importance": "Core"
+}

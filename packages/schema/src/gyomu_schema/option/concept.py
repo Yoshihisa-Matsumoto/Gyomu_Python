@@ -14,6 +14,7 @@ class ConceptDebugInfoOption(AnalysisDebugInfoOption):
     package_concept: bool = False
     package_analysis: bool = False
     readme_sections: bool = False
+    llm_context_sections: bool = False
 
 
 @dataclass(frozen=True)

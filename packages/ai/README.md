@@ -4,19 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-The package serves as a robust AI execution framework for the Gyomu project, designed to provide a unified infrastructure for artificial intelligence integration. Its primary purpose is to absorb differences between various AI providers and SDKs, decoupling consuming packages from specific third-party implementations.
+Gyomu AI is a Python library that serves as the AI execution foundation for the Gyomu project, providing a unified, provider-agnostic abstraction layer over Pydantic AI. Its primary mission is to absorb differences across various AI providers and SDKs, ensuring that applications utilizing AI features do not depend directly on any single provider. 
 
-Built primarily around Pydantic AI, the framework establishes a standardized approach for runtime execution, model routing, and error management. By seamlessly mapping provider-specific constructs to consistent generation, streaming, and embedding results, it ensures reliable and consistent AI operations across the entire system.
+The package achieves this by delivering a consistent framework for execution runtimes, parameters, policies, tool execution, model registries, and dynamic model routing. By centralizing operations such as AI execution, model routing, retries, fallbacks, and error handling, it streamlines the development of robust and adaptable AI applications.
 
 ## Architecture
 
-The package is structured into collaborating components that divide responsibilities across provider integration, execution management, tool handling, error management, and model representation. 
+Gyomu AI is organized around a set of collaborating components that divide responsibilities across provider integration, execution management, tool handling, model definition, and error management. 
 
-The provider integration layer maps Pydantic AI models, agents, tools, prompts, and results into standard internal formats. It collaborates closely with the model representation component, which defines core data structures and identification keys for AI models used across the application.
+The provider integration component serves as the bridge to Pydantic AI, handling model registries, agent creation, prompt building, and the mapping of native constructs to standard formats. The execution runtime component manages the execution environment, runtime parameters, configuration policies, observers, and token usage statistics for text, object, and streaming generation. 
 
-An execution environment manages runtime contexts, parameters, configuration policies, observers, and result structures for operations like text generation, streaming, object generation, and embeddings. Execution parameter configurations and contexts support model invocation and tracking, while execution results capture outputs, metadata, and token usage.
-
-Domain logic for AI tool execution, configurations, and results is encapsulated separately, working alongside dedicated error handling modules. Application-specific error types and exceptions manage routing operations and public tool error handling to ensure robust execution across the framework.
+Supporting these operational layers, the tool component houses the core domain logic and result structures for tool execution, while the model component defines foundational AI model representations and identification keys. Finally, the error handling component manages application-specific exceptions, including dedicated routing errors, ensuring standardized error reporting across operations.
 
 ## Installation
 
@@ -28,23 +26,21 @@ uv add gyomu-ai
 
 ## Dependencies
 
-This project requires Pydantic AI version 2.x, as it is designed around Pydantic AI Version 2. 
-
-For runtime dependencies, the package utilizes Pydantic AI for LLM processing, `returns` for explicit success and failure handling using Success, Failure, and Result types, `gyomu-schema` for schemas and common types, and `gyomu-infra` for general infrastructure processing such as I/O.
+This package is designed for Pydantic AI version 2.x compatibility. For runtime operations, it relies on pydantic ai for general LLM processing, returns for explicit success and failure representation using Success, Failure, and Result, gyomu-schema for schemas and common types, and gyomu-infra for general infrastructure processing such as I/O.
 
 ## Development
 
-Contributors must strictly enforce the abstraction of AI provider-specific SDKs, ensuring that consuming packages interact exclusively through Gyomu's unified interfaces rather than depending directly on external providers. All AI request executions must route exclusively through the defined Routing mechanisms to maintain centralized control over model selection and execution paths. Architecture changes must preserve the mandatory application of defined Retry strategies for handling transient execution failures, as well as the seamless utilization of Fallback mechanisms to divert traffic to alternative execution routes whenever available.
+Contributors must strictly maintain the abstraction layer that decouples consumer packages from underlying AI provider SDKs. All AI interactions must flow exclusively through the defined Routing mechanisms rather than invoking provider-specific logic directly. Code additions must respect this boundary, ensuring that provider-specific result types are systematically mapped into standardized Gyomu results, and that underlying SDK changes remain internal to this execution infrastructure.
 
-Error handling design requires that all AI execution failures are treated as structured errors capable of retaining critical diagnostic information, including failure causes and execution phases. Contributors are strictly required to transform any provider-specific outputs into standard, unified result structures native to Gyomu. Any code additions must uphold these boundaries to guarantee that model registries, agent execution, context management, and tool configurations remain decoupled from underlying SDK specifics.
+Resilience and observability are mandatory requirements for any extensions to the execution pipeline. Temporary failures during AI execution must be intercepted and handled according to defined Retry strategies, while Fallback mechanisms must be seamlessly engaged to route requests to alternative execution paths when available. Furthermore, all execution failures must be caught and re-raised as structured errors that encapsulate comprehensive diagnostic details, including execution phases and root causes, to ensure predictable behavior across all integrated AI operations.
 
 ## Public API
 
-- Pydantic AI Integration - Integration layer mapping Pydantic AI models, agents, tools, prompts, and results to standard internal formats.
-- Execution Environment - Management of execution context, runtime parameters, configuration policies, observers, and result structures for AI operations.
-- AI Tool Execution - Core domain logic and definitions for AI tool execution, configurations, and public error handling.
-- Error Handling and Routing - Application-specific error types and exception handling for routing operations.
-- Model Representation - Core data structures and identification keys for AI models across the application.
+- AI Provider Integration - Integrates Pydantic AI models, registries, and agents with standardized error, result, and tool formats.
+- Execution Runtime Management - Manages execution contexts, runtime parameters, tool loop policies, observers, and token usage statistics for AI operations.
+- AI Tool Execution - Defines domain logic, configurations, and result structures for executing AI tools.
+- Model Routing and Configuration - Configures and executes dynamic model routing rules and routing error handling.
+- Core Domain Models - Defines core data structures for AI model representations and application-specific errors.
 
 ## License
 

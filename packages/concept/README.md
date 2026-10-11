@@ -4,15 +4,19 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-Gyomu Concept is a core architectural tool designed to analyze, build, and manage structured software project concepts, directories, and packages. Its primary purpose is to establish a structured project model that represents architectural designs, responsibilities, intent, and operational knowledge. 
+Gyomu Concept is a core Python package that structures project architecture, responsibilities, design intent, and operational knowledge. Its primary purpose is to build structured project models by combining code analysis with human-managed knowledge, serving as a shared knowledge representation for both humans and AI. 
 
-Rather than serving as a traditional document, the package bridges source code analysis with human-managed knowledge. This creates a unified knowledge representation that can be utilized effectively by both humans and AI. 
-
-Leveraging dedicated builders and context management, the system utilizes these structured concepts and accumulated knowledge to seamlessly generate, translate, and render comprehensive project documentation and README files.
+The package is responsible for constructing directory and package concepts and utilizing this structured information to generate project documentation and LLM contexts. It provides a modular framework encompassing document building, translation, section assembly, and markdown rendering, all supported by domain-specific error handling.
 
 ## Architecture
 
-The Gyomu Concept package is organized around collaborating components that divide responsibilities into conceptual modeling, documentation generation, and error handling. Package and directory management components handle the structural analysis, loading, saving, and processing of source code concepts, including dependency collection and file summary records. Documentation generation is managed by dedicated components that initialize base contexts, translate assets, and render structured outputs asynchronously. These generation workflows are supported by specialized builders that construct elements such as sections and bullet lists, alongside README orchestration utilities that configure project documentation. Additionally, a dedicated error handling component defines domain-specific exceptions and phase classifications to manage faults across conceptual execution phases.
+The package is organized around collaborating components that divide responsibilities into domain analysis, document generation, and error management. Core logic is structured to separate filesystem and package-level abstractions from output rendering. 
+
+Project structure analysis is handled by dedicated components that build, process, load, save, and manage directory concepts, file summary records, and package dependencies. These internal mechanisms handle path resolution and state persistence to supply accurate structural data.
+
+The document generation framework collaborates with specialized builders, context initializers, and markdown renderers to compile project overviews, such as README files and LLM contexts. Asynchronous section builders process enabled sections and translations to assemble the final output. 
+
+Finally, a dedicated error-handling component classifies exceptions using domain-specific error classes and execution phase definitions, ensuring robust error management across both concept analysis and document building workflows.
 
 ## Installation
 
@@ -24,22 +28,24 @@ uv add gyomu-concept
 
 ## Dependencies
 
-This package relies on several runtime dependencies to function. The `returns` package is used for explicit success and failure expression using Success, Failure, and Result. 
+This package relies on several runtime dependencies for its core functionality. It uses `returns` for explicit success and failure representation via Success, Failure, and Result, while `gyomu-schema` serves as the repository for schemas and common types. 
 
-For schemas and common types, the package depends on `gyomu-schema`. General infrastructure processing such as I/O relies on `gyomu-infra`, while LLM processing for creating README and concept documentation utilizes `gyomu-ai-compiler`.
+Additionally, the package utilizes `gyomu-infra` for general infrastructure processing such as I/O operations, and `gyomu-ai-compiler` to handle LLM processing when creating READMEs and concepts.
 
 ## Development
 
-Contributors must maintain a strict separation between source code analysis, Concept construction, and documentation generation, treating them as independent responsibilities. The Concept model itself must remain decoupled from specific document formats and output languages, serving purely as a structured knowledge model that merges source code analysis with human-managed Knowledge. To ensure portability and prevent tight coupling, any AI-driven processing must be executed exclusively through `gyomu-ai-compiler`, avoiding direct dependencies on specific AI providers or models. 
+Contributors must treat the Concept as a structured knowledge model that represents project architecture, responsibilities, design intent, and operational knowledge without depending on specific document formats or output languages. Because the Concept functions as a shared knowledge representation for both humans and AI, it must be constructed by combining source code analysis results with human-managed Knowledge, while keeping source code analysis, Concept construction, and document generation strictly independent as separate responsibilities. Furthermore, different granularities of Concepts—such as Package and Directory concepts—must be managed distinctly according to their specific responsibilities.
 
-Within this architecture, Concept definitions must encapsulate document-specific configurations, such as translation methods for document content, rather than embedding these rules into execution logic. Contributors are responsible for managing Concepts across varying granularities—such as Directory Concepts and Package Concepts—tailoring each to its specific structural responsibility. When building documentation, contributors must ensure that the generator treats Concepts and Knowledge strictly as input data, transforming them into the required target structures without polluting the core knowledge model.
+When implementing AI-driven processes, contributors must execute them exclusively through `gyomu-ai-compiler` to prevent direct dependencies on AI providers or specific models. Document-specific definitions, such as the translation methods for document content, must be explicitly expressed on the Concept side rather than embedded within AI execution logic. During document generation, the system must treat Concepts and Knowledge purely as inputs to transform into document-specific structures, ensuring domain-specific error management and phase classifications are properly applied for robust error handling across all build, processing, dependency collection, and persistence operations.
 
 ## Public API
 
-- Directory Concept Management - Builds, processes, loads, and saves structured conceptual representations of source code directories and their file summaries.
-- Package Concept Management - Analyzes, builds, loads, saves, and processes package-level concepts and their dependency collections.
-- Documentation Generation and Rendering - Generates, translates, renders, and constructs structured documentation and sections asynchronously using definitions and contexts.
-- README Orchestration - Orchestrates the generation and configuration of project README files with specialized builders for overview, architecture, dependencies, and development sections.
+- Document Generation Framework - Defines document generation structures, base contexts, renderers, models, and asynchronous building blocks for documentation and project overviews.
+- Directory Concept Management - Builds, processes, loads, saves, and manages directory concepts and file summary records from filesystem paths.
+- Package Analysis and Concepts - Handles package-level analysis, concept building, dependency collection, path resolution, and internal state persistence.
+- README Generation - Provides specialized document definitions, contexts, section builders, and markdown renderers for generating project README files.
+- LLM Context Generation - Supplies specialized document definitions, contexts, section builders, and markdown renderers for compiling LLM context files.
+- Domain Error Handling - Defines domain-specific error classes, exception types, and phase classifications for error handling across concepts and document building.
 
 ## License
 

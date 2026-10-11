@@ -1,0 +1,24 @@
+{
+  "summary": "Responsible for building distinct thematic sections used in LLM context generation, including architecture, design principles, editing rules, constraints, navigation, overview, and package responsibilities.",
+  "responsibilities": [
+    "Construct specific thematic sections for LLM context generation such as architecture, design principles, editing rules, important constraints, navigation, overview, and package responsibilities."
+  ],
+  "concepts": [
+    "Section builders",
+    "LLM context sections",
+    "Architecture section",
+    "Design principles",
+    "Editing rules",
+    "Important constraints",
+    "Navigation section",
+    "Overview section",
+    "Package responsibilities"
+  ],
+  "relationships": [
+    "Section builders construct individual components of the LLM context including architecture, design principles, editing rules, important constraints, navigation, overview, and package responsibilities."
+  ],
+  "design_decisions": [
+    "Modular function-based section construction"
+  ],
+  "importance": "Supporting"
+}

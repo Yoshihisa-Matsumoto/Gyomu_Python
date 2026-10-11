@@ -1,41 +1,40 @@
 {
-  "summary": "The gyomu-docstring package automates the generation, updating, merging, and formatting of code docstrings. It provides core capabilities for analyzing source code contexts, planning and merging documentation changes, rendering formatted docstring sections, and validating the resulting code against quality and linting standards.",
+  "summary": "Gyomu-docstring is a core package responsible for automating the generation, updating, merging, and validation of docstrings in source files. It provides robust mechanisms for building code contexts, planning symbol updates with retry support, rendering structured docstring components, and validating the resulting code using external formatters and linters.",
   "responsibilities": [
-    "Manage the end-to-end lifecycle of automated docstring generation, updates, and merges within source files.",
-    "Model docstring structures, sections, and line-level representations.",
-    "Validate update plans, target signatures, and modified source code.",
-    "Handle errors specific to docstring update failures with phase-aware exception types."
+    "Manage and execute docstring updates and merges for Python files.",
+    "Build structured contexts and plans for declarations requiring documentation.",
+    "Render and format docstring sections, lines, and tags.",
+    "Validate updated code sources and handle update-specific errors."
   ],
   "capabilities": [
     {
       "name": "Docstring Context Analysis",
-      "description": "Constructs structured representations of source files, declarations, and existing documentation to serve as the foundation for docstring updates."
+      "description": "Constructs file and declaration contexts to identify documentable code targets and dependencies."
     },
     {
       "name": "Update and Merge Planning",
-      "description": "Plans and executes fine-grained additions, deletions, replacements, and semantic merges of docstring sections and symbols."
+      "description": "Plans, builds, and retries docstring updates and conflict resolution merges."
     },
     {
-      "name": "Docstring Rendering",
-      "description": "Renders docstring components, tags, and formatted lines into valid documentation strings."
+      "name": "Docstring Rendering Engine",
+      "description": "Formats and renders docstring lines, tags, and strings according to specification."
     },
     {
-      "name": "Validation and Quality Control",
-      "description": "Validates docstring update plans, signatures, and resulting source code integrity using external formatting and linting tools."
+      "name": "Execution and Validation",
+      "description": "Executes file updates and validates resulting code using formatting and linting tools."
     },
     {
-      "name": "Error Handling",
-      "description": "Provides custom exception definitions and phase tracking specifically for docstring update operations."
+      "name": "Error Management",
+      "description": "Defines specialized error types and handling for docstring update failures."
     }
   ],
   "design_decisions": [
-    "Organizes update logic into explicit phases: context building, plan generation, merging, rendering, and validation.",
-    "Employs dedicated data structures to model docstring lines, sections, merge actions, and conflict resolution.",
-    "Integrates external code formatters and linters (such as ruff) to verify and enforce code quality on updated sources."
+    "Encapsulates update planning, merging, and rendering within structured internal modules.",
+    "Separates raw docstring representation from execution and validation logic.",
+    "Leverages external linting and formatting tools to ensure validity of modified source files."
   ],
   "usage_guidance": [
-    "Use the main update entry points to orchestrate end-to-end docstring analysis, planning, and file application.",
-    "Leverage the validation facilities to ensure generated docstring updates conform to expected code formatting and linting rules.",
-    "Handle `UpdateError` exceptions to catch and diagnose failures occurring during specific update phases."
+    "Use the update processing pipeline to execute automated docstring modifications on target source files.",
+    "Rely on built-in validation and linting integrations to ensure modified files adhere to style and correctness standards."
   ]
 }

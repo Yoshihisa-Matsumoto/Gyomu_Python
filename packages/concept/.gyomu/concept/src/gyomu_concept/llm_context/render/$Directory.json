@@ -1,0 +1,17 @@
+{
+  "summary": "Provides functionality to render LLM context data into structured text formats, specifically focusing on Markdown output generation.",
+  "responsibilities": [
+    "Render LLM context data into specific output formats such as Markdown"
+  ],
+  "concepts": [
+    "LLM context",
+    "Markdown rendering"
+  ],
+  "relationships": [
+    "Markdown rendering transforms LLM context data into Markdown format"
+  ],
+  "design_decisions": [
+    "Modular rendering implementation separated into format-specific modules"
+  ],
+  "importance": "Core"
+}

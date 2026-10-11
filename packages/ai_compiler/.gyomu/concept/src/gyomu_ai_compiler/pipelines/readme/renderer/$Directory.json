@@ -1,0 +1,20 @@
+{
+  "summary": "Renders and builds conversation messages, user data structures, and prompt mappings for generating different sections of a README file within the pipeline.",
+  "responsibilities": [
+    "Builds conversation messages and structures user data for generating various sections of a README file, including architecture, technical dependencies, development information, and overviews."
+  ],
+  "concepts": [
+    "architecture generation",
+    "dependencies documentation",
+    "development messages",
+    "overview generation",
+    "section prompt map"
+  ],
+  "relationships": [
+    "The section module maps README section identifiers to specific prompt builders such as architecture, dependencies, development, and overview generation."
+  ],
+  "design_decisions": [
+    "Uses message builders and user data structures to construct conversation prompts for different README sections."
+  ],
+  "importance": "Core"
+}

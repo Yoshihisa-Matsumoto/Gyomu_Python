@@ -52,7 +52,7 @@ def translate_snapshot_request(
         return Failure(
             GyomuError(
                 message="project not found",
-                operation="package searc",
+                operation="package search",
                 domain="gyomu snapshot",
                 reason="invalid_input",
             )
@@ -73,5 +73,6 @@ def translate_snapshot_request(
             project_context=project_context,
             option=option,
             project=target_package,
+            workspace=workspace_context,
         )
     )

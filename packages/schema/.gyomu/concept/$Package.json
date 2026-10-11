@@ -1,40 +1,40 @@
 {
-  "summary": "gyomu-schema provides canonical data models, validation rules, and schemas for the Gyomu ecosystem, focusing on Python code analysis structures, structured documents and translation strategies, domain error handling, and knowledge management definitions.",
+  "summary": "gyomu-schema provides canonical data models, structural schemas, and validation rules for representing Python AST analysis, structured documents, project knowledge bases, and robust error-handling strategies.",
   "responsibilities": [
-    "Define canonical data schemas and validation models for the Gyomu ecosystem.",
-    "Model Python code structures and AST components for static analysis and transformation tasks.",
-    "Provide structured document definitions and translation configuration models.",
-    "Establish standardized error handling, recovery, and logging structures across application layers."
+    "Define canonical data schemas and type models for Python code analysis, structured documentation, and project knowledge.",
+    "Provide standardized error definitions, fault-tolerance options, and retry resolution strategies.",
+    "Offer helper utilities and validation routines for data serialization, format conversion, and execution monitoring."
   ],
   "capabilities": [
     {
-      "name": "Python Code Analysis Schemas",
-      "description": "Comprehensive data models for representing Python code structures, AST expressions, statements, types, and module analyses."
+      "name": "Python AST and Type Models",
+      "description": "Models Python Abstract Syntax Tree (AST) expressions, statements, types, and code structure elements for analysis."
     },
     {
-      "name": "Document and Translation Schemas",
-      "description": "Schemas, validation rules, and translation strategies for structured documents, sections, and content elements."
+      "name": "Structured Document Models",
+      "description": "Defines structured document models, elements, validation rules, and translation strategies."
+    },
+    {
+      "name": "Project Knowledge Schemas",
+      "description": "Provides domain-specific schemas for representing project knowledge, guidelines, operational details, and technical references."
     },
     {
       "name": "Error Handling and Recovery Schemas",
-      "description": "Core domain-specific error handling classes, resolution strategies, and retry policies for application operations."
+      "description": "Defines comprehensive application error hierarchies, retry policies, and resolution strategies across operations."
     },
     {
-      "name": "Knowledge Management Schemas",
-      "description": "Schemas for representing developer-oriented operational knowledge, coding guidelines, roadmaps, and technical references."
-    },
-    {
-      "name": "Utility and Serialization Framework",
-      "description": "Serialization, validation, execution timing, and asynchronous/synchronous outcome utilities."
+      "name": "Serialization and Utility Framework",
+      "description": "Provides utility functions for serialization, format validation, timing, execution wrapping, and file system operations."
     }
   ],
   "design_decisions": [
-    "Utilizes Pydantic data models extensively for runtime type validation, serialization, and schema definition.",
-    "Organizes schemas hierarchically by domain (Python structures, documents, errors, knowledge, and system configurations).",
-    "Provides robust error handling and recovery abstractions with explicit retry and fallback strategies."
+    "Leverages Pydantic models for robust validation, serialization, and schema definition of complex domain objects.",
+    "Organizes schemas hierarchically by domain (Python analysis, documents, knowledge, errors) to maintain clear separation of concerns.",
+    "Employs discriminated unions and typed structures to precisely represent heterogeneous AST nodes and document content elements."
   ],
   "usage_guidance": [
-    "Import schema models and validation tools directly from the appropriate domain submodules (e.g., Python AST models, document structures, or error definitions).",
-    "Utilize provided serialization and conversion utilities to validate and map data against Pydantic model definitions."
+    "Import specific domain schemas (such as Python AST types, document contents, or knowledge models) from their respective submodules to validate or structure data.",
+    "Utilize provided validation and serialization utilities to convert and check data against the defined Pydantic models.",
+    "Implement error handling and retry mechanisms using the pre-defined error classes and recovery resolution strategies."
   ]
 }
