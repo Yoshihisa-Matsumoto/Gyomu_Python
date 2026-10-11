@@ -26,6 +26,8 @@ async def run_directory_action(
         current_checkpoint (Checkpoint): The current execution checkpoint.
         request (SnapshotRequest): The snapshot request containing project context and
             options.
+        target (SnapshotTarget): The snapshot target representing the directory
+            generation action.
         option (ConceptOption): The concept option for directory generation.
 
     Returns:

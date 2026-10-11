@@ -134,6 +134,10 @@ class SnapshotRequest:
     Workspace project.
     """
     workspace: WorkspaceContext
+    """Workspace context.
+
+    Workspace context.
+    """
 
 
 class SnapshotTarget(BaseModel):

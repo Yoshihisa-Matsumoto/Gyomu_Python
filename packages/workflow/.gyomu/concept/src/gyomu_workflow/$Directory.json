@@ -1,15 +1,21 @@
 {
-  "summary": "Manages snapshot workflows, handling execution, validation, checkpointing, and target resolution within the workflow package.",
+  "summary": "Implements the snapshot workflow pipeline for Gyomu Workflow, managing checkpoints, request validation, target resolution, and executing various actions such as docstrings, packages, and LLM contexts.",
   "responsibilities": [
-    "Manage snapshot workflow execution, validation, checkpointing, and target resolution"
+    "Manages the execution of the snapshot workflow pipeline, including request translation, validation, checkpoint tracking, target resolution, and running specific actions like docstrings, directories, LLM context, packages, and READMEs."
   ],
   "concepts": [
-    "Snapshot Workflows",
-    "Workflow Execution",
-    "Checkpoint Management",
-    "Target Resolution"
+    "snapshot workflow pipeline",
+    "checkpoint management",
+    "request validation",
+    "target resolution",
+    "workflow actions"
   ],
-  "relationships": [],
-  "design_decisions": [],
+  "relationships": [
+    "The snapshot execution runner coordinates checkpoint loading, target resolution, validation, and action execution."
+  ],
+  "design_decisions": [
+    "Modular implementation of snapshot workflow actions including docstrings, directories, LLM context, packages, and READMEs.",
+    "State tracking via checkpoints and input fingerprints across pipeline steps."
+  ],
   "importance": "Core"
 }

@@ -80,6 +80,8 @@ def test_snapshot_success(mocker: MockerFixture, snapshot_request: SnapshotReque
             "test",
         ],
     )
+    print(f"output:\n{result.output}")
+    print(f"exception: {result.exception!r}")
 
     assert result.exit_code == 0
 

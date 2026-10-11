@@ -156,6 +156,21 @@ async def run_docstring_actions(
     request: SnapshotRequest,
     target: SnapshotTarget,
 ) -> Result[SnapshotActionResult, GyomuError]:
+    """Run docstring actions for snapshot workflow.
+
+    Executes docstring actions for project files as part of the snapshot workflow.
+
+    Args:
+        current_checkpoint (Checkpoint): The current pipeline checkpoint.
+        request (SnapshotRequest): The snapshot request containing configuration and
+            action options.
+        target (SnapshotTarget): The snapshot target specifying files and changes to
+            process.
+
+    Returns:
+        Result[SnapshotActionResult, GyomuError]: A Result containing the updated
+            SnapshotActionResult on success or a GyomuError on failure.
+    """
     context = caller_context()
     option = build_docstring_update_option(request.option.action.docstring.log_keyword)
     if PipelineStep.DOCSTRING not in current_checkpoint.completed_steps:

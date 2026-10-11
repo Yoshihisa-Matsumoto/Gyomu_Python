@@ -28,7 +28,8 @@ def resolve_snapshot_target(
         option (SnapshotTargetOption): Options for snapshot target resolution.
 
     Returns:
-        Result[SnapshotTarget, GyomuError]: A Result containing the resolved
+        Result[tuple[SnapshotTarget, AnalyzeProjectChangesResult], GyomuError]: A Result
+            containing the resolved
             SnapshotTarget or a GyomuError.
     """
     validation_result = validate_python_package_structure(project_context)

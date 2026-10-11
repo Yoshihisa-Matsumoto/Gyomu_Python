@@ -88,6 +88,7 @@ testpaths = [
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib"
 pythonpath = [
+    ".",
     "packages/python_analysis",
     "packages/docstring",
     "packages/ai_compiler",

@@ -31,42 +31,10 @@ app = typer.Typer()
 """Main Typer application instance for the CLI."""
 
 
-hello_app = typer.Typer()
-"""Secondary Typer application instance for hello commands."""
-
-app.add_typer(hello_app, name="hello")
-
-
 # @hello_app.command()
 @app.command()
 def greet(name: str = "World") -> None:
     """Greets the user with a hello message.
-
-    Args:
-        name (str): Name to greet.
-
-    Returns:
-        None: None
-    """
-    print(f"Hello, {name}!")
-
-
-@app.command()
-def greet2(name: str = "World") -> None:
-    """Greets the user with a hello message (secondary command).
-
-    Args:
-        name (str): Name to greet.
-
-    Returns:
-        None: None
-    """
-    print(f"Hello, {name}!")
-
-
-@hello_app.command("greet")
-def greet3(name: str = "World") -> None:
-    """Greets the user with a hello message under the hello app.
 
     Args:
         name (str): Name to greet.

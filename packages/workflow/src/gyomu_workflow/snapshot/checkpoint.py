@@ -24,6 +24,7 @@ class PipelineStep(StrEnum):
     """Defines the steps in the workflow pipeline."""
 
     DOCSTRING = "docstring"
+    """Docstring step."""
 
     DIRECTORY_CONCEPT = "directoryConcept"
     """Directory concept step."""
@@ -39,16 +40,29 @@ class PipelineStep(StrEnum):
 
 
 class InputFingerprint(BaseModel):
+    """Represents an input fingerprint with file paths and a hash."""
+
     paths: tuple[ProjectRelativePath, ...] | tuple[WorkspaceRelativePath, ...]
+    """File paths included in the fingerprint."""
+
     hash: str
+    """Hash representing the fingerprint contents."""
 
 
 class Fingerprints(BaseModel):
+    """Holds various fingerprints and deleted file records for input validation."""
+
     deleted_files: frozenset[ProjectRelativePath]
+    """Set of deleted project relative files."""
 
     source_fingerprint: InputFingerprint
+    """Fingerprint of source files."""
+
     project_fingerprint: InputFingerprint
+    """Fingerprint of project non-source files."""
+
     workspace_fingerprint: InputFingerprint
+    """Fingerprint of workspace target files."""
 
 
 class Checkpoint(BaseModel):
@@ -61,6 +75,7 @@ class Checkpoint(BaseModel):
     """Tuple of completed pipeline steps."""
 
     fingerprints: Fingerprints
+    """Fingerprints associated with the checkpoint."""
 
 
 @dataclass(frozen=True)
@@ -89,6 +104,8 @@ def _get_checkpoint_path(request: SnapshotRequest) -> FullPath:
 def _to_hash_error(
     err: GyomuIOError, path: WorkspaceRelativePath, caller: str
 ) -> GyomuError:
+    """Converts a file IO error into a GyomuError for hashing operations."""
+
     return GyomuError(
         message=f"fail to hash file: {path}",
         domain="snapshot",
@@ -102,6 +119,8 @@ def _calculate_workspace_hash(
     workspace_path: FullPath,
     paths: tuple[WorkspaceRelativePath, ...],
 ) -> Result[str, GyomuError]:
+    """Calculates a combined hash for workspace files."""
+
     files: list[tuple[Path, str]] = []
     caller = caller_context()
     for path in paths:
@@ -121,6 +140,8 @@ def _calculate_workspace_hash(
 def _get_workspace_fingerprint(
     request: SnapshotRequest,
 ) -> Result[InputFingerprint, GyomuError]:
+    """Retrieves the input fingerprint for the workspace."""
+
     files = enumerate_workspace_target_files(request.workspace)
     hash_result = _calculate_workspace_hash(
         workspace_path=request.workspace.path, paths=files
@@ -134,6 +155,8 @@ def _get_workspace_fingerprint(
 def _create_input_fingerprint(
     files: Iterable[tuple[ProjectRelativePath, str]],
 ) -> InputFingerprint:
+    """Creates an input fingerprint from a collection of file paths and hashes."""
+
     entries = tuple(sorted(files))
 
     return InputFingerprint(
@@ -145,6 +168,8 @@ def _create_input_fingerprint(
 def _get_fingerprint(
     request: SnapshotRequest, target: SnapshotTarget
 ) -> Result[Fingerprints, GyomuError]:
+    """Computes and retrieves fingerprints for the request and snapshot target."""
+
     snapshot = target.snapshot
     source_files = tuple(
         (file.project_relative_path, file.raw_hash)
@@ -216,6 +241,8 @@ def load_checkpoint(
 def _is_files_same(
     source: frozenset[ProjectRelativePath], target: frozenset[ProjectRelativePath]
 ) -> bool:
+    """Checks if two sets of project relative files are identical."""
+
     if len(source) != len(target):
         return False
     for file in source:
@@ -226,6 +253,8 @@ def _is_files_same(
 
 
 def _is_fingerprint_same(source: InputFingerprint, target: InputFingerprint) -> bool:
+    """Checks if two input fingerprints are identical."""
+
     if source.hash != target.hash:
         return False
 
@@ -240,6 +269,8 @@ def _unset_status(
     checkpoint: Checkpoint,
     unset_targets: tuple[PipelineStep, ...],
 ) -> None:
+    """Unsets specified pipeline steps from the checkpoint."""
+
     completed_steps = tuple(
         status for status in checkpoint.completed_steps if status not in unset_targets
     )
@@ -248,6 +279,9 @@ def _unset_status(
 
 
 def _update_fingerprints(checkpoint: Checkpoint, fingerprints: Fingerprints) -> None:
+    """Updates checkpoint fingerprints and resets completed steps if changes are
+    detected.
+    """
     if not _is_files_same(
         checkpoint.fingerprints.deleted_files, fingerprints.deleted_files
     ):

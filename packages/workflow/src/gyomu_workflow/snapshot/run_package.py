@@ -32,6 +32,7 @@ async def run_package_action(
             data.
         option (ConceptOption): The concept option configuration for building the
             package.
+        target (SnapshotTarget): The target snapshot element to update.
 
     Returns:
         Result[SnapshotActionResult, GyomuError]: A Result containing the
