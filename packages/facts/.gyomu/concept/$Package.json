@@ -1,25 +1,32 @@
 {
-  "summary": "The gyomu-facts package provides core analysis and directory ranking capabilities for evaluating software packages. It compiles package facts and computes directory importance scores to support automated architectural assessment.",
+  "summary": "The gyomu-facts package provides core analysis and directory ranking capabilities for software projects. It compiles package facts, calculates structural scores, and offers flexible directory selection options to evaluate codebase importance.",
   "responsibilities": [
-    "Compile and structure architectural facts about software packages.",
-    "Evaluate and rank directories based on importance and scoring criteria."
+    "Provide core analysis capabilities to extract and compile package facts.",
+    "Implement scoring and ranking algorithms to order project directories by importance.",
+    "Offer configurable selection options for targeting specific package areas."
   ],
   "capabilities": [
     {
       "name": "Package Analysis",
-      "description": "Analyze package structures and compile comprehensive package metadata and facts."
+      "description": "Compile comprehensive factual summaries and data models representing package structures."
     },
     {
       "name": "Directory Ranking",
-      "description": "Calculate scores and rank directories using configurable selection criteria."
+      "description": "Evaluate and score directories based on structural importance and configurable criteria."
+    },
+    {
+      "name": "Directory Selection",
+      "description": "Configure flexible strategies for filtering and selecting relevant target directories."
     }
   ],
   "design_decisions": [
-    "Leverages functional programming patterns and monadic error handling via the returns library.",
-    "Relies on shared infrastructure and schema definitions from sibling gyomu packages."
+    "Delegates core language-specific parsing and structural analysis to underlying analysis layers.",
+    "Employs functional error handling and result containers via external dependency integration.",
+    "Separates scoring logic from selection option configurations to maintain modularity."
   ],
   "usage_guidance": [
-    "Use package analysis modules to inspect and compile structural facts about target codebases.",
-    "Apply directory selection options and scoring functions to prioritize relevant source directories."
+    "Utilize the package analysis module to extract and compile factual data about target codebases.",
+    "Apply directory ranking functions with custom scoring criteria to prioritize structural components.",
+    "Combine directory selection options to tailor the scope of package evaluations."
   ]
 }
