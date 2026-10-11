@@ -1,42 +1,46 @@
 {
-  "summary": "The gyomu-infra package provides comprehensive core infrastructure and utility components for the Gyomu system. It delivers robust data processing capabilities including CSV parsing with Pydantic integration, filesystem and stream operations, database persistence via SQLAlchemy repositories and transaction management, and specialized domain services like business calendars and parameter resolution.",
+  "summary": "Gyomu Infrastructure (gyomu-infra) is a core infrastructure package providing robust utilities and services for file and stream I/O, structured CSV processing, filesystem manipulation, and database persistence via SQLAlchemy. It also encapsulates domain-specific infrastructure concerns such as business calendar calculations, market holiday repositories, and parameter translation services.",
   "responsibilities": [
-    "Provide infrastructure and utility services supporting data parsing, storage, and domain logic.",
-    "Manage persistent data access via SQLAlchemy repositories, connections, and transactions.",
-    "Implement core domain-specific services including business calendars, parameters, and variable translation.",
-    "Offer robust file system, stream processing, and archive management tools."
+    "Provide core infrastructure and utility components for data parsing, file handling, and stream processing.",
+    "Implement persistence operations, database connections, and transaction management using SQLAlchemy.",
+    "Support domain-specific calculations and translations including business calendars, holidays, and variable resolution.",
+    "Provide system integration helpers such as logging, process execution, configuration loading, and hashing."
   ],
   "capabilities": [
     {
       "name": "CSV Data Processing",
-      "description": "Read, parse, serialize, and configure CSV data handling integrated with Pydantic data models."
+      "description": "Read, write, and parse structured CSV data and configuration models using Pydantic validation."
     },
     {
-      "name": "Filesystem Utilities",
-      "description": "Provide robust filesystem utilities for file I/O, searching, enumeration, and access management."
+      "name": "Filesystem Operations",
+      "description": "Provide robust file system operations including file I/O, searching, enumeration, and exclusive access handling."
     },
     {
-      "name": "Database Management",
-      "description": "Manage database connections, SQLAlchemy repository patterns, transactions, and error handling."
+      "name": "Stream Processing",
+      "description": "Support lazy stream processing and byte stream I/O utilities for handling pipeline data."
     },
     {
-      "name": "Gyomu Domain Services",
-      "description": "Perform business calendar calculations, holiday services, parameter access, and variable translation."
+      "name": "Variable and Parameter Resolution",
+      "description": "Resolve and translate date and parameter placeholders to support dynamic execution context."
     },
     {
-      "name": "Core System Utilities",
-      "description": "Support general-purpose utilities including lazy stream processing, process execution, hashing, and archiving."
+      "name": "Business Calendar Services",
+      "description": "Perform business calendar calculations and market holiday services using cached repository instances."
+    },
+    {
+      "name": "Database Infrastructure",
+      "description": "Manage relational database connections, transactions, and SQLAlchemy-backed repository models."
     }
   ],
   "design_decisions": [
-    "Leverages Pydantic for data validation and schema mapping across CSV parsing and database entities.",
-    "Implements standard repository patterns and transaction managers using SQLAlchemy for database interactions.",
-    "Provides functional error handling and lazy evaluation paradigms using libraries like returns."
+    "Leverages SQLAlchemy as the persistence layer with explicit transaction management and repository patterns.",
+    "Integrates Pydantic for robust data validation across configuration and structured file parsing.",
+    "Utilizes functional error handling and lazy evaluation patterns via the returns library and record streams.",
+    "Encapsulates domain-specific logic such as business calendars, parameter masters, and market holidays within structured infrastructure modules."
   ],
   "usage_guidance": [
-    "Use the CSV modules for reading and writing validated Pydantic records from and to CSV files or strings.",
-    "Leverage the filesystem and stream utilities for safe file handling, text/JSON I/O, and lazy stream processing.",
-    "Utilize SQLAlchemy-based repositories and transaction managers for interacting with underlying databases.",
-    "Incorporate business calendar and parameter access services for date-driven domain logic and variable resolution."
+    "Import file I/O, CSV parsing, and stream processing utilities from their respective submodules for data ingestion and export pipelines.",
+    "Utilize SQLAlchemy repositories, transaction managers, and connection factories for interacting with relational databases safely and consistently.",
+    "Leverage the business calendar and variable translation modules when implementing date-sensitive domain operations and parameter resolution."
   ]
 }

@@ -22,6 +22,16 @@ def sha256(value: str | bytes) -> str:
 
 
 def hash_object(target: object) -> str:
+    """Compute the SHA-256 hash of an object.
+
+    Compute the SHA-256 hash of a JSON-serialized object.
+
+    Args:
+        target (object): The object to serialize and hash.
+
+    Returns:
+        str: The hexadecimal digest of the SHA-256 hash.
+    """
     payload = json.dumps(target, ensure_ascii=False, separators=(",", ":"))
     return sha256(payload)
 
