@@ -164,18 +164,18 @@ class TestResolveSnapshotTarget:
 
         target = result.unwrap()
 
-        assert target.files == frozenset(
+        assert target[0].files == frozenset(
             {
                 diff[0].project_relative_path,
                 diff[1].project_relative_path,
             }
         )
-        assert target.deleted_files == frozenset(
+        assert target[0].deleted_files == frozenset(
             {
                 diff[2].project_relative_path,
             }
         )
-        assert target.snapshot == current_snapshot
+        assert target[0].snapshot == current_snapshot
 
         analyze_project_changes.assert_called_once_with(
             repository_root_path=repository_root_path,
@@ -300,13 +300,13 @@ class TestResolveSnapshotTarget:
 
         target = result.unwrap()
 
-        assert target.files == frozenset(
+        assert target[0].files == frozenset(
             {
                 ProjectRelativePath(Path("foo.py")),
             }
         )
-        assert target.deleted_files == frozenset()
-        assert target.snapshot == current_snapshot
+        assert target[0].deleted_files == frozenset()
+        assert target[0].snapshot == current_snapshot
 
     # def test_resolve_snapshot_target_with_file_filter_does_not_analyze_snapshot(
     #     self,
