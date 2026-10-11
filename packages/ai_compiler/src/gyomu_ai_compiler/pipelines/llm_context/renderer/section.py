@@ -32,3 +32,6 @@ LLM_CONTEXT_SECTION_PROMPT_MAP: Mapping[
     "important-constraints": build_important_constraints_messages,
     "editing-rules": build_editing_rule_messages,
 }
+"""Mapping from LLM context section IDs to their corresponding prompt builder
+functions.
+"""

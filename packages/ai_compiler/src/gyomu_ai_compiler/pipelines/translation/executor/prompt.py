@@ -18,6 +18,11 @@ from gyomu_ai_compiler.prompts.load import load_prompt
 def format_validation_issues(
     validation_result: ValidationResult | None,
 ) -> str:
+    """Formats validation issues into a readable string for prompts.
+
+    Returns:
+        str: Formatted validation issues string.
+    """
     if validation_result is None or validation_result.is_valid:
         return ""
 

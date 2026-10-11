@@ -27,6 +27,19 @@ class UserData(BaseModel):
 def build_overview_messages(
     context: LlmContextBuildContext,
 ) -> Result[ConversationSchema, GyomuIOError]:
+    """Build overview messages for LLM context generation.
+
+    Builds the overview conversation messages from the provided LLM context build
+    context.
+
+    Args:
+        context (LlmContextBuildContext): The LLM context build context containing
+            project knowledge and concept summary.
+
+    Returns:
+        Result[ConversationSchema, GyomuIOError]: A Result containing the
+            ConversationSchema upon success or GyomuIOError upon failure.
+    """
     prompt_result = load_prompt(name="llm_context/overview-generate.md")
     if isinstance(prompt_result, Failure):
         return prompt_result

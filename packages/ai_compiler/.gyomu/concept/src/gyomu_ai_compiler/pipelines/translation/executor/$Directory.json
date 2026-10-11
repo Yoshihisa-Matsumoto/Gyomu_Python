@@ -1,0 +1,23 @@
+{
+  "summary": "Provides execution logic for translation pipelines, including document content translation with retry support, temporary state management, prompt construction, and validation handling.",
+  "responsibilities": [
+    "Executes document content translation with retry support and state management",
+    "Builds translation prompts and formats validation issues for document sections",
+    "Manages retry context and translation state during the execution process"
+  ],
+  "concepts": [
+    "Translation Execution",
+    "Retry Support",
+    "Translation Prompt",
+    "Translation State"
+  ],
+  "relationships": [
+    "Translation execution relies on prompt building for formatting validation issues and document sections",
+    "Translation execution uses content translation functions with retry support and state management"
+  ],
+  "design_decisions": [
+    "Handles translation retries and maximum attempt tracking",
+    "Uses temporary state dataclasses for translation context and validation results"
+  ],
+  "importance": "Core"
+}

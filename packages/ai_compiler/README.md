@@ -4,19 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-The package serves as the compilation and execution infrastructure for AI processing within the Gyomu project. Its primary mission is to translate AI processing definitions and contexts provided by upper-level packages into structured components such as routes, prompts, execution strategies, and validations, executing them consistently through gyomu-ai.
+The package serves as an AI processing compilation and execution infrastructure within the Gyomu ecosystem. Its primary mission is to translate AI processing definitions and contexts provided by upper-level packages into structured components such as routes, prompts, execution strategies, and validation mechanisms for consistent execution via gyomu-ai.
 
-To achieve this, the software provides specialized compilation pipelines dedicated to AI-driven code analysis and documentation generation. It establishes core data schemas, execution contexts, and renderers designed specifically for updating Python docstrings and analyzing package and directory concepts.
+The software provides a collection of AI compilation pipelines focused on automating developer documentation tasks, including docstring generation, README creation, document translation, and architectural concept compilation. It structures these automated workflows into modular components comprising schemas, context models, renderers, and execution logic.
 
 ## Architecture
 
-The package is organized around dedicated compilation pipelines that coordinate AI-driven code analysis and documentation generation. Responsibilities are divided into specialized pipeline domains and shared support components, separating data modeling, context management, and rendering tasks across the architecture.
+The package is organized around modular AI compilation pipelines that automate developer documentation tasks. Responsibilities are divided across collaborating components that handle structured data schemas, context models, prompt rendering, and execution logic.
 
-The docstring update pipeline handles Python documentation modifications through dedicated context and schema components. The context subsystems model declaration and file structures, while the schema components define deterministic update plans, actions, and reasoning for parameters, raises, and returns.
+Data structures and schemas define deterministic plans and actions for tasks such as docstring updates, while dedicated context models represent declarations and files during generation processes. Rendering components format conversation messages and prompts for LLM interactions across various document sections, including project overviews, architectural concepts, and README files. 
 
-Concurrently, the package concept pipeline processes directory and package structures. Its context components capture dependencies, public API symbols, and modules, while its renderer and input-building components synthesize this data into structured package analysis summaries. 
-
-Finally, a centralized prompt management component supplies prompt templates and base configurations to drive AI interactions uniformly across the compiler framework.
+Execution components drive specific workflows, such as document translation, by managing state, handling validations, and incorporating retry support. Together, these modular components collaborate to process source code inputs and generate structured, AI-driven documentation.
 
 ## Installation
 
@@ -28,19 +26,23 @@ uv add gyomu-ai-compiler
 
 ## Dependencies
 
-This package relies on several runtime dependencies to function. It uses the `returns` package for explicit success and failure expression through Success, Failure, and Result. Additionally, it requires `gyomu-schema` for schemas and common types, `gyomu-infra` for general infrastructure processing such as I/O, and `gyomu-ai` for LLM processing.
+This package requires the runtime dependencies `returns` for explicit success and failure representation using Success, Failure, and Result, as well as `gyomu-schema` for schemas and common types. 
+
+Additionally, it relies on `gyomu-infra` for general infrastructure processing such as I/O, and `gyomu-ai` for handling LLM processing.
 
 ## Development
 
-Contributors must strictly enforce the separation of concerns by ensuring that AI models and providers are never accessed directly; all AI interactions must go through the execution mechanisms of `gyomu-ai`. Furthermore, AI tasks must be identified exclusively through Routes, cleanly separating the functional content of the AI processing from the underlying model configurations. Inputs directed at the AI need to be structured as explicit Prompts that clearly articulate the required execution context, while all outputs must be rigorously validated against defined Schemas and Validators before any downstream utilization.
+Contributors must strictly adhere to abstraction boundaries by routing all AI processing exclusively through `gyomu-ai`, ensuring that Provider-specific logic never leaks into the compiler. AI tasks must be decoupled from underlying model configurations by relying strictly on Route identifiers for task distinction. Furthermore, all inputs must be explicitly structured as Prompts containing necessary execution contexts, while outputs require mandatory validation via defined Schemas and Validators before consumption.
 
-To maintain system resilience and diagnostic clarity, execution retries must be strictly governed by defined Retry strategies, and any operational failures must be handled as structured Errors carrying critical diagnostic information such as the exact cause and execution phase. All necessary transformations, context tracking, and assembly logic for AI processing must reside entirely within the Compiler components. Contributors are strictly prohibited from introducing Provider-specific logic or bypassing the established compilation pipelines, thereby preserving a uniform, decoupled execution architecture across the package.
+Execution resilience and error management must follow standardized architectural controls. Contributors are required to use defined Retry strategies to govern execution retries and must handle all processing failures as structured Errors that retain diagnostic details such as failure causes and execution phases. Finally, all necessary transformations and component assemblies for AI processing must occur entirely within the Compiler layer, maintaining Pipelines as modular, reusable components across workflows.
 
 ## Public API
 
-- Docstring Generation and Updates - Defines structured schemas and execution plans for deterministic AI-driven code docstring updates, including replacement actions, parameter changes, raises, and returns.
-- Package and Directory Analysis - Processes package-level and directory-level concepts, synthesizing public API symbols, dependencies, and code structure into structured inputs and analysis summaries.
-- Prompt Management - Manages and loads prompt templates and base configurations to drive AI compilation tasks.
+- Docstring Update Generation - Builds deterministic AI plans, actions, and schemas for automatically updating function, method, and class docstrings.
+- LLM Context Rendering - Renders and formats conversation messages and prompts for generating LLM context across various document sections.
+- README Documentation Generation - Constructs prompts, user data structures, and message flows for automatically generating project README documentation.
+- Document Translation Execution - Executes document translation pipelines with built-in validation handling, retry support, and state management.
+- Package and Directory Compilation - Analyzes and compiles high-level package and directory architectural concepts from source code inputs.
 
 ## License
 

@@ -1,0 +1,18 @@
+{
+  "summary": "Provides prompt definitions and pipeline integration for generating and rendering README documentation sections.",
+  "responsibilities": [
+    "Provides prompts and handles section-based rendering for generating README files within the compiler pipeline."
+  ],
+  "concepts": [
+    "README generation",
+    "prompt provider",
+    "section prompt"
+  ],
+  "relationships": [
+    "The README pipeline coordinates prompt provision and section rendering to generate documentation files."
+  ],
+  "design_decisions": [
+    "Uses prompt providers and message builders to structure conversation prompts for README file generation."
+  ],
+  "importance": "Core"
+}

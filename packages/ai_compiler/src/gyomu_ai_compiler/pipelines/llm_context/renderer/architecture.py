@@ -30,6 +30,8 @@ class DirectorySummary(BaseModel):
 
 
 class UserData(BaseModel):
+    """Defines user data containing a list of directory summaries."""
+
     directories: list[DirectorySummary]
     """List of directory summaries."""
 
@@ -40,8 +42,8 @@ def build_architecture_messages(
     """Builds architecture conversation messages from document context.
 
     Args:
-        context (DocumentBaseContext): Document base context containing project analysis
-            and concept information.
+        context (LlmContextBuildContext): Document base context containing project
+            analysis\nand concept information.
 
     Returns:
         Result[ConversationSchema, GyomuIOError]: A result containing the conversation

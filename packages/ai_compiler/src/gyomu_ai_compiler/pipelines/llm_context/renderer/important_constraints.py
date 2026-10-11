@@ -14,40 +14,84 @@ from gyomu_ai_compiler.prompts.load import load_prompt
 
 @dataclass
 class Package:
+    """Represents package facts including responsibilities and capabilities."""
+
     responsibilities: list[str]
+    """List of package responsibilities."""
+
     capabilities: list[CapabilityConcept]
+    """List of capability concepts."""
 
 
 @dataclass
 class DependencyFacts:
+    """Represents dependency facts including runtime dependencies."""
+
     runtime_dependencies: list[str]
+    """List of runtime dependencies."""
 
 
 @dataclass
 class PublicApiFacts:
+    """Represents public API facts including exported symbol count."""
+
     exported_symbol_count: int
+    """Total count of exported symbols."""
 
 
 @dataclass
 class ArchitectureFacts:
+    """Represents architectural facts for a directory including responsibilities,
+    relationships, and design decisions.
+    """
+
     directory: str
+    """Directory path string."""
+
     responsibilities: list[str]
+    """List of directory responsibilities."""
+
     relationships: list[str]
+    """List of directory relationships."""
+
     design_decisions: list[str]
+    """List of architectural design decisions."""
 
 
 @dataclass
 class ConstraintsInput:
+    """Input data structure containing human constraints, package facts, dependency
+    facts, public API facts, and architecture facts.
+    """
+
     human_constraints: tuple[str, ...]
+    """Tuple of human-defined constraints."""
+
     package_facts: Package
+    """Package facts container."""
+
     dependency_facts: DependencyFacts
+    """Dependency facts container."""
+
     public_api_facts: PublicApiFacts
+    """Public API facts container."""
+
     architecture_facts: list[ArchitectureFacts]
+    """List of architecture facts per directory."""
 
 
 def build_important_constraints_messages(
     context: LlmContextBuildContext,
 ) -> Result[ConversationSchema, GyomuIOError]:
+    """Builds important constraints conversation messages from context.
+
+    Args:
+        context (LlmContextBuildContext): Context used to build the LLM context.
+
+    Returns:
+        Result[ConversationSchema, GyomuIOError]: Result containing the conversation
+            schema or a Gyomu IO error.
+    """
     prompt_result = load_prompt(name="llm_context/important-constraints.md")
     if isinstance(prompt_result, Failure):
         return prompt_result
@@ -102,6 +146,15 @@ def build_important_constraints_messages(
 def _render_constraint_input_markdown(
     input: ConstraintsInput,
 ) -> Result[str, GyomuIOError]:
+    """Renders constraint input data into markdown.
+
+    Args:
+        input (ConstraintsInput): Constraints input data structure.
+
+    Returns:
+        Result[str, GyomuIOError]: Result containing the rendered markdown string or a
+            Gyomu IO error.
+    """
     prompt_result = load_prompt(name="llm_context/important-constraints-input.md")
     if isinstance(prompt_result, Failure):
         return prompt_result
@@ -132,6 +185,14 @@ def _render_constraint_input_markdown(
 
 
 def _dump_architecture_fact(fact: ArchitectureFacts) -> str:
+    """Dumps architecture facts into a markdown string.
+
+    Args:
+        fact (ArchitectureFacts): Architecture facts instance to dump.
+
+    Returns:
+        str: Formatted markdown string representing the architecture facts.
+    """
     return f"""## {fact.directory}
 
 Responsibilities

@@ -10,16 +10,31 @@ from gyomu_ai_compiler.prompts.load import load_prompt
 
 
 class UserData(BaseModel):
+    """Represents user data containing policies, constraints, and rationale."""
+
     policies: tuple[str, ...]
+    """Collection of policies."""
 
     constraints: tuple[str, ...]
+    """Collection of constraints."""
 
     rationale: tuple[str, ...]
+    """Collection of rationales."""
 
 
 def build_design_principles_messages(
     context: LlmContextBuildContext,
 ) -> Result[ConversationSchema, GyomuIOError]:
+    """Builds design principles conversation messages.
+
+    Args:
+        context (LlmContextBuildContext): The LLM context build context containing
+            package knowledge.
+
+    Returns:
+        Result[ConversationSchema, GyomuIOError]: A Result containing the
+            ConversationSchema on success or GyomuIOError on failure.
+    """
     prompt_result = load_prompt(name="llm_context/design-principles.md")
     if isinstance(prompt_result, Failure):
         return prompt_result

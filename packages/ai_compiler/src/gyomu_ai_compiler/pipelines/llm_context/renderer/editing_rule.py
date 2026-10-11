@@ -11,13 +11,28 @@ from gyomu_ai_compiler.prompts.load import load_prompt
 
 
 class UserData(BaseModel):
+    """Represents user data containing coding rules and forbidden patterns."""
+
     rules: tuple[CodingRule, ...]
+    """Tuple of coding rules."""
+
     forbidden: tuple[str, ...]
+    """Tuple of forbidden patterns or strings."""
 
 
 def build_editing_rule_messages(
     context: LlmContextBuildContext,
 ) -> Result[ConversationSchema, GyomuIOError]:
+    """Builds editing rule messages from the LLM context.
+
+    Args:
+        context (LlmContextBuildContext): The LLM context build context containing
+            knowledge and configuration.
+
+    Returns:
+        Result[ConversationSchema, GyomuIOError]: A result containing the conversation
+            schema or an IO error.
+    """
     prompt_result = load_prompt(name="llm_context/editing-rule.md")
     if isinstance(prompt_result, Failure):
         return prompt_result
