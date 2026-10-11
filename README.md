@@ -1,80 +1,127 @@
-*This package is originally developed in C#, and now try to migrate into Python version
-
 # Gyomu
-Gyomu, which means Enterprise or Operation in Japanese, is used in enterprise.
-The purpose of this library is 
-1. Shorten development time through framework
-2. Shorten troubleshooting in testing or in production 
 
-This library won't be used by library itself. It's used with RDB ( Now Postgres & MSSQL is supported )
+US English | [JP 日本語](README.ja.md)
 
-This library contains lots of function, but major functionality would be
-* Error handling / Logging
-* Various Parameter management
-* Task management
-* Milestone management
-* Others
+> **Stop maintaining docs & tests manually. Own your AI coding harness with Python.**
 
-# Error handling / Logging
-All status/ log to be stored in database
-Based on setting, status/log to be sent via email.
-Like log4net, etc, there are several logging type, such as Info / Warning / Business Notification / IT Error.
-For IT error, the status/log contains stack trace so that developer could resolve issue very quickly.
-The error is sent via email promptly so it doesn't take time to search inside log file.
+[![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-When you use this framework, at least all public method should return StatusCode object.
-StatusCode object contains error/log information and when it's instantiated, it would be recorded in DB and be sent via email if necessary.
+**Gyomu** is a repository-centric, open AI agent system that automates and maintains **Python docstring generation, directory/package-level design concept extraction, and multilingual README creation**.
 
-StatusCode's id is Int (32bit)
-1st 12bit is ApplicationID which must be unique per your library
-2nd 4bit is logging type, such as Info / Warning / Business Notification / IT Error.
-Remaining 16bit is Error ID which must be unique within your library.
-Combining these number lead to uniqueness among all libraries.
+Gyomu also generates and maintains LLM Context documents that capture architectural knowledge, design principles, editing rules, and important project constraints.
 
-```Python
+In the future, Gyomu aims to extend its capabilities to automatically update and maintain related development assets alongside code changes, including test code synchronization and correction.
+
+Instead of locking your agent's feedback loops inside black-box AI provider platforms, Gyomu keeps your context, evaluation, and knowledge right inside your repository as human-readable artifacts, including YAML knowledge files, Python docstrings, and tests.
+
+This project is organized as a monorepo.
+
+**Documentation for packages outside the root package, including Python docstrings and README.md files, is automatically generated and maintained by Gyomu.**
+
+---
+
+## Requirements
+
+- Python 3.13+
+- [uv](https://docs.astral.sh/uv/) for dependency management
+- An AI provider API key for LLM-powered generation
+
+Gyomu is designed to minimize development costs and support workflows that can operate within free-tier AI service limits, depending on the selected provider, model, and usage.
+
+---
+
+## ⚡ Demos
+
+### 1. Multi-language README Generation
+
+Generates and maintains multilingual READMEs based on your codebase structure, extracted package concepts, and lightweight YAML knowledge files.
+
+![Multi-language README Generation Demo](docs/assets/readme-generation-demo.gif)
+
+### 2. Automated Docstring & Context Extraction
+
+Analyzes Python code and generates docstrings, directory/package-level design concepts, and LLM Context documents to keep documentation aligned with the implementation.
+
+![Docstring Generation Demo](docs/assets/tsdoc-generation-demo.gif)
+
+---
+
+## 💡 Why This Project?
+
+### 1. Escape the "Docs & Tests Maintenance Hell"
+
+High-quality AI-assisted coding requires up-to-date docstrings, architectural context, and robust test suites. However, manually maintaining them is one of the most tedious and time-consuming tasks for developers.
+
+By delegating documentation generation and maintenance to an agent, **developers can focus more of their energy on creative coding and system design**.
+
+Gyomu's long-term goal is to extend this approach to development assets such as tests, helping keep implementation and verification in sync.
+
+### 2. Platform-Agnostic "Open Harness"
+
+AI coding tools increasingly provide their own integrated feedback loops for planning, testing, and fixing code.
+
+Gyomu takes a repository-centric approach: your rules, domain concepts, architectural knowledge, and development context remain in your repository as inspectable artifacts.
+
+This keeps your project knowledge under your control and helps reduce dependence on any single AI provider.
+
+### 3. Built with Python's Type System and Explicit Dependencies
+
+Gyomu uses Python's type system, strict static type checking, and explicit dependency injection to make its workflows easier to understand, test, and maintain.
+
+Its AI infrastructure supports retry policies, model routing, and fallback mechanisms. Pydantic provides schema validation at data boundaries, while `returns` provides explicit `Result`, `Success`, and `Failure` values for error handling.
+
+The result is a modular agent system designed for predictable workflows and maintainable code.
+
+---
+
+## 🛠 Tech Stack
+
+- **Language:** Python 3.13+
+- **Package & Environment Management:** [uv](https://docs.astral.sh/uv/)
+- **Data Validation:** [Pydantic](https://docs.pydantic.dev/)
+- **Explicit Error Handling:** [returns](https://returns.readthedocs.io/)
+- **Static Type Checking:** [mypy](https://mypy.readthedocs.io/)
+- **Linting:** [Ruff](https://docs.astral.sh/ruff/)
+- **Testing:** [pytest](https://docs.pytest.org/)
+- **AI Integration:** Pydantic AI and supported LLM providers
+- **Configuration & Knowledge:** YAML, Python docstrings, and repository structure
+
+---
+
+## 🤝 Looking for Collaborators!
+
+We welcome contributors who share this vision:
+
+- 💡 **Python Architecture Enthusiasts:** Help us build maintainable, strictly typed AI agent workflows.
+- 🧪 **Test & Context Pioneers:** Help us develop intelligent workflows that keep code, documentation, and tests in sync.
+- 🌐 **Prompt & i18n Engineers:** Improve multilingual generation prompts, knowledge schemas, and documentation quality.
+
+### How to Join
+
+- Join the conversation in [GitHub Discussions](https://github.com/Yoshihisa-Matsumoto/Gyomu_Python/discussions).
+- Check out [Good First Issues](https://github.com/Yoshihisa-Matsumoto/Gyomu_Python/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to start contributing.
+
+---
+
+## 📖 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/Yoshihisa-Matsumoto/Gyomu_Python.git
+cd gyomu_python
+
+# Install dependencies
+uv sync
+
+# Run the CLI
+uv run gyomu --help
 ```
-This is example of how to set StatusCode's id.
-Regarding CODE_GEN function's argument
-* ApplicationID
-* logging type
-* Error ID
-* Summary
-* Detail
 
-Your assigned ApplicationID must be registered in DB table, apps_info_cdtbl. apps_info_cdtbl column would be ApplicationID.
-1-4095 can be assigned and 1 is already used in Gyomu library.
-I would recommend you to set some rule by yourselves, such as common library would be <= 99, business logic library would be >=100 <500, Server side like web library would be >=500 <2000, GUI would be >=2000 or something like that.
+See the CLI help for available commands and options.
 
-Email recipient information need to be setup per ApplicationID on status_handler table. You can set To / CC address on this table.
+---
 
+## 📜 License
 
-# Various Parameter management
-
-In most programs, we tend to put external parameter on 
-* Configuration file
-* Environment Variables
-
-And I believe this is very difficult to manage for proper environment.
-Sometimes, parameter must be different per user, must be different per machine, etc.
-
-In this framework, parameter would be saved in database.
-Using Json serialization, mostly any kind of data to be parameterized easily.
-
-Also this parameterization supports several kind of encoding/encryption
-* Base64 Encoding
-* AES Encryption
-* User specific encryption ( This is not supported in Python version so far)
-
-Base64 encoding can be used for easy masking.
-It's easy to be decoded, but at a glance, we can't see raw value.
-
-AES Encryption can be used for storing DB connection string, etc
-
-User specific encryption can be used for personal password.
-The encrypted value can be decrypted only by encrypted user.
-
-
-This example stores/retrieves string list parameter
-
-```Python
-```
+MIT
