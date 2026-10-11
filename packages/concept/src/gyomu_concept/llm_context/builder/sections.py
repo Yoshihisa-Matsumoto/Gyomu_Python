@@ -27,3 +27,4 @@ LLMCONTEXT_SECTION_BUILDERS: tuple[
     build_editing_rules,  # bullet-list + AI buildSectionObject
     build_navigation,  # paragraph
 )
+"""Tuple of section builders used to construct the LLM context."""

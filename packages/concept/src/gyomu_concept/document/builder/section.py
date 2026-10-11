@@ -52,14 +52,8 @@ class SectionBuilder[TSectionId: str, TContext]:
 def _get_translation_strategy(
     content: DocumentContent,
 ) -> DocumentContentTranslationStrategy[Any]:
-    """Retrieves the appropriate translation strategy for a given document content type.
-
-    Args:
-        content (DocumentContent): Document content to get the strategy for
-
-    Returns:
-        DocumentContentTranslationStrategy[Any]: Translation strategy corresponding to
-            the content kind
+    """Retrieves the appropriate translation strategy for a given document content
+    type.
     """
     match content.kind:
         case DocumentContentType.PARAGRAPH:
@@ -78,14 +72,6 @@ def _create_built_section[TSectionId: str](
 ) -> BuiltSection[TSectionId]:
     """Creates a built section from an input section with instruction and translation
     definition.
-
-    Args:
-        input (SectionWithInstruction[TSectionId]): Section with instruction input
-        translation (SectionTranslationDefinition): Translation definition for the
-            section
-
-    Returns:
-        BuiltSection[TSectionId]: Constructed built section instance
     """
     if isinstance(translation, SectionNoTranslation):
         return BuiltSection(section=input.section, translation=translation)
@@ -105,18 +91,7 @@ async def build_sections[TSectionId: str, TContext](
     builders: tuple[SectionBuilder[TSectionId, TContext], ...],
     option: ConceptOption | None = None,
 ) -> Result[tuple[BuiltSection[TSectionId], ...], DocumentBuilderError]:
-    """Builds all enabled sections using the provided section builders.
-
-    Args:
-        context (TContext): Context used by the section builders
-        builders (tuple[SectionBuilder[TSectionId, TContext], ...]): Tuple of section
-            builders to execute
-        option (ConceptOption | None): Optional concept options
-
-    Returns:
-        Result[tuple[BuiltSection[TSectionId], ...], DocumentBuilderError]: Result
-            containing a tuple of built sections or a document builder error
-    """
+    """Builds all enabled sections using the provided section builders."""
 
     sections: list[BuiltSection[TSectionId]] = []
     for builder in builders:

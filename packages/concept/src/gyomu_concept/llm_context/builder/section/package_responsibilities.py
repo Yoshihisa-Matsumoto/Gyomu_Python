@@ -13,11 +13,24 @@ from gyomu_concept.document.builder.section import SectionBuilder
 from gyomu_concept.error.document import DocumentBuilderError
 
 _section_id: LlmContextSectionId = "package-responsibilities"
+"""Internal section ID for package responsibilities."""
 
 
 async def _build(
     context: LlmContextBuildContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+    """Builds the package responsibilities section containing a bullet list of
+    responsibilities.
+
+    Args:
+        context (LlmContextBuildContext): Build context containing the concept
+            responsibilities.
+        option (ConceptOption | None): Optional concept options.
+
+    Returns:
+        Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]: A
+            result containing the section with instructions or a document builder error.
+    """
 
     return Success(
         SectionWithInstruction[LlmContextSectionId](
@@ -39,6 +52,14 @@ async def _build(
 
 
 def _enabled(_: LlmContextBuildContext) -> bool:
+    """Determines whether the package responsibilities section is enabled.
+
+    Args:
+        _ (LlmContextBuildContext): Build context.
+
+    Returns:
+        bool: True if enabled.
+    """
 
     return True
 
@@ -51,3 +72,4 @@ build_package_responsibilities: SectionBuilder[
     enabled=_enabled,
     build=_build,
 )
+"""Section builder for package responsibilities."""

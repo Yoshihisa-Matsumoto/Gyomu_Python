@@ -35,13 +35,21 @@ _llm_context_markdown_renderer = DocumentRenderer[
         )
     )
 )
+"""Internal markdown renderer for LLM context documents."""
+
 
 _filepath_resolver = FilepathResolver(
     resolve=(lambda context, _: context.project_root / "Context.md")
 )
+"""Internal filepath resolver for LLM context documents."""
 
 
 def _is_scope_of_debug(option: ConceptOption) -> bool:
+    """Checks whether the LLM context sections are in the debug scope.
+
+    Returns:
+        bool: True if LLM context sections are in debug scope, False otherwise.
+    """
     return option.debug_info.llm_context_sections
 
 
@@ -64,3 +72,4 @@ LLMCONTEXT_DOCUMENT_DEFINITION = DocumentDefinition[
     log_prefix="LLM-CONTEXT",
     is_scope_of_debug=_is_scope_of_debug,
 )
+"""Document definition for generating LLM context documentation."""

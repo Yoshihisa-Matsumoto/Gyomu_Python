@@ -16,11 +16,23 @@ from gyomu_concept.document.builder.section import SectionBuilder
 from gyomu_concept.error.document import DocumentBuilderError
 
 _section_id: LlmContextSectionId = "architecture"
+"""Section ID for the architecture section."""
 
 
 async def _build(
     context: LlmContextBuildContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+    """Asynchronously builds the architecture section of the LLM context.
+
+    Args:
+        context (LlmContextBuildContext): The LLM context build context.
+        option (ConceptOption | None): Optional concept options.
+
+    Returns:
+        Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]: A
+            Result containing the built architecture section with instructions or a
+            DocumentBuilderError.
+    """
 
     architecture_result = await build_section_item(
         _section_id, context, llm_context_prompt_provider
@@ -46,6 +58,14 @@ async def _build(
 
 
 def _enabled(_: LlmContextBuildContext) -> bool:
+    """Determines whether the architecture section is enabled.
+
+    Args:
+        _ (LlmContextBuildContext): The LLM context build context.
+
+    Returns:
+        bool: True if the section is enabled.
+    """
 
     return True
 
@@ -58,3 +78,4 @@ build_architecture: SectionBuilder[LlmContextSectionId, LlmContextBuildContext] 
         build=_build,
     )
 )
+"""Section builder configuration for the architecture section."""

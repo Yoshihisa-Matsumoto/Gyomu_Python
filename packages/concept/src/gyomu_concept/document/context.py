@@ -77,7 +77,8 @@ def initialize_document_base_context(
         option (ConceptOption | None): Optional concept configuration options.
 
     Returns:
-        Result[DocumentBaseContextResult, DocumentBuilderError]: A Result containing the
+        Result[DocumentBaseContextResult[Knowledge], DocumentBuilderError]: A Result
+            containing the
             DocumentBaseContextResult on success, or a DocumentBuilderError on failure.
     """
     caller = caller_context()

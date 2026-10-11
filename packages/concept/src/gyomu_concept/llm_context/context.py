@@ -24,6 +24,8 @@ from gyomu_concept.error.document import DocumentBuilderError
 def _wrap_error(
     error: BaseError, caller: str, context: ProjectContext
 ) -> DocumentBuilderError:
+    """Wrap an error into a DocumentBuilderError with context information."""
+
     return DocumentBuilderError(
         message="fail to initialize llm context base context",
         phase="context-build",
@@ -35,6 +37,9 @@ def _wrap_error(
 def initialize_llm_context_build_context(
     context: ProjectContext, option: ConceptOption | None = None
 ) -> Result[LlmContextBuildContext, DocumentBuilderError]:
+    """Initialize the LLM context build context with project information and coding
+    guidelines.
+    """
     caller = caller_context()
     base_result = initialize_document_base_context(context, option)
     if isinstance(base_result, Failure):

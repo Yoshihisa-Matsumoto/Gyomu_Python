@@ -19,7 +19,10 @@ from gyomu_concept.error.document import DocumentBuilderError
 
 
 class DocumentBuildContext(Protocol):
+    """Defines the document build context containing package analysis."""
+
     analysis: PackageAnalysis
+    """The package analysis instance."""
 
 
 async def generate_document[

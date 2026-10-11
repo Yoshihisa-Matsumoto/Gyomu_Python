@@ -22,6 +22,19 @@ _section_id: LlmContextSectionId = "overview"
 async def _build(
     context: LlmContextBuildContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+    """Build the overview section for the LLM context.
+
+    Builds the overview section for the LLM context.
+
+    Args:
+        context (LlmContextBuildContext): The LLM context build context.
+        option (ConceptOption | None): Optional concept options.
+
+    Returns:
+        Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]: A
+            Result containing the built overview section or a DocumentBuilderError on
+            failure.
+    """
 
     overview_result = await build_section_item(
         _section_id, context, llm_context_prompt_provider
@@ -46,6 +59,16 @@ async def _build(
 
 
 def _enabled(context: LlmContextBuildContext) -> bool:
+    """Check if the overview section is enabled.
+
+    Determines whether the overview section is enabled.
+
+    Args:
+        context (LlmContextBuildContext): The LLM context build context.
+
+    Returns:
+        bool: True if the section is enabled, False otherwise.
+    """
     return True
 
 
@@ -57,3 +80,7 @@ build_overview: SectionBuilder[LlmContextSectionId, LlmContextBuildContext] = (
         build=_build,
     )
 )
+"""Section builder for the overview section.
+
+Section builder configuration for the overview section.
+"""

@@ -16,11 +16,22 @@ from gyomu_concept.document.builder.section import SectionBuilder
 from gyomu_concept.error.document import DocumentBuilderError
 
 _section_id: LlmContextSectionId = "important-constraints"
+"""Identifier for the important constraints section."""
 
 
 async def _build(
     context: LlmContextBuildContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+    """Builds the important constraints section for the LLM context.
+
+    Args:
+        context (LlmContextBuildContext): The build context for the LLM context.
+        option (ConceptOption | None): Optional concept option configuration.
+
+    Returns:
+        Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]: A
+            result containing the section with instructions or a DocumentBuilderError.
+    """
 
     important_constraints_result = await build_section_item(
         _section_id, context, llm_context_prompt_provider
@@ -46,6 +57,14 @@ async def _build(
 
 
 def _enabled(context: LlmContextBuildContext) -> bool:
+    """Checks whether the important constraints section is enabled.
+
+    Args:
+        context (LlmContextBuildContext): The build context for the LLM context.
+
+    Returns:
+        bool: True if the section is enabled, otherwise false.
+    """
     return True
 
 
@@ -57,3 +76,4 @@ build_important_constraints: SectionBuilder[
     enabled=_enabled,
     build=_build,
 )
+"""Section builder for the important constraints section."""

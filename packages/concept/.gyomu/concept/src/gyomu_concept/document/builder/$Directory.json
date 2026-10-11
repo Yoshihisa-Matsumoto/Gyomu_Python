@@ -1,19 +1,19 @@
 {
-  "summary": "Provides document construction utilities and builders for generating structured elements like sections and bullet lists asynchronously.",
+  "summary": "The document builder directory provides components and functions for asynchronously building document sections and bullet lists, supporting translation and enablement definitions.",
   "responsibilities": [
-    "Construct document sections and bullet lists asynchronously.",
-    "Represent generated document schemas and items."
+    "Provides builder components for generating document sections and bullet lists asynchronously."
   ],
   "concepts": [
-    "bullet list",
-    "section builder",
-    "document generation"
+    "Document builder",
+    "Bullet list builder",
+    "Section builder"
   ],
   "relationships": [
-    "Generated bullet lists and sections participate in document builder processes."
+    "SectionBuilder utilizes translation and enablement definitions for document sections.",
+    "build_sections coordinates building all enabled sections using section builders."
   ],
   "design_decisions": [
-    "Asynchronous building functions are provided to generate document structures."
+    "Asynchronous building functions are provided for generating document components like bullet lists and sections."
   ],
   "importance": "Core"
 }

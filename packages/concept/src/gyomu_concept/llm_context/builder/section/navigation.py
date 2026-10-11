@@ -13,11 +13,25 @@ from gyomu_concept.document.builder.section import SectionBuilder
 from gyomu_concept.error.document import DocumentBuilderError
 
 _section_id: LlmContextSectionId = "navigation"
+"""Defines the section identifier for the navigation section."""
 
 
 async def _build(
     context: LlmContextBuildContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+    """Builds the navigation section containing an overview and links to package
+    documentation.
+
+    Args:
+        context (LlmContextBuildContext): The build context for the LLM context
+            document.
+        option (ConceptOption | None): Optional concept generation options.
+
+    Returns:
+        Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]: A
+            Result containing the navigation section with instructions or a document
+            builder error.
+    """
 
     return Success(
         SectionWithInstruction[LlmContextSectionId](
@@ -92,6 +106,15 @@ async def _build(
 
 
 def _enabled(context: LlmContextBuildContext) -> bool:
+    """Determines whether the navigation section is enabled.
+
+    Args:
+        context (LlmContextBuildContext): The build context for the LLM context
+            document.
+
+    Returns:
+        bool: True if the section is enabled, false otherwise.
+    """
     return True
 
 
@@ -103,3 +126,4 @@ build_navigation: SectionBuilder[LlmContextSectionId, LlmContextBuildContext] = 
         build=_build,
     )
 )
+"""Section builder instance for the navigation section."""

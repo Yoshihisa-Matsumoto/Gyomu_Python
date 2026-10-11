@@ -11,4 +11,14 @@ async def generate_llm_context_files(
     project: ProjectContext,
     option: ConceptOption | None = None,
 ) -> Result[None, DocumentBuilderError]:
+    """Generates LLM context files for the given project.
+
+    Args:
+        project (ProjectContext): The project context to generate context files for.
+        option (ConceptOption | None): Optional concept generation options.
+
+    Returns:
+        Result[None, DocumentBuilderError]: A Result indicating success with None or a
+            DocumentBuilderError on failure.
+    """
     return await generate_document(LLMCONTEXT_DOCUMENT_DEFINITION, project, option)

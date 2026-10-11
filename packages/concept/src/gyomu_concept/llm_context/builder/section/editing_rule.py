@@ -15,11 +15,22 @@ from gyomu_concept.document.builder.section import SectionBuilder
 from gyomu_concept.error.document import DocumentBuilderError
 
 _section_id: LlmContextSectionId = "editing-rules"
+"""Section identifier for editing rules."""
 
 
 async def _build(
     context: LlmContextBuildContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+    """Build the editing rules section.
+
+    Args:
+        context (LlmContextBuildContext): The context for building the LLM context.
+        option (ConceptOption | None): Optional concept options.
+
+    Returns:
+        Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]: The
+            built editing rules section or a document builder error.
+    """
 
     editing_rules_result = await build_bullet_list(
         _section_id, context, llm_context_prompt_provider
@@ -45,6 +56,14 @@ async def _build(
 
 
 def _enabled(_: LlmContextBuildContext) -> bool:
+    """Check if the editing rules section is enabled.
+
+    Args:
+        _ (LlmContextBuildContext): The context for building the LLM context.
+
+    Returns:
+        bool: True if the section is enabled, otherwise False.
+    """
 
     return True
 
@@ -57,3 +76,4 @@ build_editing_rules: SectionBuilder[LlmContextSectionId, LlmContextBuildContext]
         build=_build,
     )
 )
+"""Section builder for the editing rules section."""

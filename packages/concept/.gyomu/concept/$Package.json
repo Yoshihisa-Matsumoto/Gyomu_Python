@@ -1,35 +1,44 @@
 {
-  "summary": "Gyomu Concept is a core architectural tool for analyzing, building, and managing structured software project concepts, directories, and packages. It provides comprehensive capabilities for generating, translating, and rendering structured documentation and project README files using dedicated builders and context management.",
+  "summary": "Gyomu Concept is a core Python package responsible for analyzing project structures, managing directory and package concepts, and generating structured documentation such as project README files and LLM contexts. It provides a modular framework for document building, translation, section assembly, and markdown rendering backed by domain-specific error handling.",
   "responsibilities": [
-    "Model and process structural concepts for software packages and directories.",
-    "Generate structured documentation and markdown files from definitions and project contexts.",
-    "Manage project README generation and coordinate specialized section builders."
+    "Coordinate the generation, translation, and rendering of project documentation like READMEs and LLM contexts.",
+    "Manage directory and package concepts through building, processing, dependency collection, and persistence operations.",
+    "Provide domain-specific error management and phase classifications for robust application error handling."
   ],
   "capabilities": [
     {
+      "name": "Document Generation Framework",
+      "description": "Defines document generation structures, base contexts, renderers, models, and asynchronous building blocks for documentation and project overviews."
+    },
+    {
       "name": "Directory Concept Management",
-      "description": "Builds, processes, loads, and saves structured conceptual representations of source code directories and their file summaries."
+      "description": "Builds, processes, loads, saves, and manages directory concepts and file summary records from filesystem paths."
     },
     {
-      "name": "Package Concept Management",
-      "description": "Analyzes, builds, loads, saves, and processes package-level concepts and their dependency collections."
+      "name": "Package Analysis and Concepts",
+      "description": "Handles package-level analysis, concept building, dependency collection, path resolution, and internal state persistence."
     },
     {
-      "name": "Documentation Generation and Rendering",
-      "description": "Generates, translates, renders, and constructs structured documentation and sections asynchronously using definitions and contexts."
+      "name": "README Generation",
+      "description": "Provides specialized document definitions, contexts, section builders, and markdown renderers for generating project README files."
     },
     {
-      "name": "README Orchestration",
-      "description": "Orchestrates the generation and configuration of project README files with specialized builders for overview, architecture, dependencies, and development sections."
+      "name": "LLM Context Generation",
+      "description": "Supplies specialized document definitions, contexts, section builders, and markdown renderers for compiling LLM context files."
+    },
+    {
+      "name": "Domain Error Handling",
+      "description": "Defines domain-specific error classes, exception types, and phase classifications for error handling across concepts and document building."
     }
   ],
   "design_decisions": [
-    "Uses distinct modular boundaries for directories, packages, documentation, and README generation.",
-    "Employs an asynchronous builder pattern for constructing document sections and elements.",
-    "Integrates specialized analysis and AI compilation components to support concept and documentation generation."
+    "Uses structured document definitions with separate models, section builders, renderers, and filepath resolvers to allow modular and extensible documentation pipelines.",
+    "Separates concept representation and management (directories, packages) into dedicated internal persistence and processing modules.",
+    "Employs phase-classified domain errors to track failures accurately during concept processing and document building phases."
   ],
   "usage_guidance": [
-    "Use the package and directory modules to analyze, build, and process structural concepts across project paths.",
-    "Leverage the document and README modules to initialize build contexts and generate structured markdown documentation using asynchronous builders and custom definitions."
+    "Use the document framework and specialized builders (such as README and LLM context generators) to construct and render project documentation.",
+    "Utilize directory and package concept modules to analyze, build, process, and persist project structure metadata.",
+    "Handle operation failures using the provided domain-specific error classes and concept phases."
   ]
 }

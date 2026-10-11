@@ -15,11 +15,22 @@ from gyomu_concept.document.builder.section import SectionBuilder
 from gyomu_concept.error.document import DocumentBuilderError
 
 _section_id: LlmContextSectionId = "design-principles"
+"""Section ID for design principles."""
 
 
 async def _build(
     context: LlmContextBuildContext, option: ConceptOption | None = None
 ) -> Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+    """Builds the design principles section.
+
+    Args:
+        context (LlmContextBuildContext): LLM context build context
+        option (ConceptOption | None): Optional concept option
+
+    Returns:
+        Result[SectionWithInstruction[LlmContextSectionId], DocumentBuilderError]:
+            Result containing the section with instruction or a document builder error
+    """
 
     desing_principles_result = await build_bullet_list(
         _section_id, context, llm_context_prompt_provider
@@ -45,6 +56,14 @@ async def _build(
 
 
 def _enabled(_: LlmContextBuildContext) -> bool:
+    """Checks whether the design principles section is enabled.
+
+    Args:
+        _ (LlmContextBuildContext): LLM context build context
+
+    Returns:
+        bool: Always returns True
+    """
 
     return True
 
@@ -57,3 +76,4 @@ build_design_principles: SectionBuilder[LlmContextSectionId, LlmContextBuildCont
         build=_build,
     )
 )
+"""Section builder for the design principles section."""

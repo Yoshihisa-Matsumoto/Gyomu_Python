@@ -17,7 +17,8 @@ def initialize_readme_build_context(
         option (ConceptOption | None): Optional concept build options.
 
     Returns:
-        Result[DocumentBaseContext, DocumentBuilderError]: A Result containing the
+        Result[DocumentBaseContext[Knowledge], DocumentBuilderError]: A Result
+            containing the
             initialized DocumentBaseContext or a DocumentBuilderError on failure.
     """
     result = initialize_document_base_context(context, option)
