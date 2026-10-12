@@ -23,6 +23,10 @@ from packages.python_analysis.python_analysis_test_support.helpers import (
     create_file_snapshot,
     create_file_updated,
 )
+from packages.schema.schema_test_support.helpers import create_gyomu_io_error
+from packages.workflow.test_support.helper import (
+    create_py_project_structure_validation_errors,
+)
 
 
 class TestFilterIncludedFiles:
@@ -112,6 +116,10 @@ class TestResolveSnapshotTarget:
         self,
         mocker: MockerFixture,
     ) -> None:
+        mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            return_value=Success(None),
+        )
         diff = (
             create_file_added(
                 current=create_file_snapshot(
@@ -187,6 +195,10 @@ class TestResolveSnapshotTarget:
         self,
         mocker: MockerFixture,
     ) -> None:
+        mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            return_value=Success(None),
+        )
         analyze_project_changes = mocker.patch(
             "gyomu_workflow.snapshot.target.analyze_project_changes",
             return_value=Success(
@@ -237,6 +249,10 @@ class TestResolveSnapshotTarget:
         )
 
     def test_resolve_snapshot_target_with_file_filter(self, mocker) -> None:
+        mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            return_value=Success(None),
+        )
         included_files = frozenset(
             {
                 ProjectRelativePath(Path("foo.py")),
@@ -308,33 +324,6 @@ class TestResolveSnapshotTarget:
         assert target[0].deleted_files == frozenset()
         assert target[0].snapshot == current_snapshot
 
-    # def test_resolve_snapshot_target_with_file_filter_does_not_analyze_snapshot(
-    #     self,
-    #     mocker,
-    # ) -> None:
-    #     mocker.patch(
-    #         "gyomu_workflow.snapshot.target.analyze_project_changes",
-    #     )
-
-    #     project_context = MagicMock()
-    #     project_context.included_files = frozenset(
-    #         {
-    #             ProjectRelativePath(Path("foo.py")),
-    #         }
-    #     )
-
-    #     option = SnapshotTargetOption(
-    #         file_filter=FileFilter(pattern="foo.py"),
-    #     )
-
-    #     result = resolve_snapshot_target(
-    #         repository_root_path=MagicMock(),
-    #         project_context=project_context,
-    #         option=option,
-    #     )
-
-    #     assert isinstance(result, Success)
-
     def test_resolve_snapshot_target_wraps_analysis_error(self, mocker) -> None:
         analysis_error = AnalysisError(
             message="test",
@@ -342,7 +331,10 @@ class TestResolveSnapshotTarget:
             file_path=FullPath(Path("/tmp")),
             phase="snapshot",
         )
-
+        mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            return_value=Success(None),
+        )
         mocker.patch(
             "gyomu_workflow.snapshot.target.analyze_project_changes",
             return_value=Failure(analysis_error),
@@ -370,3 +362,157 @@ class TestResolveSnapshotTarget:
         assert error.reason == "external_failure"
         assert error.context == "gyomu_workflow.snapshot.target.resolve_snapshot_target"
         assert error.__cause__ == analysis_error
+
+    def test_resolve_snapshot_target_does_not_repair_when_structure_is_valid(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        validation_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            return_value=Success(None),
+        )
+        repair_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.repair_python_package_structure",
+        )
+        analyze_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.analyze_project_changes",
+            return_value=Success(
+                create_analyze_project_change(
+                    diff=(),
+                    current_snapshot=ProjectSnapshot(
+                        project_root=WorkspaceRelativePath(Path("/tmp")),
+                        files=tuple(),
+                    ),
+                )
+            ),
+        )
+
+        project_context = MagicMock()
+
+        result = resolve_snapshot_target(
+            repository_root_path=FullPath(Path("/tmp")),
+            project_context=project_context,
+            option=SnapshotTargetOption(),
+        )
+
+        assert isinstance(result, Success)
+        validation_mock.assert_called_once_with(project_context)
+        repair_mock.assert_not_called()
+        analyze_mock.assert_called_once()
+
+    def test_resolve_snapshot_target_repairs_and_revalidates_structure(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        validation_error = create_py_project_structure_validation_errors()
+        project_context = MagicMock()
+
+        validation_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            side_effect=[
+                Failure(validation_error),
+                Success(None),
+            ],
+        )
+        repair_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.repair_python_package_structure",
+            return_value=Success(None),
+        )
+        analyze_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.analyze_project_changes",
+            return_value=Success(
+                create_analyze_project_change(
+                    diff=(),
+                    current_snapshot=ProjectSnapshot(
+                        project_root=WorkspaceRelativePath(Path("/tmp")),
+                        files=tuple(),
+                    ),
+                )
+            ),
+        )
+
+        result = resolve_snapshot_target(
+            repository_root_path=FullPath(Path("/tmp")),
+            project_context=project_context,
+            option=SnapshotTargetOption(),
+        )
+
+        assert isinstance(result, Success)
+        assert validation_mock.call_count == 2
+        repair_mock.assert_called_once_with(
+            project_context=project_context,
+            errors=validation_error.errors,
+        )
+        analyze_mock.assert_called_once()
+
+    def test_resolve_snapshot_target_wraps_repair_error(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        validation_error = create_py_project_structure_validation_errors()
+        repair_error = create_gyomu_io_error()
+
+        mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            return_value=Failure(validation_error),
+        )
+        mocker.patch(
+            "gyomu_workflow.snapshot.target.repair_python_package_structure",
+            return_value=Failure(repair_error),
+        )
+        analyze_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.analyze_project_changes",
+        )
+
+        result = resolve_snapshot_target(
+            repository_root_path=FullPath(Path("/tmp")),
+            project_context=MagicMock(),
+            option=SnapshotTargetOption(),
+        )
+
+        assert isinstance(result, Failure)
+        error = result.failure()
+
+        assert isinstance(error, GyomuError)
+        assert error.domain == "snapshot"
+        assert error.operation == "resolve_snapshot_target"
+        assert error.reason == "external_failure"
+        assert error.__cause__ == repair_error
+        analyze_mock.assert_not_called()
+
+    def test_resolve_snapshot_target_fails_when_structure_remains_invalid(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        validation_error = create_py_project_structure_validation_errors()
+        project_context = MagicMock()
+
+        validation_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.validate_python_package_structure",
+            return_value=Failure(validation_error),
+        )
+        repair_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.repair_python_package_structure",
+            return_value=Success(None),
+        )
+        analyze_mock = mocker.patch(
+            "gyomu_workflow.snapshot.target.analyze_project_changes",
+        )
+
+        result = resolve_snapshot_target(
+            repository_root_path=FullPath(Path("/tmp")),
+            project_context=project_context,
+            option=SnapshotTargetOption(),
+        )
+
+        assert isinstance(result, Failure)
+        error = result.failure()
+
+        assert isinstance(error, GyomuError)
+        assert error.domain == "snapshot"
+        assert error.operation == "resolve_snapshot_target"
+        assert error.reason == "external_failure"
+        assert error.__cause__ == validation_error
+        assert validation_mock.call_count == 2
+        repair_mock.assert_called_once()
+        analyze_mock.assert_not_called()

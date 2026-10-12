@@ -8,6 +8,11 @@ from gyomu_workflow.snapshot.checkpoint import (
     InputFingerprint,
     PipelineStep,
 )
+from gyomu_workflow.snapshot.error import (
+    PyProjectStructureErrorKind,
+    PyProjectStructureValidationError,
+    PyProjectStructureValidationErrors,
+)
 from gyomu_workflow.snapshot.models import SnapshotTarget
 
 from packages.python_analysis.python_analysis_test_support.helpers import (
@@ -63,4 +68,26 @@ def create_checkpoint(
         package=package,
         completed_steps=completed_steps,
         fingerprints=fingerprints,
+    )
+
+
+def create_py_project_structure_validation_error(
+    kind: PyProjectStructureErrorKind = PyProjectStructureErrorKind.MISSING_INIT_FILE,
+    path: ProjectRelativePath = ProjectRelativePath(Path("src/foo")),  # noqa: B008
+    message: str = "test",
+) -> PyProjectStructureValidationError:
+    return PyProjectStructureValidationError(message=message, path=path, kind=kind)
+
+
+def create_py_project_structure_validation_errors(
+    errors: tuple[PyProjectStructureValidationError, ...] = (
+        create_py_project_structure_validation_error(),
+    ),
+    message: str = "Invalid structure on project",
+    project_name: str = "test-project",
+) -> PyProjectStructureValidationErrors:
+    return PyProjectStructureValidationErrors(
+        message=message,
+        project_name=project_name,
+        errors=errors,
     )

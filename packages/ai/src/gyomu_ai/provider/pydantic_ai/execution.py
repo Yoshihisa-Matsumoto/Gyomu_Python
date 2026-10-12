@@ -65,13 +65,13 @@ class PydanticAiModelExecution:
 
         match key:
             case AiModelKey.FAST:
-                return self._registry.fast(context)
+                return self._registry.fast.create_model(context)
             case AiModelKey.SMART:
-                return self._registry.smart(context)
+                return self._registry.smart.create_model(context)
             case AiModelKey.REASONING:
-                return self._registry.reasoning(context)
+                return self._registry.reasoning.create_model(context)
             case AiModelKey.VISION:
-                return self._registry.vision(context)
+                return self._registry.vision.create_model(context)
             case AiModelKey.EMBEDDING:
                 raise ValueError("Embedding model cannot be used for text generation")
 
@@ -332,7 +332,7 @@ class PydanticAiModelExecution:
     ) -> Result[AiEmbeddingResult, AiError]:
         """Generates embeddings for input values using an embedding model."""
 
-        embedder = self._registry.embedding(params.execution)
+        embedder = self._registry.embedding.create_embedder(params.execution)
         model_name: str = ""
         if isinstance(embedder.model, EmbeddingModel):
             model_name = embedder.model.model_name

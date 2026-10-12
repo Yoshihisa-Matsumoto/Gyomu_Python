@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from enum import StrEnum
 
 from gyomu_schema.error.base import BaseError
 from gyomu_schema.schemas.python.types import ProjectRelativePath
@@ -29,6 +30,11 @@ class SnapshotRequestValidationError(BaseError):
         self.actual = actual
 
 
+class PyProjectStructureErrorKind(StrEnum):
+    MISSING_INIT_FILE = "missing_init_file"
+    MISSING_PY_TYPED_FILE = "missing_py_typed_file"
+
+
 class PyProjectStructureValidationError(BaseError):
     """Raised when a pyproject structure validation error occurs.
 
@@ -39,6 +45,7 @@ class PyProjectStructureValidationError(BaseError):
         self,
         message: str,
         *,
+        kind: PyProjectStructureErrorKind,
         path: ProjectRelativePath,
         context: str | None = None,
         details: Mapping[str, object] | None = None,
@@ -48,6 +55,7 @@ class PyProjectStructureValidationError(BaseError):
             context=context,
             details=details,
         )
+        self.kind = kind
         self.path = path
 
 

@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from unittest.mock import AsyncMock, MagicMock, call
 
@@ -49,6 +50,12 @@ from pydantic_ai.models import Model
 from pydantic_ai.models.test import TestModel
 from returns.result import Failure, Success
 
+from packages.ai.ai_test_support.helper import (
+    create_pydantic_ai_embedder_definition,
+    create_pydantic_ai_model_definition,
+    create_pydantic_ai_model_registry,
+)
+
 
 @dataclass(frozen=True)
 class DummyOutput(BaseModel):
@@ -77,7 +84,7 @@ _retry_option = RetryOption(max_attempts=0)
 
 class TestPydanticAiModelExecution_SelectModel:
     @pytest.mark.parametrize(
-        ("key", "factory_name"),
+        ("key", "definition_name"),
         [
             (AiModelKey.FAST, "fast"),
             (AiModelKey.SMART, "smart"),
@@ -88,18 +95,29 @@ class TestPydanticAiModelExecution_SelectModel:
     def test_select_model(
         self,
         key: AiModelKey,
-        factory_name: str,
-        model_registry: PydanticAiModelRegistry,
+        definition_name: str,
     ) -> None:
-        execution = PydanticAiModelExecution(model_registry, _retry_option)
+        create_model = MagicMock(spec=Callable, return_value=MagicMock(spec=Model))
+        definition = create_pydantic_ai_model_definition(create_model)
 
+        match definition_name:
+            case "fast":
+                model_registry = create_pydantic_ai_model_registry(fast=definition)
+            case "smart":
+                model_registry = create_pydantic_ai_model_registry(smart=definition)
+            case "reasoning":
+                model_registry = create_pydantic_ai_model_registry(reasoning=definition)
+            case "vision":
+                model_registry = create_pydantic_ai_model_registry(vision=definition)
+            case _:
+                raise AssertionError(f"Unexpected definition name: {definition_name}")
+        execution = PydanticAiModelExecution(model_registry, _retry_option)
         context = MagicMock(spec=AiModelContext)
 
         model = execution._select_model(key, context)
 
-        factory = getattr(model_registry, factory_name)
-        assert model is factory.return_value
-        factory.assert_called_once_with(context)
+        assert model is create_model.return_value
+        create_model.assert_called_once_with(context)
 
     def test_select_model_rejects_embedding(
         self,
@@ -131,12 +149,8 @@ class TestPydanticAiModelExecution_GenerateText:
         ) -> Model:
             return model
 
-        model_registry = PydanticAiModelRegistry(
-            fast=fast_factory,
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            fast=create_pydantic_ai_model_definition(fast_factory)
         )
 
         prompt = MagicMock(
@@ -225,12 +239,8 @@ class TestPydanticAiModelExecution_GenerateText:
         ) -> Model:
             return model
 
-        model_registry = PydanticAiModelRegistry(
-            fast=fast_factory,
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            fast=create_pydantic_ai_model_definition(fast_factory)
         )
 
         error = ModelHTTPError(
@@ -320,12 +330,8 @@ class TestPydanticAiModelExecution_GenerateText:
             call_tools=["add"],
         )
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: model,
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            fast=create_pydantic_ai_model_definition(lambda _: model)
         )
 
         execution = PydanticAiModelExecution(model_registry, _retry_option)
@@ -399,12 +405,8 @@ class TestPydanticAiModelExecution_GenerateText:
             call_tools=["add"],
         )
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: model,
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            fast=create_pydantic_ai_model_definition(lambda _: model)
         )
 
         execution = PydanticAiModelExecution(model_registry, _retry_option)
@@ -435,12 +437,8 @@ class TestPydanticAiModelExecution_GenerateText:
     ) -> None:
         model = MagicMock(name="model")
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: model,
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            fast=create_pydantic_ai_model_definition(lambda _: model)
         )
 
         response = MagicMock(name="response")
@@ -532,12 +530,8 @@ class TestPydanticAiModelExecution_GenerateObject:
         ) -> Model:
             return model
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=smart_factory,
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            smart=create_pydantic_ai_model_definition(smart_factory)
         )
 
         prompt = MagicMock(
@@ -617,12 +611,8 @@ class TestPydanticAiModelExecution_GenerateObject:
         ) -> Model:
             return model
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=smart_factory,
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            smart=create_pydantic_ai_model_definition(smart_factory)
         )
         prompt = MagicMock(
             instructions="system",
@@ -694,12 +684,8 @@ class TestPydanticAiModelExecution_GenerateObject:
             call_tools=["add"],
         )
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: model,
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            smart=create_pydantic_ai_model_definition(lambda _: model)
         )
 
         execute = AsyncMock(
@@ -781,12 +767,8 @@ class TestPydanticAiModelExecution_StreamText:
         ) -> Model:
             return model
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=reasoning_factory,
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            reasoning=create_pydantic_ai_model_definition(reasoning_factory)
         )
 
         prompt = MagicMock(
@@ -858,12 +840,8 @@ class TestPydanticAiModelExecution_StreamText:
         ) -> Model:
             return model
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=reasoning_factory,
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            reasoning=create_pydantic_ai_model_definition(reasoning_factory)
         )
 
         prompt = MagicMock(
@@ -956,12 +934,8 @@ class TestPydanticAiModelExecution_StreamText:
         ) -> Model:
             return model
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=reasoning_factory,
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
+        model_registry = create_pydantic_ai_model_registry(
+            reasoning=create_pydantic_ai_model_definition(reasoning_factory)
         )
 
         prompt = MagicMock(
@@ -1071,13 +1045,8 @@ class TestPydanticAiModelExecution_Embed:
         embedding_factory = MagicMock(
             return_value=embedding_agent,
         )
-
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=embedding_factory,
+        model_registry = create_pydantic_ai_model_registry(
+            embedding=create_pydantic_ai_embedder_definition(embedding_factory)
         )
 
         mapped_result = MagicMock(spec=AiEmbeddingResult)
@@ -1135,12 +1104,8 @@ class TestPydanticAiModelExecution_Embed:
             return_value=embedding_agent,
         )
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=embedding_factory,
+        model_registry = create_pydantic_ai_model_registry(
+            embedding=create_pydantic_ai_embedder_definition(embedding_factory)
         )
 
         execution = PydanticAiModelExecution(model_registry, _retry_option)
@@ -1310,13 +1275,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
     @pytest.mark.asyncio
     async def test_success(self) -> None:
 
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
+        model_registry = create_pydantic_ai_model_registry()
 
         execution = PydanticAiModelExecution(model_registry, _retry_three_option)
         action = AsyncMock(return_value="success")
@@ -1337,13 +1296,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         self,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
+        model_registry = create_pydantic_ai_model_registry()
 
         execution = PydanticAiModelExecution(model_registry, _retry_three_option)
         sleep = AsyncMock()
@@ -1388,13 +1341,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
     async def test_retry_then_retry_then_success(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
+        model_registry = create_pydantic_ai_model_registry()
 
         execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
@@ -1434,13 +1381,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         self,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
+        model_registry = create_pydantic_ai_model_registry()
 
         execution = PydanticAiModelExecution(model_registry, _retry_two_option)
 
@@ -1481,13 +1422,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         self,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
+        model_registry = create_pydantic_ai_model_registry()
 
         execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
@@ -1522,13 +1457,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         self,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
+        model_registry = create_pydantic_ai_model_registry()
 
         execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
@@ -1576,14 +1505,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         self,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
-
+        model_registry = create_pydantic_ai_model_registry()
         execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 
         error = AiError(
@@ -1636,13 +1558,7 @@ class TestPydanticAiModelExecution_ExecuteWithRetry:
         self,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        model_registry = PydanticAiModelRegistry(
-            fast=lambda _: MagicMock(),
-            smart=lambda _: MagicMock(),
-            reasoning=lambda _: MagicMock(),
-            vision=lambda _: MagicMock(),
-            embedding=lambda _: MagicMock(),
-        )
+        model_registry = create_pydantic_ai_model_registry()
 
         execution = PydanticAiModelExecution(model_registry, _retry_three_option)
 

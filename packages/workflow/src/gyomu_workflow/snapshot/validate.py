@@ -5,6 +5,7 @@ from gyomu_schema.schemas.python.types import ProjectRelativePath
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.error import (
+    PyProjectStructureErrorKind,
     PyProjectStructureValidationError,
     PyProjectStructureValidationErrors,
     SnapshotRequestValidationError,
@@ -78,6 +79,7 @@ def validate_python_package_structure(
             errors.append(
                 PyProjectStructureValidationError(
                     "__init__.py does not exist",
+                    kind=PyProjectStructureErrorKind.MISSING_INIT_FILE,
                     path=ProjectRelativePath(
                         path.relative_to(project_context.project_root)
                     ),
@@ -97,6 +99,7 @@ def validate_python_package_structure(
             errors.append(
                 PyProjectStructureValidationError(
                     "py.typed does not exist",
+                    kind=PyProjectStructureErrorKind.MISSING_PY_TYPED_FILE,
                     path=package_root,
                 )
             )
