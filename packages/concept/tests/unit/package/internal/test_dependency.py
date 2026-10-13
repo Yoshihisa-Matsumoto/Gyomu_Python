@@ -4,13 +4,13 @@ from gyomu_schema.schemas.concept.package.analysis import PackageDependencyAnaly
 
 from packages.concept.concept_test_support.helpers import (
     create_monorepo_project_context,
-    create_workspace_context,
+    create_monorepo_workspace_context,
 )
 
 
 @pytest.fixture
 def workspace_context():
-    return create_workspace_context()
+    return create_monorepo_workspace_context()
 
 
 @pytest.fixture

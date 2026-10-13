@@ -1,4 +1,5 @@
-import asyncio
+from os import getcwd
+from pathlib import Path
 
 import typer
 from gyomu_ai.provider.pydantic_ai.google import (
@@ -15,6 +16,7 @@ from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
 from gyomu_ai_compiler.pipelines.document import DocumentRouteId
 from gyomu_infra.logger import logger
 from gyomu_schema.option.retry import RetryObserver
+from gyomu_schema.schemas.types import FullPath
 from gyomu_workflow.snapshot.models import (
     DocstringExecutionOption,
     FileFilter,
@@ -22,10 +24,11 @@ from gyomu_workflow.snapshot.models import (
     SnapshotExecutionOption,
     SnapshotTargetOption,
 )
-from gyomu_workflow.snapshot.run import run_snapshot
-from gyomu_workflow.snapshot.translate import translate_snapshot_request
-from gyomu_workflow.snapshot.validate import validate_snapshot_request
+from gyomu_workflow.snapshot.project import find_project_by_name
+from gyomu_workflow.snapshot.workspace import get_workspace_context
 from returns.result import Failure
+
+from gyomu_cli.snapshot import run_snapshot_request
 
 app = typer.Typer()
 """Main Typer application instance for the CLI."""
@@ -72,7 +75,7 @@ def register_google_routing(
 
 @app.command()
 def snapshot(
-    package: str,
+    package: str | None = None,
     docstring: bool = True,
     all: bool = False,
     commit: bool = True,
@@ -82,7 +85,8 @@ def snapshot(
     """Executes a code snapshot for the specified package.
 
     Args:
-        package (str): Target package to snapshot.
+        package (str | None): Target package to snapshot.
+            If omitted, all workspace projects are processed.
         docstring (bool): Whether to include docstrings.
         all (bool): Whether to process all files.
         commit (bool): Whether to commit the snapshot.
@@ -106,31 +110,31 @@ def snapshot(
             project_context=commit,
         ),
     )
-    request_result = translate_snapshot_request(package, option)
-    if isinstance(request_result, Failure):
-        logger.error_object(request_result.failure())
+    current_path = FullPath(Path(getcwd()))
+    workspace_result = get_workspace_context(current_path)
+    if isinstance(workspace_result, Failure):
+        logger.error_object(workspace_result.failure())
         return
-    request = request_result.unwrap()
-    logger.info(
-        f"commit: {request.option.commit}, "
-        f"docstring:{request.option.action.docstring.enabled}, "
-        f"all={request.option.target.all}"
-    )
-    if filter:
-        assert option.target.file_filter
-        logger.info(f"filter: {option.target.file_filter.pattern}")
-    if log_keyword:
-        logger.info(f"log_keyword: {request.option.action.docstring.log_keyword}")
+    workspace_context = workspace_result.unwrap()
 
-    validation_result = validate_snapshot_request(request)
-    if isinstance(validation_result, Failure):
-        logger.error_object(validation_result.failure())
-        return
+    if package is not None:
+        package_result = find_project_by_name(workspace_context, package)
+        if isinstance(package_result, Failure):
+            logger.error(f"{package} Not Found")
+            logger.error_object(package_result.failure())
+            return
 
-    snapshot_result = asyncio.run(run_snapshot(request))
-    if isinstance(snapshot_result, Failure):
-        logger.error_object(snapshot_result.failure(), depth=6)
-        return
+        snapshot_result = run_snapshot_request(
+            workspace_context, package_result.unwrap(), option
+        )
+        if isinstance(snapshot_result, Failure):
+            return
+    else:
+        for project in workspace_context.projects:
+            logger.info(f"Processing package: {project.config.name}")
+            snapshot_result = run_snapshot_request(workspace_context, project, option)
+            if isinstance(snapshot_result, Failure):
+                return
 
     logger.info("Done")
     # logger.error_object(request.unwrap(), 3)

@@ -13,11 +13,48 @@ from gyomu_workflow.snapshot.error import (
     PyProjectStructureValidationError,
     PyProjectStructureValidationErrors,
 )
-from gyomu_workflow.snapshot.models import SnapshotTarget
+from gyomu_workflow.snapshot.models import (
+    DocstringExecutionOption,
+    FileFilter,
+    SnapshotActionOption,
+    SnapshotExecutionOption,
+    SnapshotTarget,
+    SnapshotTargetOption,
+)
 
 from packages.python_analysis.python_analysis_test_support.helpers import (
     create_project_snapshot,
 )
+
+
+def create_snapshot_target_option(
+    all: bool = False, file_filter: FileFilter | None = None
+) -> SnapshotTargetOption:
+    return SnapshotTargetOption(all=all, file_filter=file_filter)
+
+
+def create_docstring_execution_ption(
+    enabled: bool = True, log_keyword: str | None = None
+) -> DocstringExecutionOption:
+    return DocstringExecutionOption(enabled=enabled, log_keyword=log_keyword)
+
+
+def create_snapshot_action_option(
+    docstring: DocstringExecutionOption = create_docstring_execution_ption(),  # noqa: B008
+    project_context: bool = False,
+    unit_test: bool = False,
+) -> SnapshotActionOption:
+    return SnapshotActionOption(
+        docstring=docstring, project_context=project_context, unit_test=unit_test
+    )
+
+
+def create_snapshot_execution_option(
+    commit: bool = True,
+    target: SnapshotTargetOption = create_snapshot_target_option(),  # noqa: B008
+    action: SnapshotActionOption = create_snapshot_action_option(),  # noqa: B008
+) -> SnapshotExecutionOption:
+    return SnapshotExecutionOption(commit=commit, target=target, action=action)
 
 
 def create_input_fingerprint(

@@ -14,7 +14,7 @@ from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
-from gyomu_python_analysis.project.workspace import WorkspaceConfig, WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceProject
 
 
 def resolve_source_root(project_root: FullPath) -> ProjectRelativePath:
@@ -27,11 +27,11 @@ def resolve_source_root(project_root: FullPath) -> ProjectRelativePath:
 
 
 def initialize_project_from_workspace(
-    workspace: WorkspaceConfig, project: WorkspaceProject
+    workspace_path: FullPath, project: WorkspaceProject
 ) -> ProjectContext:
     """Initialize a project context from workspace and project configurations."""
 
-    project_root = FullPath(workspace.path / project.path)
+    project_root = FullPath(workspace_path / project.path)
     source_root = resolve_source_root(project_root)
     files = find_included_python_files(
         project_root=project_root, source_root=source_root
