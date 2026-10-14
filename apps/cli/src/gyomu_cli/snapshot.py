@@ -15,6 +15,17 @@ def run_snapshot_request(
     project: WorkspaceProject,
     option: SnapshotExecutionOption,
 ) -> Result[None, BaseError]:
+    """Run a snapshot request for a given project and workspace context.
+
+    Args:
+        workspace_context (WorkspaceContext): The workspace context.
+        project (WorkspaceProject): The workspace project.
+        option (SnapshotExecutionOption): The snapshot execution options.
+
+    Returns:
+        Result[None, BaseError]: A Result indicating success with None or a BaseError on
+            failure.
+    """
     request = translate_snapshot_request(workspace_context, project, option)
 
     logger.info(

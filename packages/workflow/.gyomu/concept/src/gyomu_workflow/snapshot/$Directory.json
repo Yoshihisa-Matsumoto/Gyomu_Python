@@ -1,24 +1,20 @@
 {
-  "summary": "Implements the snapshot workflow for the gyomu workflow package, handling request validation, project structure verification and repair, workflow execution steps, action runners for docstrings, packages, and contexts, and checkpoint state management.",
+  "summary": "Manages the core snapshot workflow execution, including checkpoints, request validation, target resolution, package structure verification, and specialized pipeline actions.",
   "responsibilities": [
-    "Manage project snapshot requests, validation, and configuration options.",
-    "Execute snapshot workflows including directory generation, docstring updates, LLM context generation, package processing, and README generation.",
-    "Handle workflow state persistence through checkpoints and input fingerprints.",
-    "Validate and repair Python project structures."
+    "Manage snapshot workflow execution, targets, checkpoints, and action configurations. Validate and repair Python package structures and snapshot requests. Execute specific workflow actions such as directory generation, docstring updates, LLM context generation, package processing, and README generation."
   ],
   "concepts": [
-    "Snapshot Workflow",
-    "Checkpoints and Fingerprints",
-    "Snapshot Request Models",
-    "Project Structure Validation and Repair",
-    "Snapshot Actions and Execution"
+    "Snapshot workflow",
+    "Checkpoints and state",
+    "Snapshot requests and options",
+    "Package structure validation and repair",
+    "Action execution and actions runner"
   ],
   "relationships": [
-    "Snapshot execution coordinates workflow steps using checkpoints, validation, target resolution, and specialized action runners."
+    "The workflow runner coordinates snapshot execution, action execution, and checkpoint management."
   ],
   "design_decisions": [
-    "Modular action execution separated by specific domain tasks like docstrings, directories, packages, LLM context, and READMEs.",
-    "State tracking through persistent checkpoints and input fingerprints."
+    "Modular action runners handle specific tasks like directories, docstrings, LLM context, packages, and READMEs within the snapshot pipeline."
   ],
   "importance": "Core"
 }

@@ -2,9 +2,7 @@
 
 ## Repository Overview
 
-The `gyomu-schema` package provides canonical data schemas, type definitions, error types, protocols, and generic utilities shared across the Gyomu system. Its primary responsibility is to define data contracts passed between Gyomu's functional domains—including Python Analysis, Concept, Document, Knowledge, and Snapshot—specializing in Python AST and code structure analysis, structured document validation and translation, and domain-specific knowledge representation. 
-
-By establishing these centralized data contracts, the package maintains type safety and data consistency across system components while keeping package-level dependencies loosely coupled.
+The `gyomu-schema` package provides canonical data schemas, type definitions, error types, protocols, and general-purpose utilities shared across the Gyomu system. Its primary responsibility is to define data contracts passed between Gyomu's functional domains—including Python analysis, concepts, documents, knowledge, and snapshots. By establishing these shared data contracts, the package maintains type safety and data consistency while keeping inter-package dependencies loosely coupled.
 
 ## Package Responsibilities
 
@@ -15,25 +13,26 @@ By establishing these centralized data contracts, the package maintains type saf
 
 ## Architecture
 
-The package is structurally organized into distinct schema and error-handling areas under the `src/gyomu_schema` root:
+The package is organized into two primary architectural areas located under `src/gyomu_schema/`: domain-specific schemas (`src/gyomu_schema/schemas/`) and core error handling (`src/gyomu_schema/error`).
 
-*   **`src/gyomu_schema/schemas/python`**: Defines Python code structure analysis schemas, data models, and union types. It includes `src/gyomu_schema/schemas/python/type`, which focuses specifically on schema models and union types for Python AST expressions, statements, and type structures.
-*   **`src/gyomu_schema/schemas/document`**: Defines schemas, data structures, validation rules, and translation strategies for structured documents, sections, and content elements.
-*   **`src/gyomu_schema/schemas/knowledge`**: Defines schemas for structuring various knowledge domains, including coding guidelines, operational knowledge, package metadata, roadmaps, and technical references.
-*   **`src/gyomu_schema/error`**: Defines core error-handling schemas, domain-specific error classes, and associated retry and resolution strategies.
+The `src/gyomu_schema/schemas/` directory branches into three structural domains:
+- **`src/gyomu_schema/schemas/python`**: Defines data models and analysis schemas for Python code structures, symbols, modules, files, and project configuration. Within this area, `src/gyomu_schema/schemas/python/type` defines schema models and union types specifically for representing Python AST expressions, statements, and type structures to support AST and type analysis.
+- **`src/gyomu_schema/schemas/document`**: Contains schemas, data structures, validation rules, and translation strategies for structured documents, sections, and content elements such as paragraphs, lists, code blocks, and tables.
+- **`src/gyomu_schema/schemas/knowledge`**: Defines schemas for structuring and representing knowledge domains, including coding guidelines, operational knowledge, package usage, roadmaps, and technical integration references.
+
+The `src/gyomu_schema/error` directory operates independently as the core error-handling layer, defining base errors, domain-specific error classes for AI, configuration, database, I/O, validation, and timeouts, along with retry and resolution strategies.
 
 ## Design Principles
 
-- Centralized Data Contracts: Define shared data contracts for multiple Gyomu packages within this package to unify data exchange, while keeping internal implementation details private and excluding specific business logic.
-- Strict External Boundaries: Use Pydantic schemas for data handled at external boundaries to ensure consistent validation and serialization, mandating comprehensive annotations that serve AI code generation, documentation, and knowledge generation.
-- Strong Type Safety: Represent semantic values such as IDs and paths as distinct types to prevent value misidentification.
-- Decoupled Interfaces: Define protocols as implementation-agnostic contracts separated from concrete implementations, controlling dependency directions and preventing excessive concentration in common packages.
-- Zero Internal Dependencies: Maintain this package as an independent foundational layer that depends solely on Pydantic, Returns, and the Python standard library, without relying on other Gyomu packages or infrastructure specifics.
+- Centralized Data Contracts: Define shared data contracts for multiple packages exclusively within this package, using Pydantic schemas for external boundaries (JSON, persistence, MCP) to ensure consistent validation, serialization, and metadata richness for code and knowledge generation.
+- Strong Typing for Value Semantics: Represent identifiers, paths, and meaningful values as distinct types wherever possible to prevent parameter mix-ups and enforce domain constraints statically.
+- Strict Separation of Protocols and Implementations: Define interfaces as Protocols separated from concrete implementations to control dependency directions and avoid coupling to specific implementations or business logic.
+- Strict Independence and Architectural Boundaries: Maintain a reusable shared foundation by depending solely on Pydantic, Returns, and the Python standard library, strictly prohibiting dependencies on other Gyomu packages, infrastructure-specific code, or LLM logic.
 
 ## Important Constraints
 
 - Do not depend on external libraries other than Pydantic, Returns, and the Python standard library.
-- Do not depend on other packages under the `gyomu` namespace.
+- Do not depend on other packages under `gyomu`.
 - Do not implement Gyomu-specific business logic.
 - Do not place processing specific to particular applications or packages.
 - Do not provide infrastructure-specific implementations.
@@ -41,35 +40,36 @@ The package is structurally organized into distinct schema and error-handling ar
 
 ## Editing Rules
 
-- Explicitly type arguments and return values for public APIs and primary application logic.
-- Maintain type-safe implementations that comply with strict mypy settings.
-- Avoid Any and type-checking suppression, restricting their scope and justification when necessary.
-- Define and validate structured data at system boundaries using explicit Pydantic schemas.
-- Use dataclasses and appropriate data structures for internal state representation.
-- Do not duplicate the same conceptual data structures or constraints across multiple places.
+- Explicitly specify argument and return types for public APIs and primary application logic.
+- Maintain type-safe implementations compatible with strict mypy settings.
+- Avoid Any and type-checking suppression; limit their scope and reason when necessary.
+- Define and validate structured data at external boundaries, JSON, YAML, and persistent storage using Pydantic models.
+- Use dataclasses or appropriate data structures for internal state representation.
+- Do not duplicate the same data structures or constraints in multiple locations.
 - Represent expected application failures explicitly using returns.Result, Success, and Failure.
-- Do not use exceptions for expected failures, and handle exceptions appropriately at boundaries.
-- Design package dependencies to flow from higher-level workflows to lower-level functions without circular dependencies.
+- Handle expected failures via return types rather than relying heavily on exceptions, and process exceptions at boundaries.
+- Design packages with clear responsibilities and direct dependencies from upper workflows to lower functions.
+- Do not introduce circular dependencies between packages.
 - Depend only on public APIs of other packages rather than internal implementation details.
-- Use Protocols and constructor injection to specify contracts for external dependencies and interchangeable logic.
+- Use Protocols and constructor injection to define contracts for external dependencies and interchangeable logic.
 - Design based on current responsibilities and changes rather than speculative future abstractions.
-- Implement side-effect-free logic as pure functions whenever possible.
-- Separate I/O operations involving the filesystem, external services, or LLMs from business logic.
-- Treat AI outputs as untrusted input and validate them with Pydantic models before use.
-- Enclose AI-provider-specific APIs and types within adapters and infrastructure boundaries.
-- Design AI interfaces to decouple execution control, routing, fallback, and retry logic from callers.
-- Use structured data such as Concepts and analysis results as inputs for document generation.
+- Implement side-effect-free logic as pure functions wherever possible.
+- Separate input/output operations involving the filesystem, external services, and LLMs from business logic.
+- Validate AI outputs using Pydantic models before use.
+- Encapsulate AI-provider-specific APIs and types within adapters and infrastructure boundaries.
+- Separate AI execution, routing, fallback, and retry responsibilities behind clean interfaces.
+- Use structured data such as concepts and analysis results as inputs for documentation generation.
 - Treat document structure, content, translation, and rendering as independent responsibilities.
-- Use structured intermediate representations like Document instead of directly assembling Markdown strings.
-- Treat auto-derived Concepts from source code and human-managed Knowledge as independent information sources.
+- Use structured intermediate representations like Document instead of assembling Markdown strings directly.
+- Treat derived code concepts and human-managed knowledge as independent information sources.
 - Update tests when observable behavior changes.
 - Keep unit tests deterministic by isolating dependencies on LLMs and external services.
-- Use actual temporary directories or fixtures for filesystem and project structure tests, mocking only external service dependencies.
-- Base mock dependencies on actual public interfaces rather than internal implementation details.
-- Consolidate shareable logic into existing packages without duplicating implementations.
+- Use actual temporary directories or fixtures for filesystem tests, mocking only external service dependencies.
+- Mock dependencies based on public interfaces rather than internal implementation details or call counts.
+- Consolidate shared logic into existing packages without duplication.
 - Evaluate standard libraries and existing dependencies before adding new dependency packages.
-- Follow existing naming conventions, package structures, and code styles while minimizing change scopes.
-- Maintain code that passes all repository checks and tests including ruff, mypy, and pytest.
+- Follow existing naming conventions, package structure, and code style.
+- Pass all repository linters and type checkers including ruff, mypy, and pytest.
 
 ## Navigation
 

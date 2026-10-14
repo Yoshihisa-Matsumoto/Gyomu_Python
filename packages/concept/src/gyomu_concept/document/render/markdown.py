@@ -84,6 +84,8 @@ def _render_content(content: DocumentContent) -> str:
 
 
 def _render_paragraph(paragraph: Paragraph) -> str:
+    """Renders a paragraph into markdown."""
+
     return "\n".join(paragraph.lines)
 
 

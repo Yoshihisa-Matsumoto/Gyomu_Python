@@ -1,44 +1,36 @@
 {
-  "summary": "Gyomu Concept is a core Python package responsible for analyzing project structures, managing directory and package concepts, and generating structured documentation such as project README files and LLM contexts. It provides a modular framework for document building, translation, section assembly, and markdown rendering backed by domain-specific error handling.",
+  "summary": "Gyomu Concept is a python package responsible for generating structured project documentation—such as README files and LLM contexts—through modular document definitions, section builders, and underlying package and directory concept analyses.",
   "responsibilities": [
-    "Coordinate the generation, translation, and rendering of project documentation like READMEs and LLM contexts.",
-    "Manage directory and package concepts through building, processing, dependency collection, and persistence operations.",
-    "Provide domain-specific error management and phase classifications for robust application error handling."
+    "Orchestrate the generation and translation of structured project documentation like READMEs and LLM contexts.",
+    "Define and configure document sections, output renderers, and file path resolvers.",
+    "Process, analyze, and manage hierarchical package and directory concepts."
   ],
   "capabilities": [
     {
-      "name": "Document Generation Framework",
-      "description": "Defines document generation structures, base contexts, renderers, models, and asynchronous building blocks for documentation and project overviews."
+      "name": "Document Generation and Rendering",
+      "description": "Manages structured document generation, rendering, translation, and context initialization for creating project documentation."
+    },
+    {
+      "name": "LLM Context Composition",
+      "description": "Composes specialized sections—such as architecture, design principles, and guidelines—for constructing LLM contexts."
     },
     {
       "name": "Directory Concept Management",
-      "description": "Builds, processes, loads, saves, and manages directory concepts and file summary records from filesystem paths."
+      "description": "Builds, loads, processes, and persists hierarchical directory concepts and file summary records."
     },
     {
-      "name": "Package Analysis and Concepts",
-      "description": "Handles package-level analysis, concept building, dependency collection, path resolution, and internal state persistence."
-    },
-    {
-      "name": "README Generation",
-      "description": "Provides specialized document definitions, contexts, section builders, and markdown renderers for generating project README files."
-    },
-    {
-      "name": "LLM Context Generation",
-      "description": "Supplies specialized document definitions, contexts, section builders, and markdown renderers for compiling LLM context files."
-    },
-    {
-      "name": "Domain Error Handling",
-      "description": "Defines domain-specific error classes, exception types, and phase classifications for error handling across concepts and document building."
+      "name": "Package Concept Operations",
+      "description": "Handles package-level concepts, dependency collection, path resolution, and persistence operations."
     }
   ],
   "design_decisions": [
-    "Uses structured document definitions with separate models, section builders, renderers, and filepath resolvers to allow modular and extensible documentation pipelines.",
-    "Separates concept representation and management (directories, packages) into dedicated internal persistence and processing modules.",
-    "Employs phase-classified domain errors to track failures accurately during concept processing and document building phases."
+    "Modular section-based building architecture separates content definition from rendering and formatting.",
+    "Asynchronous document and section building supports efficient generation workflows.",
+    "Explicit context initialization loads necessary package knowledge files prior to building documents."
   ],
   "usage_guidance": [
-    "Use the document framework and specialized builders (such as README and LLM context generators) to construct and render project documentation.",
-    "Utilize directory and package concept modules to analyze, build, process, and persist project structure metadata.",
-    "Handle operation failures using the provided domain-specific error classes and concept phases."
+    "Use the document generation modules to initialize contexts and build rendered documents based on defined templates and translations.",
+    "Leverage section builders and LLM context tools to assemble structured prompts or context files for AI tooling.",
+    "Utilize package and directory concept utilities to analyze, load, and save architectural metadata."
   ]
 }

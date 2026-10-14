@@ -1,20 +1,18 @@
 {
-  "summary": "Serves as the core entry point for the command-line interface application, defining the main Typer app instance and registering CLI commands such as greetings, Google routing configuration, AI settings, and code snapshots.",
+  "summary": "Serves as the core command-line interface package, providing the main application entry point, command handling for code snapshots, and Google routing and AI configuration.",
   "responsibilities": [
-    "Provides the primary entry point and command-line interface application for executing commands such as greeting, Google routing registration, and code snapshots."
+    "Provides the command-line interface entry point and application logic for handling user commands, snapshot execution, and configuration routing."
   ],
   "concepts": [
     "Typer application",
-    "CLI commands",
     "Google routing configuration",
-    "AI settings",
     "Code snapshot"
   ],
   "relationships": [
-    "The main application initializes and registers commands including user greeting, Google routing configuration with AI settings, and code snapshot execution."
+    "The main CLI application executes code snapshots and registers Google routing configuration."
   ],
   "design_decisions": [
-    "Uses Typer framework to build and organize command-line interface commands and options."
+    "Uses Typer for building the command line interface framework."
   ],
   "importance": "Core"
 }

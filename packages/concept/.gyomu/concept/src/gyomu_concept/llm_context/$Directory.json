@@ -1,23 +1,18 @@
 {
-  "summary": "Manages the definition, generation, and rendering of LLM context files, coordinating modular builders for thematic sections and formatting output into structured text.",
+  "summary": "Manages the creation, definition, and generation of LLM context files and data structures, serving as the core package for LLM context operations.",
   "responsibilities": [
-    "Initialize and build LLM context definitions and structures",
-    "Generate LLM context files and data",
-    "Render LLM context data into structured text formats"
+    "Defines document definitions, initializes and builds LLM contexts, and generates LLM context files."
   ],
   "concepts": [
-    "LLM context",
-    "Context generation",
-    "Thematic sections",
-    "Markdown output"
+    "LLM Context",
+    "Context Generation",
+    "Document Definition"
   ],
   "relationships": [
-    "LLM context builders construct thematic sections for context generation.",
-    "Markdown rendering transforms LLM context data into Markdown format."
+    "The LLM context module coordinates context generation using document definitions and builder components."
   ],
   "design_decisions": [
-    "Modular construction of thematic sections",
-    "Separated format-specific rendering implementation"
+    "Modular organization separating generation, definition, context initialization, and rendering components."
   ],
   "importance": "Core"
 }

@@ -1,37 +1,31 @@
 {
-  "summary": "The `gyomu-workflow` package implements the core snapshot workflow for the Gyomu CLI. It manages project validation, structure repair, pipelined workflow execution, and action runners for tasks such as docstrings, packages, and LLM context generation, while supporting state persistence via checkpoints.",
+  "summary": "The gyomu-workflow package provides the core workflow orchestration engine for the Gyomu CLI. It manages snapshot execution, request validation, target resolution, and incremental processing through checkpoints, while executing specialized pipeline actions like docstring updates, LLM context generation, and package structuring.",
   "responsibilities": [
-    "Execute project snapshot workflows for Python projects.",
-    "Validate and repair Python project structures.",
-    "Manage workflow state and execution checkpoints.",
-    "Run pipeline actions including docstrings, packages, directories, and LLM contexts."
+    "Manage snapshot workflow execution, targets, checkpoints, and action configurations.",
+    "Validate and repair Python package structures and snapshot requests.",
+    "Execute specific workflow actions such as directory generation, docstring updates, LLM context generation, package processing, and README generation."
   ],
   "capabilities": [
     {
-      "name": "Snapshot Workflow Orchestration",
-      "description": "Orchestrates project snapshot workflows, coordinate execution steps, manage target resolution, and run targeted processing actions."
+      "name": "Workflow Pipeline and Checkpoints",
+      "description": "Orchestrates workflow execution steps, manages checkpoints for incremental processing, and tracks pipeline states."
     },
     {
-      "name": "Structure Validation and Repair",
-      "description": "Validates Python project structures and request parameters, and provides automated structural repair mechanisms."
+      "name": "Request Validation and Target Resolution",
+      "description": "Resolves target files, validates snapshot requests, and verifies Python package structures."
     },
     {
-      "name": "State Persistence and Checkpointing",
-      "description": "Manages pipeline state persistence, step tracking, and incremental execution via checkpoints and input fingerprints."
-    },
-    {
-      "name": "Action Runners and Processing",
-      "description": "Executes domain-specific actions including docstring processing, package analysis, LLM context generation, and documentation updates."
+      "name": "Specialized Pipeline Actions",
+      "description": "Executes specialized pipeline tasks including directory generation, docstring updates, LLM context generation, and README creation."
     }
   ],
   "design_decisions": [
-    "Implements a pipelined workflow architecture with checkpoints to support resumable and incremental executions.",
-    "Separates request validation and structural verification from workflow execution steps.",
-    "Delegates specialized processing tasks to dedicated action runners such as docstring updates and LLM context generation."
+    "Implements checkpointing and fingerprinting to support incremental workflow execution and track completed steps.",
+    "Uses distinct models for snapshot requests, targets, options, and actions to maintain separation of concerns.",
+    "Integrates specialized modular packages for python analysis, docstring processing, and concept generation."
   ],
   "usage_guidance": [
-    "Configure snapshot requests with appropriate target options and filters before invoking the snapshot runner.",
-    "Rely on built-in validation and repair utilities to ensure Python project structures meet expectations prior to workflow execution.",
-    "Utilize checkpoints to resume interrupted snapshot pipelines or avoid redundant processing of unchanged files."
+    "Use the snapshot execution runner to initiate workspace or project-level snapshot workflows based on validated configuration requests.",
+    "Leverage checkpoint utilities to track pipeline progress and avoid redundant execution of completed workflow steps."
   ]
 }
