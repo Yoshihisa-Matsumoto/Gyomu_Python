@@ -2,7 +2,7 @@ import pytest
 from gyomu_concept.package.internal.dependency import collect_dependencies
 from gyomu_schema.schemas.concept.package.analysis import PackageDependencyAnalysis
 
-from packages.concept.concept_test_support.helpers import (
+from packages.concept.test_support.helpers import (
     create_monorepo_project_context,
     create_monorepo_workspace_context,
 )

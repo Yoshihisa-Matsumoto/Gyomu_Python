@@ -5,7 +5,7 @@ from gyomu_facts.package.rank import calculate_score, rank_directories_by_score
 from gyomu_schema.schemas.concept.directory.concept import DirectoryImportance
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_directory_analysis,
     create_directory_analysis_fact,
     create_directory_concept,

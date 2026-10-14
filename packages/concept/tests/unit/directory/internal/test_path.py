@@ -6,7 +6,7 @@ from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptActionOption, ConceptOption
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 
-from packages.concept.concept_test_support.helpers import (
+from packages.concept.test_support.helpers import (
     _create_directory_project_context,
 )
 

@@ -6,7 +6,7 @@ from gyomu_schema.schemas.concept.base import Knowledge
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_compatibility,
     create_dependency,
     create_development,

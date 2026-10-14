@@ -10,7 +10,7 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.types import FullPath
 
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     create_py_project_config,
     create_workspace_root,
 )

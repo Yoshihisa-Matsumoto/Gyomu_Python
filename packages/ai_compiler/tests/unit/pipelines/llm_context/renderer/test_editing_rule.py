@@ -7,7 +7,7 @@ from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_coding_guideline,
     create_coding_rule,
     create_llm_context_build_context,

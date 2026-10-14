@@ -1,6 +1,6 @@
 from gyomu_schema.schemas.document.definition.bullent_list import _validate_bullet_list
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_bullet_list,
     create_bullet_list_item,
 )

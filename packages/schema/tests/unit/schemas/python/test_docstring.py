@@ -1,7 +1,7 @@
 from gyomu_schema.schemas.python.docstring import DocstringAnalysis
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_custom_list_section,
     create_custom_named_section_item,
     create_custom_section,

@@ -3,7 +3,7 @@ from gyomu_concept.package.internal.path import get_package_concept_path
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptActionOption, ConceptOption
 
-from packages.concept.concept_test_support.helpers import (
+from packages.concept.test_support.helpers import (
     _create_directory_project_context,
 )
 

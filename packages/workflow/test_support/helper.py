@@ -22,7 +22,7 @@ from gyomu_workflow.snapshot.models import (
     SnapshotTargetOption,
 )
 
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     create_project_snapshot,
 )
 

@@ -22,14 +22,14 @@ from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.ai_compiler.ai_compiler_test_support.helper import (
+from packages.ai_compiler.test_support.helper import (
     create_declaration_info_from_declaration_identity,
     create_docstring_declaration_context,
     create_docstring_file_context,
     create_docstring_update_entry,
     create_docstring_update_plan,
 )
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_declaration_identity,
     create_file_analysis_context,

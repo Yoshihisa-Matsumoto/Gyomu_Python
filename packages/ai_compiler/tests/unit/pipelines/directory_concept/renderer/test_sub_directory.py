@@ -7,7 +7,7 @@ from gyomu_schema.schemas.concept.directory.concept import DirectoryImportance
 from gyomu_schema.schemas.concept.directory.input import SubDirectoryInput
 from gyomu_schema.schemas.python.types import DirectoryRelativePath
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_directory_concept,
     create_sub_directory_input,
 )

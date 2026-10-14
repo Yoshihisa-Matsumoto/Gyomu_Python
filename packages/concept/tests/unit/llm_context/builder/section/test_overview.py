@@ -22,7 +22,7 @@ from gyomu_schema.schemas.document.section import (
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_llm_context_build_context,
 )
 

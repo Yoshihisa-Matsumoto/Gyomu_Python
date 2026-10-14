@@ -1,7 +1,7 @@
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_class_type_alias_analysis,
     create_class_variable_analysis,

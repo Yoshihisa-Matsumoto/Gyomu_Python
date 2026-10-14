@@ -9,8 +9,8 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringStyle,
 )
 
-from packages.docstring.docstring_test_support.helper import _default_identity
-from packages.schema.schema_test_support.helpers import create_location
+from packages.docstring.test_support.helper import _default_identity
+from packages.schema.test_support.helpers import create_location
 
 
 def make_updated_docstring(

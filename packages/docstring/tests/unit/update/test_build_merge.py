@@ -17,7 +17,7 @@ from gyomu_schema.option.update import (
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_file_analysis_context,
     create_location,

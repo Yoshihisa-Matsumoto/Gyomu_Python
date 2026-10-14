@@ -11,7 +11,7 @@ from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 
-from packages.concept.concept_test_support.helpers import (
+from packages.concept.test_support.helpers import (
     create_monorepo_project_context,
 )
 

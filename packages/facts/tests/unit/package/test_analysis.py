@@ -14,7 +14,7 @@ from gyomu_schema.schemas.concept.package.analysis import (
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from pytest_mock import MockerFixture
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_dependency_analysis,
     create_directory_analysis,
     create_directory_analysis_fact,

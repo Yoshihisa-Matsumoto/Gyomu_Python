@@ -21,7 +21,7 @@ from gyomu_schema.schemas.document.translation.table import (
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_bullet_list,
     create_bullet_list_item,
     create_codeblock,

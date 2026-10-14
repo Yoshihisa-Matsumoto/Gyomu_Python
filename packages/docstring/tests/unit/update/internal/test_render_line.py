@@ -29,7 +29,7 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringStyle,
 )
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     _default_identity,
     create_location,
 )

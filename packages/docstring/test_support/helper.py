@@ -34,7 +34,7 @@ from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure
 
-from packages.schema.schema_test_support.helpers import create_location
+from packages.schema.test_support.helpers import create_location
 
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
 

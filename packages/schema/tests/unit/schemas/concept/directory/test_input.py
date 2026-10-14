@@ -6,7 +6,7 @@ from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_dependency_summary,
     create_directory_concept,
     create_directory_concept_input,

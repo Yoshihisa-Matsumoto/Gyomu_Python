@@ -43,7 +43,7 @@ from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.schemas.python.types import SymbolId
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_class_type_alias_analysis,
     create_class_variable_analysis,

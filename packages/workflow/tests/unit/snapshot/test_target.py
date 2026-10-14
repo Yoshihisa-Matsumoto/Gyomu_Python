@@ -16,14 +16,14 @@ from gyomu_workflow.snapshot.target import (
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     create_analyze_project_change,
     create_file_added,
     create_file_deleted,
     create_file_snapshot,
     create_file_updated,
 )
-from packages.schema.schema_test_support.helpers import create_gyomu_io_error
+from packages.schema.test_support.helpers import create_gyomu_io_error
 from packages.workflow.test_support.helper import (
     create_py_project_structure_validation_errors,
 )
