@@ -18,6 +18,7 @@ members = [
     "gyomu-infra",
     "gyomu-python-analysis",
     "gyomu-schema",
+    "gyomu-test",
     "gyomu-workflow",
 ]
 constraints = [
@@ -960,6 +961,24 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "pydantic" },
+    { name = "returns" },
+]
+
+[[package]]
+name = "gyomu-test"
+source = { editable = "packages/test" }
+dependencies = [
+    { name = "gyomu-infra" },
+    { name = "gyomu-python-analysis" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
+    { name = "gyomu-schema", editable = "packages/schema" },
     { name = "returns" },
 ]
 

@@ -10,6 +10,7 @@
     "packages/workflow/src",
     "packages/concept/src",
     "packages/facts/src",
+    "packages/test/src",
     "apps/cli/src"
   ]
 }

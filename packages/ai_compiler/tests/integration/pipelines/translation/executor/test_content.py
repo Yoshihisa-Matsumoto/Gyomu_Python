@@ -8,6 +8,7 @@ from gyomu_ai_compiler.pipelines.translation.executor.content import (
 )
 from gyomu_infra.logger import logger
 from gyomu_schema.error.config import ConfigError
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import SectionTranslationInstruction
 from gyomu_schema.schemas.document.translation.paragraph import (
     paragraph_translation_strategy,
@@ -16,7 +17,6 @@ from pytest_mock import MockerFixture
 from returns.result import Success
 
 from packages.ai.test_support.helper import register_test_google_routing
-from packages.schema.test_support.concept_helpers import create_paragraph
 
 
 @pytest.mark.asyncio
@@ -32,7 +32,7 @@ async def test_returns_translated_context_when_first_translation_is_valid(
 
     spy = mocker.spy(content_module, "translate_document_content")
 
-    context = create_paragraph(
+    context = paragraph_from_text(
         text=(
             "Contributors must strictly maintain the "
             "separation between the structural "
@@ -84,5 +84,5 @@ async def test_returns_translated_context_when_first_translation_is_valid(
     )
 
     assert isinstance(result, Success)
-    logger.debug(result.unwrap().text)
+    logger.debug_object(result.unwrap().lines)
     logger.debug(f"Count:{spy.call_count}")
