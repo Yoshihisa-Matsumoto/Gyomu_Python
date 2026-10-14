@@ -3,7 +3,7 @@ from gyomu_docstring.update.docstring.file_update_plan import (
     FileUpdatePlan,
 )
 
-from packages.docstring.docstring_test_support.helper import create_entry
+from packages.docstring.test_support.helper import create_entry
 from packages.schema.test_support.helpers import (
     create_declaration_identity,
 )
