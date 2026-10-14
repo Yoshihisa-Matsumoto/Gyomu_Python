@@ -15,7 +15,7 @@ from gyomu_schema.schemas.document.translation.paragraph import (
 from pytest_mock import MockerFixture
 from returns.result import Success
 
-from packages.ai.ai_test_support.helper import register_test_google_routing
+from packages.ai.test_support.helper import register_test_google_routing
 from packages.schema.test_support.concept_helpers import create_paragraph
 
 

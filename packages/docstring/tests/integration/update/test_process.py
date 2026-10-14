@@ -23,7 +23,7 @@ from gyomu_schema.utility.fromatting import format_object
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.ai.ai_test_support.helper import register_test_google_routing
+from packages.ai.test_support.helper import register_test_google_routing
 from packages.docstring.test_support.helper import (
     FIXTURES_ROOT,
     assert_text_file_equals,

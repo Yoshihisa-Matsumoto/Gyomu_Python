@@ -5,7 +5,7 @@ from gyomu_docstring.update.internal.validate import (
     validate_docstring_update_plan,
 )
 
-from packages.ai_compiler.ai_compiler_test_support.helper import (
+from packages.ai_compiler.test_support.helper import (
     create_context_entry,
     create_declaration_info,
     create_declaration_info_from_declaration_identity,

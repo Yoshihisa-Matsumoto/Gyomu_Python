@@ -22,7 +22,7 @@ from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.ai_compiler.ai_compiler_test_support.helper import (
+from packages.ai_compiler.test_support.helper import (
     create_declaration_info_from_declaration_identity,
     create_docstring_declaration_context,
     create_docstring_file_context,
