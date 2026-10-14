@@ -12,6 +12,15 @@ from returns.result import Failure, Result
 def get_workspace_context(
     current_path: FullPath,
 ) -> Result[WorkspaceContext, AnalysisError]:
+    """Retrieves the workspace context for the given path.
+
+    Args:
+        current_path (FullPath): The current path to resolve the workspace context from.
+
+    Returns:
+        Result[WorkspaceContext, AnalysisError]: A Result containing the initialized
+            WorkspaceContext or an AnalysisError.
+    """
 
     root_result = find_root(current_path)
     if isinstance(root_result, Failure):

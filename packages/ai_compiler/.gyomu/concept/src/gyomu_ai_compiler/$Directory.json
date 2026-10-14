@@ -1,21 +1,20 @@
 {
-  "summary": "Serves as the core package for the gyomu_ai_compiler, organizing specialized execution pipelines, prompt management utilities, and compiler tasks into a cohesive architecture.",
+  "summary": "Serves as the core package for the gyomu_ai_compiler, organizing specialized processing pipelines and prompt template management for code analysis, documentation, translation, and compiler workflows.",
   "responsibilities": [
-    "Coordinate core processing pipelines for compiler tasks such as document processing, docstring updates, package analysis, and translation.",
-    "Manage and load prompt templates and base prompts used across the compiler package."
+    "Implements core processing pipelines for documentation, code analysis, translation, and LLM context management.",
+    "Manages and loads prompt templates used across compiler workflows."
   ],
   "concepts": [
-    "processing pipelines",
+    "core processing pipelines",
     "prompt templates",
-    "compiler tasks",
-    "prompt loading"
+    "AI compiler workflows"
   ],
   "relationships": [
-    "The compiler organizes specialized processing pipelines and prompt loading utilities to execute various documentation, analysis, and translation tasks."
+    "The core package coordinates processing pipelines and prompt templates to drive AI compiler workflows."
   ],
   "design_decisions": [
-    "Encapsulates specialized processing pipelines and prompt loading utilities into dedicated sub-directories.",
-    "Organizes execution logic, prompts, rendering utilities, and state management for compiler tasks."
+    "Organizes modular pipelines for compiler tasks such as code analysis, documentation, and translation.",
+    "Encapsulates prompt loading utilities and templates for compiler workflows."
   ],
   "importance": "Core"
 }

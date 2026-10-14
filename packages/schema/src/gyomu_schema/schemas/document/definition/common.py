@@ -46,13 +46,13 @@ def validate_textblock(
     """Validate line structure and literal newline sequences in a text block.
 
     Args:
-        source: Original text lines.
-        destination: Translated text lines.
-        location: Location identifier for reporting.
-        issues: List to append validation issues to.
+        source (tuple[str, ...]): Original text lines.
+        destination (tuple[str, ...]): Translated text lines.
+        location (str): Location identifier for reporting.
+        issues (list[ValidationIssue]): List to append validation issues to.
 
     Returns:
-        None
+        None: None
     """
     if len(source) != len(destination):
         issues.append(

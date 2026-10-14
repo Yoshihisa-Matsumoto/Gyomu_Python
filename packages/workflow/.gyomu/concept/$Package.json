@@ -1,37 +1,37 @@
 {
-  "summary": "`gyomu-workflow` is the core workflow engine for the Gyomu CLI, responsible for driving the snapshot pipeline. It coordinates request translation, validation, checkpoint tracking, target resolution, and the execution of specialized project actions such as docstrings, READMEs, packages, and LLM contexts.",
+  "summary": "The `gyomu-workflow` package implements the core snapshot workflow for the Gyomu CLI. It manages project validation, structure repair, pipelined workflow execution, and action runners for tasks such as docstrings, packages, and LLM context generation, while supporting state persistence via checkpoints.",
   "responsibilities": [
-    "Manage the execution of the snapshot workflow pipeline from initial request translation to final action execution.",
-    "Validate request parameters and Python package structures.",
-    "Track pipeline state and step completion via persistent checkpoints and input fingerprinting.",
-    "Resolve and filter target source files for snapshot generation."
+    "Execute project snapshot workflows for Python projects.",
+    "Validate and repair Python project structures.",
+    "Manage workflow state and execution checkpoints.",
+    "Run pipeline actions including docstrings, packages, directories, and LLM contexts."
   ],
   "capabilities": [
     {
-      "name": "Request Validation and Translation",
-      "description": "Translates and validates user requests and structural requirements for generating project snapshots."
+      "name": "Snapshot Workflow Orchestration",
+      "description": "Orchestrates project snapshot workflows, coordinate execution steps, manage target resolution, and run targeted processing actions."
     },
     {
-      "name": "Checkpoint and State Tracking",
-      "description": "Tracks execution progress, file changes, and step completion using checkpoints and input fingerprints."
+      "name": "Structure Validation and Repair",
+      "description": "Validates Python project structures and request parameters, and provides automated structural repair mechanisms."
     },
     {
-      "name": "Target Resolution and Filtering",
-      "description": "Resolves snapshot targets and filters project files according to specified path patterns."
+      "name": "State Persistence and Checkpointing",
+      "description": "Manages pipeline state persistence, step tracking, and incremental execution via checkpoints and input fingerprints."
     },
     {
-      "name": "Workflow Action Execution",
-      "description": "Executes modular workflow actions including docstring processing, package analysis, README generation, and LLM context creation."
+      "name": "Action Runners and Processing",
+      "description": "Executes domain-specific actions including docstring processing, package analysis, LLM context generation, and documentation updates."
     }
   ],
   "design_decisions": [
-    "Employs a pipelined workflow architecture with explicit checkpointing to manage long-running snapshot tasks.",
-    "Separates request validation, target resolution, and action execution into distinct processing stages.",
-    "Organizes functionality around specialized domain actions such as docstrings, packages, directories, and LLM contexts."
+    "Implements a pipelined workflow architecture with checkpoints to support resumable and incremental executions.",
+    "Separates request validation and structural verification from workflow execution steps.",
+    "Delegates specialized processing tasks to dedicated action runners such as docstring updates and LLM context generation."
   ],
   "usage_guidance": [
-    "Use the snapshot runner entry point to execute the complete workflow pipeline based on validated snapshot requests.",
-    "Leverage checkpoint mechanisms to resume or optimize pipeline execution based on file fingerprints and completed steps.",
-    "Configure snapshot actions and filters using the provided option and filter models."
+    "Configure snapshot requests with appropriate target options and filters before invoking the snapshot runner.",
+    "Rely on built-in validation and repair utilities to ensure Python project structures meet expectations prior to workflow execution.",
+    "Utilize checkpoints to resume interrupted snapshot pipelines or avoid redundant processing of unchanged files."
   ]
 }

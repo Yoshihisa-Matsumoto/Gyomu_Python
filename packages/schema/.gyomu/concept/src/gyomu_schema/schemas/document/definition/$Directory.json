@@ -1,18 +1,21 @@
 {
-  "summary": "Provides definitions, validation rules, and translation instructions for specific document content elements like bullet lists, code blocks, paragraphs, and tables.",
+  "summary": "Defines schemas, validation rules, and translation instructions for various document content elements like paragraphs, lists, code blocks, and tables, alongside common text validation utilities.",
   "responsibilities": [
-    "Defines schemas, validation rules, and translation instructions for various document content elements such as bullet lists, code blocks, paragraphs, and tables."
+    "Define schemas and validation rules for document content elements such as paragraphs, bullet lists, code blocks, and tables.",
+    "Provide translation instructions alongside structural definitions for document elements.",
+    "Provide helper functions for validating literal newline counts and line structures within text content."
   ],
   "concepts": [
-    "Document content definition",
-    "Content elements",
-    "Validation and translation instructions"
+    "Document Content Definition",
+    "Validation and Translation Instructions",
+    "Text and Block Validation"
   ],
   "relationships": [
-    "Document content definitions provide validation and translation instructions for specific content elements."
+    "Document element definitions use common text validation utilities for verifying text and text block structures."
   ],
   "design_decisions": [
-    "Modular definitions for individual document components like bullet lists, code blocks, paragraphs, and tables"
+    "Definitions encapsulate schema validation rules and translation instructions for individual document elements.",
+    "Common validation utilities support line structure and newline checks across text elements."
   ],
   "importance": "Core"
 }

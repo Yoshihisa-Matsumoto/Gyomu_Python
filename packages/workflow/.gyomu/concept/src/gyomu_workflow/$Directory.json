@@ -1,21 +1,24 @@
 {
-  "summary": "Implements the snapshot workflow pipeline for Gyomu Workflow, managing checkpoints, request validation, target resolution, and executing various actions such as docstrings, packages, and LLM contexts.",
+  "summary": "Implements the snapshot workflow for the gyomu workflow package, handling request validation, project structure verification and repair, workflow execution steps, action runners for docstrings, packages, and contexts, and checkpoint state management.",
   "responsibilities": [
-    "Manages the execution of the snapshot workflow pipeline, including request translation, validation, checkpoint tracking, target resolution, and running specific actions like docstrings, directories, LLM context, packages, and READMEs."
+    "Manage project snapshot requests, validation, and configuration options.",
+    "Execute snapshot workflows including directory generation, docstring updates, LLM context generation, package processing, and README generation.",
+    "Handle workflow state persistence through checkpoints and input fingerprints.",
+    "Validate and repair Python project structures."
   ],
   "concepts": [
-    "snapshot workflow pipeline",
-    "checkpoint management",
+    "snapshot workflow",
     "request validation",
-    "target resolution",
-    "workflow actions"
+    "project structure repair",
+    "action runners",
+    "checkpoint state management"
   ],
   "relationships": [
-    "The snapshot execution runner coordinates checkpoint loading, target resolution, validation, and action execution."
+    "Snapshot execution coordinates workflow steps using checkpoints, validation, target resolution, and specialized action runners."
   ],
   "design_decisions": [
-    "Modular implementation of snapshot workflow actions including docstrings, directories, LLM context, packages, and READMEs.",
-    "State tracking via checkpoints and input fingerprints across pipeline steps."
+    "Modular action execution separated by specific domain tasks like docstrings, directories, packages, LLM context, and READMEs.",
+    "State tracking through persistent checkpoints and input fingerprints."
   ],
   "importance": "Core"
 }

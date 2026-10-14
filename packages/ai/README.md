@@ -4,17 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-The package provides a robust execution framework for AI operations within the Gyomu project, built on top of Pydantic AI. Its primary purpose is to absorb differences across various AI providers and SDKs, delivering standardized text, object, and embedding generation. 
+The package serves as the AI execution foundation for the Gyomu project, delivering a robust framework for managing and executing AI operations built on Pydantic AI. Its primary purpose is to absorb differences between AI providers and SDKs, offering a unified mechanism for model routing, execution policies, and error handling. 
 
-By unifying model routing, execution policies, tool integration, and error handling under a single mechanism, the framework ensures that consuming packages remain decoupled from specific underlying providers.
+By providing standardized text, object, and embedding generation capabilities, the framework ensures that consuming packages remain decoupled from specific provider implementations. This design creates a cohesive environment where AI features can be integrated seamlessly without direct dependencies on underlying vendor interfaces.
 
 ## Architecture
 
-The `gyomu-ai` package is organized into a set of collaborating components that divide responsibilities across model referencing, execution management, tool integration, error handling, and provider-specific logic. 
+The `gyomu-ai` package is organized into a set of collaborating components that divide responsibilities across model referencing, execution management, tool integration, and error handling. 
 
-Foundational model definitions and enumerations reside in the core model module, while application-specific exceptions and routing errors are managed by a dedicated error module. The execution component governs runtime parameters, context management, streaming events, and token usage statistics for text, object, and embedding generations. The tool component supplies domain logic, configurations, and result structures for AI tool execution.
+Foundational model definitions and enumerations reside in the core model module, supplying identifiers for AI models and buckets. The execution component manages runtime parameters, execution contexts, policies, and streaming events, while capturing metadata, results, and token usage statistics for text, object, and embedding generations.
 
-These capabilities are unified through the Pydantic AI provider integration. This provider component handles model registries, routing configurations, agent creation, prompt building, and stream processing. It directly interacts with execution policies and maps provider-specific results and errors into standardized application formats.
+The package delegates provider-agnostic execution logic and model routing to the Pydantic AI provider integration. This component interfaces with Pydantic AI to handle agent creation, prompt building, stream processing, and tool mapping. Concurrently, the tool module provides core domain logic, configurations, and result handling for AI tool executions. Finally, dedicated error and routing modules define application-specific exception types and standardized mapping across all operations.
 
 ## Installation
 
@@ -26,13 +26,15 @@ uv add gyomu-ai
 
 ## Dependencies
 
-This package is designed for Pydantic AI version 2.x compatibility. For runtime dependencies, it utilizes Pydantic AI for general LLM processing, returns for explicit success and failure expressions using Success, Failure, and Result, gyomu-schema for schemas and common types, and gyomu-infra for general infrastructure processing such as I/O.
+This package is designed for Pydantic AI Version 2. 
+
+The runtime dependencies include pydantic ai for general LLM processing, returns for explicit success and failure expression using Success, Failure, and Result, gyomu-schema as a repository for schemas and common types, and gyomu-infra for general infrastructure processing such as I/O.
 
 ## Development
 
-Contributors must strictly enforce provider-agnostic execution across all AI text, object, and embedding operations, ensuring that provider-specific SDKs are never exposed directly to consumers. Instead, all interactions must flow through Gyomu's internal abstraction layers, utilizing Pydantic AI for agent creation, tool mapping, prompt building, and stream processing. When implementing changes, maintain the model registry and routing configurations as the mandatory gateway for every AI request, preventing bypass of the defined execution paths.
+Contributors must enforce strict abstraction boundaries by ensuring that AI provider-specific SDKs are never exposed directly to consumers, mandating that all interactions occur solely through Gyomu's defined abstraction layers. Architectural decisions must rely on centralized model registries and execution policies, routing every AI request exclusively through configured routing mechanisms rather than hardcoded endpoints. To maintain system resilience, contributors are required to implement structured error handling that captures diagnostic information such as the execution phase and underlying cause, while systematically mapping provider-specific outputs into standard result formats.
 
-All execution logic must integrate robust operational policies directly into the call lifecycle. Temporary failures during AI execution require strict adherence to the defined retry strategies, while persistent or qualifying failures must leverage fallback mechanisms to seamlessly switch to alternative execution routes. Furthermore, contributors must standardize all error handling by converting provider-specific outcomes into uniform, structured errors that preserve critical diagnostic information such as the underlying cause and the execution phase.
+Execution logic must incorporate defined retry strategies to handle transient failures, alongside fallback mechanisms that seamlessly redirect operations to alternative execution paths when available. When integrating Pydantic AI for agent creation, tool mapping, prompt building, and stream processing, contributors must preserve these unified execution workflows for text, object, and embedding generation. Code contributions that bypass the standardized routing, retry policies, or error-mapping structures will violate the core architecture of the execution platform and will not be accepted.
 
 ## Public API
 

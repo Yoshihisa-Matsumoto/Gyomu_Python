@@ -1,26 +1,32 @@
 {
-  "summary": "Provides the core orchestration, project configuration, workspace management, path utilities, snapshot analysis, and error handling for Python source code analysis.",
+  "summary": "Provides core capabilities for Python project analysis, including workspace and project context management, configuration parsing, module loading, path manipulation, error handling, and snapshot diffing.",
   "responsibilities": [
-    "Orchestrate Python source code analysis and workspace initialization.",
-    "Manage project configuration settings, metadata, and workspace definitions.",
-    "Provide path conversion and manipulation between various formats.",
-    "Manage project snapshots, change analysis, and difference computation.",
-    "Define custom error types and analysis phases for Python analysis operations."
+    "Initialize project and workspace contexts for Python analysis.",
+    "Discover workspace roots and parse configuration files.",
+    "Load, analyze, and manage Python modules and source files.",
+    "Define custom error types and analysis phases.",
+    "Convert and manipulate various path representations.",
+    "Create, validate, diff, and commit project snapshots and changes."
   ],
   "concepts": [
-    "Python analysis orchestration",
-    "project configuration and context",
-    "path conversion utilities",
-    "project snapshots and change analysis",
-    "error handling and analysis phases"
+    "project initialization",
+    "workspace context",
+    "configuration parsing",
+    "Python module analysis",
+    "error handling",
+    "path manipulation",
+    "project snapshots"
   ],
   "relationships": [
-    "Analysis orchestration utilizes project and workspace configurations, path conversion utilities, and snapshot management.",
-    "Project change analysis and snapshot management interact with project configuration and path structures."
+    "ProjectContext encapsulates project configuration and roots.",
+    "WorkspaceContext encapsulates workspace configuration and associated projects.",
+    "AnalysisError incorporates AnalysisPhase to represent Python analysis errors.",
+    "Project change analysis compares previous and current snapshots."
   ],
   "design_decisions": [
-    "Modular organization across core analysis, error handling, path utilities, project management, and snapshots.",
-    "Object-oriented encapsulation of project and workspace configurations."
+    "Modular organization across analysis, error handling, path utilities, project management, and snapshot domains.",
+    "Object-oriented abstractions for project and workspace contexts.",
+    "Dataclasses and structured models for metadata and change analysis."
   ],
   "importance": "Core"
 }

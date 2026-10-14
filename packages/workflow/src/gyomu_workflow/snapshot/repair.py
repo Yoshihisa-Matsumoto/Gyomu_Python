@@ -11,6 +11,15 @@ from gyomu_workflow.snapshot.error import (
 
 
 def create_file_if_not_exist(path: FullPath) -> Result[None, GyomuIOError]:
+    """Create a file with empty content if it does not already exist.
+
+    Args:
+        path (FullPath): Path to the file to create.
+
+    Returns:
+        Result[None, GyomuIOError]: A Result containing None on success or a
+            GyomuIOError on failure.
+    """
     if not path.exists():
         return write_text(path=path, content="")
     return Success(None)
@@ -20,6 +29,19 @@ def repair_python_package_structure(
     project_context: ProjectContext,
     errors: tuple[PyProjectStructureValidationError, ...],
 ) -> Result[None, GyomuIOError]:
+    """Repair Python package structure validation errors by creating missing init or
+    py.typed files.
+
+    Args:
+        project_context (ProjectContext): The project context containing the project
+            root.
+        errors (tuple[PyProjectStructureValidationError, ...]): A tuple of structure
+            validation errors to repair.
+
+    Returns:
+        Result[None, GyomuIOError]: A Result containing None on success or a
+            GyomuIOError on failure.
+    """
     for error in errors:
         if error.kind == PyProjectStructureErrorKind.MISSING_INIT_FILE:
             init_path = project_context.project_root / error.path / "__init__.py"

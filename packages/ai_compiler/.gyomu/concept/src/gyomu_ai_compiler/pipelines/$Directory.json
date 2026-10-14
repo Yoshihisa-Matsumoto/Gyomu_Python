@@ -1,24 +1,22 @@
 {
-  "summary": "Organizes the core processing pipelines of the compiler, encapsulating execution logic, prompts, rendering utilities, and state management for tasks such as docstring updates, package analysis, translation, and documentation generation.",
+  "summary": "Organizes the core processing pipelines of the AI compiler, housing specialized workflows for directory concepts, docstring updates, document routing, LLM context management, package analysis, README generation, and content translation.",
   "responsibilities": [
-    "Implement specialized processing pipelines for generating directory concepts, updating docstrings, processing documents, managing LLM context, analyzing package concepts, generating README documentation, and translating content."
+    "Implements and organizes processing pipelines for the AI compiler, handling tasks such as directory concept generation, docstring updates, document routing, LLM context management, package concept analysis, README generation, and content translation."
   ],
   "concepts": [
-    "compiler pipelines",
-    "document processing",
+    "pipelines",
+    "documentation generation",
     "docstring updates",
-    "directory concepts",
-    "package concepts",
-    "README generation",
+    "package analysis",
     "content translation",
     "LLM context management"
   ],
   "relationships": [
-    "The compiler pipelines coordinate specialized sub-pipelines for directory concepts, docstring updates, document processing, LLM context management, package concepts, README generation, and content translation."
+    "The pipelines directory organizes distinct processing workflows for documentation, docstrings, package analysis, translation, LLM context, and document routing."
   ],
   "design_decisions": [
-    "Organizes specialized processing pipelines into distinct sub-modules for generation, documentation, and translation tasks.",
-    "Employs modular execution logic, prompt providers, and rendering utilities across pipeline implementations."
+    "Organizes modular pipelines for various compiler tasks including documentation, code analysis, translation, and context building.",
+    "Encapsulates pipeline execution logic, prompts, and rendering capabilities within dedicated sub-packages."
   ],
   "importance": "Core"
 }

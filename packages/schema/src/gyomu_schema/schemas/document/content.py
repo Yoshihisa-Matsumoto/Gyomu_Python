@@ -36,6 +36,10 @@ class Paragraph(BaseModel):
             "Preserve the number and order of lines."
         )
     )
+    """An ordered sequence of lines representing the text.
+
+    An ordered sequence of lines representing the text.
+    """
 
     model_config = ConfigDict(
         json_schema_extra={

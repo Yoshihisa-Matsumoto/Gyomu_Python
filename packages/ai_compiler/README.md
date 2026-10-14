@@ -4,17 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-The package serves as an AI processing compilation and execution infrastructure within the Gyomu ecosystem. Its primary mission is to translate AI processing definitions and contexts provided by upper-level packages into structured components such as routes, prompts, execution strategies, and validation mechanisms for consistent execution via gyomu-ai.
+This package provides an AI processing compilation and execution infrastructure designed for the Gyomu project. Its mission is to transform AI processing definitions and contexts into structured components such as routes, prompts, execution strategies, and validation rules, executing them consistently through gyomu-ai. 
 
-The software provides a collection of AI compilation pipelines focused on automating developer documentation tasks, including docstring generation, README creation, document translation, and architectural concept compilation. It structures these automated workflows into modular components comprising schemas, context models, renderers, and execution logic.
+Serving as a specialized AI orchestration and compilation toolkit, the package automates documentation, docstring updates, package analysis, and document translation. It establishes a modular pipeline architecture that encompasses context modeling, prompt rendering, execution engines, and deterministic schema definitions tailored for code intelligence operations.
 
 ## Architecture
 
-The package is organized around modular AI compilation pipelines that automate developer documentation tasks. Responsibilities are divided across collaborating components that handle structured data schemas, context models, prompt rendering, and execution logic.
+The `gyomu-ai-compiler` package is organized around a modular pipeline architecture that divides responsibilities into distinct functional components for AI-driven orchestration, documentation generation, and translation operations. 
 
-Data structures and schemas define deterministic plans and actions for tasks such as docstring updates, while dedicated context models represent declarations and files during generation processes. Rendering components format conversation messages and prompts for LLM interactions across various document sections, including project overviews, architectural concepts, and README files. 
+Core capabilities are structured into specialized pipelines. The docstring update pipeline collaborates with dedicated schema components to define deterministic update plans, actions, and values, while context modules model file states and code declarations. Concurrently, rendering components construct LLM conversation messages, prompts, and user data structures to generate documentation sections such as architectural overviews, design principles, and README contents. 
 
-Execution components drive specific workflows, such as document translation, by managing state, handling validations, and incorporating retry support. Together, these modular components collaborate to process source code inputs and generate structured, AI-driven documentation.
+Execution responsibilities are handled by specialized engines, such as the translation execution component, which manages document content translation alongside retry mechanisms, temporary state tracking, and validation formatting. Together, these collaborating components separate context modeling, prompt rendering, execution, and schema definition to support automated code intelligence and documentation workflows.
 
 ## Installation
 
@@ -26,23 +26,21 @@ uv add gyomu-ai-compiler
 
 ## Dependencies
 
-This package requires the runtime dependencies `returns` for explicit success and failure representation using Success, Failure, and Result, as well as `gyomu-schema` for schemas and common types. 
-
-Additionally, it relies on `gyomu-infra` for general infrastructure processing such as I/O, and `gyomu-ai` for handling LLM processing.
+This package relies on several runtime dependencies to function. It uses the `returns` package for explicit success and failure expression using Success, Failure, and Result. Additionally, it integrates `gyomu-schema` for schemas and common types, `gyomu-infra` for general infrastructure processing such as I/O, and `gyomu-ai` for LLM processing.
 
 ## Development
 
-Contributors must strictly adhere to abstraction boundaries by routing all AI processing exclusively through `gyomu-ai`, ensuring that Provider-specific logic never leaks into the compiler. AI tasks must be decoupled from underlying model configurations by relying strictly on Route identifiers for task distinction. Furthermore, all inputs must be explicitly structured as Prompts containing necessary execution contexts, while outputs require mandatory validation via defined Schemas and Validators before consumption.
+Contributors must ensure that all AI processing relies strictly on the execution mechanisms of `gyomu-ai` rather than accessing AI models or providers directly. This separation of concerns requires that AI tasks be identified exclusively through explicit Routes, effectively decoupling the underlying model configuration from the actual content of the AI processing. Furthermore, every interaction with the AI must be assembled as an explicit Prompt that clearly structures the necessary execution context. To guarantee reliability, all AI outputs must pass through defined Schemas and Validators before use, and any execution failures must be handled as structured Errors that retain diagnostic details such as the failure cause and the specific execution phase, while execution retries are strictly governed by defined Retry strategies.
 
-Execution resilience and error management must follow standardized architectural controls. Contributors are required to use defined Retry strategies to govern execution retries and must handle all processing failures as structured Errors that retain diagnostic details such as failure causes and execution phases. Finally, all necessary transformations and component assemblies for AI processing must occur entirely within the Compiler layer, maintaining Pipelines as modular, reusable components across workflows.
+All transformations, translations, and assembly required for AI processing must occur entirely within the Compiler side, prohibiting the introduction of provider-specific logic into the execution flow. Pipelines must be purposefully engineered as reusable components that accept context and definitions from upper packages and translate them into standardized operational elements like Routes, Prompts, execution strategies, and validation layers. Contributors are expected to maintain these architectural boundaries rigidly, ensuring that the codebase preserves a deterministic, decoupled design where execution strategy, validation, and provider access remain cleanly isolated.
 
 ## Public API
 
-- Docstring Update Generation - Builds deterministic AI plans, actions, and schemas for automatically updating function, method, and class docstrings.
-- LLM Context Rendering - Renders and formats conversation messages and prompts for generating LLM context across various document sections.
-- README Documentation Generation - Constructs prompts, user data structures, and message flows for automatically generating project README documentation.
-- Document Translation Execution - Executes document translation pipelines with built-in validation handling, retry support, and state management.
-- Package and Directory Compilation - Analyzes and compiles high-level package and directory architectural concepts from source code inputs.
+- Docstring Management Schemas - Defines structured schemas, replacement actions, and execution plans for deterministic AI-driven docstring generation and code updates.
+- LLM Context Rendering - Constructs conversation messages, prompts, and context structures for generating architectural overviews, constraints, and design sections.
+- README Generation Pipelines - Builds prompts, data structures, and message flows for creating comprehensive README documentation sections.
+- Translation Execution Engine - Executes document translation tasks incorporating retry mechanisms, temporary state tracking, and validation formatting.
+- Code Declaration Contexts - Models declaration contexts, file states, and retry options to support code analysis and docstring pipelines.
 
 ## License
 

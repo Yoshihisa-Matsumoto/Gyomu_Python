@@ -2,79 +2,77 @@
 
 ## Repository Overview
 
-Gyomu AI is a Python library that functions as a unified, provider-agnostic abstraction layer over Pydantic AI for building AI applications within the Gyomu project. Its primary responsibility is to absorb differences between AI providers and SDKs, decoupling consuming packages from direct dependencies on specific external implementations. 
+The `gyomu-ai` package serves as the AI execution infrastructure for the Gyomu project, built on top of Pydantic AI. Its primary responsibility is to abstract AI providers and SDKs, providing a unified mechanism for AI execution, model routing, execution policies, tool integration, and result and error mapping. 
 
-The library manages execution runtimes, parameters, policies, tool execution, model registries, and dynamic model routing. Through this centralized infrastructure, it delivers consistent execution, model routing, retries, fallbacks, and error handling.
+By centralizing these operations, the package ensures that dependent packages remain decoupled from specific AI providers and SDKs, while delivering standardized text, object, and embedding generation capabilities.
 
 ## Package Responsibilities
 
-- Provide a unified interface for AI generation, streaming, object generation, and embedding operations.
-- Integrate and manage Pydantic AI provider capabilities including model registries, agent creation, and prompt construction.
-- Define execution policies, parameters, and observers for monitoring and controlling AI interactions and tool loops.
-- Handle tool execution, configuration, and result mapping across AI interactions.
-- Support dynamic model routing and configuration initialization within the application.
+- Implement provider-agnostic execution logic and models for AI text, object, and embedding generation.
+- Integrate with Pydantic AI to handle agent creation, tool mapping, prompt building, and stream processing.
+- Manage model registries, routing configurations, and execution policies.
+- Provide standardized error handling, mapping, and result formatting across AI operations.
 
 ## Architecture
 
-The package architecture is organized around five primary structural areas within `src/gyomu_ai`:
+The package is structurally organized around several core directories within `src/gyomu_ai/`:
 
-- **`src/gyomu_ai/execution`**: Manages the execution environment, runtime parameters, configuration policies, observers, and result structures. It supports model invocation, execution tracking, and captures outputs, metadata, and token usage from generation operations.
-- **`src/gyomu_ai/provider/pydantic_ai`**: Implements the Pydantic AI integration. It handles model registries, agent creation, prompt building, model execution, routing, and maps Pydantic AI components (errors, results, finish reasons, and tools) to standard formats, alongside Google API integration and model settings.
-- **`src/gyomu_ai/tool`**: Houses the core domain logic, classes, configurations, and results for AI tool execution, alongside public error handling structures.
-- **`src/gyomu_ai/model`**: Defines the core data structures, keys, and identification representations for AI models used across the application.
-- **`src/gyomu_ai/error`**: Defines application-specific exception handling and custom error types, such as routing errors.
-
-Execution parameter configurations and execution contexts explicitly support AI model invocation and tracking across these structural boundaries, while execution results capture outputs from generation operations.
+- **`src/gyomu_ai/execution`**: Manages the execution environment, runtime parameters, configuration policies, observers, and result structures for AI operations, supporting model invocation and execution tracking.
+- **`src/gyomu_ai/provider/pydantic_ai`**: Implements the Pydantic AI provider integration for model execution, routing, prompt building, agent creation, tool mapping, and result/error mapping. This component interacts with Google API configuration to create models, embeddings, and model registries.
+- **`src/gyomu_ai/tool`**: Houses core domain logic and definitions for AI tool execution, including configurations, results, and public error handling.
+- **`src/gyomu_ai/model`**: Provides foundational definitions, including type aliases (`BucketId`) and enumeration keys (`AiModelKey`) for identifying AI models and buckets.
+- **`src/gyomu_ai/error`**: Defines application-specific error types and exception handling, including routing errors.
 
 ## Design Principles
 
-- Abstract AI providers and hide SDK implementation details behind the Gyomu layer to prevent consumer dependency on specific platforms.
-- Centralize AI execution routing, retry strategies, and fallback mechanisms to eliminate duplicated control logic in consuming applications.
-- Normalize provider-specific outputs into standard results to conceal underlying provider differences.
-- Represent execution failures as structured errors containing diagnostic metadata like execution phases rather than raw exceptions or strings.
-- Strictly restrict the package scope to AI execution management without incorporating unrelated application business logic.
+- Enforce strict abstraction of AI providers and SDKs by mediating all interactions through internal interfaces, preventing provider-specific details from leaking to consumers.
+- Centralize execution routing, retry strategies, and fallback mechanisms to handle transient failures and alternative pathways uniformly without consumer duplication.
+- Normalize provider-specific outputs into standard result types to conceal underlying differences from upper layers.
+- Represent execution failures as structured errors containing diagnostic context such as causes and execution phases rather than relying on raw exceptions or strings.
+- Strictly bound the package scope to AI execution orchestration, excluding any application-specific business logic.
 
 ## Important Constraints
 
-- Do not expose APIs that depend on specific AI providers or SDKs to the consuming side.
-- Do not expose provider-specific implementation details to the consuming side.
-- Do not implement application-specific business logic unrelated to AI execution.
-- Represent AI execution failures as structured errors rather than raw exceptions or plain strings.
-- Encapsulate retry and fallback execution control to prevent duplicate implementation by the consumer.
+- Do not expose APIs that depend on specific AI providers or SDKs to consumers.
+- Do not expose provider-specific implementation details to consumers.
+- Do not implement application-specific business logic outside of AI execution.
+- Represent AI execution failures as structured errors rather than raw exceptions or strings.
+- Do not require consumers to implement duplicate execution control for retries and fallbacks.
+- Depend only on permitted runtime packages (`gyomu-schema`, `gyomu-infra`, `returns`, `pydantic-ai`, `pydantic-ai-slim`).
+- Preserve the existing public export structure of 68 symbols.
 
 ## Editing Rules
 
-- Explicitly specify types for arguments and return values in public APIs and core application logic.
-- Maintain type-safe implementations that comply with strict mypy settings.
-- Avoid Any or suppressing type checks, and restrict their scope and rationale when necessary.
-- Define and validate structured data for JSON, YAML, persisted data, and external boundaries using explicit Pydantic models.
-- Use dataclasses or appropriate data structures for internal state representation according to their use case.
-- Do not duplicate the same conceptual data structures or constraints across multiple locations.
-- Express expected failures explicitly using returns.Result, Success, and Failure.
-- Handle exceptions appropriately at boundaries rather than using them widely for expected failures.
-- Design packages with clear responsibilities, directing dependencies from upper workflows to lower functions.
+- Specify explicit argument and return types for public APIs and core application logic.
+- Maintain type-safe implementations conforming to strict mypy settings.
+- Avoid Any and type-checking suppression, restricting their scope and justification when necessary.
+- Define and validate JSON, YAML, persisted data, and external boundary structures using explicit Pydantic schemas.
+- Use dataclasses or appropriate data structures for internal state representation.
+- Do not duplicate identical concept data structures or constraints across multiple locations.
+- Express expected application failures explicitly using returns.Result, Success, and Failure.
+- Handle exceptions at boundaries rather than using them to communicate expected failures.
+- Design packages with clear responsibilities and direct dependencies from upper workflows to lower functions.
 - Do not introduce circular dependencies between packages.
-- Interact with other packages exclusively through their public APIs rather than internal implementation details.
-- Use Protocol and constructor injection to specify contracts for external dependencies and interchangeable logic.
-- Design based on current responsibilities and changes rather than speculating future usage patterns.
-- Implement operations without side effects as pure functions where possible.
-- Separate I/O with the file system, external services, and LLMs from business logic.
+- Depend only on public APIs when integrating with other packages.
+- Use Protocols and constructor injection to specify contracts for external dependencies and interchangeable processing.
+- Design based on current responsibilities and changes rather than speculative future abstractions.
+- Implement side-effect-free processing as pure functions whenever possible.
+- Separate I/O operations involving the filesystem, external services, or LLMs from business logic.
 - Treat AI outputs as untrusted data and validate them with Pydantic models before use.
-- Confine dependencies on AI provider-specific APIs and types to appropriate adapters and infrastructure boundaries.
-- Separate AI execution, routing, fallback, and retry responsibilities into interfaces that hide implementation details.
-- Use structured data such as Concepts and analysis results as inputs for documentation generation.
-- Treat document structure, content, translation, and rendering as independent responsibilities.
-- Use structured intermediate representations like Document instead of directly assembling Markdown strings.
-- Treat Concepts derived from source code and human-managed Knowledge as independent information sources.
-- Do not define identical design knowledge in multiple management locations; reference appropriate information sources instead.
+- Encapsulate AI-provider-specific APIs and types within adapters or infrastructure boundaries.
+- Design interfaces that separate AI execution, routing, fallback, and retry from caller implementation details.
+- Use structured data such as concepts and analysis results as inputs for documentation generation.
+- Treat document composition, content, translation, and rendering as independent responsibilities.
+- Use structured intermediate representations like Document instead of assembling Markdown strings directly.
+- Treat code-derived concepts and human-managed knowledge as independent information sources.
 - Update or add corresponding tests when observable behavior changes.
 - Keep unit tests deterministic and isolate dependencies on LLMs or external services.
-- Use actual temporary directories or fixtures for file system and project structure tests, mocking only controllable external dependencies.
-- Base mock implementations on actual public interfaces without over-relying on internal call counts or details.
-- Consolidate shareable logic into existing packages without duplicating implementations.
+- Use actual temporary directories or fixtures for filesystem and project structure tests, mocking only external service dependencies.
+- Align mock dependencies with actual public interfaces without relying excessively on internal call counts or implementation details.
+- Consolidate shared processing into existing appropriate packages without duplicating logic.
 - Evaluate standard libraries and existing dependencies before adding new dependency packages.
-- Follow existing naming conventions, package structures, and code styles while keeping changes minimal.
-- Maintain a state that passes repository inspections and tests including ruff, mypy, and pytest.
+- Follow existing naming conventions, package structures, and code styles, keeping change scopes minimal.
+- Maintain a state that passes repository checks and tests including ruff, mypy, and pytest.
 
 ## Navigation
 

@@ -4,17 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-This package provides canonical data models, structural schemas, and validation rules that serve as the shared foundation across the entire Gyomu ecosystem. Its primary purpose is to define data contracts for Python AST analysis, structured documents, project knowledge bases, and robust error-handling strategies. 
+The package provides canonical data schemas, models, and shared utilities for the Gyomu system. Its primary purpose is to define data contracts across Gyomu functions—such as Python analysis, structured documents, domain knowledge, and snapshots—while maintaining type safety and data consistency. 
 
-By establishing shared types, protocols, and utility definitions, the package ensures data consistency and type safety across all functional modules. It facilitates seamless communication between distinct features while maintaining loosely coupled dependencies throughout the architecture.
+By serving as a centralized source for types, error definitions, and protocols, the package keeps dependencies between individual Gyomu modules loosely coupled. It specializes in supporting Python AST and code structure analysis, structured document validation and translation, and domain-specific knowledge representation.
 
 ## Architecture
 
-The package is organized around a core set of collaborating domain schemas and utility components that divide responsibilities by data structure and system concern. At its foundation, the architecture separates code analysis, document formatting, project knowledge, and robust error management into distinct, modular subsystems.
+The package is organized around a core set of collaborating components that divide responsibilities by domain and schema type. Python analysis is structured through dedicated models representing AST expressions, statements, type structures, and code elements such as classes, functions, modules, and project configurations. 
 
-Code and structural analysis responsibilities are handled by specialized schema directories. The Python components model code structures such as classes, functions, modules, and symbols, while nested type directories define AST expressions, statements, and union types. Concurrently, document components manage structured content elements, sections, and validation rules, and knowledge components structure domain-specific data like coding guidelines, operational details, and technical references.
+Structured document processing is handled by schema components that define document hierarchies, content elements, validation rules, and translation strategies. Domain-specific requirements are further supported by robust error handling models—covering AI, configuration, database, and validation operations with associated resolution strategies—alongside knowledge management schemas that structure guidelines, roadmaps, and technical documentation.
 
-Cross-cutting operational concerns, such as fault-tolerance and error management, are centralized within dedicated error-handling schemas that define application error hierarchies, retry policies, and resolution strategies across operations. Together, these components collaborate to provide a unified framework for data modeling, validation, and serialization.
+Shared foundational operations, such as serialization, timing, results wrapping, and filesystem interactions, cut across these components to support the broader system architecture.
 
 ## Installation
 
@@ -26,25 +26,21 @@ uv add gyomu-schema
 
 ## Dependencies
 
-This package is designed for Pydantic version 2.x, which is used for schema definition, data validation, serialization, and deserialization. 
-
-For runtime usage, the package relies on pydantic for its core data handling and returns to provide explicit success and failure representations using Success, Failure, and Result types.
+This package is designed for compatibility with Pydantic version 2.x, which is required alongside Pydantic schemas for data definition, validation, serialization, and deserialization. Additionally, the runtime relies on the returns package to provide explicit success and failure representations using Success, Failure, and Result.
 
 ## Development
 
-Data contracts shared across multiple Gyomu packages must reside within this foundation. Contributors are required to define all data handled at external boundaries—such as JSON, persistence layers, and MCP interfaces—as Pydantic schemas, while internal implementation details that remain strictly within a single processing flow should not be exposed as Pydantic models. To prevent value misassignment and enforce strict boundaries, developers must represent identifiers, paths, and meaningful values through dedicated types whenever possible. Furthermore, Pydantic schema annotations must be comprehensively provided rather than omitted, ensuring they serve not only as runtime type information but also as essential context for AI-driven code generation, document generation, and knowledge generation.
+To maintain strict package decoupling and consistent data contracts across Python Analysis, Concept, Document, Knowledge, and Snapshot features, all shared data structures must be defined as canonical Pydantic schemas. Contributors must ensure that any data crossing external boundaries—such as JSON serialization, persistence layers, and Model Context Protocol (MCP) interfaces—is fully modeled using Pydantic. Furthermore, to enhance runtime safety and maximize utility for AI-driven code generation, documentation, and knowledge extraction, all schema annotations must be explicitly provided and thoroughly documented rather than omitted. Implementation details reserved exclusively for internal processing should remain hidden and not exposed as public Pydantic schemas.
 
-Interfaces and shared abstractions must adhere to strict dependency and placement rules. Developers should define Protocols as interface contracts separated from their implementations, restricting this package to interfaces that multiple packages share and that do not belong to the specific responsibilities of any single package. Protocols tied to specific package responsibilities or use cases belong within those respective packages, with concrete implementations positioned according to the correct direction of dependency and responsibility. Error handling must follow a common error structure across all definitions to guarantee consistent error management throughout the ecosystem.
-
-All utilities implemented in this package must remain strictly generic and free of business logic tied to any specific Gyomu package. Contributors must design APIs to be as immutable and declarative as possible to maintain robust data consistency and type safety. Finally, contributors must preserve the zero-dependency status of this package relative to other Gyomu packages, ensuring it perpetually functions as an isolated, stable shared foundation.
+Type safety and domain clarity must be enforced by encapsulating values, identifiers, and paths into precise types to prevent data interchange errors. APIs should be designed to be strictly immutable and declarative, accompanied by domain-specific error handling models that adhere to a unified error structure for consistent cross-package error recovery. Shared utilities must remain completely decoupled from specific business logic, and protocols must be reserved strictly for cross-cutting interface contracts that do not belong to the responsibilities of any single downstream package. Because this package serves as the foundational shared infrastructure for the entire Gyomu ecosystem, contributors must strictly preserve its independence by preventing any dependencies on other Gyomu packages.
 
 ## Public API
 
-- Python AST and Type Models - Models Python Abstract Syntax Tree (AST) expressions, statements, types, and code structure elements for analysis.
-- Structured Document Models - Defines structured document models, elements, validation rules, and translation strategies.
-- Project Knowledge Schemas - Provides domain-specific schemas for representing project knowledge, guidelines, operational details, and technical references.
-- Error Handling and Recovery Schemas - Defines comprehensive application error hierarchies, retry policies, and resolution strategies across operations.
-- Serialization and Utility Framework - Provides utility functions for serialization, format validation, timing, execution wrapping, and file system operations.
+- Python AST and Type Models - Defines schema models, union types, and kinds for representing Python AST expressions, statements, and type structures to support analysis.
+- Python Code Structure Analysis - Provides data models and schemas for Python code structures, symbols, modules, files, project configuration, and dependencies.
+- Structured Document Schemas - Defines data models, validation rules, translation strategies, and content elements for structured documents and sections.
+- Error Handling Models - Provides core error handling models, domain-specific error classes, and resolution strategies for AI, configuration, database, and validation.
+- Knowledge Management Schemas - Defines schemas for structuring knowledge domains including coding guidelines, technical documentation, operational knowledge, and roadmaps.
 
 ## License
 

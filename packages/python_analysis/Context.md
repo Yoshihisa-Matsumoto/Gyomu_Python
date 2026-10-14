@@ -2,77 +2,76 @@
 
 ## Repository Overview
 
-Gyomu Python Analysis provides a foundational Python source code analysis infrastructure for Gyomu. Its primary responsibility is to inspect Python projects and workspaces, extracting source code structures, declarations, and dependencies into structured analysis models. 
+`gyomu-python-analysis` serves as the Python source code analysis foundation for Gyomu. Its primary responsibility is to analyze Python projects and workspaces, extracting source code structures, declarations, and dependencies into a structured analysis model. 
 
-By managing analysis targets and configurations consistently through Project and Workspace Contexts, the package enables the representation of analysis results and project states in a reusable format. It acts as a common analysis base layer that supplies structured data for upper layers such as Concept, Facts, and Docstring.
+The package manages analysis targets and configurations consistently through Project Context and Workspace Context. By treating analysis results and project states as reusable formats, it establishes a common analysis infrastructure utilized by upper layers such as Concept, Facts, and Docstring.
 
 ## Package Responsibilities
 
-- Manage project and workspace configurations, source roots, and file enumerations for Python codebases.
-- Analyze Python source code syntax, types, constructs, and metadata via AST parsing and expression evaluation.
-- Track project file states, compute differences across snapshots, and validate change commitments.
-- Provide symbol context and dependency resolution data during code structure analysis.
+- Analyze Python source code structures, metadata, and dependencies.
+- Manage project workspaces, configuration, and module discovery.
+- Generate and compare project snapshots to track code evolution.
+- Provide AST-based parsing utilities for statements, expressions, and symbols.
 
 ## Architecture
 
-- **`src/gyomu_python_analysis/analysis`**: Serves as the core orchestration layer, responsible for project and workspace initialization, module and file context loading, cache management, metadata registration, and source root resolution.
-- **`src/gyomu_python_analysis/analysis/analyzers`**: Provides core analyzers utilized by the analysis layer to extract structure, metadata, and dependencies from Python code elements. It maintains symbol context and relies on specialized subcomponents.
-- **`src/gyomu_python_analysis/analysis/analyzers/ast`**: Sub-component providing AST-based code analysis capabilities, handling statements, expressions, and the construction of symbol and class/function indexes.
-- **`src/gyomu_python_analysis/analysis/analyzers/expression`**: Sub-component nested under analyzers that delegates to specific handlers for analyzing various Python expression types and parsing literal values.
-- **`src/gyomu_python_analysis/snapshot`**: Manages project snapshots independently, handling file enumeration, metadata generation, workspace identification, and computing changes or differences between previous and current snapshots.
+The package is structured hierarchically around two primary architectural areas located under `src/gyomu_python_analysis/`: `analysis` and `snapshot`.
+
+The `src/gyomu_python_analysis/snapshot` directory manages project-level state, handling project snapshots, file enumeration, difference computation, change analysis, validation, and workspace management.
+
+The `src/gyomu_python_analysis/analysis` directory provides core project initialization, workspace discovery, configuration parsing, module loading, caching, and metadata registration. It contains the `analyzers` component (`src/gyomu_python_analysis/analysis/analyzers`), which extracts structure and metadata from Python code elements—such as classes, functions, variables, types, decorators, imports, docstrings, and dependencies—while maintaining symbol context and dependency resolution.
+
+Within `analyzers`, specialized sub-components handle specific granular constructs:
+- `src/gyomu_python_analysis/analysis/analyzers/ast` provides AST-based code analysis, statement and expression evaluation, and builds symbol, class, and function indexes.
+- `src/gyomu_python_analysis/analysis/analyzers/expression` delegates and processes various Python expressions (including constants, subscripts, dictionaries, arrays, literals, type expressions, tuples, sets, and expression names) and parses literal values.
 
 ## Design Principles
 
-- Ensure deterministic derivation of analysis results strictly from source code and project configurations without incorporating AI-based inference or semantic analysis.
-- Maintain strict separation of concerns between independent layers, isolating project-level and source-file-level analysis from upper-layer documentation generation, source code modification, and application-specific decision logic.
-- Encapsulate Python-specific parsing mechanics within a centralized common foundation to prevent upper layers from directly depending on underlying analysis library implementation details.
-- Manage analysis targets, project boundaries, source roots, and path resolution uniformly across projects and workspaces using centralized Context structures.
-- Provide analysis results as read-only structured models and persist project states as immutable Snapshots to enable safe reusability across multiple downstream processes without side effects.
+- Derive analysis results deterministically from source code and project settings using unified path resolution rules and centralized Python analysis logic to prevent upper layers from depending directly on external parsing implementation details.
+- Separate project and source file analyses into independent responsibilities managed consistently through Project Context and Workspace Context while maintaining clear project boundaries and source roots.
+- Provide analysis results exclusively as read-only structured models and persist project states as immutable snapshots, strictly separating analysis from upper-layer processing such as document updates, code modifications, and AI-driven reasoning.
 
 ## Important Constraints
 
-- Do not modify source code.
-- Do not generate or update documentation, including READMEs and design documents.
-- Do not generate, update, or apply docstrings.
+- Do not rewrite source code.
+- Do not generate, update, or apply documentation such as READMEs, design documents, or docstrings.
 - Do not implement AI-based inference or semantic analysis.
 - Do not introduce project-specific analysis logic into the common analysis infrastructure.
 - Do not expose implementation details of Python analysis libraries as part of the upper layer's public API.
-- Do not implement application-specific decision logic that relies on analysis results.
+- Do not implement application-specific decision logic using analysis results.
 - Do not couple analysis processing with documentation update processing.
 
 ## Editing Rules
 
-- Explicitly specify parameter and return types for public APIs and primary application logic.
+- Explicitly specify argument and return types for public APIs and primary application logic.
 - Maintain type-safe implementations compatible with strict mypy settings.
-- Avoid Any and type-checking suppression, limiting scope and rationale when necessary.
-- Use explicit schemas such as Pydantic models to define and validate structured data at system boundaries.
-- Use appropriate data structures like dataclasses for internal state representation.
-- Do not duplicate the same data structures or constraints in multiple places.
-- Represent expected application failures explicitly using returns.Result, Success, and Failure.
-- Handle exceptions at system boundaries rather than using them for expected business failures.
-- Design packages with clear responsibilities and unidirectional dependencies from higher-level workflows to lower-level functions.
-- Do not introduce circular dependencies between packages.
-- Rely on public APIs rather than internal implementation details when interacting with other packages.
-- Use Protocols and constructor injection to define contracts for external dependencies and interchangeable logic.
+- Avoid Any or suppressing type checkers, limiting their scope and justification when necessary.
+- Define and validate JSON, YAML, persisted data, and boundary-crossing structured data using explicit Pydantic models.
+- Use dataclasses or appropriate data structures for internal state representation.
+- Do not duplicate data structures or constraints representing the same concept in multiple places.
+- Express expected application failures explicitly using returns.Result, Success, and Failure.
+- Avoid using exceptions for expected failures, and handle exceptions appropriately at boundaries.
+- Design package dependencies to flow from higher-level workflows to lower-level features without circular dependencies.
+- Depend only on public APIs of other packages rather than internal implementation details.
+- Use Protocols and constructor injection to specify contracts for external dependencies and interchangeable logic.
 - Design based on current responsibilities and changes rather than speculative future abstractions.
-- Implement stateless computations as pure functions where possible.
-- Isolate side-effecting operations involving the file system, external services, or LLMs from business logic.
-- Treat AI outputs as untrusted data and validate them with Pydantic models before use.
-- Encapsulate AI provider-specific APIs and types within adapters and infrastructure boundaries.
-- Design clean interfaces that separate AI execution, routing, fallback, and retry concerns from callers.
-- Use structured data such as concepts and analysis results as inputs for documentation generation.
-- Treat document structure, content, translation, and rendering as independent responsibilities.
-- Use structured intermediate representations like Document instead of building Markdown strings directly.
-- Treat source-derived concepts and human-managed knowledge as independent information sources.
-- Reference appropriate single sources of truth instead of duplicating design knowledge.
-- Update or add corresponding tests when observable behavior changes.
-- Keep unit tests deterministic by isolating LLMs and external services.
-- Use actual temporary directories or fixtures for file system and project structure tests, mocking only external service dependencies.
-- Base mock dependencies on public interfaces rather than internal implementation details or call counts.
-- Consolidate shareable logic into existing packages without duplicating implementations.
-- Evaluate standard libraries and existing dependencies before adding new packages.
-- Follow existing naming conventions, package structures, and code styles while keeping change scopes minimal.
-- Ensure code passes all repository checks and tests including ruff, mypy, and pytest.
+- Implement stateless logic as pure functions whenever possible.
+- Separate I/O operations involving the file system, external services, or LLMs from business logic.
+- Validate AI outputs with Pydantic models before using them as untrusted inputs.
+- Encapsulate AI provider-specific APIs and types within adapters or infrastructure boundaries.
+- Design AI interfaces to isolate execution, routing, fallback, and retry responsibilities from callers.
+- Use structured data like Concepts and analysis results as inputs for document generation.
+- Treat document composition, content, translation, and rendering as independent responsibilities.
+- Use structured intermediate representations like Document instead of directly assembling Markdown strings.
+- Treat code-derived Concepts and human-managed Knowledge as independent information sources.
+- Update tests when observable behavior changes.
+- Keep unit tests deterministic by isolating dependencies on LLMs and external services.
+- Use actual temporary directories or fixtures for file system tests, mocking only external service dependencies.
+- Base mocks on public interfaces rather than internal implementation details or call counts.
+- Consolidate shared logic into existing packages without duplicating implementations.
+- Evaluate standard libraries and existing dependencies before adding new dependency packages.
+- Follow existing naming conventions, package structures, and code styles while minimizing change scopes.
+- Maintain code that passes all project-defined checks and tests such as ruff, mypy, and pytest.
 
 ## Navigation
 

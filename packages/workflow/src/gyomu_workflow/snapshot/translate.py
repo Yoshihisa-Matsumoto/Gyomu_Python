@@ -9,6 +9,17 @@ def translate_snapshot_request(
     target_package: WorkspaceProject,
     option: SnapshotExecutionOption,
 ) -> SnapshotRequest:
+    """Translate workspace and project context into a snapshot request.
+
+    Args:
+        workspace_context (WorkspaceContext): The workspace context containing the root
+            path.
+        target_package (WorkspaceProject): The target workspace project to snapshot.
+        option (SnapshotExecutionOption): Options for executing the snapshot.
+
+    Returns:
+        SnapshotRequest: The generated snapshot request object.
+    """
 
     project_context = initialize_project_from_workspace(
         workspace_context.path, target_package

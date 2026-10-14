@@ -31,8 +31,21 @@ class SnapshotRequestValidationError(BaseError):
 
 
 class PyProjectStructureErrorKind(StrEnum):
+    """PyProject structure error kind.
+
+    PyProject structure error kind.
+    """
+
     MISSING_INIT_FILE = "missing_init_file"
+    """Missing `__init__.py` file error.
+
+    Missing `__init__.py` file error.
+    """
     MISSING_PY_TYPED_FILE = "missing_py_typed_file"
+    """Missing `py.typed` file error.
+
+    Missing `py.typed` file error.
+    """
 
 
 class PyProjectStructureValidationError(BaseError):

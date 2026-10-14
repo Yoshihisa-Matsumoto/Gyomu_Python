@@ -1,19 +1,19 @@
 {
-  "summary": "Provides core schema conversion and validation utilities along with domain models such as market holidays.",
+  "summary": "Serves as the root package for gyomu schema definitions, providing core conversion and validation utilities along with market holiday data structures.",
   "responsibilities": [
-    "Convert and validate input values and JSON strings against Pydantic models.",
-    "Provide market holiday definitions."
+    "Provide functions to convert and validate input values and JSON strings against Pydantic models.",
+    "Define market holiday data structures."
   ],
   "concepts": [
     "Pydantic model conversion",
-    "Market holiday schema",
-    "Core schema package"
+    "market holiday schema",
+    "schema package root"
   ],
   "relationships": [
-    "convert and convert_json operate on Pydantic models to validate and convert input values and JSON strings."
+    "convert functions validate and convert input values and JSON strings against Pydantic models."
   ],
   "design_decisions": [
-    "Uses Pydantic models for validation and conversion of input values and JSON strings."
+    "Exports functions for converting and validating input values and JSON strings against Pydantic models."
   ],
   "importance": "Core"
 }
