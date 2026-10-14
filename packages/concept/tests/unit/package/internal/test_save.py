@@ -4,7 +4,7 @@ from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.concept.package.concept import PackageConcept
 from returns.result import Failure, Success
 
-from packages.concept.concept_test_support.helpers import (
+from packages.concept.test_support.helpers import (
     _create_directory_project_context,
 )
 from packages.schema.test_support.concept_helpers import (

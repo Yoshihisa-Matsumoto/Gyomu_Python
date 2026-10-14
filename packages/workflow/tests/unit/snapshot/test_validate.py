@@ -19,7 +19,7 @@ from gyomu_workflow.snapshot.validate import (
 )
 from returns.result import Failure, Success
 
-from packages.concept.concept_test_support.helpers import (
+from packages.concept.test_support.helpers import (
     create_monorepo_workspace_context,
 )
 from packages.python_analysis.test_support.helpers import (

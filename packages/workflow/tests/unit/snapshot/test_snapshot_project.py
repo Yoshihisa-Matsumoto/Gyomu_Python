@@ -2,7 +2,7 @@ from gyomu_schema.error.gyomu import GyomuError
 from gyomu_workflow.snapshot.project import find_project_by_name
 from returns.result import Failure, Success
 
-from packages.concept.concept_test_support.helpers import (
+from packages.concept.test_support.helpers import (
     create_monorepo_workspace_context,
     create_workspace_context,
 )

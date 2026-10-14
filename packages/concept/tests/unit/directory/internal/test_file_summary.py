@@ -1,8 +1,5 @@
 from pathlib import Path
 
-from concept_test_support.helpers import (
-    _create_directory_project_context,
-)
 from gyomu_concept.directory.internal.file_summary import (
     build_file_summary_record,
 )
@@ -14,6 +11,7 @@ from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import SourceRelativePath
 from gyomu_schema.schemas.python.visibility import Visibility
 
+from packages.concept.test_support.helpers import _create_directory_project_context
 from packages.schema.test_support.helpers import (
     create_docstring,
     create_file_analysis_context,

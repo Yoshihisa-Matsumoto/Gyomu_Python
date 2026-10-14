@@ -17,7 +17,7 @@ from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Success
 
 from packages.ai.ai_test_support.helper import register_test_google_routing
-from packages.concept.concept_test_support.helpers import FIXTURES_ROOT
+from packages.concept.test_support.helpers import FIXTURES_ROOT
 
 
 @pytest.fixture(scope="session")
