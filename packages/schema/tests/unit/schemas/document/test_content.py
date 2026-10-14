@@ -3,6 +3,7 @@ from gyomu_schema.schemas.document.content import (
     CodeBlock,
     Paragraph,
     Table,
+    paragraph_from_text,
 )
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
@@ -10,7 +11,6 @@ from packages.schema.schema_test_support.concept_helpers import (
     create_bullet_list,
     create_bullet_list_item,
     create_codeblock,
-    create_paragraph,
     create_table,
     create_table_row,
 )
@@ -20,7 +20,7 @@ class TestParagraph:
     def test(self) -> None:
         _assert_json_round_trip(
             Paragraph,
-            create_paragraph(
+            paragraph_from_text(
                 text="This is a test paragraph.",
             ),
         )
