@@ -14,7 +14,7 @@ from gyomu_schema.schemas.python.type.type_analysis import (
 )
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_array_structure,
     create_attribute_structure,
     create_call_structure,

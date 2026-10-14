@@ -19,7 +19,7 @@ from packages.docstring.docstring_test_support.helper import (
     create_entry,
     create_rendered_docstring,
 )
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     _default_identity,
     create_class_analysis,
     create_declaration_identity,

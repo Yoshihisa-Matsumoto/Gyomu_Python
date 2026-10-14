@@ -1,6 +1,6 @@
 from gyomu_schema.schemas.document.definition.code import _validate_codeblock
 
-from packages.schema.schema_test_support.concept_helpers import create_codeblock
+from packages.schema.test_support.concept_helpers import create_codeblock
 
 
 def test_returns_valid_when_codeblock_is_unchanged() -> None:

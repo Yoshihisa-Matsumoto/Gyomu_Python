@@ -16,7 +16,7 @@ from pytest_mock import MockerFixture
 from returns.result import Success
 
 from packages.ai.ai_test_support.helper import register_test_google_routing
-from packages.schema.schema_test_support.concept_helpers import create_paragraph
+from packages.schema.test_support.concept_helpers import create_paragraph
 
 
 @pytest.mark.asyncio

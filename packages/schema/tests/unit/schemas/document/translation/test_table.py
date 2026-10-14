@@ -5,7 +5,7 @@ from gyomu_schema.schemas.document.translation.table import (
 )
 from returns.result import Success
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_table,
     create_table_row,
     create_validation_result,

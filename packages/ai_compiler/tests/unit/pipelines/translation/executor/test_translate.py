@@ -22,7 +22,7 @@ from gyomu_schema.schemas.document.translation.paragraph import (
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_paragraph,
     create_section_translation,
 )

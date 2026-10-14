@@ -17,7 +17,7 @@ from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.concept_helpers import create_file_summary
+from packages.schema.test_support.concept_helpers import create_file_summary
 
 
 def create_context(

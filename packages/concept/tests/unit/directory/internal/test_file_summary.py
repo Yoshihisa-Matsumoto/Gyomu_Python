@@ -14,7 +14,7 @@ from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import SourceRelativePath
 from gyomu_schema.schemas.python.visibility import Visibility
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_docstring,
     create_file_analysis_context,
     create_import_dependency_analysis,

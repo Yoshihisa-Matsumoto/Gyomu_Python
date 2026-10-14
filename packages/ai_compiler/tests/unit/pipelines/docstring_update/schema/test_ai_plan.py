@@ -25,7 +25,7 @@ from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 from pydantic import TypeAdapter
 
-from packages.schema.schema_test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import create_declaration_identity
 
 
 def test_replace_action_json_schema() -> None:

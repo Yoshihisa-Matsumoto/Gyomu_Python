@@ -21,7 +21,7 @@ from returns.result import Failure, Success
 from packages.concept.concept_test_support.helpers import (
     _create_directory_project_context,
 )
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_development,
     create_package,
     create_package_analysis__default,

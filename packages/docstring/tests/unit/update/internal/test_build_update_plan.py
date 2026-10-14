@@ -29,7 +29,7 @@ from packages.ai_compiler.ai_compiler_test_support.helper import (
     create_docstring_update_entry,
     create_docstring_update_plan,
 )
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_declaration_identity,
     create_file_analysis_context,

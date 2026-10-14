@@ -15,7 +15,7 @@ from packages.ai_compiler.ai_compiler_test_support.helper import (
     create_docstring_update_plan,
     create_nondocumentable_context,
 )
-from packages.schema.schema_test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import create_declaration_identity
 
 
 def test_validate_docstring_update_plan_returns_valid_when_identities_match() -> None:

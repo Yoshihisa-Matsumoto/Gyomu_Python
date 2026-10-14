@@ -45,7 +45,7 @@ from gyomu_schema.schemas.python.types import (
 )
 from returns.result import Success
 
-from packages.schema.schema_test_support.helpers import (
+from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_function_analysis,
     create_location,

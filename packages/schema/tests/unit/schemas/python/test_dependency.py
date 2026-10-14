@@ -7,7 +7,7 @@ from gyomu_schema.schemas.python.dependency import (
 from gyomu_schema.schemas.python.types import SymbolId
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
-from packages.schema.schema_test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import create_declaration_identity
 
 
 class TestLocalFileDependency:

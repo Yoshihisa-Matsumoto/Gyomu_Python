@@ -17,7 +17,7 @@ from gyomu_schema.utility.fromatting import format_object
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.helpers import create_location
+from packages.schema.test_support.helpers import create_location
 
 config = PyProjectConfig(
     path=WorkspaceRelativePath(Path(".")),

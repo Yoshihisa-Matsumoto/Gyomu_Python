@@ -31,7 +31,7 @@ from gyomu_docstring.update.internal.create_merge_plan import create_merge_plan
 from gyomu_schema.schemas.confidence import Confidence
 from gyomu_schema.schemas.python.types import DeclarationIdentity
 
-from packages.schema.schema_test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import create_declaration_identity
 
 
 class TestCreateMergePlan:

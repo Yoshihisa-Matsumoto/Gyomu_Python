@@ -1,7 +1,7 @@
 from gyomu_schema.schemas.document.validation import ValidationResult
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_validation_issue,
     create_validation_result,
 )

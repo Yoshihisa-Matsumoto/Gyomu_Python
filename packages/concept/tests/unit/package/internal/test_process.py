@@ -16,7 +16,7 @@ from gyomu_schema.schemas.python.types import ProjectRelativePath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_capability_concept,
     create_dependency_analysis,
     create_directory_analysis,

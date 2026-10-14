@@ -4,7 +4,7 @@ from gyomu_schema.schemas.concept.llm_context.types import LlmContextSectionId
 from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import LanguageCodes, Section
 
-from packages.schema.schema_test_support.concept_helpers import (
+from packages.schema.test_support.concept_helpers import (
     create_llm_context_build_context,
     create_package_analysis__default,
 )
