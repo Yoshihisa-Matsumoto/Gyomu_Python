@@ -1,17 +1,22 @@
 {
-  "summary": "Provides the provider integration layer for Pydantic AI, encapsulating model registries, agent creation, prompt building, execution, and mapping between Pydantic AI and standard AI components.",
+  "summary": "Houses provider integrations for AI model execution, featuring registry management, agent creation, prompt building, and error mapping through the Pydantic AI framework.",
   "responsibilities": [
-    "Integrate Pydantic AI functionality including model registries, agent creation, prompt building, and execution.",
-    "Map Pydantic AI errors, results, finish reasons, and tools to standard formats."
+    "Implements the Pydantic AI provider integration for AI model execution, routing, and registry management.",
+    "Handles prompt building, agent creation, tool mapping, and stream processing for Pydantic AI models.",
+    "Maps Pydantic AI errors, results, and finish reasons to standard formats."
   ],
   "concepts": [
-    "Pydantic AI provider",
-    "AI model integration",
-    "AI agent execution"
+    "AI Provider Integration",
+    "Pydantic AI Provider",
+    "Model Registry",
+    "AI Model Execution"
   ],
-  "relationships": [],
+  "relationships": [
+    "Pydantic AI provider interacts with Google API configuration to create models, embeddings, and model registries."
+  ],
   "design_decisions": [
-    "Integrates Pydantic AI as an external AI provider backend for models, agents, and execution."
+    "Integrates with external libraries for agent creation and model execution.",
+    "Provides configuration and routing mechanisms for model access."
   ],
   "importance": "Core"
 }

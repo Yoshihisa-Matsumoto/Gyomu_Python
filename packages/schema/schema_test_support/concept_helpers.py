@@ -273,8 +273,10 @@ def create_package_concept(
     )
 
 
-def create_paragraph(text: str = "this is a pen") -> Paragraph:
-    return Paragraph(text=text)
+def create_paragraph(
+    lines: tuple[str, ...] = ("this is a pen", "that is an apple"),
+) -> Paragraph:
+    return Paragraph(lines=lines)
 
 
 def create_codeblock(

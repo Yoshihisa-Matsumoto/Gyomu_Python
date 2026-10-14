@@ -1,7 +1,7 @@
 from gyomu_concept.document.translation.document import TranslatedDocument
 from gyomu_concept.readme.render.markdown import render_readme_markdown
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import LanguageCodes, Section
 
 from packages.schema.schema_test_support.concept_helpers import (
@@ -32,7 +32,7 @@ class TestRenderReadmeMarkdown:
             sections=(
                 Section[ReadmeSectionId](
                     id="overview",
-                    contents=(Paragraph(text="Overview text."),),
+                    contents=(paragraph_from_text(text="Overview text."),),
                 ),
             ),
         )
@@ -57,7 +57,7 @@ Overview text."""
                 Section(
                     id="overview",
                     title="Custom Overview",
-                    contents=(Paragraph(text="Overview text."),),
+                    contents=(paragraph_from_text(text="Overview text."),),
                 ),
             ),
         )
@@ -80,7 +80,7 @@ Overview text."""
             sections=(
                 Section(
                     id="overview",
-                    contents=(Paragraph(text="Overview text."),),
+                    contents=(paragraph_from_text(text="Overview text."),),
                 ),
             ),
         )
@@ -101,7 +101,7 @@ Overview text."""
             sections=(
                 Section(
                     id="overview",
-                    contents=(Paragraph(text="Overview text."),),
+                    contents=(paragraph_from_text(text="Overview text."),),
                 ),
             ),
         )
@@ -123,7 +123,7 @@ Overview text."""
             sections=(
                 Section(
                     id="overview",
-                    contents=(Paragraph(text="概要です。"),),
+                    contents=(paragraph_from_text(text="概要です。"),),
                 ),
             ),
         )

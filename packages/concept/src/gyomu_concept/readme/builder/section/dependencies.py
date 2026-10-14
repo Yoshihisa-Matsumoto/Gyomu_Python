@@ -3,7 +3,7 @@ from gyomu_ai_compiler.pipelines.readme.prompt import readme_prompt_provider
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import (
     Section,
     SectionTranslationInstruction,
@@ -56,7 +56,7 @@ async def _build(
         SectionWithInstruction[ReadmeSectionId](
             section=Section[ReadmeSectionId](
                 id=_section_id,
-                contents=(Paragraph(text=dependencies_result.unwrap()),),
+                contents=(paragraph_from_text(text=dependencies_result.unwrap()),),
             )
         )
     )

@@ -1,29 +1,23 @@
 {
-  "summary": "Implements the Pydantic AI provider integration for gyomu_ai, providing components for AI model registries, agent creation, prompt building, model execution, routing, and mapping between Pydantic AI and standard AI results, errors, and tools.",
+  "summary": "Implements the Pydantic AI provider integration, offering model registries, execution logic, routing, prompt building, agent creation, tool mapping, and result/error mapping for AI operations.",
   "responsibilities": [
-    "Integrate Pydantic AI functionality including model registries, agent creation, prompt building, and execution.",
-    "Map Pydantic AI errors, results, finish reasons, and tools to standard formats.",
-    "Configure model settings, Google API integration, and model routing."
+    "Implements the Pydantic AI provider integration for AI model execution, routing, and registry management.",
+    "Handles prompt building, agent creation, tool mapping, and stream processing for Pydantic AI models.",
+    "Maps Pydantic AI errors, results, and finish reasons to standard formats."
   ],
   "concepts": [
     "Pydantic AI provider",
     "AI model registry",
-    "prompt building",
-    "agent creation",
-    "model execution",
-    "Google API configuration",
-    "error mapping",
-    "result mapping",
-    "tool mapping",
-    "model settings",
-    "route registry",
-    "routing service",
-    "model routing",
-    "text stream"
+    "model execution and routing",
+    "prompt and tool mapping",
+    "error and result mapping"
   ],
-  "relationships": [],
+  "relationships": [
+    "Pydantic AI provider interacts with Google API configuration to create models, embeddings, and model registries."
+  ],
   "design_decisions": [
-    "Integrates Pydantic AI as a provider for AI models, routing, agents, and execution."
+    "Uses PydanticAI library for agent creation, model execution, and streaming responses.",
+    "Provides configuration and registry mechanisms for Google API access and model routing."
   ],
   "importance": "Core"
 }

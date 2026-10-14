@@ -2,7 +2,7 @@ from gyomu_ai_compiler.pipelines.translation.executor.merge import (
     merge_retry_context,
 )
 from gyomu_schema.error.translation import TranslationError
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import Paragraph, paragraph_from_text
 from gyomu_schema.schemas.document.section import (
     RetryContextArg,
     TranslationState,
@@ -24,7 +24,7 @@ from packages.schema.schema_test_support.concept_helpers import (
 class TestMergeRetryContext:
     def test_returns_failure_when_current_validation_is_valid(self) -> None:
         original_context = create_paragraph()
-        translated_context = create_paragraph("translated")
+        translated_context = paragraph_from_text("translated")
 
         strategy = paragraph_translation_strategy
         current_validation = create_validation_result()
@@ -50,7 +50,7 @@ class TestMergeRetryContext:
 
     def test_returns_failure_when_previous_validation_is_valid(self) -> None:
         original_context = create_paragraph()
-        translated_context = create_paragraph("translated")
+        translated_context = paragraph_from_text("translated")
 
         strategy = paragraph_translation_strategy
 
@@ -87,7 +87,7 @@ class TestMergeRetryContext:
         mocker: MockerFixture,
     ) -> None:
         original_context = create_paragraph()
-        translated_context = create_paragraph("translated")
+        translated_context = paragraph_from_text("translated")
 
         strategy = paragraph_translation_strategy
 
@@ -108,7 +108,7 @@ class TestMergeRetryContext:
             )
         )
 
-        expected_context = create_paragraph(
+        expected_context = paragraph_from_text(
             "translated with retry context",
         )
         expected_state = TranslationState[Paragraph](
@@ -154,7 +154,7 @@ class TestMergeRetryContext:
         mocker: MockerFixture,
     ) -> None:
         original_context = create_paragraph()
-        translated_context = create_paragraph("translated")
+        translated_context = paragraph_from_text("translated")
 
         strategy = paragraph_translation_strategy
 

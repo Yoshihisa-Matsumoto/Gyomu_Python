@@ -30,14 +30,23 @@ class Paragraph(BaseModel):
     kind: Literal[DocumentContentType.PARAGRAPH] = DocumentContentType.PARAGRAPH
     """The content type discriminator."""
 
-    text: str = Field(description="Paragraph text.")
-    """Paragraph text."""
+    lines: tuple[str, ...] = Field(
+        description=(
+            "An ordered sequence of lines representing the text. "
+            "Preserve the number and order of lines."
+        )
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
             "description": ("A paragraph of text."),
         },
     )
+
+
+def paragraph_from_text(text: str) -> Paragraph:
+    """Create a paragraph from text."""
+    return Paragraph(lines=tuple(text.split("\n")))
 
 
 class BulletListItem(BaseModel):

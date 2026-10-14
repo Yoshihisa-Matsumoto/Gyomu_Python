@@ -67,7 +67,7 @@ def create_google_embedding(
         setting (GoogleAPIConfig): Google API configuration.
 
     Returns:
-        Callable[[AiModelContext | None], Embedder]: A factory function that creates an
+        PydanticAiEmbedderDefinition: A factory function that creates an
             Embedder instance.
     """
 
@@ -96,7 +96,8 @@ def create_pydantic_ai_model_registry(
         setting (GoogleAPIConfig): Google API configuration.
 
     Returns:
-        PydanticAiModelDefinition: A model factory and its rate-limit bucket ID.
+        PydanticAiModelRegistry: A Pydantic AI model registry configured with Google
+            models and embeddings.
     """
     return PydanticAiModelRegistry(
         fast=create_google_model(

@@ -25,3 +25,7 @@ class AiModelKey(StrEnum):
 
 
 BucketId = NewType("BucketId", str)
+"""Type alias representing a unique bucket identifier.
+
+Type alias representing a unique bucket identifier.
+"""

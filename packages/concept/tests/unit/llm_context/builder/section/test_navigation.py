@@ -7,7 +7,7 @@ from gyomu_schema.schemas.concept.llm_context.types import LlmContextSectionId
 from gyomu_schema.schemas.document.content import (
     BulletList,
     BulletListItem,
-    Paragraph,
+    paragraph_from_text,
 )
 from gyomu_schema.schemas.document.section import (
     Section,
@@ -32,7 +32,7 @@ class TestBuildNavigation:
                 section=Section[LlmContextSectionId](
                     id="navigation",
                     contents=(
-                        Paragraph(
+                        paragraph_from_text(
                             text=(
                                 "This document provides a high-level overview of the "
                                 "package concept, responsibilities, and design decisions."  # noqa: E501
@@ -88,7 +88,7 @@ class TestBuildNavigation:
                                 ),
                             )
                         ),
-                        Paragraph(
+                        paragraph_from_text(
                             text=(
                                 "When modifying this package, review the relevant "
                                 "documentation before making changes to preserve the "

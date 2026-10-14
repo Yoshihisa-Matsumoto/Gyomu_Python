@@ -4,17 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-This package provides the foundational data contracts, canonical models, and structural schemas shared across the Gyomu project. Its primary purpose is to define the standard types, protocols, error models, and validation rules for Python AST analysis, structured documents, project knowledge bases, and snapshots. 
+This package provides canonical data models, structural schemas, and validation rules that serve as the shared foundation across the entire Gyomu ecosystem. Its primary purpose is to define data contracts for Python AST analysis, structured documents, project knowledge bases, and robust error-handling strategies. 
 
-By establishing explicit data contracts between functional components, the package maintains strict type safety and data consistency throughout the system. It enables packages to interact seamlessly while remaining fully decoupled, ensuring a robust and maintainable architecture for project-wide data exchange.
+By establishing shared types, protocols, and utility definitions, the package ensures data consistency and type safety across all functional modules. It facilitates seamless communication between distinct features while maintaining loosely coupled dependencies throughout the architecture.
 
 ## Architecture
 
-The package is organized around a core set of specialized schema domains and utility frameworks that divide responsibilities by data structure and system concern. Code analysis and structural representation are handled by dedicated Python modules that define models for AST expressions, statements, classes, functions, modules, and type systems. 
+The package is organized around a core set of collaborating domain schemas and utility components that divide responsibilities by data structure and system concern. At its foundation, the architecture separates code analysis, document formatting, project knowledge, and robust error management into distinct, modular subsystems.
 
-Complementing the code analysis capabilities, structured document schemas manage content elements like sections, paragraphs, lists, and tables, while project knowledge schemas capture domain-specific information such as coding guidelines, roadmaps, and technical references. Robust cross-cutting operations are supported by a dedicated error-handling component that provides comprehensive error hierarchies, domain-specific fault definitions, and retry resolution strategies. 
+Code and structural analysis responsibilities are handled by specialized schema directories. The Python components model code structures such as classes, functions, modules, and symbols, while nested type directories define AST expressions, statements, and union types. Concurrently, document components manage structured content elements, sections, and validation rules, and knowledge components structure domain-specific data like coding guidelines, operational details, and technical references.
 
-Finally, a serialization and utility framework collaborates across these domains to offer format validation, data conversion, timing, execution monitoring, and file system operations, tying the structural models and error strategies together into a cohesive architecture.
+Cross-cutting operational concerns, such as fault-tolerance and error management, are centralized within dedicated error-handling schemas that define application error hierarchies, retry policies, and resolution strategies across operations. Together, these components collaborate to provide a unified framework for data modeling, validation, and serialization.
 
 ## Installation
 
@@ -26,15 +26,17 @@ uv add gyomu-schema
 
 ## Dependencies
 
-This package requires Pydantic version 2.x, as it is designed around Pydantic Version 2 for schema definition, data validation, serialization, and deserialization. 
+This package is designed for Pydantic version 2.x, which is used for schema definition, data validation, serialization, and deserialization. 
 
-For runtime usage, it relies on the `returns` package to handle explicit success and failure expressions using Success, Failure, and Result types.
+For runtime usage, the package relies on pydantic for its core data handling and returns to provide explicit success and failure representations using Success, Failure, and Result types.
 
 ## Development
 
-Contributors must maintain this package as a foundational, zero-dependency layer for the Gyomu ecosystem. All data contracts shared across multiple packages must reside here, utilizing Pydantic schemas for external boundaries such as JSON, persistence, and MCP layers, while keeping internal implementation details unexposed. To prevent value swapping and ensure strict type safety, contributors should represent distinct concepts like IDs and paths as explicit types, avoiding primitive obsession. Furthermore, annotations on Pydantic schemas must never be omitted, as they serve a dual purpose: enforcing runtime type integrity and driving AI-assisted code, documentation, and knowledge generation.
+Data contracts shared across multiple Gyomu packages must reside within this foundation. Contributors are required to define all data handled at external boundaries—such as JSON, persistence layers, and MCP interfaces—as Pydantic schemas, while internal implementation details that remain strictly within a single processing flow should not be exposed as Pydantic models. To prevent value misassignment and enforce strict boundaries, developers must represent identifiers, paths, and meaningful values through dedicated types whenever possible. Furthermore, Pydantic schema annotations must be comprehensively provided rather than omitted, ensuring they serve not only as runtime type information but also as essential context for AI-driven code generation, document generation, and knowledge generation.
 
-Protocol definitions and error handling require careful boundary management. Protocols should be defined here only when they represent shared interface contracts that do not belong to the responsibility of a single package; package-specific use cases must keep their protocols local. Implementations must follow proper dependency directions. All error types must adhere to a common structure to guarantee consistent error handling across packages, while utilities must remain strictly generic and free of business logic. Finally, contributors are required to design all APIs to be immutable and declarative, ensuring that data consistency and loose coupling are preserved as the architecture evolves.
+Interfaces and shared abstractions must adhere to strict dependency and placement rules. Developers should define Protocols as interface contracts separated from their implementations, restricting this package to interfaces that multiple packages share and that do not belong to the specific responsibilities of any single package. Protocols tied to specific package responsibilities or use cases belong within those respective packages, with concrete implementations positioned according to the correct direction of dependency and responsibility. Error handling must follow a common error structure across all definitions to guarantee consistent error management throughout the ecosystem.
+
+All utilities implemented in this package must remain strictly generic and free of business logic tied to any specific Gyomu package. Contributors must design APIs to be as immutable and declarative as possible to maintain robust data consistency and type safety. Finally, contributors must preserve the zero-dependency status of this package relative to other Gyomu packages, ensuring it perpetually functions as an isolated, stable shared foundation.
 
 ## Public API
 

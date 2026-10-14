@@ -2,9 +2,9 @@
 
 ## Repository Overview
 
-Gyomu Infrastructure (`gyomu-infra`) is a core infrastructure package that provides shared utilities and services for application interaction with external environments, including file and stream I/O, filesystem manipulation, structured CSV processing, archiving, and database persistence via SQLAlchemy. Its primary responsibility is to centralize processing dependent on external libraries and execution environments.
+Gyomu Infrastructure (`gyomu-infra`) is a core infrastructure package responsible for providing shared infrastructure capabilities across the Gyomu ecosystem. Its primary role is to centralize processing related to external environment connections, such as file operations, configuration loading, CSV processing, archiving, and database access via SQLAlchemy. 
 
-By encapsulating domain-specific infrastructure concerns—such as business calendar calculations, market holiday repositories, and parameter translation services—the package ensures that upper-level packages remain decoupled from infrastructure implementation details.
+By encapsulating external library and execution environment dependencies, the package prevents upper-level packages from directly depending on infrastructure implementation details. Additionally, it handles domain-specific infrastructure concerns, including business calendar calculations, market holiday repositories, and parameter translation services.
 
 ## Package Responsibilities
 
@@ -15,67 +15,63 @@ By encapsulating domain-specific infrastructure concerns—such as business cale
 
 ## Architecture
 
-The package is organized into two primary architectural areas: infrastructure utilities under `src/gyomu_infra/` and domain logic under `src/gyomu_infra/gyomu/`.
+The package is structured around several modular infrastructure areas rooted under `src/gyomu_infra`:
 
-The infrastructure layer is divided into three components:
-- `src/gyomu_infra/csv`: Handles CSV parsing, serialization, and configuration using Pydantic models. The reader parses data into validated models, while the writer serializes model records.
-- `src/gyomu_infra/filesystem`: Provides file I/O operations for text and JSON, file enumeration and search functionality via `FileSearch`, and file access helpers via `FileOperation`.
-- `src/gyomu_infra/stream`: Manages stream processing and I/O, supporting lazy single-use streams of `Result` values via `RecordStream` and writing byte streams to files.
-
-The domain logic layer (`src/gyomu_infra/gyomu/`) contains:
-- `src/gyomu_infra/gyomu/variable`: Translates and resolves date and parameter placeholders utilizing defined variable types, date parameter keywords, and `VariableTranslatorImpl`.
-- `src/gyomu_infra/gyomu/date`: Manages business calendar calculations and holiday services, where `BusinessCalendarService` retrieves cached calendar instances from a market holiday repository.
+*   **`src/gyomu_infra/csv`**: Handles CSV data parsing, serialization, and configuration. The CSV reader utilizes parsing, encoding, and IO options to map data into validated Pydantic models, while the writer serializes Pydantic records using CSV writing configurations.
+*   **`src/gyomu_infra/filesystem`**: Provides file system utilities, including text and JSON file I/O operations, file enumeration using search filter conditions, and operation helpers for access checking and exclusive access handling.
+*   **`src/gyomu_infra/stream`**: Manages stream processing and I/O utilities, featuring lazy single-use streams of `Result` values via `RecordStream` and byte stream file writing functions (`stream_to_file`).
+*   **`src/gyomu_infra/gyomu/date`**: Implements date-related domain logic, where the `BusinessCalendarService` performs business calendar calculations and retrieves cached calendar instances from a market holiday repository.
+*   **`src/gyomu_infra/db/repository`**: Defines database abstraction layers, providing repository protocols and their corresponding SQLAlchemy implementations, such as `SqlAlchemyMarketHolidayRepository` and `SqlAlchemyParameterMasterRepository`.
 
 ## Design Principles
 
-- Centralize external input-output and side effects into common infrastructure features to prevent upstream packages from depending directly on external library and execution environment details.
-- Encapsulate specific external library APIs behind internal interfaces to ensure implementations remain decoupled from consumers.
-- Strictly separate responsibilities for file systems, databases, configurations, and data transformations while preventing domain logic or application-specific knowledge from entering the infrastructure layer.
-- Combine data handling with schema validation at system boundaries to prevent unverified data from entering internal application models.
-- Separate persistence details using patterns like repositories and mappers, and standardize error handling through a unified error model that preserves traceability.
+- Centralize external I/O and side effects into common infrastructure features to prevent upper packages from directly depending on external execution details.
+- Isolate specific external library APIs and persistence implementation details behind standardized interfaces to decouple consumers from implementation specifics.
+- Strictly separate the responsibilities of distinct infrastructure domains—such as file systems, databases, configurations, and data transformations—to avoid duplicated code across packages.
+- Validate external data at system boundaries using schemas before treating it as internal models to prevent invalid data from propagating inward.
+- Translate errors into a unified error model that retains traceability information, ensuring consistent error handling regardless of underlying infrastructure implementations.
+- Prohibit the inclusion of application-specific business logic or domain knowledge within the infrastructure layer to maintain strict architectural separation.
 
 ## Important Constraints
 
 - Do not implement business logic.
-- Do not depend on specific application domain logic.
-- Do not expose external library-specific types or APIs as part of the common interface.
-- Do not leak infrastructure implementation details to upper application layers.
-- Do not treat external data as internal application models without validation.
+- Do not depend on application-specific domain logic.
+- Do not expose external library-specific types or APIs as part of the common interface without careful abstraction.
+- Do not leak infrastructure implementation details into upper application layers.
+- Do not handle external data as internal application models without validation.
 - Do not implement business processes that depend on specific database products or external services.
 
 ## Editing Rules
 
-- Explicitly specify input and output types for all public APIs and core application logic.
-- Maintain type-safe implementations that comply with strict mypy settings.
-- Avoid Any and type-checking suppression, limiting their scope and justification when necessary.
-- Define and validate structured data at external boundaries, persistent storage, and serialization points using Pydantic models.
-- Use appropriate data structures such as dataclasses to represent internal state.
-- Avoid duplicating data structures or constraints for the same concept across multiple locations.
-- Express expected failures explicitly using returns.Result, Success, and Failure.
-- Handle expected errors at appropriate boundaries rather than relying heavily on implicit exceptions.
-- Design packages with clear responsibilities and direct dependencies from upper workflows to lower functions.
-- Do not introduce circular dependencies between packages.
-- Depend only on public APIs of other packages rather than their internal implementation details.
+- Explicitly specify parameter and return types for public APIs and primary application logic.
+- Maintain type-safe implementations compatible with strict mypy settings.
+- Avoid Any and suppression of type checkers, limiting their scope and justification when necessary.
+- Define and validate structured data at external boundaries using Pydantic models.
+- Use appropriate data structures such as dataclasses for internal state representation.
+- Do not duplicate data structures or constraints representing the same concept in multiple places.
+- Express expected application failures explicitly using returns.Result, Success, and Failure.
+- Avoid relying heavily on exceptions for expected failures, and handle exceptions appropriately at boundaries.
+- Design package dependencies to flow from higher-level workflows to lower-level functions without circular dependencies.
+- Depend only on public APIs of other packages rather than internal implementation details.
 - Use Protocols and constructor injection to declare contracts for external dependencies and interchangeable logic.
-- Design for current responsibilities and actual changes rather than speculative future abstractions.
-- Implement stateless and side-effect-free logic as pure functions wherever possible.
-- Separate input and output operations involving the file system, external services, and LLMs from business logic.
+- Base designs on current responsibilities and changes rather than speculative future abstractions.
+- Implement side-effect-free logic as pure functions whenever possible.
+- Separate I/O operations involving the file system, external services, or LLMs from business logic.
 - Validate AI outputs using Pydantic models before use.
-- Isolate AI provider-specific APIs and types behind adapters and infrastructure boundaries.
-- Separate AI execution, routing, fallback, and retry concerns behind clean interfaces.
-- Use structured data like concepts and analysis results as inputs for document generation.
-- Treat document composition, content, translation, and rendering as independent responsibilities.
-- Use structured intermediate representations like Document models instead of directly assembling Markdown strings.
-- Treat concepts derived from source code and human-managed knowledge as independent information sources.
-- Reference appropriate single sources of truth instead of duplicating design knowledge across multiple locations.
-- Update tests when observable behavior changes.
-- Keep unit tests deterministic and isolate dependencies on LLMs and external services.
-- Use actual temporary directories or fixtures for file system tests, mocking only necessary external services.
-- Base mocks on actual public interfaces rather than excessive reliance on internal call counts and details.
-- Consolidate shareable logic into existing packages without duplicating implementations.
+- Encapsulate AI provider-specific APIs and types within adapters or infrastructure boundaries.
+- Design interfaces that abstract AI execution, routing, fallback, and retry from the caller.
+- Use structured data such as concepts and analysis results as inputs for document generation.
+- Maintain independent responsibilities for document composition, content, translation, and rendering.
+- Use structured intermediate representations such as Document models instead of assembling Markdown strings directly.
+- Keep source-derived concepts and human-managed knowledge as independent information sources.
+- Update or add corresponding tests when observable behavior changes.
+- Keep unit tests deterministic by isolating dependencies on LLMs and external services.
+- Use temporary directories and fixtures for file system tests while mocking only necessary external services.
+- Align mock dependencies with public interfaces rather than internal implementation details.
+- Consolidate shareable logic into existing packages without duplication.
 - Evaluate standard libraries and existing dependencies before adding new packages.
-- Follow existing naming conventions, package structures, and code styles while keeping changes minimal.
-- Keep codebases passing all repository checks and tests including ruff, mypy, and pytest.
+- Follow existing naming conventions, package structures, and code styles while keeping change scopes minimal.
+- Maintain code that passes established linters, type checkers, and test suites including ruff, mypy, and pytest.
 
 ## Navigation
 

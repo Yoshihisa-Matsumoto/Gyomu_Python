@@ -1,6 +1,7 @@
 from gyomu_concept.document.render.markdown import render_markdown
 from gyomu_concept.document.translation.document import TranslatedDocument
 from gyomu_schema.schemas.concept.base import DocumentBaseContext
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import LanguageCodes, Section
 
 from packages.schema.schema_test_support.concept_helpers import (
@@ -8,7 +9,6 @@ from packages.schema.schema_test_support.concept_helpers import (
     create_bullet_list_item,
     create_codeblock,
     create_document_base_context,
-    create_paragraph,
     create_section,
     create_table,
     create_table_row,
@@ -22,7 +22,7 @@ class TestRenderMarkdown:
                 id="overview",
                 title="Overview",
                 contents=(
-                    create_paragraph(text="This package provides shared utilities."),
+                    paragraph_from_text(text="This package provides shared utilities."),
                     create_bullet_list(
                         items=(
                             create_bullet_list_item(translation_id=1, text="Item1"),
@@ -88,12 +88,12 @@ console.log("hello")
             create_section(
                 id="overview",
                 title="Overview",
-                contents=(create_paragraph(text="First section."),),
+                contents=(paragraph_from_text(text="First section."),),
             ),
             create_section(
                 id="development",
                 title="Development",
-                contents=(create_paragraph(text="Second section."),),
+                contents=(paragraph_from_text(text="Second section."),),
             ),
         )
 
@@ -258,4 +258,72 @@ US English | [JP 日本語](README.ja.md)
   - SubItem1
     - SubSubItem1
   - SubItem2"""
+        )
+
+    def test_render_paragraph_multiple_lines(self) -> None:
+        sections: tuple[Section, ...] = (
+            create_section(
+                id="overview",
+                title="Overview",
+                contents=(
+                    paragraph_from_text(text="First line.\nSecond line.\nThird line."),
+                ),
+            ),
+        )
+
+        def _get_title(context: DocumentBaseContext) -> str:
+            return "TITLE"
+
+        def _get_section_title(language: LanguageCodes, section: Section) -> str:
+            return section.title or ""
+
+        markdown = render_markdown(
+            context=create_document_base_context(),
+            plan=TranslatedDocument(language="en", sections=sections),
+            get_title=_get_title,
+            get_section_title=_get_section_title,
+        )
+
+        assert (
+            markdown
+            == """# TITLE
+
+## Overview
+
+First line.
+Second line.
+Third line."""
+        )
+
+    def test_render_paragraph_preserves_blank_lines(self) -> None:
+        sections: tuple[Section, ...] = (
+            create_section(
+                id="overview",
+                title="Overview",
+                contents=(paragraph_from_text(text="First line.\n\nThird line."),),
+            ),
+        )
+
+        def _get_title(context: DocumentBaseContext) -> str:
+            return "TITLE"
+
+        def _get_section_title(language: LanguageCodes, section: Section) -> str:
+            return section.title or ""
+
+        markdown = render_markdown(
+            context=create_document_base_context(),
+            plan=TranslatedDocument(language="en", sections=sections),
+            get_title=_get_title,
+            get_section_title=_get_section_title,
+        )
+
+        assert (
+            markdown
+            == """# TITLE
+
+## Overview
+
+First line.
+
+Third line."""
         )
