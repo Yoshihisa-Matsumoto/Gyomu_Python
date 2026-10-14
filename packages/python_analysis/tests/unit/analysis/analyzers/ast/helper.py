@@ -3,7 +3,7 @@ from pathlib import Path
 
 from gyomu_schema.schemas.python.type.expression import ExpressionAnalysis
 
-from packages.python_analysis.python_analysis_test_support.helpers import FIXTURES_ROOT
+from packages.python_analysis.test_support.helpers import FIXTURES_ROOT
 
 
 def get_module(module_name: str) -> ast.Module:

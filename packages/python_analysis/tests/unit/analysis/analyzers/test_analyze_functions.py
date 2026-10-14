@@ -3,7 +3,7 @@ from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKi
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.visibility import Visibility
-from python_analysis_test_support.helpers import AnalysisTestBase
+from test_support.helpers import AnalysisTestBase
 
 
 class TestAnalyzeFunctions(AnalysisTestBase):

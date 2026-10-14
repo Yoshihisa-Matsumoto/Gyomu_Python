@@ -23,7 +23,7 @@ from gyomu_workflow.snapshot.run_docstring import build_docstring_update_option
 from packages.concept.concept_test_support.helpers import (
     create_monorepo_workspace_context,
 )
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     _create_context,
     create_analyze_project_change,
     create_project_snapshot,

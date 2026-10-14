@@ -18,7 +18,7 @@ from gyomu_schema.schemas.snapshot.types import (
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     _create_context,
     create_monorepo_context,
 )

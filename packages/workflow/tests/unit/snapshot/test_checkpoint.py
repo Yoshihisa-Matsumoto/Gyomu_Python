@@ -25,7 +25,7 @@ from gyomu_workflow.snapshot.checkpoint import (
 )
 from returns.result import Failure, Success
 
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     create_file_snapshot,
     create_project_snapshot,
 )

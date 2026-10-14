@@ -16,7 +16,7 @@ from gyomu_workflow.snapshot.target import (
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     create_analyze_project_change,
     create_file_added,
     create_file_deleted,

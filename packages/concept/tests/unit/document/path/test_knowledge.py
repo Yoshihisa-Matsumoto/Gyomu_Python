@@ -15,7 +15,7 @@ from returns.result import Failure, Success
 from packages.concept.concept_test_support.helpers import (
     _create_directory_project_context,
 )
-from packages.python_analysis.python_analysis_test_support.helpers import (
+from packages.python_analysis.test_support.helpers import (
     create_workspace_root,
 )
 
