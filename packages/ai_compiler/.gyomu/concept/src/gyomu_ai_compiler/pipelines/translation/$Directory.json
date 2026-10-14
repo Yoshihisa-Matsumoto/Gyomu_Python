@@ -1,23 +1,17 @@
 {
-  "summary": "Provides execution logic for translation pipelines, encompassing document content translation with retry support, temporary state management, prompt construction, and validation handling.",
+  "summary": "Houses the translation pipeline architecture, providing the core structure for coordinating document content translation workflows and execution.",
   "responsibilities": [
-    "Executes document content translation with retry support and state management",
-    "Builds translation prompts and formats validation issues for document sections",
-    "Manages retry context and translation state during the execution process"
+    "Orchestrates the document translation pipeline and houses the execution engine for content translation."
   ],
   "concepts": [
     "Translation Pipeline",
-    "Translation Execution",
-    "Prompt Construction",
-    "State Management"
+    "Translation Execution Engine"
   ],
   "relationships": [
-    "Translation execution relies on prompt building for formatting validation issues and document sections",
-    "Translation execution uses content translation functions with retry support and state management"
+    "The translation pipeline delegates document content translation and execution to its execution engine."
   ],
   "design_decisions": [
-    "Handles translation retries and maximum attempt tracking",
-    "Uses temporary state dataclasses for translation context and validation results"
+    "Implements the translation pipeline architecture using a modular execution engine."
   ],
   "importance": "Core"
 }

@@ -1,37 +1,31 @@
 {
-  "summary": "`gyomu-workflow` is the core workflow engine for the Gyomu CLI, responsible for driving the snapshot pipeline. It coordinates request translation, validation, checkpoint tracking, target resolution, and the execution of specialized project actions such as docstrings, READMEs, packages, and LLM contexts.",
+  "summary": "The gyomu-workflow package provides the core workflow orchestration engine for the Gyomu CLI. It manages snapshot execution, request validation, target resolution, and incremental processing through checkpoints, while executing specialized pipeline actions like docstring updates, LLM context generation, and package structuring.",
   "responsibilities": [
-    "Manage the execution of the snapshot workflow pipeline from initial request translation to final action execution.",
-    "Validate request parameters and Python package structures.",
-    "Track pipeline state and step completion via persistent checkpoints and input fingerprinting.",
-    "Resolve and filter target source files for snapshot generation."
+    "Manage snapshot workflow execution, targets, checkpoints, and action configurations.",
+    "Validate and repair Python package structures and snapshot requests.",
+    "Execute specific workflow actions such as directory generation, docstring updates, LLM context generation, package processing, and README generation."
   ],
   "capabilities": [
     {
-      "name": "Request Validation and Translation",
-      "description": "Translates and validates user requests and structural requirements for generating project snapshots."
+      "name": "Workflow Pipeline and Checkpoints",
+      "description": "Orchestrates workflow execution steps, manages checkpoints for incremental processing, and tracks pipeline states."
     },
     {
-      "name": "Checkpoint and State Tracking",
-      "description": "Tracks execution progress, file changes, and step completion using checkpoints and input fingerprints."
+      "name": "Request Validation and Target Resolution",
+      "description": "Resolves target files, validates snapshot requests, and verifies Python package structures."
     },
     {
-      "name": "Target Resolution and Filtering",
-      "description": "Resolves snapshot targets and filters project files according to specified path patterns."
-    },
-    {
-      "name": "Workflow Action Execution",
-      "description": "Executes modular workflow actions including docstring processing, package analysis, README generation, and LLM context creation."
+      "name": "Specialized Pipeline Actions",
+      "description": "Executes specialized pipeline tasks including directory generation, docstring updates, LLM context generation, and README creation."
     }
   ],
   "design_decisions": [
-    "Employs a pipelined workflow architecture with explicit checkpointing to manage long-running snapshot tasks.",
-    "Separates request validation, target resolution, and action execution into distinct processing stages.",
-    "Organizes functionality around specialized domain actions such as docstrings, packages, directories, and LLM contexts."
+    "Implements checkpointing and fingerprinting to support incremental workflow execution and track completed steps.",
+    "Uses distinct models for snapshot requests, targets, options, and actions to maintain separation of concerns.",
+    "Integrates specialized modular packages for python analysis, docstring processing, and concept generation."
   ],
   "usage_guidance": [
-    "Use the snapshot runner entry point to execute the complete workflow pipeline based on validated snapshot requests.",
-    "Leverage checkpoint mechanisms to resume or optimize pipeline execution based on file fingerprints and completed steps.",
-    "Configure snapshot actions and filters using the provided option and filter models."
+    "Use the snapshot execution runner to initiate workspace or project-level snapshot workflows based on validated configuration requests.",
+    "Leverage checkpoint utilities to track pipeline progress and avoid redundant execution of completed workflow steps."
   ]
 }

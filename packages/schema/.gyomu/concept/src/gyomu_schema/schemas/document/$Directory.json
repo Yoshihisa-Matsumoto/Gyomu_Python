@@ -1,19 +1,21 @@
 {
-  "summary": "Defines schemas, validation rules, and translation configurations for structured documents, sections, and content elements such as paragraphs, bullet lists, code blocks, and tables.",
+  "summary": "Defines schemas, data structures, validation rules, and translation strategies for structured documents, sections, and content elements like paragraphs, lists, code blocks, and tables.",
   "responsibilities": [
-    "Defines data structures, validation rules, and translation instructions for structured documents, sections, and content elements."
+    "Define data models and schemas for structured documents, sections, and content elements such as paragraphs, lists, code blocks, and tables.",
+    "Define translation instructions, strategies, states, requests, and validation results for document sections."
   ],
   "concepts": [
-    "Document schema",
-    "Document content elements",
-    "Section translation",
-    "Validation rules"
+    "Document Schemas",
+    "Document Content",
+    "Section Translation",
+    "Validation Rules"
   ],
   "relationships": [
-    "Document structures contain sections, content elements, and validation rules."
+    "Document schema structures organize sections and content elements, while supporting validation rules and translation instructions."
   ],
   "design_decisions": [
-    "Modular definitions for document components and translation strategies"
+    "Defines structured representations for documents, sections, and content elements.",
+    "Encapsulates translation strategies, instructions, and target extraction for documents."
   ],
   "importance": "Core"
 }

@@ -1,4 +1,5 @@
 from enum import StrEnum
+from typing import NewType
 
 
 class AiModelKey(StrEnum):
@@ -21,3 +22,10 @@ class AiModelKey(StrEnum):
 
     EMBEDDING = "embedding"
     """Embedding model variant key."""
+
+
+BucketId = NewType("BucketId", str)
+"""Type alias representing a unique bucket identifier.
+
+Type alias representing a unique bucket identifier.
+"""

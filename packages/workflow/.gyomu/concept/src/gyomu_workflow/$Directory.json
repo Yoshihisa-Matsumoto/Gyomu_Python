@@ -1,21 +1,21 @@
 {
-  "summary": "Implements the snapshot workflow pipeline for Gyomu Workflow, managing checkpoints, request validation, target resolution, and executing various actions such as docstrings, packages, and LLM contexts.",
+  "summary": "Manages the core snapshot workflow execution, including checkpoints, request validation, target resolution, package structure verification, and specialized pipeline actions.",
   "responsibilities": [
-    "Manages the execution of the snapshot workflow pipeline, including request translation, validation, checkpoint tracking, target resolution, and running specific actions like docstrings, directories, LLM context, packages, and READMEs."
+    "Manage snapshot workflow execution, targets, checkpoints, and action configurations.",
+    "Validate and repair Python package structures and snapshot requests.",
+    "Execute specific workflow actions such as directory generation, docstring updates, LLM context generation, package processing, and README generation."
   ],
   "concepts": [
-    "snapshot workflow pipeline",
+    "snapshot workflow",
+    "workflow execution",
     "checkpoint management",
-    "request validation",
-    "target resolution",
-    "workflow actions"
+    "pipeline actions"
   ],
   "relationships": [
-    "The snapshot execution runner coordinates checkpoint loading, target resolution, validation, and action execution."
+    "The workflow runner coordinates snapshot execution, action execution, and checkpoint management."
   ],
   "design_decisions": [
-    "Modular implementation of snapshot workflow actions including docstrings, directories, LLM context, packages, and READMEs.",
-    "State tracking via checkpoints and input fingerprints across pipeline steps."
+    "Modular action runners handle specific tasks like directories, docstrings, LLM context, packages, and READMEs within the snapshot pipeline."
   ],
   "importance": "Core"
 }

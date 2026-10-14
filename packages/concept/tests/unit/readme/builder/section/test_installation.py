@@ -5,7 +5,10 @@ from gyomu_concept.readme.builder.section.installation import (
 )
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
-from gyomu_schema.schemas.document.content import CodeBlock, Paragraph
+from gyomu_schema.schemas.document.content import (
+    CodeBlock,
+    paragraph_from_text,
+)
 from gyomu_schema.schemas.document.section import (
     Section,
     SectionTranslationInstruction,
@@ -31,7 +34,7 @@ class TestBuildInstallation:
                 section=Section[ReadmeSectionId](
                     id="installation",
                     contents=(
-                        Paragraph(text="Install using uv."),
+                        paragraph_from_text(text="Install using uv."),
                         CodeBlock(
                             language="bash",
                             code=f"uv add {context.analysis.package.name}",

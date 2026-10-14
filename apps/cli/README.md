@@ -4,13 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-The package serves as the primary command-line interface entry point for the Gyomu suite. Its mission is to provide an execution interface that accepts user commands, arguments, and options, building the necessary input information to invoke core application functions such as workflows. 
+This package serves as the primary command-line interface for the application, built using Typer. Its mission is to provide an execution interface that allows users to access system functions directly from the terminal. 
 
-By separating command-line input processing from application logic, the package ensures that Gyomu's features are accessible through a consistent interface. It coordinates interactions across various internal domain packages, exposing user-facing capabilities smoothly and effectively.
+By receiving user commands, arguments, and options, it constructs the necessary input data to invoke underlying application functions like workflows. This design effectively separates command-line-specific input handling from core processing logic. 
+
+Ultimately, it ensures that all features remain accessible through a consistent, unified interface by coordinating execution and integrating essential configuration settings.
 
 ## Architecture
 
-The gyomu-cli package is structured around a central command-line interface entry point that coordinates user interactions for the Gyomu suite. Built using Typer, the package exposes user-facing commands such as greetings, Google routing configuration, AI settings, and code snapshots. Responsibility is divided between interface management and system integration. The core source directory houses the primary application instance, which wires together command-line execution flows with underlying workspace systems. Rather than containing domain logic itself, the package acts as a bridge, delegating commands to internal gyomu domain components—including schema definitions, infrastructure services, AI models, compilers, and workflow automation services—to execute complex operations seamlessly.
+The gyomu-cli package is structured around a Typer-based command-line interface that serves as the primary application entry point and orchestrates user commands. Responsibilities are divided into distinct capabilities covering top-level command routing, code snapshot execution workflows, and service integration. 
+
+The core logic resides within the `src/gyomu_cli` directory, which unifies these collaborating components. The package coordinates execution flow by processing code snapshot requests while simultaneously initializing and registering configuration settings for AI and Google routing services. Through this organization, the command-line interface successfully bridges user input with core domain and infrastructure packages to manage execution and integration seamlessly.
 
 ## Installation
 
@@ -22,18 +26,19 @@ uv add gyomu-cli
 
 ## Dependencies
 
-This package relies on several runtime dependencies to function. It uses pydantic for schema definition, data validation, and serialization or deserialization. gyomu-schema serves as a repository for schemas and common types, while gyomu-infra handles general infrastructure processing such as I/O. Additionally, gyomu-ai is used for LLM initialization and routing table construction, gyomu-ai-compiler retrieves routing table IDs, and gyomu-workflow implements snapshot-related tasks.
+This package relies on pydantic for schema definition, data validation, and serialization. For core operations, it requires gyomu-schema for shared types, gyomu-infra for I/O and infrastructure processing, and gyomu-workflow for snapshot-related tasks. Additionally, gyomu-ai is used for LLM initialization and routing table construction, while gyomu-ai-compiler is required to retrieve routing table IDs.
 
 ## Development
 
-Contributors must strictly separate command-line input handling from underlying domain logic. The package acts as the primary user-facing entry point and Composition Root, responsible exclusively for receiving commands, arguments, and options, performing input validation at the boundary, and constructing type-safe inputs. Contributors must never implement individual application processing, workflow control, or AI model selection, retry, and routing details within this package. Instead, all execution requests must be wired to underlying domain logic, AI configuration, and workflow services exclusively through defined public interfaces, ensuring that CLI-specific concerns never leak into lower packages.
+Contributors must strictly maintain a clean separation between command-line input handling and application business logic. The CLI interface is restricted to receiving and interpreting commands, arguments, and options, performing input validation at the boundary, and constructing type-safe inputs. Contributors are prohibited from implementing individual application processing logic, workflow control, or execution routing within the CLI layer. All workflow orchestration, execution targets, execution options, and AI model configurations—including selection, execution, retry, and routing mechanisms—must be delegated entirely to designated lower-level packages through defined public interfaces, avoiding any direct dependency on internal implementations.
 
-All commands, arguments, and options must be designed for clarity and consistent behavior to avoid unpredictable operations and implicit settings. Contributors are required to handle execution targets and options explicitly, utilizing constructor injection and related patterns to pass necessary dependencies. Furthermore, contributors must ensure that the package properly distinguishes between processing results and errors, presenting required information to users while returning appropriate exit statuses without assuming responsibility for workflow sequencing or re-execution logic.
+Dependency management must adhere to the Composition Root pattern, ensuring that necessary dependencies are explicitly constructed and passed via mechanisms such as constructor injection. Contributors must ensure that execution options and targets are treated explicitly to prevent implicit configurations or unpredictable behaviors. Furthermore, command-line arguments and options must be designed with intuitive, consistent naming conventions and predictable behaviors, while processing results and errors must be clearly distinguished to present necessary information to users and return appropriate exit statuses without leaking CLI-specific concerns into underlying packages.
 
 ## Public API
 
-- Command Line Interface - Provides command-line execution flows for interacting with core gyomu domain capabilities.
-- System Integration - Integrates core workspace systems including schema definitions, infrastructure services, AI models, and workflow automation.
+- Command-Line Interface - Defines the command-line interface entry points and top-level command routing for the application.
+- Snapshot Execution - Handles code snapshot execution and processing workflows.
+- AI and Routing Configuration - Configures integration with Google routing and AI-related services.
 
 ## License
 

@@ -23,7 +23,7 @@ class TestCreateGoogleAgent:
             GoogleAPIConfig(api_key="test-api-key"),
         )
 
-        model = factory(AiModelContext())
+        model = factory.create_model(AiModelContext())
 
         assert isinstance(model, Model)
 
@@ -35,7 +35,7 @@ class TestCreateGoogleEmbedding:
             GoogleAPIConfig(api_key="test-api-key"),
         )
 
-        embedder = factory(AiModelContext())
+        embedder = factory.create_embedder(AiModelContext())
 
         assert isinstance(embedder, Embedder)
         assert isinstance(embedder.model, GoogleEmbeddingModel)
@@ -54,23 +54,23 @@ class TestCreatePydanticAiModelRegistry:
         assert isinstance(registry, PydanticAiModelRegistry)
 
         assert isinstance(
-            registry.fast(AiModelContext()),
+            registry.fast.create_model(AiModelContext()),
             Model,
         )
         assert isinstance(
-            registry.smart(AiModelContext()),
+            registry.smart.create_model(AiModelContext()),
             Model,
         )
         assert isinstance(
-            registry.reasoning(AiModelContext()),
+            registry.reasoning.create_model(AiModelContext()),
             Model,
         )
         assert isinstance(
-            registry.vision(AiModelContext()),
+            registry.vision.create_model(AiModelContext()),
             Model,
         )
         assert isinstance(
-            registry.embedding(AiModelContext()),
+            registry.embedding.create_embedder(AiModelContext()),
             Embedder,
         )
 

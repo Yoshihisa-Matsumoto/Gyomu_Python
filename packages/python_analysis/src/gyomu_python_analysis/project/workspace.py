@@ -7,25 +7,6 @@ from gyomu_schema.schemas.types import FullPath
 from gyomu_python_analysis.project.context import PyProjectConfig
 
 
-@dataclass
-class WorkspaceConfig:
-    """Defines configuration settings for a workspace, including path, name,
-    description, and formatter line length.
-    """
-
-    path: FullPath
-    """The full path of the workspace."""
-
-    name: str | None
-    """The optional name of the workspace."""
-
-    description: str | None
-    """The optional description of the workspace."""
-
-    formatter_line_length: int
-    """The line length limit configured for code formatting."""
-
-
 @dataclass(frozen=True)
 class WorkspaceProject:
     """Represents a project within a workspace, defined by its path and pyproject

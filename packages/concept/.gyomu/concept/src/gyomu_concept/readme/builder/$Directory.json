@@ -1,17 +1,18 @@
 {
-  "summary": "Coordinates and builds the complete README document by sequencing individual section builders in a specified order.",
+  "summary": "Coordinates and builds structured README documentation sections using modular section builders.",
   "responsibilities": [
-    "Coordinate and assemble individual section builders into a complete, ordered README document."
+    "Construct and assemble README documentation sections in order."
   ],
   "concepts": [
-    "README builder",
-    "document section builders"
+    "README Builder",
+    "Section Builders",
+    "Documentation Generation"
   ],
   "relationships": [
-    "The README builder coordinates the ordered execution of individual section builders to construct the complete README document."
+    "README builder coordinates the section builders to construct the README document sections in order."
   ],
   "design_decisions": [
-    "Coordinates modular section builders to construct the complete README document in order"
+    "Uses modular section builders to construct specific parts of the README documentation in order."
   ],
   "importance": "Supporting"
 }

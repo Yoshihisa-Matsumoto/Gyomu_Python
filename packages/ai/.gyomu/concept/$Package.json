@@ -1,42 +1,41 @@
 {
-  "summary": "Gyomu AI is a Python library that provides a unified, provider-agnostic abstraction layer over Pydantic AI for building AI applications. It manages execution runtimes, parameters, policies, tool execution, model registries, and dynamic model routing.",
+  "summary": "The `gyomu-ai` package provides a robust framework for managing and executing AI operations, built on top of Pydantic AI. It handles model routing, execution policies, tool integration, and result/error mapping to deliver standardized text, object, and embedding generation capabilities.",
   "responsibilities": [
-    "Provide a unified interface for AI generation, streaming, object generation, and embedding operations.",
-    "Integrate and manage Pydantic AI provider capabilities including model registries, agent creation, and prompt construction.",
-    "Define execution policies, parameters, and observers for monitoring and controlling AI interactions and tool loops.",
-    "Handle tool execution, configuration, and result mapping across AI interactions.",
-    "Support dynamic model routing and configuration initialization within the application."
+    "Implement provider-agnostic execution logic and models for AI text, object, and embedding generation.",
+    "Integrate with Pydantic AI to handle agent creation, tool mapping, prompt building, and stream processing.",
+    "Manage model registries, routing configurations, and execution policies.",
+    "Provide standardized error handling, mapping, and result formatting across AI operations."
   ],
   "capabilities": [
     {
-      "name": "AI Provider Integration",
-      "description": "Integrates Pydantic AI models, registries, and agents with standardized error, result, and tool formats."
+      "name": "Pydantic AI Integration",
+      "description": "Integrates with Pydantic AI for model execution, prompt construction, agent creation, and streaming capabilities."
     },
     {
-      "name": "Execution Runtime Management",
-      "description": "Manages execution contexts, runtime parameters, tool loop policies, observers, and token usage statistics for AI operations."
+      "name": "Execution Management",
+      "description": "Manages execution contexts, runtime policies, streaming events, token usage statistics, and result structures for AI interactions."
     },
     {
       "name": "AI Tool Execution",
-      "description": "Defines domain logic, configurations, and result structures for executing AI tools."
+      "description": "Provides core domain logic, definitions, configurations, and result handling for AI tool execution."
     },
     {
-      "name": "Model Routing and Configuration",
-      "description": "Configures and executes dynamic model routing rules and routing error handling."
+      "name": "Model Routing and Registry",
+      "description": "Offers model registries, routing tables, and initialization routines for configuring AI model interactions."
     },
     {
-      "name": "Core Domain Models",
-      "description": "Defines core data structures for AI model representations and application-specific errors."
+      "name": "Error Handling and Mapping",
+      "description": "Defines application-specific error types, exception mapping, and robust error handling for AI operations."
     }
   ],
   "design_decisions": [
-    "Uses Pydantic AI as the underlying provider framework while abstracting standard AI operations, results, and errors.",
-    "Separates execution concerns (such as parameters, policies, and observers) from provider-specific implementation details.",
-    "Employs explicit typing and mapping layers to bridge provider-specific outputs and exceptions with standardized application formats."
+    "Leverages Pydantic AI as the foundational provider framework for model execution and validation.",
+    "Separates core execution parameters and result models from provider-specific implementations.",
+    "Uses dedicated routing and registry mechanisms to manage model selections and configurations."
   ],
   "usage_guidance": [
-    "Use the execution parameters and result types in `gyomu_ai.execution` to configure and invoke text generation, object generation, streaming, and embeddings.",
-    "Leverage the `gyomu_ai.provider.pydantic_ai` module for integrating Pydantic AI models, setting up model registries, and configuring routing rules.",
-    "Define and configure tools using the `gyomu_ai.tool` module to enable agent tool execution with standardized success and failure handling."
+    "Configure AI models and routes using the initialization routines and registry providers supplied in the package.",
+    "Use the execution parameter and result types to interact with text, object, and streaming generation features consistently.",
+    "Define and register tools using the package's tool execution structures for interoperability with AI agents."
   ]
 }

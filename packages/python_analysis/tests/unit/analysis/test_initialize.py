@@ -10,7 +10,7 @@ from gyomu_python_analysis.analysis.initialize import (
     resolve_source_root,
 )
 from gyomu_python_analysis.project.context import PyProjectConfig
-from gyomu_python_analysis.project.workspace import WorkspaceConfig, WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceProject
 from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
@@ -244,12 +244,12 @@ class TestInitializeProjectFromWorkspace:
             formatter_line_length=88,
             _toml_data={},
         )
-        workspace = WorkspaceConfig(
-            path=workspace_path,
-            name="workspace",
-            description="Test workspace",
-            formatter_line_length=88,
-        )
+        # workspace = WorkspaceConfig(
+        #     path=workspace_path,
+        #     name="workspace",
+        #     description="Test workspace",
+        #     formatter_line_length=88,
+        # )
         project = WorkspaceProject(
             path=project_path,
             config=project_config,
@@ -274,7 +274,7 @@ class TestInitializeProjectFromWorkspace:
             return_value=tuple(),
         )
 
-        result = initialize_project_from_workspace(workspace, project)
+        result = initialize_project_from_workspace(workspace_path, project)
 
         assert result.project_root == project_root
         assert result.source_root == ProjectRelativePath(Path("src"))

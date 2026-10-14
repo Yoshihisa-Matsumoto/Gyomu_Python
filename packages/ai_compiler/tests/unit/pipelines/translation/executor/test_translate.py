@@ -14,7 +14,7 @@ from gyomu_schema.error.ai import (
     AiOperation,
 )
 from gyomu_schema.error.translation import TranslationError
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import Paragraph, paragraph_from_text
 from gyomu_schema.schemas.document.section import DocumentContentTranslationStrategy
 from gyomu_schema.schemas.document.translation.paragraph import (
     paragraph_translation_strategy,
@@ -143,7 +143,7 @@ class TestTranslateDocumentContent:
         strategy: DocumentContentTranslationStrategy[Paragraph],
         section_definition,
     ) -> None:
-        translated_context = create_paragraph(
+        translated_context = paragraph_from_text(
             text="これはペンです",
         )
 
@@ -187,7 +187,7 @@ class TestTranslateDocumentContent:
         strategy: DocumentContentTranslationStrategy[Paragraph],
         section_definition,
     ) -> None:
-        translated_context = create_paragraph(
+        translated_context = paragraph_from_text(
             text="これはペンです",
         )
 

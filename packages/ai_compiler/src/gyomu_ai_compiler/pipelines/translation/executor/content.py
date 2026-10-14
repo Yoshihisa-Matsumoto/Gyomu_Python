@@ -156,5 +156,10 @@ async def _retry_document_content_translation[TSchema: DocumentContent](
             phase="retry",
             section_id=section_id,
             context=caller_context(),
+            details={
+                "issues": update_translation_state.validation.issues
+                if update_translation_state.validation is not None
+                else "no issues"
+            },
         )
     )

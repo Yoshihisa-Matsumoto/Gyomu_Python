@@ -7,6 +7,7 @@ from gyomu_schema.schemas.document.content import (
     CodeBlock,
     DocumentContent,
     DocumentContentType,
+    Paragraph,
     Table,
 )
 from gyomu_schema.schemas.document.section import (
@@ -73,13 +74,19 @@ def _render_content(content: DocumentContent) -> str:
 
     match content.kind:
         case DocumentContentType.PARAGRAPH:
-            return content.text
+            return _render_paragraph(content)
         case DocumentContentType.CODE:
             return _render_code_block(content)
         case DocumentContentType.BULLET_LIST:
             return _render_bullet_list(content)
         case DocumentContentType.TABLE:
             return _render_table(content)
+
+
+def _render_paragraph(paragraph: Paragraph) -> str:
+    """Renders a paragraph into markdown."""
+
+    return "\n".join(paragraph.lines)
 
 
 def _render_code_block(code_block: CodeBlock) -> str:

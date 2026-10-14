@@ -1,7 +1,9 @@
 import ast
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from griffe import Attribute, Class, Function, TypeAlias
 from gyomu_infra.filesystem.file_io import read_source_text
@@ -62,19 +64,29 @@ _default_project_config = PyProjectConfig(
 )
 
 _default_workspace_path = WorkspaceRelativePath(Path("."))
-_default_pyproject = PyProjectConfig(
-    path=_default_workspace_path,
-    name="test",
-    description="",
-    formatter_line_length=88,
-    version="1.0",
-    _toml_data={},
-)
+
+
+def create_py_project_config(
+    path: WorkspaceRelativePath = WorkspaceRelativePath(Path(".")),  # noqa: B008
+    name: str = "test",
+    version: str = "1.0",
+    description: str | None = "",
+    formatter_line_length: int = 88,
+    _toml_data: Mapping[str, Any] = {},
+) -> PyProjectConfig:
+    return PyProjectConfig(
+        path=path,
+        name=name,
+        version=version,
+        description=description,
+        formatter_line_length=formatter_line_length,
+        _toml_data=_toml_data,
+    )
 
 
 def create_workspace_project(
     path: WorkspaceRelativePath = _default_workspace_path,
-    config: PyProjectConfig = _default_pyproject,
+    config: PyProjectConfig = create_py_project_config(),  # noqa: B008
 ) -> WorkspaceProject:
     return WorkspaceProject(path=path, config=config)
 

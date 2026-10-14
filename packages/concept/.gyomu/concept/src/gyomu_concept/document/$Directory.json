@@ -1,23 +1,23 @@
 {
-  "summary": "The document package provides core functionality for initializing document contexts, defining document structures and models, generating documents, and coordinating building, translation, and rendering processes.",
+  "summary": "The document directory manages document generation, context initialization, data models, rendering, translation, and building operations for creating structured documents.",
   "responsibilities": [
-    "Initializes document base contexts and knowledge paths.",
-    "Defines document models, renderers, and output configurations.",
-    "Generates documentation based on definitions and project context."
+    "Initialize document contexts and load package knowledge files.",
+    "Define data structures, output configurations, and file path resolvers for documents.",
+    "Coordinate document generation using definitions and project context."
   ],
   "concepts": [
-    "Document Generation",
-    "Document Models",
-    "Document Context",
-    "Document Building",
-    "Document Rendering",
-    "Document Translation"
+    "Document context",
+    "Document generation",
+    "Document models",
+    "Document building",
+    "Document rendering",
+    "Document translation"
   ],
   "relationships": [
-    "Document generation utilizes context initialization, models, building, rendering, and translation components."
+    "Document generation coordinates document building, rendering, and translation processes."
   ],
   "design_decisions": [
-    "Modular organization of document generation, context initialization, models, building, rendering, and translation logic."
+    "Modular organization of document generation, context initialization, models, rendering, translation, and building components."
   ],
   "importance": "Core"
 }

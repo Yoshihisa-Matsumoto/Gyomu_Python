@@ -9,7 +9,7 @@ from gyomu_concept.llm_context.builder.section.important_constraints import (
 )
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.llm_context.types import LlmContextSectionId
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import (
     Section,
     SectionNoTranslation,
@@ -41,7 +41,7 @@ class TestBuildImportantConstraints:
             SectionWithInstruction[LlmContextSectionId](
                 section=Section[LlmContextSectionId](
                     id="important-constraints",
-                    contents=(Paragraph(text=description),),
+                    contents=(paragraph_from_text(text=description),),
                 ),
             )
         )

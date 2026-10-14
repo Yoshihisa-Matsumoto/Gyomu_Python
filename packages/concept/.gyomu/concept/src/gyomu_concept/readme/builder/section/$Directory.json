@@ -1,17 +1,16 @@
 {
-  "summary": "Provides section builders responsible for generating specific parts of a README document, including architecture, dependencies, development, installation, license, overview, and public API sections.",
+  "summary": "Provides individual section builders for constructing specific parts of README documentation, covering topics like architecture, dependencies, installation, and public API.",
   "responsibilities": [
-    "Construct individual sections of a README document such as architecture, dependencies, development, installation, license, overview, and public API."
+    "Generate individual sections for README documentation, such as architecture, dependencies, development, installation, license, overview, and public API."
   ],
   "concepts": [
     "Section builder",
-    "README section"
+    "README section",
+    "Documentation generation"
   ],
-  "relationships": [
-    "Individual section builders construct distinct parts of the README including architecture, dependencies, development, installation, license, overview, and public API."
-  ],
+  "relationships": [],
   "design_decisions": [
-    "Modular section builders for different parts of a README document"
+    "Uses modular section builders to construct specific parts of the README documentation."
   ],
   "importance": "Supporting"
 }

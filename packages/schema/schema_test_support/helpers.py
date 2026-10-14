@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from pathlib import Path
 
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassTypeAliasAnalysis,
@@ -178,7 +179,6 @@ def create_variable_analysis(
         location=location,
         type=None,
         value_source=value_source,
-        value_expression=value_expression,
         pydantic=pydantic,
     )
 
@@ -202,7 +202,6 @@ def create_class_variable_analysis(
         location=location,
         type=None,
         value_source=None,
-        value_expression=None,
         pydantic=None,
     )
 
@@ -559,4 +558,22 @@ def create_local_dependency_analysis(id: str) -> DependencyAnalysis:
     return DependencyAnalysis(
         source=create_declaration_identity(id),
         target=LocalFileDependency(symbol_id=SymbolId(id)),
+    )
+
+
+def create_gyomu_io_error(
+    message: str = "test",
+    layer: IOLayer = IOLayer.FILESYSTEM,
+    operation: IOOperation = IOOperation.WRITE,
+    target: str | None = None,
+    retryable: bool = False,
+    reason: str | None = None,
+) -> GyomuIOError:
+    return GyomuIOError(
+        message=message,
+        layer=layer,
+        operation=operation,
+        target=target,
+        retryable=retryable,
+        reason=reason,
     )

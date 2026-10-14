@@ -3,7 +3,7 @@ from gyomu_ai_compiler.pipelines.llm_context.prompt import llm_context_prompt_pr
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.llm_context.input import LlmContextBuildContext
 from gyomu_schema.schemas.concept.llm_context.types import LlmContextSectionId
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import (
     Section,
     SectionNoTranslation,
@@ -50,7 +50,9 @@ async def _build(
         SectionWithInstruction[LlmContextSectionId](
             section=Section[LlmContextSectionId](
                 id=_section_id,
-                contents=(Paragraph(text=important_constraints_result.unwrap()),),
+                contents=(
+                    paragraph_from_text(text=important_constraints_result.unwrap()),
+                ),
             )
         )
     )

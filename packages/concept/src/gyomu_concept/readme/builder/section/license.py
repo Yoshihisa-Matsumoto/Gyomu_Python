@@ -1,7 +1,7 @@
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.base import DocumentBaseContext, Knowledge
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import (
     Section,
     SectionNoTranslation,
@@ -34,7 +34,7 @@ async def _build(
         SectionWithInstruction[ReadmeSectionId](
             section=Section[ReadmeSectionId](
                 id=_section_id,
-                contents=(Paragraph(text=context.analysis.package.license),),
+                contents=(paragraph_from_text(text=context.analysis.package.license),),
             )
         )
     )

@@ -96,7 +96,7 @@ async def main():
         return
     package_fullpath = FullPath(workspace_context.config.path / target_package.path)
     project_context = initialize_project_from_workspace(
-        workspace_context.config, target_package
+        workspace_context.path, target_package
     )
     target_file_path = find_included_file(project_context.included_files, args[1])
     if target_file_path is None:

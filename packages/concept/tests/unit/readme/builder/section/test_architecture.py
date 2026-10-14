@@ -13,7 +13,7 @@ from gyomu_schema.error.ai import (
 )
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.readme.types import ReadmeSectionId
-from gyomu_schema.schemas.document.content import Paragraph
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import (
     Section,
     SectionTranslationInstruction,
@@ -47,7 +47,7 @@ class TestBuildArchitecture:
             SectionWithInstruction[ReadmeSectionId](
                 section=Section[ReadmeSectionId](
                     id="architecture",
-                    contents=(Paragraph(text="Architecture description"),),
+                    contents=(paragraph_from_text(text="Architecture description"),),
                 ),
             )
         )

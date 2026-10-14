@@ -1,17 +1,17 @@
 {
-  "summary": "Coordinates the construction of thematic sections for LLM context generation, utilizing modular builders to create structured components like architecture, design principles, and editing rules.",
+  "summary": "Provides the builder logic and coordination for composing specific sections of an LLM context, bringing together individual section builders and configurations.",
   "responsibilities": [
-    "Coordinate and build distinct thematic sections for LLM context generation"
+    "Builds and composes specific sections of an LLM context from various configuration and builder components."
   ],
   "concepts": [
-    "LLM Context Builder",
-    "Thematic Sections"
+    "LLM context builder",
+    "section builders"
   ],
   "relationships": [
-    "LLM context builders construct thematic sections for context generation."
+    "The builder coordinates section builders to compose specific parts of the LLM context."
   ],
   "design_decisions": [
-    "Modular function-based section construction"
+    "Composes LLM context sections using dedicated section builders."
   ],
   "importance": "Core"
 }

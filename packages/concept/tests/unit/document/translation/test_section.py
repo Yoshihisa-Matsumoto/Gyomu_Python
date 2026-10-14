@@ -1,6 +1,7 @@
 import pytest
 from gyomu_concept.document.translation.section import translate_section
 from gyomu_schema.error.translation import TranslationError
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import BuiltSection
 from gyomu_schema.schemas.document.translation.code import (
     code_block_translation_strategy,
@@ -13,7 +14,6 @@ from returns.result import Failure, Success
 
 from packages.schema.schema_test_support.concept_helpers import (
     create_codeblock,
-    create_paragraph,
     create_section,
     create_section_no_translation,
     create_section_translation_instruction,
@@ -25,7 +25,7 @@ class TestTranslateSection:
     async def test_returns_original_contents_without_translation(
         self,
     ) -> None:
-        paragraph = create_paragraph(text="Original")
+        paragraph = paragraph_from_text(text="Original")
         section = create_section(
             id="overview",
             title="Overview",
@@ -54,7 +54,7 @@ class TestTranslateSection:
         self,
         mocker: MockerFixture,
     ) -> None:
-        paragraph = create_paragraph(text="Original paragraph")
+        paragraph = paragraph_from_text(text="Original paragraph")
         code = create_codeblock(
             language="python",
             code="print('hello')",
@@ -79,7 +79,7 @@ class TestTranslateSection:
             translation=translation,
         )
 
-        translated_paragraph = create_paragraph(text="翻訳された段落")
+        translated_paragraph = paragraph_from_text(text="翻訳された段落")
         translated_code = create_codeblock(
             language="python",
             code="print('こんにちは')",
@@ -117,7 +117,7 @@ class TestTranslateSection:
         self,
         mocker: MockerFixture,
     ) -> None:
-        paragraph = create_paragraph(text="Original")
+        paragraph = paragraph_from_text(text="Original")
 
         section = create_section(
             id="overview",
@@ -159,9 +159,9 @@ class TestTranslateSection:
         self,
         mocker: MockerFixture,
     ) -> None:
-        paragraph1 = create_paragraph(text="First")
-        paragraph2 = create_paragraph(text="Second")
-        paragraph3 = create_paragraph(text="Third")
+        paragraph1 = paragraph_from_text(text="First")
+        paragraph2 = paragraph_from_text(text="Second")
+        paragraph3 = paragraph_from_text(text="Third")
 
         section = create_section(
             id="overview",
@@ -188,7 +188,7 @@ class TestTranslateSection:
             content_type="paragraph",
         )
 
-        translated_paragraph1 = create_paragraph(text="First translated")
+        translated_paragraph1 = paragraph_from_text(text="First translated")
 
         execute_mock = mocker.patch(
             "gyomu_concept.document.translation.section"

@@ -4,15 +4,17 @@ US English | [JP 日本語](README.ja.md)
 
 ## Overview
 
-Gyomu Infrastructure is a core package designed to provide robust shared infrastructure utilities and services for the Gyomu ecosystem. Its primary purpose is to standardize and handle operations involving external environment connections, such as file and stream I/O, structured CSV processing, filesystem manipulation, and database persistence via SQLAlchemy. The package encapsulates domain-specific infrastructure concerns, including business calendar calculations, market holiday repositories, and parameter translation services. By centralizing operations that depend on external libraries and execution environments, it prevents upper-level packages from directly depending on infrastructure implementation details and ensures a clean architecture.
+This core infrastructure package provides robust utilities and services designed for the Gyomu ecosystem. Its primary purpose is to standardize and handle interactions with external environments, including file and stream I/O, structured CSV processing, filesystem manipulation, and database persistence via SQLAlchemy. 
+
+The package encapsulates essential domain-specific infrastructure concerns such as business calendar calculations, market holiday repositories, and parameter translation services. By centralizing operations that depend on external libraries and execution environments, it ensures that upper-level packages remain decoupled from low-level implementation details.
 
 ## Architecture
 
-The package is organized into a set of specialized, collaborating infrastructure components that divide responsibilities across data handling, filesystem operations, and domain-specific services. Core utilities manage structured data parsing, file input/output, and stream processing, while dedicated persistence layers handle relational database connections and transactions via SQLAlchemy. 
+The gyomu-infra package is organized into a set of specialized modules that divide core infrastructure responsibilities across data processing, storage, and domain logic. The package structure separates low-level system utilities from domain-specific services, enabling structured collaboration between file handling, database persistence, and business calculations.
 
-Responsibilities are cleanly separated into modular directories. The CSV component handles reading, writing, and model validation, and the filesystem module provides robust file enumeration, search, and exclusive access handling. Stream processing components manage lazy data pipelines and byte stream I/O. 
+Data handling and file operations are managed through dedicated components for structured CSV parsing with Pydantic validation, filesystem manipulation, and lazy stream processing. These I/O and stream utilities supply foundational data pipelines that feed into the broader application.
 
-Domain-specific concerns are encapsulated to support dynamic execution contexts. The variable translation component resolves date and parameter placeholders, and the date component performs business calendar calculations using cached market holiday repositories. Together, these components collaborate to supply reliable infrastructure services for application workflows.
+Persistence and domain-specific operations are encapsulated within database repository implementations and specialized calculation services. Relational database interactions are handled via SQLAlchemy-backed repositories, while domain logic leverages cached market holiday repositories to execute business calendar calculations and dynamic parameter translations. Together, these collaborating components deliver a cohesive infrastructure layer for system integration and data management.
 
 ## Installation
 
@@ -24,15 +26,15 @@ uv add gyomu-infra
 
 ## Dependencies
 
-This package is designed for Pydantic version 2.x compatibility. 
+This package requires Pydantic version 2.x, as it is designed specifically for Pydantic Version 2. 
 
-For runtime execution, it relies on Pydantic for schema definition, data validation, and serialization and deserialization. It also uses returns to provide explicit success and failure handling through Success, Failure, and Result, and utilizes SQLAlchemy for database access.
+For runtime dependencies, the package utilizes Pydantic for schema definition, data validation, serialization, and deserialization. It also uses returns for explicit success and failure representation via Success, Failure, and Result, and SQLAlchemy for database access.
 
 ## Development
 
-Contributors must strictly encapsulate external library APIs and side-effect-heavy I/O operations behind common infrastructure interfaces to prevent upper layers from depending directly on implementation details. File systems, databases, configuration loading, and data conversion must maintain strict separation of concerns, with incoming external data consistently validated through schemas. Persistence logic requires a clear separation between repositories and mappers to shield users from database specifics, while all errors must map into a unified error model that preserves context for tracing operations and failure locations. 
+Contributors must strictly enforce the separation of concerns by isolating all input-output operations, side effects, and external library APIs within this package. Implementation details of the file system, databases, configuration loading, and data conversion must remain entirely encapsulated to prevent upper packages from forming direct dependencies on external environments or specific third-party libraries. Furthermore, domain-specific business logic must never bleed into this infrastructure layer; all implementations should remain generic utility components rather than housing application-specific rules.
 
-To maintain architectural integrity, contributors must keep this package entirely free of domain-specific business logic or application-specific rules, ensuring it remains a reusable foundation for the Gyomu ecosystem. Any integration of external libraries or execution environments must be wrapped inside standardized interfaces, allowing the broader system to interact with external systems without coupling to concrete implementations.
+To maintain architectural integrity, persistence operations must decouple database access details from the consuming code by utilizing strict boundaries such as repositories and mappers. Data acquired from external sources requires validation through schemas, while any raw exceptions thrown by external drivers must be caught and translated into a unified error model that preserves context regarding the operation and failure location. Contributions that introduce hidden tight coupling, expose raw external APIs to upper layers, or mix domain knowledge into these utility components will be rejected to preserve the decoupled nature of the Gyomu ecosystem.
 
 ## Public API
 

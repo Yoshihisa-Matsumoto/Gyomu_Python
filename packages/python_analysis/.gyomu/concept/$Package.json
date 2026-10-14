@@ -1,37 +1,38 @@
 {
-  "summary": "Gyomu Python Analysis is a comprehensive toolkit designed for inspecting, parsing, and analyzing Python source codebases. It provides robust capabilities for workspace and project initialization, AST-based syntactic and semantic code analysis, symbol extraction, and project snapshot change tracking.",
+  "summary": "gyomu-python-analysis provides comprehensive tooling for parsing, analyzing, and tracking Python source code structures. It extracts metadata from classes, functions, variables, and Pydantic models, manages project workspaces and configurations, and supports snapshot-based change analysis.",
   "responsibilities": [
-    "Manage project and workspace configurations, source roots, and file enumerations for Python codebases.",
-    "Analyze Python source code syntax, types, constructs, and metadata via AST parsing and expression evaluation.",
-    "Track project file states, compute differences across snapshots, and validate change commitments.",
-    "Provide symbol context and dependency resolution data during code structure analysis."
+    "Analyze Python source code structures, metadata, and dependencies.",
+    "Manage project workspaces, configuration, and module discovery.",
+    "Generate and compare project snapshots to track code evolution.",
+    "Provide AST-based parsing utilities for statements, expressions, and symbols."
   ],
   "capabilities": [
     {
-      "name": "Workspace and Project Context Management",
-      "description": "Initializes and manages project workspaces, source roots, module caches, and configuration settings for Python code bases."
+      "name": "Python Code Analysis",
+      "description": "Extract structural metadata, types, decorators, and definitions from Python code elements including classes, functions, variables, and Pydantic models."
     },
     {
-      "name": "Python Code Structure Analysis",
-      "description": "Performs comprehensive structural code analysis on Python constructs, including classes, functions, variables, type aliases, imports, decorators, docstrings, and dependencies."
+      "name": "Project and Workspace Context",
+      "description": "Initialize workspaces, parse configuration files, discover package roots, and load and cache Python modules."
     },
     {
-      "name": "AST and Expression Processing",
-      "description": "Parses and evaluates Python statements, expressions, literals, and Abstract Syntax Trees to build symbol indexes and lookups."
+      "name": "Snapshot Management",
+      "description": "Create project snapshots, enumerate target files, track changes, and compute structural differences across versions."
     },
     {
-      "name": "Snapshot and Change Tracking",
-      "description": "Creates project snapshots, monitors files, computes snapshot differences, and validates change management workflows."
+      "name": "AST Inspection and Indexing",
+      "description": "Parse and inspect Abstract Syntax Trees to evaluate Python statements, expressions, and build symbol indices."
     }
   ],
   "design_decisions": [
-    "Modularized architecture separating workspace configuration, high-level analysis orchestration, granular AST/expression inspection, and project snapshotting.",
-    "Explicit caching and module context loading to optimize repeated analysis runs within a workspace.",
-    "Specialized handling for framework features like Pydantic data models and docstring parsing alongside standard Python syntax constructs."
+    "Separates low-level AST statement and expression evaluation from high-level Python code element analysis.",
+    "Employs workspace and project context abstractions to handle multi-package configurations and tool discovery.",
+    "Maintains persistent file metadata and module caching to optimize repetitive analysis passes.",
+    "Tracks structural project snapshots with explicit diffing capabilities to monitor source code evolution."
   ],
   "usage_guidance": [
-    "Initialize project contexts using workspace configuration discovery to establish source roots and file enumerations before running analyses.",
-    "Leverage the core analyzers to extract structural metadata, types, and dependencies for classes, functions, and Pydantic models.",
-    "Use the snapshot module to track and diff project states over time for change detection and validation workflows."
+    "Use the workspace and project context components to initialize project roots and discover configuration files before running analysis passes.",
+    "Leverage the core analyzers and AST utilities to inspect Python classes, functions, and expressions, or extract symbol context.",
+    "Utilize the snapshot module to enumerate target files, create project snapshots, and compute structural differences between source revisions."
   ]
 }

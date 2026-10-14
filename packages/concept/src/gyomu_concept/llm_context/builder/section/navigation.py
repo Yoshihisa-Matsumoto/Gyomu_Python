@@ -1,7 +1,11 @@
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.llm_context.input import LlmContextBuildContext
 from gyomu_schema.schemas.concept.llm_context.types import LlmContextSectionId
-from gyomu_schema.schemas.document.content import BulletList, BulletListItem, Paragraph
+from gyomu_schema.schemas.document.content import (
+    BulletList,
+    BulletListItem,
+    paragraph_from_text,
+)
 from gyomu_schema.schemas.document.section import (
     Section,
     SectionNoTranslation,
@@ -38,7 +42,7 @@ async def _build(
             section=Section[LlmContextSectionId](
                 id=_section_id,
                 contents=(
-                    Paragraph(
+                    paragraph_from_text(
                         text=(
                             "This document provides a high-level overview of the "
                             "package concept, responsibilities, and design decisions."
@@ -94,7 +98,7 @@ async def _build(
                             ),
                         )
                     ),
-                    Paragraph(
+                    paragraph_from_text(
                         text="When modifying this package, review the relevant "
                         "documentation before making changes to preserve the intended "
                         "responsibilities and architectural boundaries.\n"

@@ -1,19 +1,19 @@
 {
-  "summary": "Provides comprehensive functionality for generating project README files, including context initialization, document definitions, options, and markdown rendering.",
+  "summary": "Coordinates the generation of project README files by defining document structures, managing build contexts, and organizing builder and renderer submodules.",
   "responsibilities": [
-    "Initialize README build contexts, define project README documents and rendering options, and generate project README files."
+    "Initializes the README build context, defines README document structures and rendering options, and coordinates file generation."
   ],
   "concepts": [
     "README generation",
-    "Document definition",
-    "Markdown rendering",
-    "Section builders"
+    "document definition",
+    "markdown rendering",
+    "build context"
   ],
   "relationships": [
-    "The README module coordinates context initialization, document definition, options, and rendering to generate project README files."
+    "The readme generation module coordinates the build context, document definitions, and child packages for building and rendering README files."
   ],
   "design_decisions": [
-    "Organizes README generation into modular components including context initialization, document definition, options, and rendering."
+    "Uses modular section builders and submodules for building, rendering, and internal file handling to generate project README files."
   ],
   "importance": "Core"
 }

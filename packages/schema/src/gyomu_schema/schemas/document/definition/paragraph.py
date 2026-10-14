@@ -2,7 +2,9 @@ from gyomu_schema.schemas.document.content import (
     DocumentContentType,
     Paragraph,
 )
-from gyomu_schema.schemas.document.definition.common import validate_text
+from gyomu_schema.schemas.document.definition.common import (
+    validate_textblock,
+)
 from gyomu_schema.schemas.document.section import (
     DocumentContentDefinitionBase,
     ReconciliationValidator,
@@ -24,8 +26,11 @@ def _validate_paragraph(source: Paragraph, destination: Paragraph) -> Validation
             valid
     """
     issues: list[ValidationIssue] = []
-    validate_text(
-        source=source.text, destination=destination.text, location="text", issues=issues
+    validate_textblock(
+        source=source.lines,
+        destination=destination.lines,
+        location="lines",
+        issues=issues,
     )
     return ValidationResult(issues=tuple(issues), is_valid=len(issues) == 0)
 

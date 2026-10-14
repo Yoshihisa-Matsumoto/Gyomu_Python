@@ -1,17 +1,17 @@
 {
-  "summary": "Defines the core AI model representation and identification structures used across the application.",
+  "summary": "Provides foundational definitions, including enumeration keys for AI models and type aliases for bucket identifiers, serving as the core model reference for the application.",
   "responsibilities": [
-    "Defines the core data structures and keys for AI models used within the application."
+    "Defines core type aliases and enumeration keys for identifying AI models and buckets within the application."
   ],
   "concepts": [
-    "AI model",
-    "model key"
+    "AI model keys",
+    "Bucket identifier"
   ],
   "relationships": [
-    "Defines AI model representation and identification structures"
+    "AiModelKey and BucketId represent foundational definitions used to identify AI models and buckets."
   ],
   "design_decisions": [
-    "Exposes model identification through a key structure"
+    "Defines enums and type aliases for AI models and bucket identifiers."
   ],
   "importance": "Core"
 }

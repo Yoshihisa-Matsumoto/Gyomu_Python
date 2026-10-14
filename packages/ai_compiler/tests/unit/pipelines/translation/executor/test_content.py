@@ -5,6 +5,7 @@ from gyomu_ai_compiler.pipelines.translation.executor.content import (
     execute_document_content_translation,
 )
 from gyomu_schema.error.translation import TranslationError
+from gyomu_schema.schemas.document.content import paragraph_from_text
 from gyomu_schema.schemas.document.section import (
     TranslationState,
 )
@@ -60,8 +61,8 @@ class TestExecuteDocumentContentTranslation:
         self,
         mocker: MockerFixture,
     ) -> None:
-        context = create_paragraph()
-        translated_context = create_paragraph("これはペンです")
+        context = paragraph_from_text("")
+        translated_context = paragraph_from_text("これはペンです")
 
         strategy = paragraph_translation_strategy
 
@@ -95,10 +96,10 @@ class TestExecuteDocumentContentTranslation:
         self,
         mocker: MockerFixture,
     ) -> None:
-        context = create_paragraph("this is a pen")
-        retry_context = create_paragraph("retry context")
-        first_translation = create_paragraph("first translation")
-        second_translation = create_paragraph("これはペンです")
+        context = paragraph_from_text("this is a pen")
+        retry_context = paragraph_from_text("retry context")
+        first_translation = paragraph_from_text("first translation")
+        second_translation = paragraph_from_text("これはペンです")
 
         invalid_validation = create_validation_result(
             issues=(
@@ -170,7 +171,7 @@ class TestExecuteDocumentContentTranslation:
         mocker: MockerFixture,
     ) -> None:
         context = create_paragraph()
-        translated_context = create_paragraph("translated")
+        translated_context = paragraph_from_text("translated")
 
         invalid_validation = create_validation_result(
             issues=(create_validation_issue(),)

@@ -9,6 +9,7 @@ from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.models import SnapshotTarget, SnapshotTargetOption
+from gyomu_workflow.snapshot.repair import repair_python_package_structure
 from gyomu_workflow.snapshot.validate import validate_python_package_structure
 
 
@@ -34,11 +35,26 @@ def resolve_snapshot_target(
     """
     validation_result = validate_python_package_structure(project_context)
     context = caller_context()
+    if isinstance(validation_result, Failure):
+        repair_result = repair_python_package_structure(
+            project_context=project_context, errors=validation_result.failure().errors
+        )
+        if isinstance(repair_result, Failure):
+            return repair_result.alt(
+                lambda error: GyomuError(
+                    message="fail to validate project structure",
+                    domain="snapshot",
+                    operation="resolve_snapshot_target",
+                    reason="external_failure",
+                    context=context,
+                ).chain(error)
+            )
+        validation_result = validate_python_package_structure(project_context)
 
     if isinstance(validation_result, Failure):
         return validation_result.alt(
             lambda error: GyomuError(
-                message="fail to validate project structure",
+                message="fail to repair project structure",
                 domain="snapshot",
                 operation="resolve_snapshot_target",
                 reason="external_failure",

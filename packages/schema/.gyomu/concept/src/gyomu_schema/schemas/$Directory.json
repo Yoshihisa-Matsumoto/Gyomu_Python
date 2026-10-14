@@ -1,23 +1,18 @@
 {
-  "summary": "Provides the core schema definitions, data models, custom types, and domain-specific validation structures encompassing documents, knowledge representations, Python code analysis, and project snapshots.",
+  "summary": "Provides core data schemas, type definitions, and confidence routing models that support the schema package.",
   "responsibilities": [
-    "Define core schema definitions, custom types, and data models across various domain areas including documents, knowledge representation, Python code structures, and project snapshots."
+    "Define core data schemas, type definitions, and AI decision confidence routing models."
   ],
   "concepts": [
-    "schema definitions",
-    "confidence routing",
-    "file system path types",
-    "document schemas",
-    "knowledge domain schemas",
-    "python code structures",
-    "project snapshots"
+    "AI confidence",
+    "file system path",
+    "schema definitions"
   ],
   "relationships": [
-    "Confidence is used for merge strategy routing.",
-    "FullPath represents a file system path."
+    "Confidence schemas route merge strategies using AI decision confidence."
   ],
   "design_decisions": [
-    "Schema definitions, data models, and typing structures are modularly organized into base modules and sub-packages representing specific domain schemas."
+    "Organizes core data schemas, types, and routing models for the package."
   ],
   "importance": "Core"
 }

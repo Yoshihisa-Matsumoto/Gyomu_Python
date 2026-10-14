@@ -1,26 +1,28 @@
 {
-  "summary": "The gyomu_concept source directory organizes core application logic into specialized modules for directory concept construction, document generation, error handling, LLM context management, package analysis, and README generation.",
+  "summary": "Serves as the root source directory containing core domain modules that manage directory concepts, document generation, error handling, LLM context operations, package analysis, and README generation.",
   "responsibilities": [
-    "Manages directory concept construction and build result structures.",
-    "Coordinates document initialization, modeling, building, translation, and rendering.",
-    "Defines domain-specific error classes and phase classifications.",
-    "Generates and renders structured LLM context files and thematic sections.",
-    "Performs package analysis, path resolution, and dependency collection.",
-    "Generates project README files through context initialization and rendering."
+    "Manage directory concept construction and build result types.",
+    "Manage document generation, context initialization, data models, rendering, translation, and building operations.",
+    "Define domain-specific errors and phase classifications for error handling.",
+    "Manage the creation, definition, and generation of LLM context files and data structures.",
+    "Perform package analysis, concept generation, dependency collection, and path processing.",
+    "Coordinate the generation of project README files by managing build contexts and rendering options."
   ],
   "concepts": [
-    "Directory Concept Construction",
-    "Document Generation",
-    "Error Handling",
-    "LLM Context Management",
-    "Package Analysis",
-    "README Generation"
+    "directory concept construction",
+    "document generation",
+    "error handling",
+    "LLM context operations",
+    "package analysis",
+    "README generation"
   ],
   "relationships": [
-    "The document generation, LLM context management, package analysis, and README generation components use foundational directory concepts, error handling, and internal utilities."
+    "The directory coordinates core domain modules including directory building, document generation, error handling, LLM context operations, package analysis, and README generation.",
+    "Document generation coordinates document building, rendering, and translation processes.",
+    "ConceptError relates to ConceptPhase to classify errors during conceptual execution."
   ],
   "design_decisions": [
-    "Modular organization of core domain concepts into specialized packages for directory handling, document generation, error classification, LLM context management, package analysis, and README generation."
+    "Modular organization grouping domain-specific operations such as directory concept building, document generation, error classification, LLM context handling, package analysis, and README generation."
   ],
   "importance": "Core"
 }

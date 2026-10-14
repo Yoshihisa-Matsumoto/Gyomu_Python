@@ -1,24 +1,23 @@
 {
-  "summary": "Responsible for building distinct thematic sections used in LLM context generation, including architecture, design principles, editing rules, constraints, navigation, overview, and package responsibilities.",
+  "summary": "Provides section builders and configurations for composing specific sections of an LLM context, including architecture, design principles, editing rules, constraints, navigation, overview, and responsibilities.",
   "responsibilities": [
-    "Construct specific thematic sections for LLM context generation such as architecture, design principles, editing rules, important constraints, navigation, overview, and package responsibilities."
+    "Provides section builder configurations and instances for specific document sections like architecture, design principles, editing rules, important constraints, navigation, overview, and package responsibilities."
   ],
   "concepts": [
-    "Section builders",
-    "LLM context sections",
-    "Architecture section",
-    "Design principles",
-    "Editing rules",
-    "Important constraints",
-    "Navigation section",
-    "Overview section",
-    "Package responsibilities"
+    "section builder",
+    "architecture section",
+    "design principles section",
+    "editing rules section",
+    "important constraints section",
+    "navigation section",
+    "overview section",
+    "package responsibilities section"
   ],
   "relationships": [
-    "Section builders construct individual components of the LLM context including architecture, design principles, editing rules, important constraints, navigation, overview, and package responsibilities."
+    "Individual section builders define configuration and instances for specific document sections including architecture, design principles, editing rules, important constraints, navigation, overview, and package responsibilities."
   ],
   "design_decisions": [
-    "Modular function-based section construction"
+    "Provides individual section builder configurations and instances for composing LLM contexts."
   ],
-  "importance": "Supporting"
+  "importance": "Core"
 }
