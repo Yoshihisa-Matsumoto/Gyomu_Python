@@ -35,7 +35,7 @@ class TestValidateText:
             ValidationIssue(
                 code="LITERAL_NEWLINE_MISMATCH",
                 message=(
-                    "The number of literal '\\n' sequences is different in paragraph.text."
+                    "The number of literal '\\n' sequences is different in paragraph.text."  # noqa: E501
                 ),
                 details={
                     "source_count": "0",
@@ -60,7 +60,7 @@ class TestValidateText:
             ValidationIssue(
                 code="LITERAL_NEWLINE_MISMATCH",
                 message=(
-                    "The number of literal '\\n' sequences is different in paragraph.text."
+                    "The number of literal '\\n' sequences is different in paragraph.text."  # noqa: E501
                 ),
                 details={
                     "source_count": "1",
@@ -105,7 +105,7 @@ class TestValidateText:
             ValidationIssue(
                 code="LITERAL_NEWLINE_MISMATCH",
                 message=(
-                    "The number of literal '\\n' sequences is different in paragraph.text."
+                    "The number of literal '\\n' sequences is different in paragraph.text."  # noqa: E501
                 ),
                 details={
                     "source_count": "0",
