@@ -4,7 +4,7 @@ faq:
   - question: |
       このパッケージは単独で利用できますか？
     answer: |
-      いいえ。gyomu-schema, gyomu-infra, gyomu-ai-compiler, gyomu-python-analysis に依存しています
+      いいえ。gyomu-schema, gyomu-infra, gyomu-python-analysis に依存しています
 
 known_issues: []
 
