@@ -9,7 +9,7 @@ from gyomu_python_analysis.analysis.initialize import (
     read_version,
     resolve_source_root,
 )
-from gyomu_python_analysis.project.context import PyProjectConfig
+from gyomu_python_analysis.project.context import PackageRoot, PyProjectConfig
 from gyomu_python_analysis.project.workspace import WorkspaceProject
 from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
@@ -119,8 +119,8 @@ class TestInitializeProjectContext:
         mocker.patch(
             "gyomu_python_analysis.analysis.initialize.find_package_roots",
             return_value=(
-                ProjectRelativePath(Path("a")),
-                ProjectRelativePath(Path("b")),
+                PackageRoot(path=ProjectRelativePath(Path("a")), module_name="a"),
+                PackageRoot(path=ProjectRelativePath(Path("b")), module_name="b"),
             ),
         )
 
@@ -144,8 +144,8 @@ class TestInitializeProjectContext:
             }
         )
         assert context.package_roots == (
-            ProjectRelativePath(Path("a")),
-            ProjectRelativePath(Path("b")),
+            PackageRoot(path=ProjectRelativePath(Path("a")), module_name="a"),
+            PackageRoot(path=ProjectRelativePath(Path("b")), module_name="b"),
         )
 
     def test_initialize_project_context_with_hatch_dynamic_version(
@@ -387,8 +387,12 @@ class TestFindPackageRoots:
         )
 
         assert result == (
-            ProjectRelativePath(Path("src/package_a")),
-            ProjectRelativePath(Path("src/package_b")),
+            PackageRoot(
+                path=ProjectRelativePath(Path("src/package_a")), module_name="package_a"
+            ),
+            PackageRoot(
+                path=ProjectRelativePath(Path("src/package_b")), module_name="package_b"
+            ),
         )
 
     def test_does_not_include_nested_packages(
@@ -411,4 +415,8 @@ class TestFindPackageRoots:
             source_root=source_root,
         )
 
-        assert result == (ProjectRelativePath(Path("src/package")),)
+        assert result == (
+            PackageRoot(
+                path=ProjectRelativePath(Path("src/package")), module_name="package"
+            ),
+        )

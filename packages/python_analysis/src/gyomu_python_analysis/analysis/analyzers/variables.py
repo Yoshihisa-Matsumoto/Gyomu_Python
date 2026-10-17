@@ -2,6 +2,7 @@ import ast
 
 from griffe import Attribute
 from gyomu_schema.option.analysis import AnalysisOption
+from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 
@@ -25,6 +26,7 @@ def analyze_variable(
     name: str,
     context: SymbolContext,
     asy_symbol: AstTargetSymbolType | None,
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None = None,
 ) -> VariableAnalysis:
     """Analyze a variable attribute and return its analysis.
@@ -67,14 +69,14 @@ def analyze_variable(
     #     if not isinstance(assumed_type, LiteralValue):
     #         pydantic = analyze_pydantic(assumed_type, target_type)
     pydantic = (
-        analyze_pydantic(type.structure, ast_value_expression)
+        analyze_pydantic(type.structure, ast_value_expression, imported=imported)
         if type is not None
         and type.structure is not None
         and ast_value_expression is not None
         else None
     )
     if pydantic is None and ast_value_expression is not None:
-        pydantic = get_pydantic_from_value_only(ast_value_expression)
+        pydantic = get_pydantic_from_value_only(ast_value_expression, imported=imported)
 
     return VariableAnalysis(
         **variable_common,

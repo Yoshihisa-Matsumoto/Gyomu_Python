@@ -58,7 +58,9 @@ def extract_symbols(
     Returns:
         SymbolExtractContext: Extracted symbol and import context.
     """
-    imported: list[ImportAnalysis] = _extract_imports(source_file.module, source_lines)
+    imported: tuple[ImportAnalysis, ...] = tuple(
+        _extract_imports(source_file.module, source_lines)
+    )
     symbols: list[SymbolAnalysis] = _extract_symbols_internal(
         source_file, source, source_lines, imported, option
     )
@@ -91,7 +93,7 @@ def _extract_symbols_internal(
     source_file: SourceFileContext,
     source: str,
     source_lines: list[str],
-    imported: list[ImportAnalysis],
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None = None,
 ) -> list[SymbolAnalysis]:
     """Internal helper to extract and analyze symbols from a source file module.
@@ -146,6 +148,7 @@ def _extract_symbols_internal(
                     context=context,
                     option=option,
                     asy_symbol=ast_symbol,
+                    imported=imported,
                 )
             )
         elif isinstance(symbol, Function):
@@ -173,6 +176,7 @@ def _extract_symbols_internal(
                     name=symbol_name,
                     context=context,
                     ast=ast_symbol,
+                    imported=imported,
                     option=option,
                 )
             )

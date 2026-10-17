@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     PythonPath,
@@ -39,6 +41,21 @@ def source_relative_path_to_python_path(
         path = SourceRelativePath(path.with_suffix(""))
 
     return PythonPath(".".join(path.parts))
+
+
+def python_path_to_source_project_relative_path(
+    path: PythonPath,
+    context: ProjectContext,
+) -> ProjectRelativePath:
+    normal_source_path = source_relative_path_to_project_relative_path(
+        SourceRelativePath(Path(path.replace(".", "/") + ".py")), context
+    )
+    init_source_path = source_relative_path_to_project_relative_path(
+        SourceRelativePath(Path(path.replace(".", "/")) / "__init__.py"), context
+    )
+    if (context.project_root / normal_source_path).exists():
+        return normal_source_path
+    return init_source_path
 
 
 def source_relative_path_to_full_path(

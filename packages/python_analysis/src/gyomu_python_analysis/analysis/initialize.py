@@ -13,7 +13,11 @@ from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.context import (
+    PackageRoot,
+    ProjectContext,
+    PyProjectConfig,
+)
 from gyomu_python_analysis.project.workspace import WorkspaceProject
 
 
@@ -96,7 +100,7 @@ def initialize_project_context(
 def find_package_roots(
     project_root: FullPath,
     source_root: ProjectRelativePath,
-) -> tuple[ProjectRelativePath, ...]:
+) -> tuple[PackageRoot, ...]:
     """Find package root directories within the source root.
 
     Find all package root directories containing an `__init__.py` file within the source
@@ -105,7 +109,10 @@ def find_package_roots(
     source_path = project_root / source_root
 
     return tuple(
-        ProjectRelativePath(path.relative_to(project_root))
+        PackageRoot(
+            path=ProjectRelativePath(path.relative_to(project_root)),
+            module_name=path.name,
+        )
         for path in sorted(source_path.iterdir(), key=lambda path: path.name)
         if path.is_dir() and (path / "__init__.py").is_file()
     )

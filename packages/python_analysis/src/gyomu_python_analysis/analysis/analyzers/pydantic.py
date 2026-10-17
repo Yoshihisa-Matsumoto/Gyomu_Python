@@ -1,3 +1,6 @@
+from enum import Enum
+
+from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.type.expression import (
     BinaryOperator,
@@ -17,6 +20,14 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     StructureAnalysis,
     UnionStructureAnalysis,
 )
+
+from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
+
+
+class PydanticModelStatus(Enum):
+    CONFIRMED = "confirmed"
+    POSSIBLE = "possible"
+    NOT_PYDANTIC = "not_pydantic"
 
 
 def _is_field_required(field_type: StructureAnalysis | None) -> bool:
@@ -52,7 +63,9 @@ def retrieve_str_value(value: ExpressionAnalysis) -> str | None:
 
 
 def analyze_pydantic(
-    field_type: StructureAnalysis, expression: ExpressionAnalysis
+    field_type: StructureAnalysis,
+    expression: ExpressionAnalysis,
+    imported: tuple[ImportAnalysis, ...],
 ) -> PydanticFieldAnalysis | None:
     """Analyze a Pydantic field definition from type analysis and expressions.
 
@@ -66,16 +79,24 @@ def analyze_pydantic(
     """
     is_required = _is_field_required(field_type)
 
-    return _analyze_pydantic(is_required=is_required, expression=expression)
+    return _analyze_pydantic(
+        is_required=is_required, expression=expression, imported=imported
+    )
 
 
 def _analyze_pydantic(
-    is_required: bool, expression: ExpressionAnalysis
+    is_required: bool,
+    expression: ExpressionAnalysis,
+    imported: tuple[ImportAnalysis, ...],
 ) -> PydanticFieldAnalysis | None:
     if (
         isinstance(expression, CallExpressionAnalysis)
         and isinstance(expression.func, NameExpressionAnalysis)
-        and expression.func.name == "Field"
+        and normalize_reference_name(
+            imported=imported,
+            reference_name=expression.func.name,
+        )
+        == "pydantic.Field"
     ):
         description = None
         alias = None
@@ -104,6 +125,7 @@ def _analyze_pydantic(
 
 def get_pydantic_from_value_only(
     ast_expression: ExpressionAnalysis,
+    imported: tuple[ImportAnalysis, ...],
 ) -> PydanticFieldAnalysis | None:
     """Extract a Pydantic Field call structure and its underlying type from an Annotated
     type expression.
@@ -140,9 +162,14 @@ def get_pydantic_from_value_only(
         if (
             isinstance(element, CallExpressionAnalysis)
             and isinstance(element.func, NameExpressionAnalysis)
-            and element.func.name == "Field"
+            and normalize_reference_name(
+                reference_name=element.func.name, imported=imported
+            )
+            == "pydantic.Field"
         ):
-            return _analyze_pydantic(is_required=is_required, expression=element)
+            return _analyze_pydantic(
+                is_required=is_required, expression=element, imported=imported
+            )
 
     return None
 

@@ -96,6 +96,12 @@ class PyProjectConfig:
         return data
 
 
+@dataclass(frozen=True)
+class PackageRoot:
+    path: ProjectRelativePath
+    module_name: str
+
+
 class ProjectContext:
     """Encapsulates project context including roots, configuration, and loader.
 
@@ -109,7 +115,7 @@ class ProjectContext:
         source_root: ProjectRelativePath,
         config: PyProjectConfig,
         included_files: frozenset[ProjectRelativePath] = frozenset(),
-        package_roots: tuple[ProjectRelativePath, ...] = tuple(),
+        package_roots: tuple[PackageRoot, ...] = tuple(),
     ) -> None:
         self.project_root = project_root
         self.source_root = source_root

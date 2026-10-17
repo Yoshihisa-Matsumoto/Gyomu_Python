@@ -36,6 +36,7 @@ from gyomu_schema.schemas.python.file_analysis import (
     FileAnalysisMetadata,
 )
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
+from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKind
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
@@ -577,3 +578,11 @@ def create_gyomu_io_error(
         retryable=retryable,
         reason=reason,
     )
+
+
+def create_import_analysis(
+    local_name: str = "BaseModel",
+    imported_name: str = "pydantic.BaseModel",
+    kind: ImportKind = ImportKind.SYMBOL,
+) -> ImportAnalysis:
+    return ImportAnalysis(local_name=local_name, imported_name=imported_name, kind=kind)

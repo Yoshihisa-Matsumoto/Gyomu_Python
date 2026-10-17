@@ -227,7 +227,6 @@ def create_method(id: str, doc: bool) -> MethodAnalysis:
         docstring=docstring,
         parameters=tuple(),
         is_ellipsis_only=False,
-        statements=tuple(),
     )
 
 
@@ -255,7 +254,6 @@ def create_class_variable(id: str, doc: bool) -> ClassVariableAnalysis:
         indent=4,
         type=None,
         value_source=None,
-        value_expression=None,
     )
 
 

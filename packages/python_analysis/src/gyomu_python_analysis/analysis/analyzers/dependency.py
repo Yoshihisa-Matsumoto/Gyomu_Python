@@ -74,7 +74,7 @@ def register_dependency(
 
 def _find_imported(
     name: str,
-    imported: list[ImportAnalysis],
+    imported: tuple[ImportAnalysis, ...],
 ) -> ImportAnalysis | None:
     """Finds an imported symbol analysis by its local name.
 
@@ -128,7 +128,7 @@ def _find_symbol(
 
 def analyze_dependency(
     record: DependencyInformation,
-    imported: list[ImportAnalysis],
+    imported: tuple[ImportAnalysis, ...],
     symbols: list[SymbolAnalysis],
 ) -> DependencyAnalysis | None:
     """Analyzes a dependency record against imports and symbols to produce a dependency
@@ -160,7 +160,7 @@ def analyze_dependency(
 
 def resolve_dependencies(
     dependencies: list[DependencyInformation],
-    imported: list[ImportAnalysis],
+    imported: tuple[ImportAnalysis, ...],
     symbols: list[SymbolAnalysis],
 ) -> dict[DeclarationIdentity, tuple[DependencyAnalysis, ...]]:
     """Resolves a list of dependency records into a mapping grouped by source

@@ -9,12 +9,12 @@ from gyomu_schema.schemas.python.class_analysis import (
     ClassVariableAnalysis,
     InnerClassAnalysis,
 )
+from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.type.expression import StatementAnalysis
-from gyomu_schema.schemas.python.type.structure import NameStructureAnalysis
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.utility.fromatting import format_object
 
@@ -40,8 +40,12 @@ from gyomu_python_analysis.analysis.analyzers.internal.common import (
     build_member_common,
     build_symbol_common,
 )
-from gyomu_python_analysis.analysis.analyzers.pydantic import analyze_pydantic
+from gyomu_python_analysis.analysis.analyzers.pydantic import (
+    PydanticModelStatus,
+    analyze_pydantic,
+)
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
+from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
 
 
 def _retrieve_constructor_location(
@@ -123,11 +127,12 @@ def _build_class_variables(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
-    is_pydantic_base_class: bool,
+    pydantic_status: PydanticModelStatus,
     ast_symbols: dict[
         AstClassFunctionKey,
         AstTargetSymbolType,
     ],
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None,
 ) -> list[ClassVariableAnalysis]:
     """Build variable analyses for attributes defined within a class."""
@@ -152,8 +157,9 @@ def _build_class_variables(
                     parent_location=parent_location,
                     context=context,
                     member_path=member_path,
-                    is_pydantic_base_class=is_pydantic_base_class,
+                    pydantic_status=pydantic_status,
                     ast_assign=ast_assign,
+                    imported=imported,
                     option=option,
                 )
             )
@@ -166,8 +172,9 @@ def _build_class_variable_analysis(
     parent_location: SourceLocation | None,
     context: SymbolContext,
     member_path: MemberPath,
-    is_pydantic_base_class: bool,
+    pydantic_status: PydanticModelStatus,
     ast_assign: ast.Assign | ast.AnnAssign | None,
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None,
 ) -> ClassVariableAnalysis:
     """Analyze a single class variable or attribute member."""
@@ -201,9 +208,11 @@ def _build_class_variable_analysis(
         ast_value_expression
         and variable_type
         and variable_type.structure
-        and is_pydantic_base_class
+        and pydantic_status != PydanticModelStatus.NOT_PYDANTIC
     ):
-        pydantic = analyze_pydantic(variable_type.structure, ast_value_expression)
+        pydantic = analyze_pydantic(
+            variable_type.structure, ast_value_expression, imported
+        )
         # logger.debug_object(pydantic)
 
     return ClassVariableAnalysis(
@@ -321,6 +330,7 @@ def _build_inner_classes(
         AstClassFunctionKey,
         AstTargetSymbolType,
     ],
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None,
 ) -> list[InnerClassAnalysis]:
     """Build inner class analyses for classes defined within a class."""
@@ -340,23 +350,38 @@ def _build_inner_classes(
                     context=context,
                     member_path=member_path,
                     ast_class=ast_class,
+                    imported=imported,
                     option=option,
                 )
             )
     return inner_classes
 
 
-def is_base_class_pydantic(bases: list[TypeAnalysis]) -> bool:
-    """Determine whether any of the base classes inherit from Pydantic's BaseModel."""
+def _classify_pydantic_model(
+    bases: list[TypeAnalysis], imported: tuple[ImportAnalysis, ...]
+) -> PydanticModelStatus:
+    if len(bases) == 0:
+        return PydanticModelStatus.NOT_PYDANTIC
 
     for base in bases:
-        if (
-            isinstance(base.structure, NameStructureAnalysis)
-            and base.structure.name == "BaseModel"
-        ):
-            return True
+        ref_name = normalize_reference_name(reference_name=base.text, imported=imported)
+        if ref_name == "pydantic.BaseModel":
+            return PydanticModelStatus.CONFIRMED
 
-    return False
+    return PydanticModelStatus.POSSIBLE
+
+
+# def is_base_class_pydantic(
+#     bases: list[TypeAnalysis], imported: tuple[ImportAnalysis, ...]
+# ) -> bool:
+#     """Determine whether any of the base classes inherit from Pydantic's BaseModel."""
+
+#     for base in bases:
+#         ref_name = normalize_reference_name(reference_name=base.text, imported=imported)
+#         if ref_name == "pydantic.BaseModel":
+#             return True
+
+#     return False
 
 
 def _analyze_class_common(
@@ -365,6 +390,7 @@ def _analyze_class_common(
     context: SymbolContext,
     member_path: MemberPath,
     ast_class: ast.ClassDef,
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None = None,
 ) -> ClassCommon:
     """Analyze common structure and members of a class."""
@@ -377,7 +403,7 @@ def _analyze_class_common(
         if (analyzed := analyze_type(base, context, option)) is not None
     ]
 
-    is_pydantic_base_class = is_base_class_pydantic(bases)
+    pydantic_status = _classify_pydantic_model(bases, imported)
 
     constructor_location: SourceLocation | None = _retrieve_constructor_location(
         cls, context, option
@@ -388,8 +414,9 @@ def _analyze_class_common(
         parent_location=constructor_location,
         context=context,
         member_path=member_path,
-        is_pydantic_base_class=is_pydantic_base_class,
+        pydantic_status=pydantic_status,
         ast_symbols=ast_symbols,
+        imported=imported,
         option=option,
     )
 
@@ -415,6 +442,7 @@ def _analyze_class_common(
         context=context,
         member_path=member_path,
         ast_symbols=ast_symbols,
+        imported=imported,
         option=option,
     )
 
@@ -433,6 +461,7 @@ def _analyze_inner_class(
     context: SymbolContext,
     member_path: MemberPath,
     ast_class: ast.ClassDef,
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None = None,
 ) -> InnerClassAnalysis:
     """Analyze an inner class definition within a parent class."""
@@ -444,6 +473,7 @@ def _analyze_inner_class(
         context,
         member_path=new_member_path,
         ast_class=ast_class,
+        imported=imported,
         option=option,
     )
     # pprint(cls.as_dict())
@@ -464,13 +494,16 @@ def analyze_class(
     name: str,
     context: SymbolContext,
     ast: ast.ClassDef,
+    imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None = None,
 ) -> ClassAnalysis:
     """Analyze a Python class definition and return its complete class analysis
     representation.
     """
     member_path: MemberPath = ()
-    class_common = _analyze_class_common(cls, name, context, member_path, ast, option)
+    class_common = _analyze_class_common(
+        cls, name, context, member_path, ast, imported, option
+    )
     # pprint(cls.as_dict())
     base_common = build_symbol_common(
         symbol=cls, name=name, context=context, option=option

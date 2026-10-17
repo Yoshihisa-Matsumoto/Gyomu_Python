@@ -15,6 +15,8 @@ from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
+from packages.python_analysis.test_support.helpers import MONOREPO_FIXTURES_ROOT
+
 config = PyProjectConfig(
     path=WorkspaceRelativePath(Path(".")),
     name="test",
@@ -106,3 +108,19 @@ class TestLoadFileAnalysisContext:
 
         get_module_analysis_mock.assert_called_once_with(context, file_path, None, None)
         create_metadata_mock.assert_called_once_with(module_analysis)
+
+    def test_load_test_support_module(self) -> None:
+
+        context = ProjectContext(
+            project_root=MONOREPO_FIXTURES_ROOT,
+            source_root=ProjectRelativePath(Path(".")),
+            config=config,
+        )
+        result = load_file_analysis_context(
+            context,
+            ProjectRelativePath(
+                Path("packages") / "project_b" / "test_support" / "helpers.py"
+            ),
+        )
+        assert isinstance(result, Success)
+        print(result.unwrap())

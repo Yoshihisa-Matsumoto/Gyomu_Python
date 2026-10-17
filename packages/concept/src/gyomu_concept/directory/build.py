@@ -32,7 +32,7 @@ async def build_directory_concept(
         (FullPath(context.project_root / option.target_folder),)
         if option is not None and option.target_folder is not None
         else tuple(
-            FullPath(context.project_root / root) for root in context.package_roots
+            FullPath(context.project_root / root.path) for root in context.package_roots
         )
     )
     is_changed = False

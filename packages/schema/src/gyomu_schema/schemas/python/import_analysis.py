@@ -2,6 +2,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
+from gyomu_schema.schemas.python.types import PythonPath
+
 
 class ImportKind(StrEnum):
     """Enumeration representing the kind of import.
@@ -32,3 +34,13 @@ class ImportAnalysis(BaseModel):
 
     kind: ImportKind
     """The kind of import (module or symbol)."""
+
+    def get_module_path(self) -> PythonPath:
+        if self.kind == ImportKind.MODULE:
+            return PythonPath(self.imported_name)
+
+        if "." not in self.imported_name:
+            return PythonPath("")
+
+        module_name, _ = self.imported_name.rsplit(".", maxsplit=1)
+        return PythonPath(module_name)
