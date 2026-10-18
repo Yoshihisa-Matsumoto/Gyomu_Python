@@ -126,3 +126,16 @@ class ProjectContext:
         self.config = config
         self.included_files = included_files
         self.package_roots = package_roots
+
+
+@dataclass(frozen=True)
+class WorkspaceProject:
+    """Represents a project within a workspace, defined by its path and pyproject
+    configuration.
+    """
+
+    path: WorkspaceRelativePath
+    """The workspace-relative path of the project."""
+
+    config: PyProjectConfig
+    """The pyproject configuration associated with the project."""

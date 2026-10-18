@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
-from gyomu_schema.schemas.python.types import PythonPath
+from gyomu_schema.schemas.python.types import PythonPath, SymbolId
 
 
 class ImportKind(StrEnum):
@@ -44,3 +44,13 @@ class ImportAnalysis(BaseModel):
 
         module_name, _ = self.imported_name.rsplit(".", maxsplit=1)
         return PythonPath(module_name)
+
+    def get_symbol_id(self) -> SymbolId | None:
+        if self.kind != ImportKind.SYMBOL:
+            return None
+
+        if "." not in self.imported_name:
+            return None
+
+        module_path, symbol_name = self.imported_name.rsplit(".", maxsplit=1)
+        return SymbolId(f"{module_path}::{symbol_name}")

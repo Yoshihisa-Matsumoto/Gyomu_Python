@@ -1,15 +1,14 @@
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
-from gyomu_schema.schemas.python.types import (
-    DeclarationId,
-    DeclarationIdentity,
-    SymbolId,
-)
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.analysis.query import (
     find_import_by_local_name,
     find_symbol_by_name,
+)
+from gyomu_python_analysis.analysis.resolve.imports import (
+    resolve_import_file_analysis_context,
+    resolve_imported_symbol,
 )
 from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
 from gyomu_python_analysis.error.analysis import AnalysisError
@@ -45,25 +44,22 @@ def inherits_from_pydantic_basemodel(
         target_import = find_import_by_local_name(base.text, module)
 
         if target_import is not None:
-            module_path = target_import.get_module_path()
-            if not module_path:
-                continue
+            module_result = resolve_import_file_analysis_context(
+                target_import, workspace
+            )
+            if isinstance(module_result, Failure):
+                return module_result
+            file_analysis_context = module_result.unwrap()
 
-            find_result = workspace.find_file_analysis_context(module_path)
-            if isinstance(find_result, Failure):
-                return find_result
-
-            file_analysis_context = find_result.unwrap()
             if file_analysis_context is None:
                 continue
 
-            target_symbol = file_analysis_context.metadata.symbols.get(
-                DeclarationIdentity(
-                    symbol_id=SymbolId(target_import.imported_name),
-                    declaration_id=DeclarationId(""),
-                )
+            target_symbol_result = resolve_imported_symbol(
+                target_import=target_import, file_analysis_context=file_analysis_context
             )
-
+            if isinstance(target_symbol_result, Failure):
+                return target_symbol_result
+            target_symbol = target_symbol_result.unwrap()
             if target_symbol is None:
                 continue
 

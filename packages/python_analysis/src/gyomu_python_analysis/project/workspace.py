@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
-from gyomu_schema.schemas.python.types import PythonPath, WorkspaceRelativePath
+from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Result, Success
 
@@ -12,20 +12,11 @@ from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.path.conversion import (
     python_path_to_source_project_relative_path,
 )
-from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
-
-
-@dataclass(frozen=True)
-class WorkspaceProject:
-    """Represents a project within a workspace, defined by its path and pyproject
-    configuration.
-    """
-
-    path: WorkspaceRelativePath
-    """The workspace-relative path of the project."""
-
-    config: PyProjectConfig
-    """The pyproject configuration associated with the project."""
+from gyomu_python_analysis.project.context import (
+    ProjectContext,
+    PyProjectConfig,
+    WorkspaceProject,
+)
 
 
 @dataclass

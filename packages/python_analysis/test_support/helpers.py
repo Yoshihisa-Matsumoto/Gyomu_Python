@@ -14,6 +14,7 @@ from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_c
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
 from gyomu_python_analysis.analysis.analyzers.type_alias import analyze_type_alias
 from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
+from gyomu_python_analysis.analysis.extract.symbols import _extract_imports
 from gyomu_python_analysis.analysis.file.source_file_context import SourceFileContext
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load import load_module
@@ -29,6 +30,7 @@ from gyomu_python_analysis.snapshot.models import (
 )
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
+from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
 from gyomu_schema.schemas.python.type_alias import TypeAliasAnalysis
@@ -185,7 +187,7 @@ class AnalysisTestBase:
     def _analyze_typealias_bases(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> TypeAliasAnalysis:
-        symbol, source_lines, source = self._analyze_symbol(
+        symbol, source_lines, source, _ = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, TypeAlias)
@@ -200,7 +202,7 @@ class AnalysisTestBase:
     def _analyze_function_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> FunctionAnalysis:
-        symbol, source_lines, index = self._analyze_symbol(
+        symbol, source_lines, index, _ = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Function)
@@ -222,7 +224,7 @@ class AnalysisTestBase:
     def _analyze_variable_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> VariableAnalysis:
-        symbol, source_lines, index = self._analyze_symbol(
+        symbol, source_lines, index, imported = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Attribute)
@@ -234,12 +236,13 @@ class AnalysisTestBase:
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
             asy_symbol=ast_symbol,
+            imported=imported,
         )
 
     def _analyze_class_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> ClassAnalysis:
-        symbol, source_lines, index = self._analyze_symbol(
+        symbol, source_lines, index, imported = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Class)
@@ -253,6 +256,7 @@ class AnalysisTestBase:
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
             ast=ast_symbol,
+            imported=imported,
         )
 
     def _analyze_symbol(
@@ -261,6 +265,7 @@ class AnalysisTestBase:
         SymbolAnalysis,
         list[str],
         dict[str, AstTargetSymbolType],
+        tuple[ImportAnalysis, ...],
     ]:
         module_name = file_name
         context = self._read_module_fixture(module_name)
@@ -284,7 +289,9 @@ class AnalysisTestBase:
         # index = _analyze_ast_module(source=source, source_path=module_name)
         index: dict[str, AstTargetSymbolType] = self._build_class_function_index(tree)
 
-        return symbol, source_lines, index
+        imported = _extract_imports(module=module, source_lines=source_lines)
+
+        return symbol, source_lines, index, tuple(imported)
 
     _default_index: dict[str, AstTargetSymbolType] = {}
 

@@ -12,7 +12,6 @@ class ParameterInfo:
 
 @dataclass(frozen=True)
 class HelperInventoryItem:
-    function_identity: DeclarationIdentity
+    target_identity: DeclarationIdentity
     function_name: str
-    return_type: DeclarationIdentity
     parameters: tuple[ParameterInfo, ...]
