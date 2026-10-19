@@ -1,0 +1,9 @@
+[project]
+name = "test-monorepo"
+version = "0.1.0"
+
+[tool.uv.workspace]
+members = [
+    "packages/project_a",
+    "packages/project_b",
+]

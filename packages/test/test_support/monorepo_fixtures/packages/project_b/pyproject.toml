@@ -1,0 +1,13 @@
+[project]
+name = "project-b"
+version = "0.1.0"
+description = "Project B"
+
+dependencies = [
+    "project_a"
+]
+
+
+
+[tool.uv.sources]
+project_a = { workspace = true }
