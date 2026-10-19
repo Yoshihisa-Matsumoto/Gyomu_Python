@@ -13,6 +13,7 @@ from gyomu_schema.schemas.python.types import (
 from gyomu_python_analysis.analysis.analyzers.ast.symbol import (
     AstClassFunctionKey,
     AstTargetSymbolType,
+    build_import_index,
     get_ast_index,
 )
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
@@ -24,7 +25,10 @@ from gyomu_python_analysis.analysis.analyzers.dependency import (
     resolve_dependencies,
 )
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
-from gyomu_python_analysis.analysis.analyzers.imports import analyze_import
+from gyomu_python_analysis.analysis.analyzers.imports import (
+    analyze_ast_import,
+    analyze_import,
+)
 from gyomu_python_analysis.analysis.analyzers.type_alias import analyze_type_alias
 from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_python_analysis.analysis.file.source_file_context import SourceFileContext
@@ -59,7 +63,7 @@ def extract_symbols(
         SymbolExtractContext: Extracted symbol and import context.
     """
     imported: tuple[ImportAnalysis, ...] = tuple(
-        _extract_imports(source_file.module, source_lines)
+        _extract_imports(source_file.module, source, source_lines)
     )
     symbols: list[SymbolAnalysis] = _extract_symbols_internal(
         source_file, source, source_lines, imported, option
@@ -71,6 +75,7 @@ def extract_symbols(
 
 def _extract_imports(
     module: Module,
+    source: str,
     source_lines: list[str],
 ) -> list[ImportAnalysis]:
     """Extracts import statements from a module.
@@ -83,9 +88,19 @@ def _extract_imports(
         list[ImportAnalysis]: List of extracted import analyses.
     """
     imported: list[ImportAnalysis] = []
+    module_name: PythonPath = PythonPath(module.path)
+    index = build_import_index(source=source, source_path=module_name)
     for symbol_name, value in module.members.items():
         if isinstance(value, Alias):
-            imported.append(analyze_import(value, symbol_name, source_lines))
+            griffe_import = analyze_import(value, symbol_name, source_lines)
+            if griffe_import is not None:
+                imported.append(griffe_import)
+
+    for ast_import_key in index:
+        ast_import = index.get(ast_import_key)
+        if isinstance(ast_import, ast.Import):
+            imported.extend(analyze_ast_import(ast_import))
+
     return imported
 
 
@@ -147,7 +162,7 @@ def _extract_symbols_internal(
                     name=symbol_name,
                     context=context,
                     option=option,
-                    asy_symbol=ast_symbol,
+                    ast_symbol=ast_symbol,
                     imported=imported,
                 )
             )

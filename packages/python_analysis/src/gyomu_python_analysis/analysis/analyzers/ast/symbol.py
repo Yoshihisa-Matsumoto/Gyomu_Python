@@ -117,3 +117,35 @@ def build_class_function_index(
                     key = AstClassFunctionKey(child.target.id, child.end_lineno)
                     index[key] = child
     return index
+
+
+@dataclass(frozen=True)
+class AstImportKey:
+    line_no: int
+
+
+type AstTargetImportType = ast.Import
+
+
+def build_import_index(
+    source: str,
+    source_path: PythonPath,
+) -> dict[
+    AstImportKey,
+    AstTargetImportType,
+]:
+    index: dict[
+        AstImportKey,
+        AstTargetImportType,
+    ] = {}
+
+    tree = ast.parse(source=source, filename=source_path)
+
+    # logger.debug("build_class_function_index")
+    for child in ast.iter_child_nodes(tree):
+        if isinstance(child, (ast.Import)):
+            assert child.lineno
+            key = AstImportKey(child.lineno)
+            index[key] = child
+
+    return index

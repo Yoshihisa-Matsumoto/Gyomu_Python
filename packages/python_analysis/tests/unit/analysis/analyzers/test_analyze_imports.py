@@ -15,16 +15,11 @@ class TestAnalizeImport(AnalysisTestBase):
         print("parent:", source.parent)
         print("package:", source.package)
         assert isinstance(source.filepath, Path)
-        source_lines = source.filepath.read_text(encoding="utf-8").splitlines()
-        result = _extract_imports(source, source_lines)
+        source_str = source.filepath.read_text(encoding="utf-8")
+        source_lines = source_str.splitlines()
+        result = _extract_imports(source, source_str, source_lines)
         print(result)
         assert result == [
-            ImportAnalysis(
-                local_name="pathlib", imported_name="pathlib", kind=ImportKind.MODULE
-            ),
-            ImportAnalysis(
-                local_name="path", imported_name="pathlib", kind=ImportKind.MODULE
-            ),
             ImportAnalysis(
                 local_name="BaseModel",
                 imported_name="pydantic.BaseModel",
@@ -62,5 +57,11 @@ class TestAnalizeImport(AnalysisTestBase):
                 local_name="VAR21",
                 imported_name="analysis.import.all2.VAR21",
                 kind=ImportKind.SYMBOL,
+            ),
+            ImportAnalysis(
+                local_name="pathlib", imported_name="pathlib", kind=ImportKind.MODULE
+            ),
+            ImportAnalysis(
+                local_name="path", imported_name="pathlib", kind=ImportKind.MODULE
             ),
         ]

@@ -6,9 +6,11 @@ from pathlib import Path
 from typing import Any
 
 from griffe import Attribute, Class, Function, TypeAlias
-from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_infra.logger import logger
-from gyomu_python_analysis.analysis.analyzers.ast.symbol import AstTargetSymbolType
+from gyomu_python_analysis.analysis.analyzers.ast.symbol import (
+    AstTargetSymbolType,
+    get_ast_index,
+)
 from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
 from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
@@ -202,60 +204,57 @@ class AnalysisTestBase:
     def _analyze_function_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> FunctionAnalysis:
-        symbol, source_lines, index, _ = self._analyze_symbol(
+        symbol, source_lines, target_ast, _ = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Function)
         assert symbol.lineno
-        ast_symbol = index.get(symbol.name)
         # print(index.keys())
         # print(symbol.name)
         # print(repr(ast_symbol))
-        assert isinstance(ast_symbol, ast.FunctionDef | ast.AsyncFunctionDef)
+        assert isinstance(target_ast, ast.FunctionDef | ast.AsyncFunctionDef)
         return analyze_function(
             func=symbol,
             name=symbol_name,
             context=initialize_symbol_context(
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
-            ast=ast_symbol,
+            ast=target_ast,
         )
 
     def _analyze_variable_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> VariableAnalysis:
-        symbol, source_lines, index, imported = self._analyze_symbol(
+        symbol, source_lines, target_ast, imported = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Attribute)
-        ast_symbol = index.get(symbol.name)
         return analyze_variable(
             variable=symbol,
             name=symbol_name,
             context=initialize_symbol_context(
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
-            asy_symbol=ast_symbol,
+            ast_symbol=target_ast,
             imported=imported,
         )
 
     def _analyze_class_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
     ) -> ClassAnalysis:
-        symbol, source_lines, index, imported = self._analyze_symbol(
+        symbol, source_lines, target_ast, imported = self._analyze_symbol(
             file_name, symbol_name, dump_required
         )
         assert isinstance(symbol, Class)
         assert symbol.lineno
-        ast_symbol = index.get(symbol.name)
-        assert isinstance(ast_symbol, ast.ClassDef)
+        assert isinstance(target_ast, ast.ClassDef)
         return analyze_class(
             cls=symbol,
             name=symbol_name,
             context=initialize_symbol_context(
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
-            ast=ast_symbol,
+            ast=target_ast,
             imported=imported,
         )
 
@@ -264,11 +263,12 @@ class AnalysisTestBase:
     ) -> tuple[
         SymbolAnalysis,
         list[str],
-        dict[str, AstTargetSymbolType],
+        AstTargetSymbolType | None,
         tuple[ImportAnalysis, ...],
     ]:
         module_name = file_name
         context = self._read_module_fixture(module_name)
+
         module = context.source.module
         symbol = module[symbol_name]
 
@@ -280,18 +280,23 @@ class AnalysisTestBase:
             / context.project.source_root
             / context.source.path
         )
-        read_result = read_source_text(source_full_path)
-        if isinstance(read_result, Failure):
-            raise read_result.failure()
-        source = read_result.unwrap()
+        source = source_full_path.read_text(
+            encoding="utf-8",
+        )
         source_lines = source.splitlines(keepends=True)
-        tree = ast.parse(source=source, filename=module_name)
-        # index = _analyze_ast_module(source=source, source_path=module_name)
-        index: dict[str, AstTargetSymbolType] = self._build_class_function_index(tree)
 
-        imported = _extract_imports(module=module, source_lines=source_lines)
+        index = None
+        ast = get_ast_index(index, source, module_name)
+        target_ast = None
+        for key in ast:
+            if key.name == symbol_name:
+                target_ast = ast[key]
 
-        return symbol, source_lines, index, tuple(imported)
+        imported = _extract_imports(
+            module=module, source=source, source_lines=source_lines
+        )
+
+        return symbol, source_lines, target_ast, tuple(imported)
 
     _default_index: dict[str, AstTargetSymbolType] = {}
 

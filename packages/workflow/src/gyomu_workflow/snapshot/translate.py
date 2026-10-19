@@ -1,5 +1,6 @@
 from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
-from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceProject
+from gyomu_python_analysis.project.context import WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 
 from gyomu_workflow.snapshot.models import SnapshotExecutionOption, SnapshotRequest
 

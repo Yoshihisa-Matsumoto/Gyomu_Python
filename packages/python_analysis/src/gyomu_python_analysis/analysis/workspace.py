@@ -11,9 +11,9 @@ from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.analysis.initialize import analyze_project_config
 from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.project.context import WorkspaceProject
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceProject,
     WorkspaceRoot,
     WorkspaceRootKind,
 )

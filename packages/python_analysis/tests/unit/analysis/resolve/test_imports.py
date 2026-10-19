@@ -7,12 +7,13 @@ from gyomu_python_analysis.analysis.initialize import initialize_project_from_wo
 from gyomu_python_analysis.analysis.load_file_context import (
     load_file_analysis_context,
 )
-from gyomu_python_analysis.analysis.query import find_import_by_local_name
 from gyomu_python_analysis.analysis.resolve.imports import (
-    resolve_import_file_analysis_context,
-    resolve_import_symbol,
-    resolve_imported_symbol,
+    resolve_reference_file_analysis_context,
+    resolve_reference_symbol,
+    resolve_referenced_symbol,
 )
+from gyomu_python_analysis.analysis.resolve.models import ResolvedReference
+from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
@@ -21,6 +22,7 @@ from gyomu_python_analysis.project.workspace import (
     WorkspaceRoot,
     WorkspaceRootKind,
 )
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
@@ -28,9 +30,8 @@ from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKi
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
 from gyomu_schema.schemas.python.type_alias import TypeAliasAnalysis
 from gyomu_schema.schemas.python.types import (
-    DeclarationId,
-    DeclarationIdentity,
     ProjectRelativePath,
+    PythonPath,
     SymbolId,
     WorkspaceRelativePath,
 )
@@ -70,6 +71,7 @@ def project_b_file_context() -> FileAnalysisContext:
     result = load_file_analysis_context(
         project_context,
         ProjectRelativePath(Path("src/project_b/pydantic_models/models.py")),
+        option=AnalysisOption(no_check_cache=True),
     )
     assert isinstance(result, Success)
     return result.unwrap()
@@ -83,17 +85,30 @@ def make_user_model_import() -> ImportAnalysis:
     )
 
 
-class TestResolveImportFileAnalysisContext:
-    def test_empty_module_path_returns_none(self) -> None:
+def make_user_model_reference() -> ResolvedReference:
+    target_import = ImportAnalysis(
+        local_name="UserModel",
+        imported_name="project_b.pydantic_models.models.UserModel",
+        kind=ImportKind.SYMBOL,
+    )
+    return ResolvedReference(
+        import_analysis=target_import,
+        module_path=PythonPath("project_b.pydantic_models.models"),
+        symbol_id=SymbolId("project_b.pydantic_models.models::UserModel"),
+    )
+
+
+class TestResolveReferenceFileAnalysisContext:
+    def test_import_analysis_is_none_returns_none(self) -> None:
         workspace = Mock(spec=WorkspaceContext)
-        target_import = ImportAnalysis(
-            local_name="BaseModel",
-            imported_name="BaseModel",
-            kind=ImportKind.SYMBOL,
+        reference = ResolvedReference(
+            import_analysis=None,
+            module_path=PythonPath("project_b.pydantic_models.models"),
+            symbol_id=None,
         )
 
-        result = resolve_import_file_analysis_context(
-            target_import=target_import,
+        result = resolve_reference_file_analysis_context(
+            reference=reference,
             workspace=workspace,
         )
 
@@ -102,16 +117,13 @@ class TestResolveImportFileAnalysisContext:
         workspace.find_file_analysis_context.assert_not_called()
 
     def test_resolves_existing_module(
-        self, workspace_context: WorkspaceContext
+        self,
+        workspace_context: WorkspaceContext,
     ) -> None:
-        target_import = ImportAnalysis(
-            local_name="models",
-            imported_name="project_b.pydantic_models.models",
-            kind=ImportKind.MODULE,
-        )
+        reference = make_user_model_reference()
 
-        result = resolve_import_file_analysis_context(
-            target_import=target_import,
+        result = resolve_reference_file_analysis_context(
+            reference=reference,
             workspace=workspace_context,
         )
 
@@ -122,14 +134,10 @@ class TestResolveImportFileAnalysisContext:
         workspace = Mock(spec=WorkspaceContext)
         error = cast(AnalysisError, Mock(spec=AnalysisError))
         workspace.find_file_analysis_context.return_value = Failure(error)
-        target_import = ImportAnalysis(
-            local_name="models",
-            imported_name="project_b.pydantic_models.models",
-            kind=ImportKind.MODULE,
-        )
+        reference = make_user_model_reference()
 
-        result = resolve_import_file_analysis_context(
-            target_import=target_import,
+        result = resolve_reference_file_analysis_context(
+            reference=reference,
             workspace=workspace,
         )
 
@@ -137,18 +145,41 @@ class TestResolveImportFileAnalysisContext:
         assert result.failure() is error
 
 
-class TestResolveImportedSymbol:
-    def test_symbol_id_is_none_returns_none(
-        self, project_b_file_context: FileAnalysisContext
+class TestResolveReferencedSymbol:
+    def test_import_analysis_is_none_returns_none(
+        self,
+        project_b_file_context: FileAnalysisContext,
     ) -> None:
-        target_import = ImportAnalysis(
-            local_name="models",
-            imported_name="project_b.pydantic_models.models",
-            kind=ImportKind.MODULE,
+        reference = ResolvedReference(
+            import_analysis=None,
+            module_path=PythonPath("project_b.pydantic_models.models"),
+            symbol_id=SymbolId("project_b.pydantic_models.models::UserModel"),
         )
 
-        result = resolve_imported_symbol(
-            target_import=target_import,
+        result = resolve_referenced_symbol(
+            reference=reference,
+            file_analysis_context=project_b_file_context,
+        )
+
+        assert isinstance(result, Success)
+        assert result.unwrap() is None
+
+    def test_symbol_id_is_none_returns_none(
+        self,
+        project_b_file_context: FileAnalysisContext,
+    ) -> None:
+        reference = ResolvedReference(
+            import_analysis=ImportAnalysis(
+                local_name="models",
+                imported_name="project_b.pydantic_models.models",
+                kind=ImportKind.MODULE,
+            ),
+            module_path=PythonPath("project_b.pydantic_models.models"),
+            symbol_id=None,
+        )
+
+        result = resolve_referenced_symbol(
+            reference=reference,
             file_analysis_context=project_b_file_context,
         )
 
@@ -156,44 +187,36 @@ class TestResolveImportedSymbol:
         assert result.unwrap() is None
 
     def test_resolves_existing_symbol(
-        self, project_b_file_context: FileAnalysisContext
+        self,
+        project_b_file_context: FileAnalysisContext,
     ) -> None:
-        target_import = make_user_model_import()
+        reference = make_user_model_reference()
 
-        result = resolve_imported_symbol(
-            target_import=target_import,
+        result = resolve_referenced_symbol(
+            reference=reference,
             file_analysis_context=project_b_file_context,
         )
 
         assert isinstance(result, Success)
         symbol = result.unwrap()
-        assert symbol is not None
-        assert isinstance(
-            symbol,
-            type(
-                project_b_file_context.metadata.symbols[
-                    DeclarationIdentity(
-                        symbol_id=SymbolId(
-                            "project_b.pydantic_models.models::UserModel"
-                        ),
-                        declaration_id=DeclarationId("."),
-                    )
-                ]
-            ),
-        )
         assert isinstance(symbol, ClassAnalysis)
 
     def test_missing_symbol_returns_none(
-        self, project_b_file_context: FileAnalysisContext
+        self,
+        project_b_file_context: FileAnalysisContext,
     ) -> None:
-        target_import = ImportAnalysis(
-            local_name="MissingModel",
-            imported_name="project_b.pydantic_models.models.MissingModel",
-            kind=ImportKind.SYMBOL,
+        reference = ResolvedReference(
+            import_analysis=ImportAnalysis(
+                local_name="MissingModel",
+                imported_name=("project_b.pydantic_models.models.MissingModel"),
+                kind=ImportKind.SYMBOL,
+            ),
+            module_path=PythonPath("project_b.pydantic_models.models"),
+            symbol_id=SymbolId("project_b.pydantic_models.models::MissingModel"),
         )
 
-        result = resolve_imported_symbol(
-            target_import=target_import,
+        result = resolve_referenced_symbol(
+            reference=reference,
             file_analysis_context=project_b_file_context,
         )
 
@@ -201,14 +224,14 @@ class TestResolveImportedSymbol:
         assert result.unwrap() is None
 
 
-class TestResolveImportSymbol:
+class TestResolveReferenceSymbol:
     def test_resolves_symbol_through_workspace(
         self, workspace_context: WorkspaceContext
     ) -> None:
-        target_import = make_user_model_import()
+        reference = make_user_model_reference()
 
-        result = resolve_import_symbol(
-            target_import=target_import,
+        result = resolve_reference_symbol(
+            reference=reference,
             workspace=workspace_context,
         )
 
@@ -223,9 +246,14 @@ class TestResolveImportSymbol:
             imported_name="project_b.nonexistent.models.MissingModel",
             kind=ImportKind.SYMBOL,
         )
+        reference = ResolvedReference(
+            import_analysis=target_import,
+            module_path=PythonPath("project_b.nonexistent.models"),
+            symbol_id=SymbolId("project_b.nonexistent.models::MissingModel"),
+        )
 
-        result = resolve_import_symbol(
-            target_import=target_import,
+        result = resolve_reference_symbol(
+            reference=reference,
             workspace=workspace_context,
         )
 
@@ -236,10 +264,10 @@ class TestResolveImportSymbol:
         workspace = Mock(spec=WorkspaceContext)
         error = cast(AnalysisError, Mock(spec=AnalysisError))
         workspace.find_file_analysis_context.return_value = Failure(error)
-        target_import = make_user_model_import()
+        reference = make_user_model_reference()
 
-        result = resolve_import_symbol(
-            target_import=target_import,
+        result = resolve_reference_symbol(
+            reference=reference,
             workspace=workspace,
         )
 
@@ -280,18 +308,19 @@ class TestResolveImportedSymbolTypes:
         consumer_result = load_file_analysis_context(
             project_context,
             ProjectRelativePath(Path("src/project_b/import_models/consumers.py")),
+            option=AnalysisOption(no_check_cache=True),
         )
         assert isinstance(consumer_result, Success)
 
         consumer_context = consumer_result.unwrap()
-        target_import = find_import_by_local_name(
+        target_reference = resolve_reference(
             local_name,
             consumer_context.analysis,
         )
-        assert target_import is not None
+        assert target_reference is not None
 
-        file_result = resolve_import_file_analysis_context(
-            target_import=target_import,
+        file_result = resolve_reference_file_analysis_context(
+            reference=target_reference,
             workspace=workspace_context,
         )
         assert isinstance(file_result, Success)
@@ -299,8 +328,8 @@ class TestResolveImportedSymbolTypes:
         file_context = file_result.unwrap()
         assert file_context is not None
 
-        symbol_result = resolve_imported_symbol(
-            target_import=target_import,
+        symbol_result = resolve_referenced_symbol(
+            reference=target_reference,
             file_analysis_context=file_context,
         )
         assert isinstance(symbol_result, Success)

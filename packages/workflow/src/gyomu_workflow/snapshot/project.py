@@ -1,4 +1,5 @@
-from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceProject
+from gyomu_python_analysis.project.context import WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.gyomu import GyomuError
 from returns.result import Failure, Result, Success
 

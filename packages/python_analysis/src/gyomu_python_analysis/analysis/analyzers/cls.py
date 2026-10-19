@@ -357,7 +357,7 @@ def _build_inner_classes(
     return inner_classes
 
 
-def _classify_pydantic_model(
+def classify_pydantic_model(
     bases: list[TypeAnalysis], imported: tuple[ImportAnalysis, ...]
 ) -> PydanticModelStatus:
     if len(bases) == 0:
@@ -403,7 +403,7 @@ def _analyze_class_common(
         if (analyzed := analyze_type(base, context, option)) is not None
     ]
 
-    pydantic_status = _classify_pydantic_model(bases, imported)
+    pydantic_status = classify_pydantic_model(bases, imported)
 
     constructor_location: SourceLocation | None = _retrieve_constructor_location(
         cls, context, option

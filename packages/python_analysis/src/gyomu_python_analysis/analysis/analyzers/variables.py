@@ -25,7 +25,7 @@ def analyze_variable(
     variable: Attribute,
     name: str,
     context: SymbolContext,
-    asy_symbol: AstTargetSymbolType | None,
+    ast_symbol: AstTargetSymbolType | None,
     imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None = None,
 ) -> VariableAnalysis:
@@ -57,8 +57,8 @@ def analyze_variable(
     #     else None
     # )
     ast_value_expression = (
-        analyze_expression(asy_symbol.value, context, option, False)
-        if asy_symbol is not None and isinstance(asy_symbol, ast.Assign | ast.AnnAssign)
+        analyze_expression(ast_symbol.value, context, option, False)
+        if ast_symbol is not None and isinstance(ast_symbol, ast.Assign | ast.AnnAssign)
         else None
     )
 

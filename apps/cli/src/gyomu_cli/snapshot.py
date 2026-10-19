@@ -1,7 +1,8 @@
 import asyncio
 
 from gyomu_infra.logger import logger
-from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceProject
+from gyomu_python_analysis.project.context import WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.base import BaseError
 from gyomu_workflow.snapshot.models import SnapshotExecutionOption
 from gyomu_workflow.snapshot.run import run_snapshot

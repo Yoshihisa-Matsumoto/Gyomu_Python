@@ -1,5 +1,5 @@
 import pytest
-from gyomu_test.helper.inventory.load import (
+from gyomu_test.helper.inventory.naming import (
     _build_class_name_from_helper_name,
     _build_helper_name_from_class_name,
 )
