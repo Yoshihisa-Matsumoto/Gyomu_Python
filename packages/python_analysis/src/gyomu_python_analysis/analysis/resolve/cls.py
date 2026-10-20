@@ -1,5 +1,6 @@
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
+from gyomu_schema.schemas.python.types import DeclarationIdentity, SymbolId
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.analysis.query import (
@@ -9,10 +10,167 @@ from gyomu_python_analysis.analysis.resolve.imports import (
     resolve_reference_file_analysis_context,
     resolve_referenced_symbol,
 )
+from gyomu_python_analysis.analysis.resolve.models import (
+    ClassResolution,
+    ClassResolutionCollection,
+    ExternalClass,
+    ResolvedClass,
+    UnresolvedClass,
+)
 from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
 from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+
+
+def _register_identity(
+    resolved_class: ResolvedClass,
+    resolved_classes: list[ClassResolution],
+    registered_identity: set[DeclarationIdentity],
+) -> None:
+    if resolved_class.symbol.identity not in registered_identity:
+        resolved_classes.append(resolved_class)
+        registered_identity.add(resolved_class.symbol.identity)
+
+
+def collect_class_hierarchy(
+    cls: ClassAnalysis,
+    module: ModuleAnalysis,
+    workspace: WorkspaceContext,
+    is_base_first: bool = True,
+) -> Result[ClassResolutionCollection, AnalysisError]:
+    resolved_classes: list[ClassResolution] = []
+    registered_identity: set[DeclarationIdentity] = set()
+    visited_identity: set[DeclarationIdentity] = set()
+
+    def visit(
+        current_cls: ClassAnalysis,
+        current_module: ModuleAnalysis,
+    ) -> Result[None, AnalysisError]:
+        if current_cls.identity in visited_identity:
+            return Success(None)
+
+        visited_identity.add(current_cls.identity)
+        current_class = ResolvedClass(
+            symbol=current_cls,
+            module=current_module,
+        )
+
+        if not is_base_first:
+            _register_identity(
+                resolved_class=current_class,
+                resolved_classes=resolved_classes,
+                registered_identity=registered_identity,
+            )
+
+        for base in current_cls.bases:
+            target_reference = resolve_reference(
+                base.text,
+                current_module,
+            )
+
+            if target_reference is None:
+                resolved_classes.append(
+                    UnresolvedClass(
+                        reference_name=base.text,
+                        reason="reference-not-resolved",
+                    )
+                )
+                continue
+
+            if target_reference.import_analysis is not None:
+                module_result = resolve_reference_file_analysis_context(
+                    reference=target_reference,
+                    workspace=workspace,
+                )
+                if isinstance(module_result, Failure):
+                    return module_result
+
+                file_analysis_context = module_result.unwrap()
+
+                if file_analysis_context is None:
+                    resolved_classes.append(ExternalClass(reference=target_reference))
+                    continue
+
+                target_symbol_result = resolve_referenced_symbol(
+                    reference=target_reference,
+                    file_analysis_context=file_analysis_context,
+                )
+                if isinstance(target_symbol_result, Failure):
+                    return target_symbol_result
+
+                target_symbol = target_symbol_result.unwrap()
+
+                if target_symbol is None:
+                    resolved_classes.append(
+                        UnresolvedClass(
+                            reference_name=base.text,
+                            reason="symbol-not-found-in-module",
+                        )
+                    )
+                    continue
+
+                if not isinstance(target_symbol, ClassAnalysis):
+                    resolved_classes.append(
+                        UnresolvedClass(
+                            reference_name=base.text,
+                            reason="symbol-is-not-class",
+                        )
+                    )
+                    continue
+
+                target_module = file_analysis_context.analysis
+
+            else:
+                target_symbol = find_symbol_by_name(
+                    name=base.text,
+                    module=current_module,
+                )
+
+                if target_symbol is None:
+                    resolved_classes.append(
+                        UnresolvedClass(
+                            reference_name=base.text,
+                            reason="reference-not-resolved",
+                        )
+                    )
+                    continue
+
+                if not isinstance(target_symbol, ClassAnalysis):
+                    resolved_classes.append(
+                        UnresolvedClass(
+                            reference_name=base.text,
+                            reason="symbol-is-not-class",
+                        )
+                    )
+                    continue
+
+                target_module = current_module
+
+            visit_result = visit(
+                current_cls=target_symbol,
+                current_module=target_module,
+            )
+            if isinstance(visit_result, Failure):
+                return visit_result
+
+        if is_base_first:
+            _register_identity(
+                resolved_class=current_class,
+                resolved_classes=resolved_classes,
+                registered_identity=registered_identity,
+            )
+
+        return Success(None)
+
+    result = visit(cls, module)
+    if isinstance(result, Failure):
+        return result
+
+    return Success(ClassResolutionCollection(tuple(resolved_classes)))
+
+
+# def _create_external_class(reference:ResolvedReference)
 
 
 def is_dataclass_class(cls: ClassAnalysis, module: ModuleAnalysis) -> bool:
@@ -32,68 +190,13 @@ def inherits_from_pydantic_basemodel(
     module: ModuleAnalysis,
     workspace: WorkspaceContext,
 ) -> Result[bool, AnalysisError]:
-    for base in cls.bases:
-        normalized_name = normalize_reference_name(
-            module.imports,
-            base.text,
-        )
-
-        if normalized_name == "pydantic.BaseModel":
+    resolve_result = collect_class_hierarchy(
+        cls=cls, module=module, workspace=workspace
+    )
+    if isinstance(resolve_result, Failure):
+        return resolve_result
+    for external in resolve_result.unwrap().external():
+        if external.reference.symbol_id == SymbolId("pydantic::BaseModel"):
             return Success(True)
-
-        target_reference = resolve_reference(base.text, module)
-        if target_reference is None:
-            return Success(False)
-
-        if target_reference.import_analysis is not None:
-            module_result = resolve_reference_file_analysis_context(
-                target_reference, workspace
-            )
-            if isinstance(module_result, Failure):
-                return module_result
-            file_analysis_context = module_result.unwrap()
-
-            if file_analysis_context is None:
-                continue
-
-            target_symbol_result = resolve_referenced_symbol(
-                reference=target_reference, file_analysis_context=file_analysis_context
-            )
-            if isinstance(target_symbol_result, Failure):
-                return target_symbol_result
-            target_symbol = target_symbol_result.unwrap()
-            if target_symbol is None:
-                continue
-
-            if not isinstance(target_symbol, ClassAnalysis):
-                continue
-
-            is_pydantic_result = inherits_from_pydantic_basemodel(
-                target_symbol,
-                file_analysis_context.analysis,
-                workspace,
-            )
-            if isinstance(is_pydantic_result, Failure):
-                return is_pydantic_result
-
-            if is_pydantic_result.unwrap():
-                return Success(True)
-
-        else:
-            target_symbol = find_symbol_by_name(base.text, module)
-
-            if target_symbol is None or not isinstance(target_symbol, ClassAnalysis):
-                continue
-
-            is_pydantic_result = inherits_from_pydantic_basemodel(
-                target_symbol,
-                module,
-                workspace,
-            )
-            if isinstance(is_pydantic_result, Failure):
-                return is_pydantic_result
-
-            if is_pydantic_result.unwrap():
-                return Success(True)
 
     return Success(False)

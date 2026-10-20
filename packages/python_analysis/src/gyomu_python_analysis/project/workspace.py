@@ -4,7 +4,8 @@ from enum import Enum
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.types import FullPath
-from returns.result import Result, Success
+from gyomu_schema.utility.context import caller_context
+from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
@@ -42,10 +43,16 @@ class WorkspaceContext:
             for package_root in project_context.package_roots:
                 self._project_indexes[package_root.module_name] = project_context
 
-    def find_file_analysis_context(
+    def find_workspace_file_analysis_context(
         self,
         module_path: PythonPath,
     ) -> Result[FileAnalysisContext | None, AnalysisError]:
+        """Find analysis context for a module in a workspace-managed package.
+
+        Gyomu Context: Returns Success(None) when the module's root package is not
+        managed by the workspace. Returns Failure when the package is managed but
+        the target module does not exist or cannot be analyzed.
+        """
         if len(self._project_indexes) == 0:
             self._initialize_project_indexes()
         root_module_name = module_path.split(".")[0]
@@ -57,7 +64,15 @@ class WorkspaceContext:
                 path=module_path, context=target_package
             )
             if not (target_package.project_root / project_source_path).exists():
-                return Success(None)
+                return Failure(
+                    AnalysisError(
+                        message="target module not found",
+                        file_path=module_path,
+                        phase="workspace-discovery",
+                        context=caller_context(),
+                        details={"project_name": target_package.config.name},
+                    )
+                )
             return load_file_analysis_context(target_package, project_source_path)
 
 

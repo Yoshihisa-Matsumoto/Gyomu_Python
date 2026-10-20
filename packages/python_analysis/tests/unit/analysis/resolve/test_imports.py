@@ -114,7 +114,7 @@ class TestResolveReferenceFileAnalysisContext:
 
         assert isinstance(result, Success)
         assert result.unwrap() is None
-        workspace.find_file_analysis_context.assert_not_called()
+        workspace.find_workspace_file_analysis_context.assert_not_called()
 
     def test_resolves_existing_module(
         self,
@@ -133,7 +133,7 @@ class TestResolveReferenceFileAnalysisContext:
     def test_propagates_failure(self) -> None:
         workspace = Mock(spec=WorkspaceContext)
         error = cast(AnalysisError, Mock(spec=AnalysisError))
-        workspace.find_file_analysis_context.return_value = Failure(error)
+        workspace.find_workspace_file_analysis_context.return_value = Failure(error)
         reference = make_user_model_reference()
 
         result = resolve_reference_file_analysis_context(
@@ -238,7 +238,7 @@ class TestResolveReferenceSymbol:
         assert isinstance(result, Success)
         assert result.unwrap() is not None
 
-    def test_missing_module_returns_none(
+    def test_missing_module_returns_failure(
         self, workspace_context: WorkspaceContext
     ) -> None:
         target_import = ImportAnalysis(
@@ -257,13 +257,13 @@ class TestResolveReferenceSymbol:
             workspace=workspace_context,
         )
 
-        assert isinstance(result, Success)
-        assert result.unwrap() is None
+        assert isinstance(result, Failure)
+        assert isinstance(result.failure(), AnalysisError)
 
     def test_propagates_failure(self) -> None:
         workspace = Mock(spec=WorkspaceContext)
         error = cast(AnalysisError, Mock(spec=AnalysisError))
-        workspace.find_file_analysis_context.return_value = Failure(error)
+        workspace.find_workspace_file_analysis_context.return_value = Failure(error)
         reference = make_user_model_reference()
 
         result = resolve_reference_symbol(

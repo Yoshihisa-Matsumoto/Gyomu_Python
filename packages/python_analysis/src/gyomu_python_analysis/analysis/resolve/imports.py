@@ -31,7 +31,7 @@ def resolve_reference_file_analysis_context(
     if reference.import_analysis is None:
         return Success(None)
 
-    return workspace.find_file_analysis_context(reference.module_path)
+    return workspace.find_workspace_file_analysis_context(reference.module_path)
 
 
 def resolve_referenced_symbol(

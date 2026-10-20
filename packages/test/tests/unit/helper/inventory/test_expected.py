@@ -28,19 +28,20 @@ def workspace_context() -> WorkspaceContext:
     return result.unwrap()
 
 
-@pytest.fixture
-def project_b_context(workspace_context: WorkspaceContext) -> ProjectContext:
-    project_b = next(
+def get_project_context(
+    workspace_context: WorkspaceContext, project_name: str
+) -> ProjectContext:
+    project = next(
         (
             project
             for project in workspace_context.projects
-            if project.config.name == "project-b"
+            if project.config.name == project_name
         ),
         None,
     )
-    assert project_b is not None
+    assert project is not None
     return initialize_project_from_workspace(
-        workspace_path=workspace_context.path, project=project_b
+        workspace_path=workspace_context.path, project=project
     )
 
 
@@ -59,6 +60,20 @@ def equal_helper_inventory_parameter(
     )
     assert target_parameter is not None
     assert target_parameter.parameter_type.text == parameter_type
+
+
+def inventory_not_exist(
+    inventories: tuple[HelperInventoryItem, ...], symbol_id: str
+) -> None:
+    target_inventory = next(
+        (
+            inventory
+            for inventory in inventories
+            if str(inventory.target_identity.symbol_id) == symbol_id
+        ),
+        None,
+    )
+    assert target_inventory is None
 
 
 def equal_helper_inventory(
@@ -96,15 +111,22 @@ def equal_helper_inventory(
 
 
 class TestCollectModelHelperInventory:
-    def test_build_from_fixture(
-        self, workspace_context: WorkspaceContext, project_b_context: ProjectContext
-    ) -> None:
-        result = collect_model_helper_inventory(project_b_context, workspace_context)
+    def test_build_from_fixture(self, workspace_context: WorkspaceContext) -> None:
+        project_context = get_project_context(workspace_context, "project-b")
+        result = collect_model_helper_inventory(project_context, workspace_context)
 
         assert isinstance(result, Success)
         inventories = result.unwrap()
-        print(inventories)
 
+        equal_helper_inventory(
+            inventories,
+            symbol_id="project_b.models::ProductBaseModel",
+            function_name="create_product_base_model",
+            parameters=(
+                ParameterSummary(name="product_id", parameter_type="int"),
+                ParameterSummary(name="name", parameter_type="str"),
+            ),
+        )
         equal_helper_inventory(
             inventories,
             symbol_id="project_b.models::ProductModel",
@@ -122,5 +144,62 @@ class TestCollectModelHelperInventory:
             parameters=(
                 ParameterSummary(name="product_id", parameter_type="int"),
                 ParameterSummary(name="display_name", parameter_type="str"),
+            ),
+        )
+
+        inventory_not_exist(
+            inventories=inventories,
+            symbol_id="project_b.non_models::ProductBaseModel",
+        )
+
+        inventory_not_exist(
+            inventories=inventories,
+            symbol_id="project_b.non_models::ProductModel",
+        )
+
+        inventory_not_exist(
+            inventories=inventories,
+            symbol_id="project_b.non_models::NonHelper",
+        )
+
+        inventory_not_exist(
+            inventories=inventories,
+            symbol_id="project_b.inheritance::NonTarget",
+        )
+
+        equal_helper_inventory(
+            inventories,
+            symbol_id="project_b.inheritance::AnotherBase",
+            function_name="create_another_base",
+            parameters=(),
+        )
+
+        equal_helper_inventory(
+            inventories,
+            symbol_id="project_b.inheritance::ProductAudit",
+            function_name="create_product_audit",
+            parameters=(ParameterSummary(name="created_by", parameter_type="str"),),
+        )
+
+        equal_helper_inventory(
+            inventories,
+            symbol_id="project_b.inheritance::AuditedProduct",
+            function_name="create_audited_product",
+            parameters=(
+                ParameterSummary(name="created_by", parameter_type="str"),
+                ParameterSummary(name="audited", parameter_type="bool"),
+            ),
+        )
+
+        equal_helper_inventory(
+            inventories,
+            symbol_id="project_b.inheritance::MultipleProduct",
+            function_name="create_multiple_product",
+            parameters=(
+                ParameterSummary(name="created_by", parameter_type="str"),
+                ParameterSummary(name="audited", parameter_type="bool"),
+                ParameterSummary(name="product_id", parameter_type="int"),
+                ParameterSummary(name="name", parameter_type="str"),
+                ParameterSummary(name="multi_name", parameter_type="str"),
             ),
         )
