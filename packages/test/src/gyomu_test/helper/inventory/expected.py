@@ -19,9 +19,9 @@ from gyomu_schema.schemas.testing.helper import HelperInventoryItem, ParameterIn
 from returns.result import Failure, Result, Success
 
 from gyomu_test.error.inventory import (
-    FileMissingTypeAnnotation,
+    FileInventoryError,
     MissingTypeAnnotation,
-    ProjectMissingTypeAnnotationError,
+    ProjectInventoryError,
 )
 from gyomu_test.helper.inventory.naming import (
     _build_helper_name_from_class_name,
@@ -82,11 +82,9 @@ def _build_model_helper_inventory_item(
 def collect_model_helper_inventory(
     project: ProjectContext,
     workspace: WorkspaceContext,
-) -> Result[
-    tuple[HelperInventoryItem, ...], AnalysisError | ProjectMissingTypeAnnotationError
-]:
+) -> Result[tuple[HelperInventoryItem, ...], AnalysisError | ProjectInventoryError]:
     inventories: list[HelperInventoryItem] = []
-    error_files: list[FileMissingTypeAnnotation] = []
+    error_files: list[FileInventoryError] = []
     for file in project.included_files:
         missing_annotations: list[MissingTypeAnnotation] = []
 
@@ -126,14 +124,15 @@ def collect_model_helper_inventory(
 
         if len(missing_annotations) > 0:
             error_files.append(
-                FileMissingTypeAnnotation(
+                FileInventoryError(
                     project_relative_path=file,
                     missing_annotations=tuple(missing_annotations),
+                    reference_errors=tuple(),
                 )
             )
     if len(error_files) > 0:
         return Failure(
-            ProjectMissingTypeAnnotationError(
+            ProjectInventoryError(
                 message="type is missing in managed source codes",
                 project_name=project.config.name,
                 project_root=project.project_root,

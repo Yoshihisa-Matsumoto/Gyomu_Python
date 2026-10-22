@@ -1,7 +1,11 @@
+from dataclasses import dataclass
+from pathlib import Path
+
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
@@ -17,33 +21,50 @@ from gyomu_schema.schemas.testing.helper import HelperInventoryItem, ParameterIn
 from returns.result import Failure, Result, Success
 
 from gyomu_test.error.inventory import (
-    FileMissingTypeAnnotation,
+    FileInventoryError,
+    InvalidReference,
     MissingTypeAnnotation,
-    ProjectMissingTypeAnnotationError,
+    ProjectInventoryError,
 )
 from gyomu_test.helper.inventory.naming import (
     _build_class_name_from_helper_name,
 )
 
 
-def _is_helper_function_candidate(
+@dataclass(frozen=True)
+class HelperFunctionCandidate:
+    function: FunctionAnalysis
+    target_identity: DeclarationIdentity
+
+
+def _get_helper_function_candidate(
     symbol: SymbolAnalysis,
     module: ModuleAnalysis,
-) -> Result[bool, AnalysisError]:
+) -> Result[HelperFunctionCandidate | None, MissingTypeAnnotation | InvalidReference]:
     if not isinstance(symbol, FunctionAnalysis):
-        return Success(False)
+        return Success(None)
     func = symbol
     if not func.name.startswith("create_"):
-        return Success(False)
+        return Success(None)
     if func.return_type is None:
-        return Success(False)
+        return Failure(MissingTypeAnnotation(identity=symbol.identity))
 
     target_class_name = _build_class_name_from_helper_name(func.name)
 
-    if target_class_name == func.return_type.text:
-        return Success(True)
+    if target_class_name != func.return_type.text:
+        return Success(None)
 
-    return Success(False)
+    declaration_identity_result = _get_function_declaration_identity(
+        func, func.return_type, module
+    )
+    if isinstance(declaration_identity_result, Failure):
+        return declaration_identity_result
+
+    return Success(
+        HelperFunctionCandidate(
+            function=func, target_identity=declaration_identity_result.unwrap()
+        )
+    )
 
 
 def _build_helper_function_parameter_from_function(
@@ -55,7 +76,7 @@ def _build_helper_function_parameter_from_function(
             MissingTypeAnnotation(
                 identity=DeclarationIdentity(
                     symbol_id=function_symbol_id,
-                    declaration_id=DeclarationId(param.name),
+                    declaration_id=DeclarationId(f".::{param.name}"),
                 )
             )
         )
@@ -63,40 +84,46 @@ def _build_helper_function_parameter_from_function(
 
 
 def _get_function_declaration_identity(
-    return_type: TypeAnalysis, module: ModuleAnalysis
-) -> DeclarationIdentity | None:
+    func: FunctionAnalysis, return_type: TypeAnalysis, module: ModuleAnalysis
+) -> Result[DeclarationIdentity, InvalidReference]:
     # normalized_name = normalize_reference_name(
     #     module.imports,
     #     return_type.text,
     # )
     target_reference = resolve_reference(return_type.text, module)
     if target_reference is None or target_reference.import_analysis is None:
-        return None
+        return Failure(
+            InvalidReference(identity=func.identity, reference=return_type.text)
+        )
     symbol_id = target_reference.import_analysis.get_symbol_id()
     if symbol_id is None:
-        return None
+        return Failure(
+            InvalidReference(identity=func.identity, reference=return_type.text)
+        )
 
-    return DeclarationIdentity(
-        symbol_id=symbol_id,
-        declaration_id=DeclarationId("."),
+    return Success(
+        DeclarationIdentity(
+            symbol_id=symbol_id,
+            declaration_id=DeclarationId("."),
+        )
     )
 
 
 def _build_helper_inventory_item_from_function(
-    symbol: FunctionAnalysis, module: ModuleAnalysis
+    helper_function_candidate: HelperFunctionCandidate,
+    module: ModuleAnalysis,
 ) -> Result[
     HelperInventoryItem,
     tuple[MissingTypeAnnotation, ...],
 ]:
     parameters: list[ParameterInfo] = []
     type_errors: list[MissingTypeAnnotation] = []
-    assert symbol.return_type is not None
-    id = _get_function_declaration_identity(symbol.return_type, module)
-    assert id is not None
+    assert helper_function_candidate.function.return_type is not None
 
-    for param in symbol.parameters:
+    for param in helper_function_candidate.function.parameters:
         parameter_result = _build_helper_function_parameter_from_function(
-            function_symbol_id=symbol.identity.symbol_id, param=param
+            function_symbol_id=helper_function_candidate.function.identity.symbol_id,
+            param=param,
         )
         if isinstance(parameter_result, Failure):
             type_errors.append(parameter_result.failure())
@@ -108,58 +135,69 @@ def _build_helper_inventory_item_from_function(
 
     return Success(
         HelperInventoryItem(
-            function_name=symbol.name,
+            function_name=helper_function_candidate.function.name,
             parameters=tuple(parameters),
-            target_identity=id,
+            target_identity=helper_function_candidate.target_identity,
         )
     )
 
 
 def collect_existing_helper_inventory(
-    root: ProjectContext, target_project: ProjectContext
-) -> Result[
-    tuple[HelperInventoryItem, ...], AnalysisError | ProjectMissingTypeAnnotationError
-]:
+    root: ProjectContext,
+    target_project: ProjectContext,
+    files: tuple[ProjectRelativePath, ...] = (
+        ProjectRelativePath(Path("test_support/helpers.py")),
+    ),
+) -> Result[tuple[HelperInventoryItem, ...], AnalysisError | ProjectInventoryError]:
     inventories: list[HelperInventoryItem] = []
-    error_files: list[FileMissingTypeAnnotation] = []
-    files = ["helpers.py"]
+    error_files: list[FileInventoryError] = []
+
     for file in files:
         missing_annotations: list[MissingTypeAnnotation] = []
-        file_path = ProjectRelativePath(
-            target_project.config.path / "test_support" / file
+        reference_errors: list[InvalidReference] = []
+        file_path = ProjectRelativePath(target_project.config.path / file)
+        file_result = load_file_analysis_context(
+            root, file_path, option=AnalysisOption(no_check_cache=True)
         )
-        file_result = load_file_analysis_context(root, file_path)
         if isinstance(file_result, Failure):
             return file_result
         file_analysis = file_result.unwrap()
         for symbol in file_analysis.analysis.symbols:
-            helper_candidate_result = _is_helper_function_candidate(
+            helper_candidate_result = _get_helper_function_candidate(
                 symbol, file_analysis.analysis
             )
             if isinstance(helper_candidate_result, Failure):
-                return helper_candidate_result
-            if not helper_candidate_result.unwrap():
+                error = helper_candidate_result.failure()
+                if isinstance(error, MissingTypeAnnotation):
+                    missing_annotations.append(error)
+                else:
+                    reference_errors.append(error)
+                continue
+            helper_candidate = helper_candidate_result.unwrap()
+            if not helper_candidate:
                 continue
 
             assert isinstance(symbol, FunctionAnalysis)
             inventory_result = _build_helper_inventory_item_from_function(
-                symbol=symbol, module=file_analysis.analysis
+                helper_function_candidate=helper_candidate,
+                module=file_analysis.analysis,
             )
             if isinstance(inventory_result, Failure):
                 missing_annotations.extend(inventory_result.failure())
             else:
                 inventories.append(inventory_result.unwrap())
 
-        if len(missing_annotations) > 0:
+        if missing_annotations or reference_errors:
             error_files.append(
-                FileMissingTypeAnnotation(
+                FileInventoryError(
                     project_relative_path=file_path,
                     missing_annotations=tuple(missing_annotations),
+                    reference_errors=tuple(reference_errors),
                 )
             )
     if len(error_files) > 0:
         return Failure(
-            ProjectMissingTypeAnnotationError(
+            ProjectInventoryError(
                 message="type is missing in helper functions",
                 project_name=target_project.config.name,
                 project_root=target_project.project_root,

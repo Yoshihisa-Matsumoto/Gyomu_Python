@@ -7,24 +7,31 @@ from gyomu_schema.schemas.types import FullPath
 
 
 @dataclass(frozen=True)
-class MissingTypeAnnotation:
+class MissingTypeAnnotation(Exception):
     identity: DeclarationIdentity
 
 
 @dataclass(frozen=True)
-class FileMissingTypeAnnotation:
+class InvalidReference(Exception):
+    identity: DeclarationIdentity
+    reference: str
+
+
+@dataclass(frozen=True)
+class FileInventoryError(Exception):
     project_relative_path: ProjectRelativePath
     missing_annotations: tuple[MissingTypeAnnotation, ...]
+    reference_errors: tuple[InvalidReference, ...]
 
 
-class ProjectMissingTypeAnnotationError(BaseError):
+class ProjectInventoryError(BaseError):
     def __init__(
         self,
         message: str,
         *,
         project_name: str,
         project_root: FullPath,
-        error_files: tuple[FileMissingTypeAnnotation, ...],
+        error_files: tuple[FileInventoryError, ...],
         context: str | None = None,
         details: Mapping[str, object] | None = None,
     ) -> None:

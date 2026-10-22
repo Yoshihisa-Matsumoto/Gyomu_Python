@@ -371,19 +371,6 @@ def classify_pydantic_model(
     return PydanticModelStatus.POSSIBLE
 
 
-# def is_base_class_pydantic(
-#     bases: list[TypeAnalysis], imported: tuple[ImportAnalysis, ...]
-# ) -> bool:
-#     """Determine whether any of the base classes inherit from Pydantic's BaseModel."""
-
-#     for base in bases:
-#         ref_name = normalize_reference_name(reference_name=base.text, imported=imported)
-#         if ref_name == "pydantic.BaseModel":
-#             return True
-
-#     return False
-
-
 def _analyze_class_common(
     cls: Class,
     name: str,

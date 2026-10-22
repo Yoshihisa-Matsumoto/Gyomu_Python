@@ -20,7 +20,6 @@ from gyomu_docstring.update.internal.build_file_context import (
     build_existing_docstring,
     is_documentable_child_entry,
 )
-from gyomu_python_analysis.analysis.analyzers.cls import is_base_class_pydantic
 from gyomu_schema.schemas.python.dependency import (
     DependencyAnalysis,
     DependencySummary,
@@ -38,6 +37,7 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringSection,
     DocstringStyle,
 )
+from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKind
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
@@ -54,6 +54,7 @@ from packages.schema.test_support.helpers import (
     create_inner_class_analysis,
     create_location,
     create_method_analysis,
+    create_module_analysis,
     create_name_structure,
     create_type_analysis,
 )
@@ -346,6 +347,19 @@ class TestBuildDependencies:
         )
 
 
+module = create_module_analysis(
+    symbols=tuple(),
+    docstring=None,
+    imports=(
+        ImportAnalysis(
+            local_name="BaseModel",
+            imported_name="pydantic.BaseModel",
+            kind=ImportKind.SYMBOL,
+        ),
+    ),
+)
+
+
 class TestBuildContextEntry:
     def test_build_context_entry(self) -> None:
         cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
@@ -355,7 +369,7 @@ class TestBuildContextEntry:
             location=create_location(),
         )
 
-        result = build_context_entry(cls, member)
+        result = build_context_entry(cls, member, module=module)
 
         assert result == ContextEntry(
             target=member.identity,
@@ -380,7 +394,7 @@ class TestBuildContextEntry:
             docstring=docstring,
         )
 
-        result = build_context_entry(cls, member)
+        result = build_context_entry(cls, member, module=module)
 
         assert result.existing_docstring == build_existing_docstring(docstring)
 
@@ -400,7 +414,7 @@ class TestBuildContextEntry:
             location=None,
         )
 
-        result = build_context_entry(cls, member)
+        result = build_context_entry(cls, member, module=module)
 
         assert result.documentable == NonDocumentableContext(
             reason="non-documentable-member",
@@ -421,7 +435,7 @@ class TestBuildContextEntry:
             methods=(method,),
         )
 
-        result = build_context_entry(cls, inner_class)
+        result = build_context_entry(cls, inner_class, module=module)
 
         assert result.children == (
             ContextEntry(
@@ -453,7 +467,7 @@ class TestBuildContextEntry:
             inner_classes=(inner_class,),
         )
 
-        result = build_context_entries(cls)
+        result = build_context_entries(cls, module=module)
 
         assert tuple(entry.target for entry in result) == (
             variable.identity,
@@ -489,8 +503,7 @@ class TestBuildDocstringDeclarationContext:
         )
 
         result = build_docstring_declaration_context(
-            analysis=analysis,
-            source=source,
+            analysis=analysis, source=source, module=module
         )
 
         assert result.target == analysis.identity
@@ -532,8 +545,7 @@ class TestBuildDocstringDeclarationContext:
         )
 
         result = build_docstring_declaration_context(
-            analysis=analysis,
-            source=source,
+            analysis=analysis, source=source, module=module
         )
 
         assert len(result.children) == 1
@@ -631,6 +643,5 @@ def test_is_documentable_child_entry(
                 is_ellipsis_only=is_ellipsis_only,
             )
     assert member
-    print(is_base_class_pydantic(list(cls.bases)))
     print(expected)
-    assert is_documentable_child_entry(cls, member) is expected
+    assert is_documentable_child_entry(cls, member, module=module) is expected

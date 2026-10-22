@@ -411,13 +411,14 @@ def create_module_analysis(
     symbols: tuple[SymbolAnalysis, ...],
     name: str = "test",
     docstring: DocstringAnalysis | None = None,
+    imports: tuple[ImportAnalysis, ...] = tuple(),
 ) -> ModuleAnalysis:
     return ModuleAnalysis(
         path=SourceRelativePath(Path(".")),
         name=name,
         module_name=PythonPath(""),
         docstring=docstring,
-        imports=tuple(),
+        imports=imports,
         symbols=symbols,
     )
 

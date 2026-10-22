@@ -5,6 +5,7 @@ import pytest
 from gyomu_concept.directory.build import build_directory_concept
 from gyomu_concept.directory.types import BuildResult, BuildRootResult
 from gyomu_concept.error.concept import ConceptError
+from gyomu_python_analysis.project.context import PackageRoot
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.directory.concept import (
     DirectoryConcept,
@@ -22,7 +23,7 @@ def create_context(
     context = Mock()
     context.project_root = project_root
     context.source_root = source_root
-    context.package_roots = (source_root,)
+    context.package_roots = (PackageRoot(path=source_root, module_name="test"),)
 
     return context
 
