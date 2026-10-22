@@ -17,11 +17,17 @@ from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     SymbolId,
 )
-from gyomu_schema.schemas.testing.helper import HelperInventoryItem, ParameterInfo
+from gyomu_schema.schemas.testing.helper import (
+    HelperFileInventory,
+    HelperInventoryItem,
+    ParameterInfo,
+)
 from returns.result import Failure, Result, Success
 
 from gyomu_test.error.inventory import (
+    DuplicateHelper,
     FileInventoryError,
+    FunctionInformation,
     InvalidReference,
     MissingTypeAnnotation,
     ProjectInventoryError,
@@ -142,17 +148,35 @@ def _build_helper_inventory_item_from_function(
     )
 
 
+def _add_inventory_summary(
+    file: ProjectRelativePath,
+    helper_candidate: HelperFunctionCandidate,
+    inventory_summaries: dict[DeclarationIdentity, list[FunctionInformation]],
+) -> None:
+    if helper_candidate.target_identity not in inventory_summaries:
+        inventory_summaries[helper_candidate.target_identity] = []
+
+    inventory_summaries[helper_candidate.target_identity].append(
+        FunctionInformation(
+            function_name=helper_candidate.function.name, file_path=file
+        )
+    )
+
+
 def collect_existing_helper_inventory(
     root: ProjectContext,
     target_project: ProjectContext,
     files: tuple[ProjectRelativePath, ...] = (
         ProjectRelativePath(Path("test_support/helpers.py")),
     ),
-) -> Result[tuple[HelperInventoryItem, ...], AnalysisError | ProjectInventoryError]:
-    inventories: list[HelperInventoryItem] = []
+) -> Result[tuple[HelperFileInventory, ...], AnalysisError | ProjectInventoryError]:
+
     error_files: list[FileInventoryError] = []
+    file_inventories: list[HelperFileInventory] = []
+    inventory_summaries: dict[DeclarationIdentity, list[FunctionInformation]] = {}
 
     for file in files:
+        inventories: list[HelperInventoryItem] = []
         missing_annotations: list[MissingTypeAnnotation] = []
         reference_errors: list[InvalidReference] = []
         file_path = ProjectRelativePath(target_project.config.path / file)
@@ -185,6 +209,11 @@ def collect_existing_helper_inventory(
             if isinstance(inventory_result, Failure):
                 missing_annotations.extend(inventory_result.failure())
             else:
+                _add_inventory_summary(
+                    file=file,
+                    helper_candidate=helper_candidate,
+                    inventory_summaries=inventory_summaries,
+                )
                 inventories.append(inventory_result.unwrap())
 
         if missing_annotations or reference_errors:
@@ -195,14 +224,26 @@ def collect_existing_helper_inventory(
                     reference_errors=tuple(reference_errors),
                 )
             )
-    if len(error_files) > 0:
+
+        else:
+            file_inventories.append(
+                HelperFileInventory(file_path=file, items=tuple(inventories))
+            )
+
+    duplicates = tuple(
+        DuplicateHelper(target_identity=identity, functions=tuple(functions))
+        for identity, functions in inventory_summaries.items()
+        if len(functions) > 1
+    )
+    if len(error_files) > 0 or len(duplicates):
         return Failure(
             ProjectInventoryError(
                 message="type is missing in helper functions",
                 project_name=target_project.config.name,
                 project_root=target_project.project_root,
                 error_files=tuple(error_files),
+                duplicates=duplicates,
             )
         )
 
-    return Success(tuple(inventories))
+    return Success(tuple(file_inventories))

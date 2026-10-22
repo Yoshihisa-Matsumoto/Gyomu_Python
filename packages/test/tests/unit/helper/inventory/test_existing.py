@@ -3,7 +3,13 @@ from pathlib import Path
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import WorkspaceContext
-from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
+from gyomu_schema.schemas.python.types import (
+    DeclarationId,
+    DeclarationIdentity,
+    ProjectRelativePath,
+    PythonPath,
+    SymbolId,
+)
 from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.error.inventory import ProjectInventoryError
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
@@ -13,6 +19,7 @@ from returns.result import Failure, Success
 from packages.test.tests.unit.helper.inventory.helpers import (
     ParameterSummary,
     equal_helper_inventory,
+    error_contains_duplicate,
     error_contains_function_reference_error,
     error_contains_missing_parameter_type_annotation,
     error_contains_missing_return_type_annotation,
@@ -34,8 +41,12 @@ class TestCollectExistingHelperInventory:
             root=root_context_result.unwrap(), target_project=project_context
         )
         assert isinstance(result, Success)
-        inventories = result.unwrap()
-
+        files = result.unwrap()
+        assert len(files) == 1
+        inventories = files[0].items
+        assert files[0].file_path == ProjectRelativePath(
+            Path("test_support/helpers.py")
+        )
         print(inventories)
         equal_helper_inventory(
             inventories,
@@ -70,11 +81,12 @@ class TestCollectExistingHelperInventory:
         )
         assert isinstance(root_context_result, Success)
         file = ProjectRelativePath(Path("test_support/invalid_helpers.py"))
+        file2 = ProjectRelativePath(Path("test_support/another_helpers.py"))
 
         result = collect_existing_helper_inventory(
             root=root_context_result.unwrap(),
             target_project=project_context,
-            files=(file,),
+            files=(file, file2),
         )
         assert isinstance(result, Failure)
         failure = result.failure()
@@ -103,8 +115,8 @@ class TestCollectExistingHelperInventory:
             file_path=file,
             project=project_context,
             workspace=workspace_context,
-            function_name="create_product_model",
-            return_type_name="ProductModel",
+            function_name="create_product_modeler",
+            return_type_name="ProductModeler",
         )
 
         error_contains_function_reference_error(
@@ -114,6 +126,26 @@ class TestCollectExistingHelperInventory:
             workspace=workspace_context,
             function_name="create_product_model2",
             return_type_name="ProductModel2",
+        )
+
+        error_contains_duplicate(
+            failure=failure,
+            file_path=file,
+            function_name="create_product_model",
+            identity=DeclarationIdentity(
+                symbol_id=SymbolId("project_b.models::ProductModel"),
+                declaration_id=DeclarationId("."),
+            ),
+        )
+
+        error_contains_duplicate(
+            failure=failure,
+            file_path=file2,
+            function_name="create_product_model",
+            identity=DeclarationIdentity(
+                symbol_id=SymbolId("project_b.models::ProductModel"),
+                declaration_id=DeclarationId("."),
+            ),
         )
 
     def test_returns_analysis_error(

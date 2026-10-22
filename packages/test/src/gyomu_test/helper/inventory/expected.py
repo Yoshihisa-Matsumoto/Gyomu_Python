@@ -137,6 +137,7 @@ def collect_model_helper_inventory(
                 project_name=project.config.name,
                 project_root=project.project_root,
                 error_files=tuple(error_files),
+                duplicates=tuple(),
             )
         )
 

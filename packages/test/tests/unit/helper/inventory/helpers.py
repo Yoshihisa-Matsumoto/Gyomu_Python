@@ -231,3 +231,22 @@ def error_contains_reference_error(
         if error.identity == identity and error.reference == reference
     )
     assert target_error
+
+
+def error_contains_duplicate(
+    failure: ProjectInventoryError,
+    file_path: ProjectRelativePath,
+    function_name: str,
+    identity: DeclarationIdentity,
+) -> None:
+    target_duplicate = next(
+        duplicate
+        for duplicate in failure.duplicates
+        if duplicate.target_identity == identity
+    )
+    target_function = next(
+        func
+        for func in target_duplicate.functions
+        if func.function_name == function_name and func.file_path == file_path
+    )
+    assert target_function

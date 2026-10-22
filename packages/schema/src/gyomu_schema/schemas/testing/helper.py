@@ -18,6 +18,20 @@ class HelperInventoryItem:
 
 
 @dataclass(frozen=True)
+class HelperUpdate:
+    expected: HelperInventoryItem
+    existing: HelperInventoryItem
+
+
+@dataclass(frozen=True)
 class HelperFileInventory:
     file_path: ProjectRelativePath
     items: tuple[HelperInventoryItem, ...]
+
+
+@dataclass(frozen=True)
+class HelperReconcileResult:
+    create: tuple[HelperInventoryItem, ...]
+    update: tuple[HelperUpdate, ...]
+    unchanged: tuple[HelperInventoryItem, ...]
+    delete_candidates: tuple[HelperInventoryItem, ...]
