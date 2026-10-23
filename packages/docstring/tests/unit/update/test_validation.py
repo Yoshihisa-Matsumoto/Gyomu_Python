@@ -187,7 +187,6 @@ def test_validate_source_does_not_check_when_format_fails(
         file_path=file_context.analysis.module_name,
         phase="post-update",
         identity=None,
-        context="test",
     )
 
     mocker.patch(
@@ -217,7 +216,6 @@ def test_validate_source_returns_check_failure(
         file_path=file_context.analysis.module_name,
         phase="post-update",
         identity=None,
-        context="test",
     )
 
     mocker.patch(
@@ -346,7 +344,6 @@ def test_validate_source_does_not_import_fix_when_format_fails(
         file_path=file_context.analysis.module_name,
         phase="post-update",
         identity=None,
-        context="test",
     )
 
     mocker.patch(
@@ -380,7 +377,6 @@ def test_validate_source_does_not_check_when_import_fix_fails(
         file_path=file_context.analysis.module_name,
         phase="post-update",
         identity=None,
-        context="test",
     )
 
     mocker.patch(

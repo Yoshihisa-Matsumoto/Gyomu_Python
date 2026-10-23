@@ -1,8 +1,14 @@
 from gyomu_schema.schemas.testing.helper import (
+    ExistingHelperInventoryItem,
     HelperFileInventory,
     HelperInventoryItem,
     HelperReconcileResult,
     HelperUpdate,
+)
+
+from gyomu_test.helper.inventory.function import (
+    generate_function_code,
+    read_function_code,
 )
 
 
@@ -23,21 +29,19 @@ def _find_exising_inventory(
     return None
 
 
-def _is_equal(existing: HelperInventoryItem, expected: HelperInventoryItem) -> bool:
+def _is_equal(
+    file_inventory: HelperFileInventory,
+    existing: ExistingHelperInventoryItem,
+    expected: HelperInventoryItem,
+) -> bool:
     if existing.function_name != expected.function_name:
         return False
-    if len(existing.parameters) != len(expected.parameters):
-        return False
 
-    return all(
-        existing_param.name == expected_param.name
-        and existing_param.parameter_type.text == expected_param.parameter_type.text
-        for existing_param, expected_param in zip(
-            existing.parameters,
-            expected.parameters,
-            strict=True,
-        )
+    expected_function = generate_function_code(expected)
+    existing_function = read_function_code(
+        file_inventory=file_inventory, location=existing.location
     )
+    return expected_function == existing_function
 
 
 def reconcile(
@@ -61,20 +65,26 @@ def reconcile(
                 delete_candidates.append(existing_inventory)
             else:
                 # compare
-                if _is_equal(expected=expected_inventory, existing=existing_inventory):
+                if _is_equal(
+                    file_inventory=file_inventory,
+                    expected=expected_inventory,
+                    existing=existing_inventory,
+                ):
                     unchanged.append(existing_inventory)
                 else:
                     update.append(
                         HelperUpdate(
-                            expected=expected_inventory, existing=existing_inventory
+                            file_path=file_inventory.file_path,
+                            expected=expected_inventory,
+                            existing=existing_inventory,
                         )
                     )
 
     for expected_inventory in expected:
-        existing_inventory = _find_exising_inventory(
+        target_existing_inventory = _find_exising_inventory(
             existing=existing, target_inventory=expected_inventory
         )
-        if existing_inventory is None:
+        if target_existing_inventory is None:
             create.append(expected_inventory)
 
     return HelperReconcileResult(

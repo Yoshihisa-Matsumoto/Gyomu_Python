@@ -1,5 +1,34 @@
+import inspect
 from collections.abc import Mapping
 from typing import Self
+
+
+def caller_context() -> str:
+    """Return the module and function name of the caller."""
+    frame = inspect.currentframe()
+    if frame is None or frame.f_back is None:
+        return "<unknown>"
+
+    try:
+        caller = frame.f_back
+        if caller is None:
+            return "<unknown>"
+
+        parent_caller = caller.f_back
+
+        while parent_caller is not None:
+            module = parent_caller.f_globals.get("__name__", "<unknown>")
+            function = parent_caller.f_code.co_name
+
+            if function == "<lambda>" or module.startswith("returns."):
+                parent_caller = parent_caller.f_back
+                continue
+
+            return f"{module}.{function}"
+
+        return "<unknown>"
+    finally:
+        del frame
 
 
 class BaseError(Exception):

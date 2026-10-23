@@ -2,7 +2,6 @@ from gyomu_python_analysis.analysis.workspace import find_root
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.types import FullPath
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_concept.error.document import DocumentBuilderError
@@ -53,7 +52,6 @@ def get_root_knowledge_path(
                 message=f"Failed to find repository root: {error}",
                 phase="context-build",
                 file_path=context.project_root,
-                context=caller_context(),
                 package_name=context.config.name,
             )
         )

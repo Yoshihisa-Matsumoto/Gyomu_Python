@@ -72,7 +72,6 @@ def find_root(
             "pyproject.toml not found",
             file_path=PythonPath(""),
             phase="workspace-discovery",
-            context="gyomu_python_analysis.analysis.workspace.find_workspace_root",
         )
     )
 
@@ -98,9 +97,6 @@ def read_pyproject_toml(
                 "fail to read pyproject.toml",
                 file_path=path,
                 phase="workspace-discovery",
-                context=(
-                    "gyomu_python_analysis.analysis.workspace.read_pyproject_toml"
-                ),
             ).chain(read_result.failure())
         )
 
@@ -209,7 +205,6 @@ def initialize_workspace_context(
                         "fail to read pyproject.toml",
                         file_path=pyproject_path,
                         phase="workspace-discovery",
-                        context="gyomu_python_analysis.analysis.initialize.initialize_workspace_context",
                     ).chain(read_result.failure())
                 )
             toml_data = loads(read_result.unwrap())

@@ -54,7 +54,6 @@ def analyze_project_changes(
                 "fail to read project snapshot",
                 file_path=project.snapshot_path,
                 phase="snapshot",
-                context="gyomu_python_analysis.snapshot.analyze.analyze_project_changes",
             ).chain(err)
         )
         if isinstance(json_result, Failure):

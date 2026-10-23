@@ -48,7 +48,6 @@ def build_package_analysis(
                 package_name=context.config.name,
                 phase="package-concept",
                 identity=None,
-                context=caller,
             ).chain(error)
         )
     workspace = root_result.unwrap()
@@ -62,7 +61,6 @@ def build_package_analysis(
                 package_name=context.config.name,
                 phase="package-concept",
                 identity=None,
-                context=caller,
             ).chain(error)
         )
     workspace_context = workspace_result.unwrap()
@@ -80,7 +78,6 @@ def build_package_analysis(
                     package_name=context.config.name,
                     phase="package-concept",
                     identity=None,
-                    context=caller,
                 ).chain(error)
             )
         )

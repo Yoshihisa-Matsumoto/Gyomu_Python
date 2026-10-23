@@ -10,7 +10,7 @@ from gyomu_schema.schemas.python.docstring import (
 )
 
 from packages.docstring.test_support.helper import _default_identity
-from packages.schema.test_support.helpers import create_location
+from packages.schema.test_support.helpers import create_source_location
 
 
 def make_updated_docstring(
@@ -31,7 +31,7 @@ def make_updated_docstring(
             summary=summary,
             description=description,
             style=DocstringStyle.GOOGLE,
-            location=create_location(
+            location=create_source_location(
                 start_offset=start_offset,
                 end_offset=end_offset,
                 start_line=start_line,

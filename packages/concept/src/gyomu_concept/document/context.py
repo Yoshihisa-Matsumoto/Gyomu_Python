@@ -39,9 +39,7 @@ class DocumentBaseContextResult[TKnowledge: Knowledge](BaseModel):
     """
 
 
-def _wrap_error(
-    error: BaseError, caller: str, context: ProjectContext
-) -> DocumentBuilderError:
+def _wrap_error(error: BaseError, context: ProjectContext) -> DocumentBuilderError:
     """Wraps initialization errors into a DocumentBuilderError.
 
     Wraps an error encountered during document base context initialization into a
@@ -60,7 +58,6 @@ def _wrap_error(
         message="fail to initialize document base context",
         phase="context-build",
         package_name=context.config.name,
-        context=caller,
     ).chain(error)
 
 
@@ -84,14 +81,12 @@ def initialize_document_base_context(
     caller = caller_context()
     package_analysis_result = build_package_analysis(context, option)
     if isinstance(package_analysis_result, Failure):
-        return package_analysis_result.alt(
-            lambda error: _wrap_error(error, caller, context)
-        )
+        return package_analysis_result.alt(lambda error: _wrap_error(error, context))
     analysis = package_analysis_result.unwrap()
 
     concept_result = load_package_concept(context, option)
     if isinstance(concept_result, Failure):
-        return concept_result.alt(lambda error: _wrap_error(error, caller, context))
+        return concept_result.alt(lambda error: _wrap_error(error, context))
     concept = concept_result.unwrap()
     if concept is None:
         return Failure(
@@ -100,7 +95,6 @@ def initialize_document_base_context(
                 file_path=get_package_concept_path(context, option),
                 package_name=context.config.name,
                 phase="context-build",
-                context=caller,
             )
         )
 
@@ -110,28 +104,26 @@ def initialize_document_base_context(
         path=knowledge_path / "Package.yaml", model_type=Package
     )
     if isinstance(package_knowledge_result, Failure):
-        return package_knowledge_result.alt(
-            lambda error: _wrap_error(error, caller, context)
-        )
+        return package_knowledge_result.alt(lambda error: _wrap_error(error, context))
     package_knowledge = package_knowledge_result.unwrap()
 
     development_result = read_yaml(
         path=knowledge_path / "Development.yaml", model_type=Development
     )
     if isinstance(development_result, Failure):
-        return development_result.alt(lambda error: _wrap_error(error, caller, context))
+        return development_result.alt(lambda error: _wrap_error(error, context))
     development = development_result.unwrap()
 
     technical_result = read_yaml(
         path=knowledge_path / "Technical.yaml", model_type=Technical
     )
     if isinstance(technical_result, Failure):
-        return technical_result.alt(lambda error: _wrap_error(error, caller, context))
+        return technical_result.alt(lambda error: _wrap_error(error, context))
     technical = technical_result.unwrap()
 
     roadmap_result = read_yaml(path=knowledge_path / "Roadmap.yaml", model_type=Roadmap)
     if isinstance(roadmap_result, Failure):
-        return roadmap_result.alt(lambda error: _wrap_error(error, caller, context))
+        return roadmap_result.alt(lambda error: _wrap_error(error, context))
     roadmap = roadmap_result.unwrap()
 
     return Success(

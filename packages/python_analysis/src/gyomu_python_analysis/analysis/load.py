@@ -49,7 +49,6 @@ def load_module(
             message="fail to load source",
             file_path=module_path,
             phase="source-file-load",
-            context="gyomu_python_analysis.analysis.load_sourde_file",
         ).chain(e),
     )
 

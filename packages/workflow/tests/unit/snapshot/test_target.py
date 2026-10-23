@@ -327,7 +327,6 @@ class TestResolveSnapshotTarget:
     def test_resolve_snapshot_target_wraps_analysis_error(self, mocker) -> None:
         analysis_error = AnalysisError(
             message="test",
-            context="analysis",
             file_path=FullPath(Path("/tmp")),
             phase="snapshot",
         )

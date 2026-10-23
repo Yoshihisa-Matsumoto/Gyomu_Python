@@ -29,7 +29,7 @@ from returns.result import Failure, Success
 from packages.schema.test_support.helpers import (
     create_file_analysis_context,
     create_function_analysis,
-    create_location,
+    create_source_location,
 )
 
 
@@ -50,7 +50,7 @@ def file_context() -> FileAnalysisContext:
     return create_file_analysis_context(
         create_function_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
         )
     )
 

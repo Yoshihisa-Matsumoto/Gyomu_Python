@@ -6,7 +6,7 @@ from gyomu_schema.utility.serialization import _assert_json_round_trip
 
 from packages.schema.test_support.helpers import (
     create_declaration_identity,
-    create_location,
+    create_source_location,
 )
 
 
@@ -16,7 +16,7 @@ class TestFileUpdatePlanEntry:
             FileUpdatePlanEntry,
             FileUpdatePlanEntry(
                 identity=create_declaration_identity(id="TestID"),
-                location=create_location(start_line=1),
+                location=create_source_location(start_line=1),
                 new_text="ABCDEF###",
             ),
         )
@@ -30,12 +30,12 @@ class TestFileUpdatePlan:
                 items=(
                     FileUpdatePlanEntry(
                         identity=create_declaration_identity(id="TestID"),
-                        location=create_location(start_line=1),
+                        location=create_source_location(start_line=1),
                         new_text="ABCDEF###",
                     ),
                     FileUpdatePlanEntry(
                         identity=create_declaration_identity(id="TestID2"),
-                        location=create_location(start_line=3),
+                        location=create_source_location(start_line=3),
                         new_text="ABCDEFEFE###",
                     ),
                 )

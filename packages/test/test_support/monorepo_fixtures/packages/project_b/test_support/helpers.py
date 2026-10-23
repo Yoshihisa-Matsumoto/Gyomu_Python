@@ -22,6 +22,10 @@ def build_product_base_model(
 
 
 def create_product_summary(
-    product_id: int = 1, display_name: str = "Example Product"
+    product_id: int = 1, 
+    display_name: str = "Example Product"
 ) -> ProductSummary:
-    return ProductSummary(product_id=product_id, display_name=display_name)
+    return ProductSummary(
+        product_id=product_id, 
+        display_name=display_name
+    )

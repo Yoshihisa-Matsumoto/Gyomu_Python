@@ -16,7 +16,7 @@ from gyomu_schema.schemas.python.visibility import Visibility
 
 from packages.schema.test_support.helpers import (
     create_declaration_identity,
-    create_location,
+    create_source_location,
 )
 
 
@@ -44,7 +44,7 @@ class TestCreateFileAnalysisMetadata:
             identity=create_declaration_identity("test"),
             visibility=Visibility.PUBLIC,
             decorators=tuple(),
-            location=create_location(),
+            location=create_source_location(),
             dependencies=tuple(),
             indent=0,
             alias_type=None,
@@ -53,7 +53,7 @@ class TestCreateFileAnalysisMetadata:
                 summary="test",
                 description=None,
                 style=DocstringStyle.GOOGLE,
-                location=create_location(),
+                location=create_source_location(),
                 sections=tuple(),
                 indent=0,
             ),
@@ -88,7 +88,7 @@ class TestCreateFileAnalysisMetadata:
             identity=create_declaration_identity("test"),
             visibility=Visibility.PUBLIC,
             decorators=tuple(),
-            location=create_location(),
+            location=create_source_location(),
             dependencies=tuple(),
             indent=0,
             alias_type=None,
@@ -181,7 +181,7 @@ def create_class(
             summary="test",
             description=None,
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             sections=tuple(),
             indent=4,
         )
@@ -193,7 +193,7 @@ def create_class(
         identity=create_declaration_identity(id),
         indent=0,
         dependencies=tuple(),
-        location=create_location(),
+        location=create_source_location(),
         methods=methods,
         docstring=docstring,
         variables=variables,
@@ -211,7 +211,7 @@ def create_method(id: str, doc: bool) -> MethodAnalysis:
             summary="test",
             description=None,
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             sections=tuple(),
             indent=indent,
         )
@@ -222,7 +222,7 @@ def create_method(id: str, doc: bool) -> MethodAnalysis:
         visibility=Visibility.PUBLIC,
         decorators=tuple(),
         identity=create_declaration_identity(id),
-        location=create_location(),
+        location=create_source_location(),
         indent=indent,
         docstring=docstring,
         parameters=tuple(),
@@ -239,7 +239,7 @@ def create_class_variable(id: str, doc: bool) -> ClassVariableAnalysis:
             summary="test",
             description=None,
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             sections=tuple(),
             indent=indent,
         )
@@ -249,7 +249,7 @@ def create_class_variable(id: str, doc: bool) -> ClassVariableAnalysis:
         docstring=docstring,
         decorators=tuple(),
         identity=create_declaration_identity(id),
-        location=create_location(),
+        location=create_source_location(),
         pydantic=None,
         indent=4,
         type=None,
@@ -266,7 +266,7 @@ def create_class_typealias(id: str, doc: bool) -> ClassTypeAliasAnalysis:
             summary="test",
             description=None,
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             sections=tuple(),
             indent=indent,
         )
@@ -276,7 +276,7 @@ def create_class_typealias(id: str, doc: bool) -> ClassTypeAliasAnalysis:
         docstring=docstring,
         decorators=tuple(),
         identity=create_declaration_identity(id),
-        location=create_location(),
+        location=create_source_location(),
         indent=4,
         alias_type=None,
     )
@@ -298,7 +298,7 @@ def create_class_inner_class(
             summary="test",
             description=None,
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             sections=tuple(),
             indent=indent,
         )
@@ -308,7 +308,7 @@ def create_class_inner_class(
         docstring=docstring,
         decorators=tuple(),
         identity=create_declaration_identity(id),
-        location=create_location(),
+        location=create_source_location(),
         indent=4,
         bases=tuple(),
         methods=methods,

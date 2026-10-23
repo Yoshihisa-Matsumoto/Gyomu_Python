@@ -1,7 +1,22 @@
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Literal
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
+from gyomu_schema.schemas.config.test.model_defaults import (
+    CallParameter,
+    DictEntry,
+    DictParameter,
+    EnumParameter,
+    KeywordArgument,
+    ListParameter,
+    LiteralParameter,
+    NoneParameter,
+    Parameter,
+    ParameterDefault,
+    ParameterExpressionType,
+    TupleParameter,
+)
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassTypeAliasAnalysis,
@@ -74,6 +89,11 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
+from gyomu_schema.schemas.testing.helper import (
+    ExistingHelperInventoryItem,
+    HelperInventoryItem,
+    ParameterInfo,
+)
 from gyomu_schema.schemas.types import FullPath
 
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
@@ -81,14 +101,14 @@ FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
 print("LOADED DOCSTRING TESTS.HELPERS")
 
 
-def create_declaration_identity(id: str) -> DeclarationIdentity:
+def create_declaration_identity(id: str = "test") -> DeclarationIdentity:
     return DeclarationIdentity(
         symbol_id=SymbolId(id),
         declaration_id=DeclarationId("."),
     )
 
 
-def create_location(
+def create_source_location(
     start_offset: int = 0,
     end_offset: int = 0,
     start_line: int = 1,
@@ -477,7 +497,7 @@ def create_docstring(
         raw="",
         summary=summary,
         description=description,
-        location=location if location is not None else create_location(),
+        location=location if location is not None else create_source_location(),
         style=DocstringStyle.GOOGLE,
         indent=0,
         sections=sections,
@@ -587,3 +607,112 @@ def create_import_analysis(
     kind: ImportKind = ImportKind.SYMBOL,
 ) -> ImportAnalysis:
     return ImportAnalysis(local_name=local_name, imported_name=imported_name, kind=kind)
+
+
+def create_parameter_info(
+    name: str = "arg",
+    parameter_type: TypeAnalysis = create_type_analysis("str"),  # noqa: B008
+) -> ParameterInfo:
+    return ParameterInfo(name=name, parameter_type=parameter_type)
+
+
+def create_helper_inventory_item(
+    target_identity: DeclarationIdentity = create_declaration_identity(id="Test"),  # noqa: B008
+    function_name: str = "create_test",
+    parameters: tuple[ParameterInfo, ...] = tuple(),
+) -> HelperInventoryItem:
+    return HelperInventoryItem(
+        target_identity=target_identity,
+        function_name=function_name,
+        parameters=parameters,
+    )
+
+
+def create_existing_helper_inventory_item(
+    target_identity: DeclarationIdentity = create_declaration_identity(id="Test"),  # noqa: B008
+    function_name: str = "create_test",
+    parameters: tuple[ParameterInfo, ...] = tuple(),
+    location: SourceLocation = create_source_location(),  # noqa: B008
+) -> ExistingHelperInventoryItem:
+    return ExistingHelperInventoryItem(
+        target_identity=target_identity,
+        function_name=function_name,
+        parameters=parameters,
+        location=location,
+    )
+
+
+def create_literal_parameter(
+    kind: Literal[ParameterExpressionType.LITERAL] = ParameterExpressionType.LITERAL,
+    value: int | bool | str | float = "test",
+) -> LiteralParameter:
+    return LiteralParameter(kind=kind, value=value)
+
+
+def create_none_parameter(
+    kind: Literal[ParameterExpressionType.NONE] = ParameterExpressionType.NONE,
+) -> NoneParameter:
+    return NoneParameter(kind=kind)
+
+
+def create_enum_parameter(
+    kind: Literal[ParameterExpressionType.ENUM] = ParameterExpressionType.ENUM,
+    enum_identity: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
+    member_name: str = "member",
+) -> EnumParameter:
+    return EnumParameter(
+        kind=kind, enum_identity=enum_identity, member_name=member_name
+    )
+
+
+def create_tuple_parameter(
+    kind: Literal[ParameterExpressionType.TUPLE] = ParameterExpressionType.TUPLE,
+    elements: tuple[Parameter, ...] = (create_literal_parameter(),),
+) -> TupleParameter:
+    return TupleParameter(kind=kind, elements=elements)
+
+
+def create_list_parameter(
+    kind: Literal[ParameterExpressionType.LIST] = ParameterExpressionType.LIST,
+    elements: tuple[Parameter, ...] = (create_literal_parameter(),),
+) -> ListParameter:
+    return ListParameter(kind=kind, elements=elements)
+
+
+def create_dict_entry(
+    key: Parameter = create_literal_parameter(),  # noqa: B008
+    value: Parameter = create_literal_parameter(),  # noqa: B008
+) -> DictEntry:
+    return DictEntry(key=key, value=value)
+
+
+def create_dict_parameter(
+    kind: Literal[ParameterExpressionType.DICT] = ParameterExpressionType.DICT,
+    entries: tuple[DictEntry, ...] = (create_dict_entry(),),
+) -> DictParameter:
+    return DictParameter(kind=kind, entries=entries)
+
+
+def create_keyword_argument(
+    name: str = "arg1",
+    value: Parameter = create_literal_parameter(),  # noqa: B008
+) -> KeywordArgument:
+    return KeywordArgument(name=name, value=value)
+
+
+def create_call_parameter(
+    kind: Literal[ParameterExpressionType.CALL] = ParameterExpressionType.CALL,
+    callable_identity: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
+    args: tuple[Parameter, ...] = (),
+    kwargs: tuple[KeywordArgument, ...] = (),
+) -> CallParameter:
+    return CallParameter(
+        kind=kind, callable_identity=callable_identity, args=args, kwargs=kwargs
+    )
+
+
+def create_parameter_default(
+    name: str = "parameter",
+    value: Parameter = create_literal_parameter(),  # noqa: B008
+) -> ParameterDefault:
+    return ParameterDefault(name=name, value=value)

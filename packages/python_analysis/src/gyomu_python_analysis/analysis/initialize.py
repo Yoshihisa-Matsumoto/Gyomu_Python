@@ -66,7 +66,6 @@ def initialize_project_context(
                 "fail to read pyproject.toml",
                 file_path=PythonPath(""),
                 phase="project-load",
-                context="gyomu_python_analysis.analysis.initialize.initialize_project_context",
             ).chain(read_result.failure())
         )
     toml_data = loads(read_result.unwrap())
@@ -210,7 +209,6 @@ def read_version(path: Path) -> Result[str | None, AnalysisError]:
                 "fail to read version file",
                 file_path=PythonPath(""),
                 phase="project-load",
-                context="gyomu_python_analysis.analysis.initialize.read_version",
                 details={"path": path},
             )
         )

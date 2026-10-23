@@ -33,7 +33,7 @@ from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_declaration_identity,
     create_file_analysis_context,
-    create_location,
+    create_source_location,
 )
 
 
@@ -53,7 +53,9 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
         file_context = create_file_analysis_context(
-            create_class_analysis(indent=0, location=create_location(), identity=foo)
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=foo
+            )
         )
 
         plan = create_docstring_update_plan(
@@ -93,7 +95,9 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
         file_context = create_file_analysis_context(
-            create_class_analysis(indent=0, location=create_location(), identity=foo)
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=foo
+            )
         )
         plan = create_docstring_update_plan(
             entries=(
@@ -146,7 +150,9 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
         file_context = create_file_analysis_context(
-            create_class_analysis(indent=0, location=create_location(), identity=foo)
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=foo
+            )
         )
         plan = create_docstring_update_plan(
             entries=(
@@ -188,7 +194,9 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
         file_context = create_file_analysis_context(
-            create_class_analysis(indent=0, location=create_location(), identity=foo)
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=foo
+            )
         )
         plan = create_docstring_update_plan(
             entries=(
@@ -239,8 +247,12 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
         file_context = create_file_analysis_context(
-            create_class_analysis(indent=0, location=create_location(), identity=foo),
-            create_class_analysis(indent=0, location=create_location(), identity=bar),
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=foo
+            ),
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=bar
+            ),
         )
 
         foo_entry = create_docstring_update_entry(identity=foo)
@@ -300,8 +312,12 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
         file_context = create_file_analysis_context(
-            create_class_analysis(indent=0, location=create_location(), identity=foo),
-            create_class_analysis(indent=0, location=create_location(), identity=bar),
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=foo
+            ),
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=bar
+            ),
         )
 
         foo_entry = create_docstring_update_entry(identity=foo)
@@ -341,7 +357,9 @@ class TestBuildDocstringUpdatePlanWithRetry:
             )
         )
         file_context = create_file_analysis_context(
-            create_class_analysis(indent=0, location=create_location(), identity=foo)
+            create_class_analysis(
+                indent=0, location=create_source_location(), identity=foo
+            )
         )
 
         cause = AiError(

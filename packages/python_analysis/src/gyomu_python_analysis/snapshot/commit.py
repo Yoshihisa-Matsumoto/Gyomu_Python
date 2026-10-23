@@ -63,7 +63,6 @@ def commit_project_changes(
                 ),
                 file_path=project_context.project_root,
                 phase="snapshot",
-                context="gyomu_python_analysis.snapshot.commit.commit_project_changes",
                 details={
                     "added": change_counts["added"],
                     "updated": change_counts["updated"],
@@ -79,6 +78,5 @@ def commit_project_changes(
             "fail to write project snapshot",
             file_path=project.snapshot_path,
             phase="snapshot",
-            context="gyomu_python_analysis.snapshot.commit.commit_project_changes",
         ).chain(err)
     )

@@ -52,10 +52,10 @@ from packages.schema.test_support.helpers import (
     create_file_analysis_context,
     create_function_analysis,
     create_inner_class_analysis,
-    create_location,
     create_method_analysis,
     create_module_analysis,
     create_name_structure,
+    create_source_location,
     create_type_analysis,
 )
 
@@ -79,7 +79,7 @@ def _docstring(sections: tuple[DocstringSection, ...]) -> DocstringAnalysis:
         summary="Summary.",
         description="Description.",
         style=DocstringStyle.GOOGLE,
-        location=create_location(),
+        location=create_source_location(),
         indent=4,
         sections=sections,
     )
@@ -105,7 +105,7 @@ class TestBuildExistingDocstring:
             summary="Summary.",
             description="Description.",
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             indent=4,
             sections=(
                 DocstringParametersSection(
@@ -308,7 +308,7 @@ class TestBuildCode:
 
 class TestBuildDeclarationInfo:
     def test_build_declaration_info(self) -> None:
-        analysis = create_function_analysis(indent=0, location=create_location())
+        analysis = create_function_analysis(indent=0, location=create_source_location())
 
         result = _build_declaration_info(analysis)
 
@@ -362,11 +362,13 @@ module = create_module_analysis(
 
 class TestBuildContextEntry:
     def test_build_context_entry(self) -> None:
-        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
+        cls = create_class_analysis(
+            indent=0, location=create_source_location(), bases=tuple()
+        )
         member = create_method_analysis(
             indent=4,
             name="foo",
-            location=create_location(),
+            location=create_source_location(),
         )
 
         result = build_context_entry(cls, member, module=module)
@@ -383,14 +385,16 @@ class TestBuildContextEntry:
         )
 
     def test_build_context_entry_with_docstring(self) -> None:
-        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
+        cls = create_class_analysis(
+            indent=0, location=create_source_location(), bases=tuple()
+        )
         docstring = create_docstring(
             summary="Do something.",
         )
         member = create_method_analysis(
             indent=4,
             name="foo",
-            location=create_location(),
+            location=create_source_location(),
             docstring=docstring,
         )
 
@@ -407,7 +411,9 @@ class TestBuildContextEntry:
         )
 
     def test_build_context_entry_without_location(self) -> None:
-        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
+        cls = create_class_analysis(
+            indent=0, location=create_source_location(), bases=tuple()
+        )
         member = create_method_analysis(
             indent=4,
             name="foo",
@@ -421,17 +427,19 @@ class TestBuildContextEntry:
         )
 
     def test_build_context_entry_builds_inner_class_children(self) -> None:
-        cls = create_class_analysis(indent=0, location=create_location(), bases=tuple())
+        cls = create_class_analysis(
+            indent=0, location=create_source_location(), bases=tuple()
+        )
         method = create_method_analysis(
             indent=8,
             name="foo",
-            location=create_location(),
+            location=create_source_location(),
         )
 
         inner_class = create_inner_class_analysis(
             indent=4,
             name="Inner",
-            location=create_location(),
+            location=create_source_location(),
             methods=(method,),
         )
 
@@ -451,16 +459,20 @@ class TestBuildContextEntry:
         )
 
     def test_build_context_entries(self) -> None:
-        variable = create_class_variable_analysis(indent=4, location=create_location())
-        typealias = create_class_type_alias_analysis(
-            indent=4, location=create_location()
+        variable = create_class_variable_analysis(
+            indent=4, location=create_source_location()
         )
-        method = create_method_analysis(indent=4, location=create_location())
-        inner_class = create_inner_class_analysis(indent=4, location=create_location())
+        typealias = create_class_type_alias_analysis(
+            indent=4, location=create_source_location()
+        )
+        method = create_method_analysis(indent=4, location=create_source_location())
+        inner_class = create_inner_class_analysis(
+            indent=4, location=create_source_location()
+        )
 
         cls = create_class_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             variables=(variable,),
             type_aliases=(typealias,),
             methods=(method,),
@@ -487,7 +499,7 @@ class TestBuildDocstringDeclarationContext:
 
         analysis = create_function_analysis(
             indent=0,
-            location=create_location(start_offset=0, end_offset=len(source)),
+            location=create_source_location(start_offset=0, end_offset=len(source)),
             name="foo",
             docstring=create_docstring(
                 summary="Do something.",
@@ -533,13 +545,13 @@ class TestBuildDocstringDeclarationContext:
         method = create_method_analysis(
             indent=4,
             name="run",
-            location=create_location(),
+            location=create_source_location(),
         )
 
         source = "class Service:\n    def run(self) -> None:\n        pass\n"
         analysis = create_class_analysis(
             indent=0,
-            location=create_location(start_offset=0, end_offset=len(source)),
+            location=create_source_location(start_offset=0, end_offset=len(source)),
             name="Service",
             methods=(method,),
         )
@@ -562,19 +574,19 @@ class TestBuildDocstringFileContext:
         source = "def foo() -> None:\n    pass\n\nclass Foo:\n    pass\n"
         function1 = create_function_analysis(
             indent=0,
-            location=create_location(start_offset=0, end_offset=len(source)),
+            location=create_source_location(start_offset=0, end_offset=len(source)),
             name="foo",
         )
         function2 = create_function_analysis(
             indent=0,
-            location=create_location(start_offset=0, end_offset=len(source)),
+            location=create_source_location(start_offset=0, end_offset=len(source)),
             name="foo",
             is_ellipsis_only=True,
         )
         cls = create_class_analysis(
             indent=0,
             name="Foo",
-            location=create_location(start_offset=0, end_offset=len(source)),
+            location=create_source_location(start_offset=0, end_offset=len(source)),
         )
 
         file_result = create_file_analysis_context(
@@ -624,20 +636,22 @@ def test_is_documentable_child_entry(
                 )
             ]
         )
-    cls = create_class_analysis(indent=0, location=create_location(), bases=bases)
+    cls = create_class_analysis(
+        indent=0, location=create_source_location(), bases=bases
+    )
     member = None
     match kind:
         case DeclarationKind.VARIABLE:
             member = create_class_variable_analysis(
                 indent=4,
-                location=create_location(),
+                location=create_source_location(),
                 name=name,
                 identity=create_declaration_identity(name),
             )
         case DeclarationKind.FUNCTION:
             member = create_method_analysis(
                 indent=4,
-                location=create_location(),
+                location=create_source_location(),
                 name=name,
                 identity=create_declaration_identity(name),
                 is_ellipsis_only=is_ellipsis_only,

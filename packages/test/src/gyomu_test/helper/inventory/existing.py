@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
-from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
@@ -18,10 +18,11 @@ from gyomu_schema.schemas.python.types import (
     SymbolId,
 )
 from gyomu_schema.schemas.testing.helper import (
+    ExistingHelperInventoryItem,
     HelperFileInventory,
-    HelperInventoryItem,
     ParameterInfo,
 )
+from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
 from gyomu_test.error.inventory import (
@@ -32,6 +33,7 @@ from gyomu_test.error.inventory import (
     MissingTypeAnnotation,
     ProjectInventoryError,
 )
+from gyomu_test.error.test import TestError
 from gyomu_test.helper.inventory.naming import (
     _build_class_name_from_helper_name,
 )
@@ -119,7 +121,7 @@ def _build_helper_inventory_item_from_function(
     helper_function_candidate: HelperFunctionCandidate,
     module: ModuleAnalysis,
 ) -> Result[
-    HelperInventoryItem,
+    ExistingHelperInventoryItem,
     tuple[MissingTypeAnnotation, ...],
 ]:
     parameters: list[ParameterInfo] = []
@@ -140,10 +142,11 @@ def _build_helper_inventory_item_from_function(
         return Failure(tuple(type_errors))
 
     return Success(
-        HelperInventoryItem(
+        ExistingHelperInventoryItem(
             function_name=helper_function_candidate.function.name,
             parameters=tuple(parameters),
             target_identity=helper_function_candidate.target_identity,
+            location=helper_function_candidate.function.location,
         )
     )
 
@@ -169,14 +172,17 @@ def collect_existing_helper_inventory(
     files: tuple[ProjectRelativePath, ...] = (
         ProjectRelativePath(Path("test_support/helpers.py")),
     ),
-) -> Result[tuple[HelperFileInventory, ...], AnalysisError | ProjectInventoryError]:
+) -> Result[
+    tuple[HelperFileInventory, ...],
+    TestError | ProjectInventoryError,
+]:
 
     error_files: list[FileInventoryError] = []
     file_inventories: list[HelperFileInventory] = []
     inventory_summaries: dict[DeclarationIdentity, list[FunctionInformation]] = {}
 
     for file in files:
-        inventories: list[HelperInventoryItem] = []
+        inventories: list[ExistingHelperInventoryItem] = []
         missing_annotations: list[MissingTypeAnnotation] = []
         reference_errors: list[InvalidReference] = []
         file_path = ProjectRelativePath(target_project.config.path / file)
@@ -184,7 +190,9 @@ def collect_existing_helper_inventory(
             root, file_path, option=AnalysisOption(no_check_cache=True)
         )
         if isinstance(file_result, Failure):
-            return file_result
+            return file_result.alt(
+                lambda error: TestError(message="fail to analyze file").chain(error)
+            )
         file_analysis = file_result.unwrap()
         for symbol in file_analysis.analysis.symbols:
             helper_candidate_result = _get_helper_function_candidate(
@@ -226,8 +234,18 @@ def collect_existing_helper_inventory(
             )
 
         else:
+            source_full_path = FullPath(target_project.project_root / file)
+            read_result = read_source_text(source_full_path)
+            if isinstance(read_result, Failure):
+                return read_result.alt(
+                    lambda error: TestError(message="fail to read source").chain(error)
+                )
+            source = read_result.unwrap()
+            source_lines = tuple(source.splitlines(keepends=True))
             file_inventories.append(
-                HelperFileInventory(file_path=file, items=tuple(inventories))
+                HelperFileInventory(
+                    file_path=file, items=tuple(inventories), source_lines=source_lines
+                )
             )
 
     duplicates = tuple(

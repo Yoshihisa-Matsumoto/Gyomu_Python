@@ -3,7 +3,7 @@ from gyomu_schema.utility.serialization import _assert_json_round_trip
 
 from packages.schema.test_support.helpers import (
     create_function_analysis,
-    create_location,
+    create_source_location,
 )
 
 
@@ -11,5 +11,5 @@ class TestFunctionAnalysis:
     def test(self) -> None:
         _assert_json_round_trip(
             FunctionAnalysis,
-            create_function_analysis(indent=0, location=create_location()),
+            create_function_analysis(indent=0, location=create_source_location()),
         )

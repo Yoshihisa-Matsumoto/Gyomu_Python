@@ -25,8 +25,8 @@ from packages.schema.test_support.helpers import (
     create_declaration_identity,
     create_file_analysis_context,
     create_function_analysis,
-    create_location,
     create_method_analysis,
+    create_source_location,
 )
 
 
@@ -212,7 +212,7 @@ class TestBuildAdditionEntry:
     def test_builds_entry_for_function(self) -> None:
         analysis = create_function_analysis(
             indent=0,
-            location=create_location(start_offset=0, end_offset=48),
+            location=create_source_location(start_offset=0, end_offset=48),
         )
         rendered = create_rendered_docstring(
             docstring='    """new"""',
@@ -235,7 +235,7 @@ class TestBuildAdditionEntry:
         source = "    class Foo:\n        pass\n"
         analysis = create_class_analysis(
             indent=4,
-            location=create_location(start_offset=4, end_offset=16),
+            location=create_source_location(start_offset=4, end_offset=16),
         )
         rendered = create_rendered_docstring(
             docstring='        """new"""',
@@ -260,7 +260,7 @@ class TestBuildAdditionEntry:
         start_offset = source.index("def bar")
         analysis = create_method_analysis(
             indent=8,
-            location=create_location(
+            location=create_source_location(
                 start_offset=start_offset,
                 end_offset=start_offset + len("def bar(self):"),
             ),
@@ -290,7 +290,7 @@ class TestBuildFileUpdatePlanEntry:
         source = "    def add(a1: int, a2: int) -> int:\n        return a1 + a2"
         analysis = create_function_analysis(
             indent=4,
-            location=create_location(
+            location=create_source_location(
                 start_offset=4,
                 end_offset=38,
             ),
@@ -320,7 +320,7 @@ class TestBuildFileUpdatePlanEntry:
     def test_builds_replacement_entry(self) -> None:
         analysis = create_function_analysis(
             indent=4,
-            location=create_location(start_offset=10, end_offset=20),
+            location=create_source_location(start_offset=10, end_offset=20),
         )
         context = create_file_analysis_context(analysis)
 
@@ -345,7 +345,7 @@ class TestBuildFileUpdatePlanEntry:
         source = '    """test"""    \n'
         analysis = create_function_analysis(
             indent=4,
-            location=create_location(start_offset=0, end_offset=20),
+            location=create_source_location(start_offset=0, end_offset=20),
         )
         context = create_file_analysis_context(analysis)
 
@@ -367,7 +367,7 @@ class TestBuildFileUpdatePlanEntry:
     def test_builds_deletion_entry_for_empty_docstring(self) -> None:
         analysis = create_function_analysis(
             indent=4,
-            location=create_location(start_offset=0, end_offset=20),
+            location=create_source_location(start_offset=0, end_offset=20),
         )
         context = create_file_analysis_context(analysis)
 
@@ -436,12 +436,12 @@ class TestBuildFileUpdatePlan:
         first_analysis = create_function_analysis(
             identity=create_declaration_identity("first"),
             indent=4,
-            location=create_location(start_offset=10, end_offset=20),
+            location=create_source_location(start_offset=10, end_offset=20),
         )
         second_analysis = create_function_analysis(
             identity=create_declaration_identity("second"),
             indent=4,
-            location=create_location(start_offset=30, end_offset=40),
+            location=create_source_location(start_offset=30, end_offset=40),
         )
 
         context = create_file_analysis_context(
@@ -453,7 +453,7 @@ class TestBuildFileUpdatePlan:
             RenderedSymbolDocstring(
                 identity=first_analysis.identity,
                 docstring='"""first"""',
-                location=create_location(
+                location=create_source_location(
                     start_offset=50,
                     end_offset=60,
                 ),
@@ -461,7 +461,7 @@ class TestBuildFileUpdatePlan:
             RenderedSymbolDocstring(
                 identity=second_analysis.identity,
                 docstring='"""second"""',
-                location=create_location(
+                location=create_source_location(
                     start_offset=70,
                     end_offset=80,
                 ),
@@ -490,12 +490,12 @@ class TestBuildFileUpdatePlan:
         first_analysis = create_function_analysis(
             identity=create_declaration_identity("first"),
             indent=4,
-            location=create_location(start_offset=10, end_offset=20),
+            location=create_source_location(start_offset=10, end_offset=20),
         )
         second_analysis = create_function_analysis(
             identity=create_declaration_identity("second"),
             indent=4,
-            location=create_location(start_offset=30, end_offset=40),
+            location=create_source_location(start_offset=30, end_offset=40),
         )
 
         context = create_file_analysis_context(
@@ -507,7 +507,7 @@ class TestBuildFileUpdatePlan:
             RenderedSymbolDocstring(
                 identity=first_analysis.identity,
                 docstring='"""first"""',
-                location=create_location(
+                location=create_source_location(
                     start_offset=10,
                     end_offset=25,
                 ),
@@ -515,7 +515,7 @@ class TestBuildFileUpdatePlan:
             RenderedSymbolDocstring(
                 identity=second_analysis.identity,
                 docstring='"""second"""',
-                location=create_location(
+                location=create_source_location(
                     start_offset=20,
                     end_offset=30,
                 ),
@@ -569,7 +569,7 @@ class TestBuildFileUpdatePlan:
         add_analysis = create_function_analysis(
             name="add",
             indent=4,
-            location=create_location(
+            location=create_source_location(
                 start_offset=add_start,
                 end_offset=add_end,
             ),
@@ -577,7 +577,7 @@ class TestBuildFileUpdatePlan:
         replace_analysis = create_function_analysis(
             name="replace",
             indent=4,
-            location=create_location(
+            location=create_source_location(
                 start_offset=25,
                 end_offset=50,
             ),
@@ -585,7 +585,7 @@ class TestBuildFileUpdatePlan:
         delete_analysis = create_function_analysis(
             name="delete",
             indent=4,
-            location=create_location(
+            location=create_source_location(
                 start_offset=78,
                 end_offset=90,
             ),
@@ -719,7 +719,7 @@ class TestGetDeclarationDefinitionEndOffset:
             source=source,
             analysis=create_method_analysis(
                 indent=4,
-                location=create_location(
+                location=create_source_location(
                     start_line=2,
                     start_column=4,
                     start_offset=15,

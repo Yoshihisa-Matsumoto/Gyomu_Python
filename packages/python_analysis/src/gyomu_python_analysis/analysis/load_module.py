@@ -105,6 +105,5 @@ def load_module_analysis(
             message="fail to analyze module",
             file_path=module_path,
             phase="symbol-extract",
-            context="gyomu_python_analysis.analysis.load_module_analysis",
         ).chain(e),
     )

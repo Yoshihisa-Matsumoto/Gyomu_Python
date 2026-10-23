@@ -147,7 +147,6 @@ def test_analyze_project_changes_workspace_failure(mocker):
         "workspace error",
         file_path=repository_root,
         phase="snapshot",
-        context="test",
     )
 
     mocker.patch(
@@ -193,7 +192,6 @@ def test_analyze_project_changes_read_snapshot_failure(mocker, tmp_path):
         "read error",
         file_path=snapshot_path,
         phase="snapshot",
-        context="test",
     )
 
     mocker.patch(
@@ -244,7 +242,6 @@ def test_analyze_project_changes_create_snapshot_failure(
         "create error",
         file_path=project_root,
         phase="snapshot",
-        context="test",
     )
 
     mocker.patch(

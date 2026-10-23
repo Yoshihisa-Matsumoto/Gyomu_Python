@@ -21,16 +21,13 @@ from gyomu_concept.document.path.knowledge import (
 from gyomu_concept.error.document import DocumentBuilderError
 
 
-def _wrap_error(
-    error: BaseError, caller: str, context: ProjectContext
-) -> DocumentBuilderError:
+def _wrap_error(error: BaseError, context: ProjectContext) -> DocumentBuilderError:
     """Wrap an error into a DocumentBuilderError with context information."""
 
     return DocumentBuilderError(
         message="fail to initialize llm context base context",
         phase="context-build",
         package_name=context.config.name,
-        context=caller,
     ).chain(error)
 
 
@@ -56,7 +53,7 @@ def initialize_llm_context_build_context(
     )
     if isinstance(root_coding_guideline_result, Failure):
         return root_coding_guideline_result.alt(
-            lambda error: _wrap_error(error, caller, context)
+            lambda error: _wrap_error(error, context)
         )
     root_coding_guideline = root_coding_guideline_result.unwrap()
     knowledge_path = get_knowledge_path(context, option)
@@ -70,7 +67,7 @@ def initialize_llm_context_build_context(
 
         if isinstance(coding_guideline_result, Failure):
             return coding_guideline_result.alt(
-                lambda error: _wrap_error(error, caller, context)
+                lambda error: _wrap_error(error, context)
             )
         coding_guideline = coding_guideline_result.unwrap()
 

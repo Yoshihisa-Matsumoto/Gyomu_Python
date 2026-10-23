@@ -20,14 +20,14 @@ from returns.result import Failure, Success
 from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_file_analysis_context,
-    create_location,
+    create_source_location,
 )
 
 
 @pytest.fixture
 def file_context():
     return create_file_analysis_context(
-        create_class_analysis(indent=0, location=create_location())
+        create_class_analysis(indent=0, location=create_source_location())
     )
 
 

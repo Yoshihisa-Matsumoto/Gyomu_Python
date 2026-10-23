@@ -41,7 +41,7 @@ from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure
 
-from packages.schema.test_support.helpers import create_location
+from packages.schema.test_support.helpers import create_source_location
 
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
 
@@ -113,7 +113,9 @@ def create_entry(
 
     return FileUpdatePlanEntry(
         identity=identity,
-        location=create_location(start_offset=start_offset, end_offset=end_offset),
+        location=create_source_location(
+            start_offset=start_offset, end_offset=end_offset
+        ),
         new_text=new_text,
     )
 
@@ -127,7 +129,9 @@ def create_rendered_docstring(
     return RenderedSymbolDocstring(
         identity=identity,
         docstring=docstring,
-        location=create_location(start_offset=start_offset, end_offset=end_offset),
+        location=create_source_location(
+            start_offset=start_offset, end_offset=end_offset
+        ),
     )
 
 

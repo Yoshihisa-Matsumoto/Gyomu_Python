@@ -79,7 +79,6 @@ def ensure_project_workspace(
                 message="fail to prepare project snapshot folder",
                 file_path=snapshot_path.parent,
                 phase="snapshot",
-                context="gyomu_python_analysis.snapshot.project.ensure_workspace",
             ).chain(result.failure())
         )
     return Success(

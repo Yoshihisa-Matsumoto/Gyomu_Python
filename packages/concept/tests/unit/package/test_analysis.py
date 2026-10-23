@@ -151,7 +151,6 @@ class TestBuildPackageAnalysis:
             package_name=project_a_context.config.name,
             phase="directory-summary",
             identity=None,
-            context=None,
         )
 
         with patch(

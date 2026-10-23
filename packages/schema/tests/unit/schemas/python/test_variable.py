@@ -4,8 +4,8 @@ from gyomu_schema.utility.serialization import _assert_json_round_trip
 from packages.schema.test_support.helpers import (
     create_declaration_identity,
     create_literal_value,
-    create_location,
     create_pydantic_field_analysis,
+    create_source_location,
     create_variable_analysis,
 )
 
@@ -16,7 +16,7 @@ class TestVariableAnalysis:
             VariableAnalysis,
             create_variable_analysis(
                 indent=0,
-                location=create_location(),
+                location=create_source_location(),
                 name="var1",
                 identity=create_declaration_identity("var1"),
                 value_source="int",

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.schemas.python.types import DeclarationIdentity, ProjectRelativePath
 
@@ -18,7 +19,13 @@ class HelperInventoryItem:
 
 
 @dataclass(frozen=True)
+class ExistingHelperInventoryItem(HelperInventoryItem):
+    location: SourceLocation
+
+
+@dataclass(frozen=True)
 class HelperUpdate:
+    file_path: ProjectRelativePath
     expected: HelperInventoryItem
     existing: HelperInventoryItem
 
@@ -26,7 +33,8 @@ class HelperUpdate:
 @dataclass(frozen=True)
 class HelperFileInventory:
     file_path: ProjectRelativePath
-    items: tuple[HelperInventoryItem, ...]
+    items: tuple[ExistingHelperInventoryItem, ...]
+    source_lines: tuple[str, ...]
 
 
 @dataclass(frozen=True)

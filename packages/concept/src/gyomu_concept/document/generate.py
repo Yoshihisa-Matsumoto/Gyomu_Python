@@ -87,7 +87,6 @@ async def generate_document[
                         phase="translate",
                         package_name=context.analysis.package.name,
                         section_id=section_id,
-                        context=caller,
                     ).chain(error)
                 )
             # print(f"Section: {section_id}")
@@ -119,7 +118,6 @@ async def generate_document[
                         phase="export",
                         package_name=context.analysis.package.name,
                         file_path=output_file_path,
-                        context=caller,
                     ).chain(error)
                 )
 

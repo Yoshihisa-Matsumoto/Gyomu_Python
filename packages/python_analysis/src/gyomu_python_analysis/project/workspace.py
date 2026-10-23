@@ -4,7 +4,6 @@ from enum import Enum
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.types import FullPath
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
@@ -69,7 +68,6 @@ class WorkspaceContext:
                         message="target module not found",
                         file_path=module_path,
                         phase="workspace-discovery",
-                        context=caller_context(),
                         details={"project_name": target_package.config.name},
                     )
                 )

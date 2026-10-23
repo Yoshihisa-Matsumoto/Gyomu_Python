@@ -3,7 +3,7 @@ from gyomu_schema.utility.serialization import _assert_json_round_trip
 
 from packages.schema.test_support.helpers import (
     create_literal_value,
-    create_location,
+    create_source_location,
 )
 
 
@@ -18,6 +18,6 @@ class TestDecoratorAnalysis:
                         name="arg1", expression=create_literal_value("val1")
                     ),
                 ),
-                location=create_location(),
+                location=create_source_location(),
             ),
         )

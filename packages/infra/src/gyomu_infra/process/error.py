@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 
-from gyomu_schema.error.base import BaseError
+from gyomu_schema.error.base import BaseError, caller_context
 
 
 class ProcessError(BaseError):
@@ -12,9 +12,9 @@ class ProcessError(BaseError):
         *,
         command: tuple[str, ...],
         exit_code: int | None,
-        context: str | None = None,
         details: Mapping[str, object] | None = None,
     ) -> None:
+        context = caller_context()
         super().__init__(
             message,
             context=context,

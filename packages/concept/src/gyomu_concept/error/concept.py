@@ -2,7 +2,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Literal
 
-from gyomu_schema.error.base import BaseError
+from gyomu_schema.error.base import BaseError, caller_context
 from gyomu_schema.schemas.python.types import DeclarationIdentity
 
 type ConceptPhase = Literal[
@@ -29,12 +29,11 @@ class ConceptError(BaseError):
         file_path: Path,
         phase: ConceptPhase,
         identity: DeclarationIdentity | None,
-        context: str | None = None,
         details: Mapping[str, object] | None = None,
     ) -> None:
         super().__init__(
             message,
-            context=context,
+            context=caller_context(),
             details=details,
         )
         self.package_name = package_name

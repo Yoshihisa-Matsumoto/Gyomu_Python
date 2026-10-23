@@ -1,5 +1,16 @@
-from project_b.models import  ProductModel
+from project_b.non_models import NonHelper
+from project_b.models import ProductModel
 
-def create_product_model(  product_id: int,
-    name: str,price: float) -> ProductModel:
-    return ProductModel(product_id=product_id,name=name,price=price)
+def create_non_helper(    
+    id: str,
+    name: str
+)->NonHelper:
+    return NonHelper(id=id,name=name)
+
+
+def create_product_model(
+    price: float,
+    product_id: int,
+    name:str
+) -> ProductModel:
+    return ProductModel(price=price,product_id=product_id,name=name)

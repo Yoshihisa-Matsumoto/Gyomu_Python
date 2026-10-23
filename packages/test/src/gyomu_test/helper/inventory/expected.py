@@ -23,6 +23,7 @@ from gyomu_test.error.inventory import (
     MissingTypeAnnotation,
     ProjectInventoryError,
 )
+from gyomu_test.error.test import TestError
 from gyomu_test.helper.inventory.naming import (
     _build_helper_name_from_class_name,
 )
@@ -82,7 +83,7 @@ def _build_model_helper_inventory_item(
 def collect_model_helper_inventory(
     project: ProjectContext,
     workspace: WorkspaceContext,
-) -> Result[tuple[HelperInventoryItem, ...], AnalysisError | ProjectInventoryError]:
+) -> Result[tuple[HelperInventoryItem, ...], TestError | ProjectInventoryError]:
     inventories: list[HelperInventoryItem] = []
     error_files: list[FileInventoryError] = []
     for file in project.included_files:
@@ -94,14 +95,20 @@ def collect_model_helper_inventory(
             option=AnalysisOption(no_check_cache=True),
         )
         if isinstance(file_result, Failure):
-            return file_result
+            return file_result.alt(
+                lambda error: TestError(message="fail to load source").chain(error)
+            )
         file_analysis = file_result.unwrap()
         for symbol in file_analysis.analysis.symbols:
             in_scope_result = _is_model_candidate(
                 symbol, file_analysis.analysis, workspace
             )
             if isinstance(in_scope_result, Failure):
-                return in_scope_result
+                return in_scope_result.alt(
+                    lambda error: TestError(
+                        message="fail to check if symbol is target helper fucntion",
+                    ).chain(error)
+                )
             if in_scope_result.unwrap():
                 assert isinstance(symbol, ClassAnalysis)
                 class_hierarchy_result = collect_class_hierarchy(
@@ -111,7 +118,11 @@ def collect_model_helper_inventory(
                     is_base_first=True,
                 )
                 if isinstance(class_hierarchy_result, Failure):
-                    return class_hierarchy_result
+                    return class_hierarchy_result.alt(
+                        lambda error: TestError(
+                            message="fail to analyze class hierarchy"
+                        ).chain(error)
+                    )
 
                 inventory_result = _build_model_helper_inventory_item(
                     symbol=symbol,

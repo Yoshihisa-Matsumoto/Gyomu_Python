@@ -31,7 +31,7 @@ from gyomu_schema.schemas.python.docstring import (
 
 from packages.schema.test_support.helpers import (
     _default_identity,
-    create_location,
+    create_source_location,
 )
 
 
@@ -47,7 +47,7 @@ def create_updated_docstring(
             summary=summary,
             description=description,
             style=DocstringStyle.GOOGLE,
-            location=create_location(0, 0),
+            location=create_source_location(0, 0),
             sections=sections if sections is not None else tuple(),
             raw="",
             indent=indent,

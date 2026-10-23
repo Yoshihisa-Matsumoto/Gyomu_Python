@@ -16,8 +16,8 @@ from packages.schema.test_support.helpers import (
     create_docstring,
     create_file_analysis_context,
     create_import_dependency_analysis,
-    create_location,
     create_pydantic_field_analysis,
+    create_source_location,
     create_variable_analysis,
 )
 
@@ -27,12 +27,12 @@ class TestBuildFileSummary:
         project_context = _create_directory_project_context()
         public_symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="public_value",
         )
         private_symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="_private_value",
         )
         private_symbol = private_symbol.model_copy(
@@ -64,7 +64,7 @@ class TestBuildFileSummary:
         project_context = _create_directory_project_context()
         symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="public_value",
             docstring=create_docstring(summary="Public value."),
         )
@@ -81,7 +81,7 @@ class TestBuildFileSummary:
         project_context = _create_directory_project_context()
         symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="public_value",
             pydantic=create_pydantic_field_analysis(
                 description="Description from Pydantic.",
@@ -101,7 +101,7 @@ class TestBuildFileSummary:
         project_context = _create_directory_project_context()
         symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="public_value",
             pydantic=create_pydantic_field_analysis(
                 description="Description from Pydantic.",
@@ -124,7 +124,7 @@ class TestBuildFileSummary:
         project_context = _create_directory_project_context()
         symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="public_value",
         )
 
@@ -141,7 +141,7 @@ class TestBuildFileSummary:
         project_context = _create_directory_project_context()
         symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="public_value",
         )
         symbol = symbol.model_copy(
@@ -169,12 +169,12 @@ class TestBuildFileSummary:
         project_context = _create_directory_project_context()
         symbol = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="public_value",
         )
         symbol2 = create_variable_analysis(
             indent=0,
-            location=create_location(),
+            location=create_source_location(),
             name="another_value",
         )
 

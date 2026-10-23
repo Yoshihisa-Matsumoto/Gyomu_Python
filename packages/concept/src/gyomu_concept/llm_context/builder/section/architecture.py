@@ -9,7 +9,6 @@ from gyomu_schema.schemas.document.section import (
     SectionNoTranslation,
     SectionWithInstruction,
 )
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_concept.document.builder.section import SectionBuilder
@@ -44,7 +43,6 @@ async def _build(
                 package_name=context.analysis.package.name,
                 phase="section-build",
                 section_id=_section_id,
-                context=caller_context(),
             ).chain(error)
         )
     return Success(

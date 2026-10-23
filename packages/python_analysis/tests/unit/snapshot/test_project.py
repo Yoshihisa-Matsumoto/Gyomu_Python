@@ -93,4 +93,7 @@ def test_ensure_project_workspace_returns_failure_when_directory_creation_fails(
     assert isinstance(error, AnalysisError)
     assert error.message == "fail to prepare project snapshot folder"
     assert error.phase == "snapshot"
-    assert error.context == "gyomu_python_analysis.snapshot.project.ensure_workspace"
+    assert (
+        error.context
+        == "gyomu_python_analysis.snapshot.project.ensure_project_workspace"
+    )

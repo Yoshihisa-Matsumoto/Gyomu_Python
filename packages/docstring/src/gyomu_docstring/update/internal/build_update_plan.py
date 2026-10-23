@@ -59,7 +59,6 @@ async def build_docstring_update_plan_with_retry(
                     file_path=file_context.analysis.module_name,
                     phase="merge-plan",
                     identity=None,
-                    context="gyomu_docstring.update.internal.build_docstring_update_plan.build_docstring_update_plan_with_retry",
                 ).chain(plan_result.failure())
             )
         plan = plan_result.unwrap()
@@ -105,7 +104,6 @@ async def build_docstring_update_plan_with_retry(
             file_path=file_context.analysis.module_name,
             phase="merge-plan",
             identity=None,
-            context="gyomu_docstring.update.internal.build_docstring_update_plan.build_docstring_update_plan_with_retry",
         )
     )
 

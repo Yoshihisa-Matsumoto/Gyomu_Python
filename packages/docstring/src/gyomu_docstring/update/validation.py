@@ -77,7 +77,6 @@ def _run_ruff(
             file_path=file_context.analysis.module_name,
             phase="post-update",
             identity=None,
-            context="gyomu_docstring.update._run_ruff",
         ).chain(error)
     ).bind(
         lambda process_result: (
@@ -89,7 +88,6 @@ def _run_ruff(
                     file_path=file_context.analysis.module_name,
                     phase="post-update",
                     identity=None,
-                    context="gyomu_docstring.update._run_ruff",
                     details={
                         "exit_code": process_result.exit_code,
                         "stdout": process_result.stdout,

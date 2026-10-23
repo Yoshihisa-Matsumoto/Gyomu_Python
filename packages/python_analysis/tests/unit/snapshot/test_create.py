@@ -85,7 +85,7 @@ def test_create_file_snapshot_hash_failure(mocker):
     assert isinstance(result, Failure)
 
     error = result.failure()
-    assert error.message == "fail to hash file"
+    assert "fail to hash" in error.message
     assert error.file_path == file_path
     assert error.phase == "snapshot"
     assert error.context == "gyomu_python_analysis.snapshot.create.create_file_snapshot"

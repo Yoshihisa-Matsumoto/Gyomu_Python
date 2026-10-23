@@ -98,7 +98,6 @@ def create_file_snapshot(
             "fail to hash file",
             file_path=file_full_path,
             phase="snapshot",
-            context="gyomu_python_analysis.snapshot.create.create_file_snapshot",
         ).chain(err)
     )
     if isinstance(result, Failure):

@@ -48,8 +48,8 @@ from returns.result import Success
 from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_function_analysis,
-    create_location,
     create_method_analysis,
+    create_source_location,
     create_type_alias_analysis,
     create_variable_analysis,
 )
@@ -85,7 +85,7 @@ class TestApplyMerge:
             summary=summary,
             description=description,
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             sections=sections,
             indent=4,
         )
@@ -102,7 +102,7 @@ class TestApplyMerge:
         new_symbol = symbol
         if new_symbol is None:
             new_symbol = create_function_analysis(
-                indent=0, location=create_location(), identity=identity
+                indent=0, location=create_source_location(), identity=identity
             )
 
         parsed_docstring: dict[DeclarationIdentity, DocstringAnalysis] = {}
@@ -806,10 +806,14 @@ class TestApplyMerge:
                 },
                 symbols={
                     first_identity: create_function_analysis(
-                        indent=0, location=create_location(), identity=first_identity
+                        indent=0,
+                        location=create_source_location(),
+                        identity=first_identity,
                     ),
                     second_identity: create_function_analysis(
-                        indent=0, location=create_location(), identity=second_identity
+                        indent=0,
+                        location=create_source_location(),
+                        identity=second_identity,
                     ),
                 },
             ),
@@ -872,7 +876,7 @@ class TestApplyMerge:
             docstring=None,
             symbol=create_function_analysis(
                 indent=4,
-                location=create_location(),
+                location=create_source_location(),
                 identity=identity,
             ),
             doc_is_added=True,
@@ -895,7 +899,7 @@ class TestApplyMerge:
             docstring=None,
             symbol=create_class_analysis(
                 indent=4,
-                location=create_location(),
+                location=create_source_location(),
                 identity=identity,
             ),
             doc_is_added=True,
@@ -918,7 +922,7 @@ class TestApplyMerge:
             docstring=None,
             symbol=create_method_analysis(
                 indent=8,
-                location=create_location(),
+                location=create_source_location(),
                 identity=identity,
             ),
             doc_is_added=True,
@@ -941,7 +945,7 @@ class TestApplyMerge:
             docstring=None,
             symbol=create_variable_analysis(
                 indent=8,
-                location=create_location(),
+                location=create_source_location(),
                 identity=identity,
             ),
             doc_is_added=True,
@@ -964,7 +968,7 @@ class TestApplyMerge:
             docstring=None,
             symbol=create_type_alias_analysis(
                 indent=8,
-                location=create_location(),
+                location=create_source_location(),
                 identity=identity,
             ),
             doc_is_added=True,

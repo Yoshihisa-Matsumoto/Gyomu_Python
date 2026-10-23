@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from typing import Literal
 
-from gyomu_schema.error.base import BaseError
+from gyomu_schema.error.base import BaseError, caller_context
 
 TranslationPhase = Literal[
     "translate",
@@ -29,6 +29,8 @@ class TranslationError(BaseError):
         context: str | None = None,
         details: Mapping[str, object] | None = None,
     ) -> None:
+        if context is None:
+            context = caller_context()
         super().__init__(
             message,
             context=context,

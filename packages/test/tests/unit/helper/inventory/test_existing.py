@@ -3,6 +3,7 @@ from pathlib import Path
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
@@ -12,6 +13,7 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.error.inventory import ProjectInventoryError
+from gyomu_test.error.test import TestError
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
@@ -81,7 +83,7 @@ class TestCollectExistingHelperInventory:
         )
         assert isinstance(root_context_result, Success)
         file = ProjectRelativePath(Path("test_support/invalid_helpers.py"))
-        file2 = ProjectRelativePath(Path("test_support/another_helpers.py"))
+        file2 = ProjectRelativePath(Path("test_support/another_invalid_helpers.py"))
 
         result = collect_existing_helper_inventory(
             root=root_context_result.unwrap(),
@@ -148,7 +150,7 @@ class TestCollectExistingHelperInventory:
             ),
         )
 
-    def test_returns_analysis_error(
+    def test_returns_test_error_from_analysis_error(
         self,
         workspace_context: WorkspaceContext,
         mocker: MockerFixture,
@@ -177,5 +179,39 @@ class TestCollectExistingHelperInventory:
         )
 
         assert isinstance(result, Failure)
-        assert result.failure() is analysis_error
+        fail = result.failure()
+        assert isinstance(fail, TestError)
+        assert fail.__cause__ == analysis_error
+        load_mock.assert_called_once()
+
+    def test_returns_test_error_from_gyomu_io_error(
+        self,
+        workspace_context: WorkspaceContext,
+        mocker: MockerFixture,
+    ) -> None:
+        project_context = get_project_context(workspace_context, "project-b")
+        root_context_result = initialize_project_context(
+            project_root=workspace_context.path,
+            source_root=ProjectRelativePath(Path(".")),
+        )
+        assert isinstance(root_context_result, Success)
+
+        io_error = GyomuIOError(
+            message="test", layer=IOLayer.FILESYSTEM, operation=IOOperation.READ
+        )
+
+        load_mock = mocker.patch(
+            "gyomu_test.helper.inventory.existing.read_source_text",
+            return_value=Failure(io_error),
+        )
+
+        result = collect_existing_helper_inventory(
+            root=root_context_result.unwrap(),
+            target_project=project_context,
+        )
+
+        assert isinstance(result, Failure)
+        fail = result.failure()
+        assert isinstance(fail, TestError)
+        assert fail.__cause__ == io_error
         load_mock.assert_called_once()

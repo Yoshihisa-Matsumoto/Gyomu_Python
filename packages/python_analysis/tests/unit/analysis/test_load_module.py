@@ -17,7 +17,7 @@ from gyomu_schema.utility.fromatting import format_object
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.test_support.helpers import create_location
+from packages.schema.test_support.helpers import create_source_location
 
 config = PyProjectConfig(
     path=WorkspaceRelativePath(Path(".")),
@@ -223,7 +223,7 @@ class TestLoadModuleAnalysis:
             summary="",
             description=None,
             style=DocstringStyle.GOOGLE,
-            location=create_location(),
+            location=create_source_location(),
             sections=tuple(),
             indent=0,
         )
