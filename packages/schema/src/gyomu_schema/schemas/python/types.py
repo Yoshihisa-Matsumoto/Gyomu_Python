@@ -77,6 +77,9 @@ class DeclarationIdentity(BaseModel, Hashable):
         """
         return hash((self.symbol_id, self.declaration_id))
 
+    def get_symbol_name(self) -> str:
+        return str(self.symbol_id).rsplit("::", maxsplit=1)[-1]
+
 
 def is_declaration_identity_equal(
     a: DeclarationIdentity, b: DeclarationIdentity

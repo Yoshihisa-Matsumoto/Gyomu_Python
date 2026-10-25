@@ -3,7 +3,9 @@ from pathlib import Path
 
 from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
-from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
+from gyomu_python_analysis.analysis.resolve.reference import (
+    resolve_declaration_identity,
+)
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
@@ -34,6 +36,7 @@ from gyomu_test.error.inventory import (
     ProjectInventoryError,
 )
 from gyomu_test.error.test import TestError
+from gyomu_test.helper.inventory.function import build_parameter_from_expression
 from gyomu_test.helper.inventory.naming import (
     _build_class_name_from_helper_name,
 )
@@ -76,8 +79,7 @@ def _get_helper_function_candidate(
 
 
 def _build_helper_function_parameter_from_function(
-    function_symbol_id: SymbolId,
-    param: ParameterAnalysis,
+    function_symbol_id: SymbolId, param: ParameterAnalysis, module: ModuleAnalysis
 ) -> Result[ParameterInfo, MissingTypeAnnotation]:
     if param.type is None:
         return Failure(
@@ -88,7 +90,12 @@ def _build_helper_function_parameter_from_function(
                 )
             )
         )
-    return Success(ParameterInfo(name=param.name, parameter_type=param.type))
+    default = None
+    if param.default is not None:
+        default = build_parameter_from_expression(param.default, module=module)
+    return Success(
+        ParameterInfo(name=param.name, parameter_type=param.type, default=default)
+    )
 
 
 def _get_function_declaration_identity(
@@ -98,23 +105,15 @@ def _get_function_declaration_identity(
     #     module.imports,
     #     return_type.text,
     # )
-    target_reference = resolve_reference(return_type.text, module)
-    if target_reference is None or target_reference.import_analysis is None:
-        return Failure(
-            InvalidReference(identity=func.identity, reference=return_type.text)
-        )
-    symbol_id = target_reference.import_analysis.get_symbol_id()
-    if symbol_id is None:
+    declaration_identity = resolve_declaration_identity(
+        reference_name=return_type.text, module=module
+    )
+    if declaration_identity is None:
         return Failure(
             InvalidReference(identity=func.identity, reference=return_type.text)
         )
 
-    return Success(
-        DeclarationIdentity(
-            symbol_id=symbol_id,
-            declaration_id=DeclarationId("."),
-        )
-    )
+    return Success(declaration_identity)
 
 
 def _build_helper_inventory_item_from_function(
@@ -132,6 +131,7 @@ def _build_helper_inventory_item_from_function(
         parameter_result = _build_helper_function_parameter_from_function(
             function_symbol_id=helper_function_candidate.function.identity.symbol_id,
             param=param,
+            module=module,
         )
         if isinstance(parameter_result, Failure):
             type_errors.append(parameter_result.failure())

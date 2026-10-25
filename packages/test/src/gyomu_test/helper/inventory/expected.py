@@ -47,7 +47,9 @@ def _build_helper_function_parameter(
 ) -> Result[ParameterInfo, MissingTypeAnnotation]:
     if variable.type is None:
         return Failure(MissingTypeAnnotation(identity=variable.identity))
-    return Success(ParameterInfo(name=variable.name, parameter_type=variable.type))
+    return Success(
+        ParameterInfo(name=variable.name, parameter_type=variable.type, default=None)
+    )
 
 
 def _build_model_helper_inventory_item(

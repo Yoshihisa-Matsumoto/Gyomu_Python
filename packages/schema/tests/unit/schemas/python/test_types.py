@@ -12,3 +12,11 @@ def test_declaration_identity_is_hashable() -> None:
     )
 
     assert hash(identity) == hash(identity)
+
+
+def test_declaration_identity_get_symbol_name() -> None:
+    identity = DeclarationIdentity(
+        symbol_id=SymbolId("test.user::User"),
+        declaration_id=DeclarationId(".::User"),
+    )
+    assert identity.get_symbol_name() == "User"

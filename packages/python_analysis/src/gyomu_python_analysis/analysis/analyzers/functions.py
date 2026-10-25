@@ -12,7 +12,10 @@ from gyomu_schema.schemas.python.type.expression import (
     StatementAnalysis,
 )
 
-from gyomu_python_analysis.analysis.analyzers.ast.statement import analyze_statement
+from gyomu_python_analysis.analysis.analyzers.ast.statement import (
+    analyze_expression,
+    analyze_statement,
+)
 from gyomu_python_analysis.analysis.analyzers.context import (
     SymbolContext,
 )
@@ -68,13 +71,31 @@ def analyze_function(
     # for dec in func.decorators:
     #     print(dec.as_dict())
     parameters: list[ParameterAnalysis] = []
-    for param in func.parameters:
+    defaults = ast.args.defaults
+    default_start_index = len(func.parameters) - len(defaults)
+
+    for index, param in enumerate(func.parameters):
+        default_index = index - default_start_index
+        if (
+            param.kind
+            in (
+                GriffeParameterKind.var_positional,
+                GriffeParameterKind.var_keyword,
+            )
+            or default_index < 0
+        ):
+            default = None
+        else:
+            default = analyze_expression(
+                defaults[default_index], context, option, False
+            )
+
         parameters.append(
             ParameterAnalysis(
                 name=param.name,
                 kind=_get_function_parameter_kind(param.kind),
                 type=analyze_type(param.annotation, context, option),
-                default=None,
+                default=default,
             )
         )
 

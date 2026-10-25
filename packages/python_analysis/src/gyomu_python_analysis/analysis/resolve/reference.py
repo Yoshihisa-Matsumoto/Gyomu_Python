@@ -1,6 +1,11 @@
 from gyomu_schema.schemas.python.import_analysis import ImportKind
 from gyomu_schema.schemas.python.module import ModuleAnalysis
-from gyomu_schema.schemas.python.types import PythonPath, SymbolId
+from gyomu_schema.schemas.python.types import (
+    DeclarationId,
+    DeclarationIdentity,
+    PythonPath,
+    SymbolId,
+)
 
 from gyomu_python_analysis.analysis.query import find_symbol_by_name
 from gyomu_python_analysis.analysis.resolve.models import ResolvedReference
@@ -9,6 +14,45 @@ from gyomu_python_analysis.analysis.resolve.models import ResolvedReference
 def _is_dotted_name(value: str) -> bool:
     """Return whether the value is a dot-separated sequence of identifiers."""
     return bool(value) and all(part.isidentifier() for part in value.split("."))
+
+
+BUILTIN_DECLARATION_IDENTITIES: dict[str, DeclarationIdentity] = {
+    "tuple": DeclarationIdentity(
+        symbol_id=SymbolId("tuple"), declaration_id=DeclarationId(".")
+    ),
+    "dict": DeclarationIdentity(
+        symbol_id=SymbolId("dict"), declaration_id=DeclarationId(".")
+    ),
+    "list": DeclarationIdentity(
+        symbol_id=SymbolId("list"), declaration_id=DeclarationId(".")
+    ),
+    "set": DeclarationIdentity(
+        symbol_id=SymbolId("set"), declaration_id=DeclarationId(".")
+    ),
+    "frozenset": DeclarationIdentity(
+        symbol_id=SymbolId("frozenset"), declaration_id=DeclarationId(".")
+    ),
+    "str": DeclarationIdentity(
+        symbol_id=SymbolId("str"), declaration_id=DeclarationId(".")
+    ),
+}
+
+
+def resolve_declaration_identity(
+    reference_name: str, module: ModuleAnalysis
+) -> DeclarationIdentity | None:
+    target_reference = resolve_reference(reference_name, module)
+    if target_reference is None:
+        return BUILTIN_DECLARATION_IDENTITIES.get(reference_name)
+    symbol_id = target_reference.symbol_id
+
+    if symbol_id is None:
+        return None
+
+    return DeclarationIdentity(
+        symbol_id=symbol_id,
+        declaration_id=DeclarationId("."),
+    )
 
 
 def resolve_reference(

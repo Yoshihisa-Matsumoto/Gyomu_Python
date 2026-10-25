@@ -1,3 +1,6 @@
+import io
+import tokenize
+
 from gyomu_schema.schemas.testing.helper import (
     ExistingHelperInventoryItem,
     HelperFileInventory,
@@ -29,6 +32,35 @@ def _find_exising_inventory(
     return None
 
 
+def _normalize_python_tokens(source: str) -> tuple[tuple[int, str], ...]:
+    tokens = tuple(
+        token
+        for token in tokenize.generate_tokens(io.StringIO(source).readline)
+        if token.type
+        not in (
+            tokenize.NL,
+            tokenize.COMMENT,
+            tokenize.ENDMARKER,
+        )
+    )
+
+    normalized: list[tuple[int, str]] = []
+
+    for index, token in enumerate(tokens):
+        if token.type == tokenize.OP and token.string == ",":
+            next_token = tokens[index + 1] if index + 1 < len(tokens) else None
+            if (
+                next_token is not None
+                and next_token.type == tokenize.OP
+                and next_token.string in (")", "]", "}")
+            ):
+                continue
+
+        normalized.append((token.type, token.string))
+
+    return tuple(normalized)
+
+
 def _is_equal(
     file_inventory: HelperFileInventory,
     existing: ExistingHelperInventoryItem,
@@ -37,11 +69,27 @@ def _is_equal(
     if existing.function_name != expected.function_name:
         return False
 
+    if len(existing.parameters) != len(expected.parameters):
+        return False
+
+    if not all(
+        existing_param.name == expected_param.name
+        and existing_param.parameter_type.text == expected_param.parameter_type.text
+        for existing_param, expected_param in zip(
+            existing.parameters,
+            expected.parameters,
+            strict=True,
+        )
+    ):
+        return False
+
     expected_function = generate_function_code(expected)
     existing_function = read_function_code(
         file_inventory=file_inventory, location=existing.location
     )
-    return expected_function == existing_function
+    return _normalize_python_tokens(expected_function) == _normalize_python_tokens(
+        existing_function
+    )
 
 
 def reconcile(

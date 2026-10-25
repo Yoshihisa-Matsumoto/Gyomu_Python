@@ -2,6 +2,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
+from gyomu_schema.schemas.python.type.expression import ExpressionAnalysis
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 
 
@@ -38,5 +39,5 @@ class ParameterAnalysis(BaseModel):
     type: TypeAnalysis | None
     """The type analysis of the parameter, if available."""
 
-    default: None
+    default: ExpressionAnalysis | None
     """The default value of the parameter."""

@@ -3,7 +3,9 @@ from typing import Literal
 
 from gyomu_schema.error.base import BaseError, caller_context
 
-type ConfigPhase = Literal["load", "parse", "decode", "validate"]
+type ConfigPhase = Literal[
+    "load", "parse", "decode", "validate", "path-resolve", "save"
+]
 """Represents the configuration lifecycle phase in which an error occurred."""
 
 type ConfigSource = Literal["env", "yaml", "json", "toml"]
@@ -17,9 +19,9 @@ class ConfigError(BaseError):
         self,
         message: str,
         *,
-        source: ConfigSource,
-        schema: object,
         phase: ConfigPhase,
+        source: ConfigSource,
+        schema: object | None = None,
         context: str | None = None,
         details: Mapping[str, object] | None = None,
     ) -> None:

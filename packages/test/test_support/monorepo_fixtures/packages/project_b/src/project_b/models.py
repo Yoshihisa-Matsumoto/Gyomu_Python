@@ -15,6 +15,8 @@ class ProductModel(ProductBaseModel):
 
     price: float
 
+class CompositeProduct(BaseModel):
+    products: tuple[ProductBaseModel,...]
 
 @dataclass(frozen=True)
 class ProductSummary:

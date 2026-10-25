@@ -15,22 +15,28 @@ class ParameterExpressionType(StrEnum):
     TUPLE = "tuple"
     LIST = "list"
     DICT = "dict"
-    ENUM = "enum"
+    ATTR = "attr"
+    NAME = "name"
 
 
 class LiteralParameter(BaseModel):
     kind: Literal[ParameterExpressionType.LITERAL] = ParameterExpressionType.LITERAL
-    value: int | bool | str | float
+    value: str | bytes | bool | int | float | complex | None
 
 
 class NoneParameter(BaseModel):
     kind: Literal[ParameterExpressionType.NONE] = ParameterExpressionType.NONE
 
 
-class EnumParameter(BaseModel):
-    kind: Literal[ParameterExpressionType.ENUM] = ParameterExpressionType.ENUM
-    enum_identity: DeclarationIdentity
-    member_name: str
+class NameParameter(BaseModel):
+    kind: Literal[ParameterExpressionType.NAME] = ParameterExpressionType.NAME
+    name: str
+
+
+class AttributeParameter(BaseModel):
+    kind: Literal[ParameterExpressionType.ATTR] = ParameterExpressionType.ATTR
+    value: Parameter
+    attribute: str
 
 
 class TupleParameter(BaseModel):
@@ -68,11 +74,12 @@ class CallParameter(BaseModel):
 type Parameter = Annotated[
     LiteralParameter
     | NoneParameter
+    | NameParameter
     | CallParameter
     | TupleParameter
     | ListParameter
     | DictParameter
-    | EnumParameter,
+    | AttributeParameter,
     Field(discriminator="kind"),
 ]
 

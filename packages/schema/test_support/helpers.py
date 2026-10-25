@@ -4,13 +4,15 @@ from typing import Literal
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.config.test.model_defaults import (
+    AttributeParameter,
     CallParameter,
     DictEntry,
     DictParameter,
-    EnumParameter,
     KeywordArgument,
     ListParameter,
     LiteralParameter,
+    ModelDefault,
+    ModelDefaults,
     NoneParameter,
     Parameter,
     ParameterDefault,
@@ -656,11 +658,11 @@ def create_none_parameter(
 
 
 def create_enum_parameter(
-    kind: Literal[ParameterExpressionType.ENUM] = ParameterExpressionType.ENUM,
+    kind: Literal[ParameterExpressionType.ATTR] = ParameterExpressionType.ATTR,
     enum_identity: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
     member_name: str = "member",
-) -> EnumParameter:
-    return EnumParameter(
+) -> AttributeParameter:
+    return AttributeParameter(
         kind=kind, enum_identity=enum_identity, member_name=member_name
     )
 
@@ -716,3 +718,16 @@ def create_parameter_default(
     value: Parameter = create_literal_parameter(),  # noqa: B008
 ) -> ParameterDefault:
     return ParameterDefault(name=name, value=value)
+
+
+def create_model_default(
+    class_name: str = "Test",
+    parameters: tuple[ParameterDefault, ...] = (create_parameter_default(),),
+) -> ModelDefault:
+    return ModelDefault(class_name=class_name, parameters=parameters)
+
+
+def create_model_defaults(
+    models: tuple[ModelDefault, ...] = (create_model_default(),),
+) -> ModelDefaults:
+    return ModelDefaults(models=models)

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from gyomu_schema.schemas.config.test.model_defaults import Parameter
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.schemas.python.types import DeclarationIdentity, ProjectRelativePath
@@ -9,6 +10,7 @@ from gyomu_schema.schemas.python.types import DeclarationIdentity, ProjectRelati
 class ParameterInfo:
     name: str
     parameter_type: TypeAnalysis
+    default: Parameter | None
 
 
 @dataclass(frozen=True)

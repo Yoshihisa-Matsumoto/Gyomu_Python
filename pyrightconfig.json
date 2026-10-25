@@ -11,6 +11,7 @@
     "packages/concept/src",
     "packages/facts/src",
     "packages/test/src",
+    "packages/config/src",
     "apps/cli/src"
   ]
 }

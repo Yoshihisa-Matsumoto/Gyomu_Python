@@ -4,6 +4,11 @@ from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
+from gyomu_schema.schemas.config.test.model_defaults import (
+    CallParameter,
+    ListParameter,
+    LiteralParameter,
+)
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
@@ -55,8 +60,16 @@ class TestCollectExistingHelperInventory:
             symbol_id="project_b.models::ProductBaseModel",
             function_name="create_product_base_model",
             parameters=(
-                ParameterSummary(name="product_id", parameter_type="int"),
-                ParameterSummary(name="name", parameter_type="str"),
+                ParameterSummary(
+                    name="product_id",
+                    parameter_type="int",
+                    default=LiteralParameter(value=1),
+                ),
+                ParameterSummary(
+                    name="name",
+                    parameter_type="str",
+                    default=LiteralParameter(value="Example Product"),
+                ),
             ),
         )
 
@@ -65,12 +78,54 @@ class TestCollectExistingHelperInventory:
             symbol_id="project_b.models::ProductSummary",
             function_name="create_product_summary",
             parameters=(
-                ParameterSummary(name="product_id", parameter_type="int"),
-                ParameterSummary(name="display_name", parameter_type="str"),
+                ParameterSummary(
+                    name="product_id",
+                    parameter_type="int",
+                    default=LiteralParameter(value=1),
+                ),
+                ParameterSummary(
+                    name="display_name",
+                    parameter_type="str",
+                    default=LiteralParameter(value="Example Product"),
+                ),
             ),
         )
         function_not_exist_in_inventory(
             inventories=inventories, function_name="build_product_base_model"
+        )
+
+        equal_helper_inventory(
+            inventories,
+            symbol_id="project_b.models::CompositeProduct",
+            function_name="create_composite_product",
+            parameters=(
+                ParameterSummary(
+                    name="products",
+                    parameter_type="tuple[ProductBaseModel, ...]",
+                    default=CallParameter(
+                        callable_identity=DeclarationIdentity(
+                            symbol_id=SymbolId("tuple"),
+                            declaration_id=DeclarationId("."),
+                        ),
+                        args=(
+                            ListParameter(
+                                elements=tuple(
+                                    [
+                                        CallParameter(
+                                            callable_identity=DeclarationIdentity(
+                                                symbol_id=SymbolId(
+                                                    "packages.project_b.test_support.helpers::build_product_base_model",
+                                                ),
+                                                declaration_id=DeclarationId("."),
+                                            )
+                                        )
+                                    ]
+                                )
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
 
     def test_returns_project_inventory_error(

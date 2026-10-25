@@ -1,4 +1,4 @@
-from project_b.models import ProductBaseModel, ProductSummary
+from project_b.models import CompositeProduct, ProductBaseModel, ProductSummary
 
 
 def create_product_base_model(
@@ -29,3 +29,8 @@ def create_product_summary(
         product_id=product_id, 
         display_name=display_name
     )
+
+def create_composite_product(
+    products: tuple[ProductBaseModel,...]=tuple([build_product_base_model()])
+) -> CompositeProduct:
+    return CompositeProduct(products=products)

@@ -5,6 +5,7 @@ from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
 )
+from gyomu_schema.schemas.config.test.model_defaults import Parameter
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
@@ -14,6 +15,7 @@ from gyomu_schema.schemas.python.types import (
     WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem, ParameterInfo
+from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.error.inventory import ProjectInventoryError
 
 
@@ -38,10 +40,25 @@ def get_project_context(
 class ParameterSummary:
     name: str
     parameter_type: str
+    default: Parameter | None = None
+
+
+def equal_default(source: Parameter | None, destination: Parameter | None) -> None:
+    if source is None and destination is not None:
+        assert source == destination
+    if source is not None and destination is None:
+        assert source == destination
+    if source is None and destination is None:
+        return
+    print(format_object(source, depth=6))
+    assert source == destination
 
 
 def equal_helper_inventory_parameter(
-    parameters: tuple[ParameterInfo, ...], parameter_name: str, parameter_type: str
+    parameters: tuple[ParameterInfo, ...],
+    parameter_name: str,
+    parameter_type: str,
+    parameter_default: Parameter | None,
 ) -> None:
     target_parameter = next(
         (parameter for parameter in parameters if parameter.name == parameter_name),
@@ -49,6 +66,7 @@ def equal_helper_inventory_parameter(
     )
     assert target_parameter is not None
     assert target_parameter.parameter_type.text == parameter_type
+    equal_default(target_parameter.default, parameter_default)
 
 
 def function_not_exist_in_inventory(
@@ -101,6 +119,7 @@ def equal_helper_inventory(
             target_inventory.parameters,
             parameter_name=parameter.name,
             parameter_type=parameter.parameter_type,
+            parameter_default=parameter.default,
         )
     actual_parameters = {
         parameter.name: parameter.parameter_type.text

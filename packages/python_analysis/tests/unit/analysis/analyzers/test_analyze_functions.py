@@ -1,8 +1,14 @@
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis, ParameterKind
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
+from gyomu_schema.schemas.python.type.expression import (
+    CallExpressionAnalysis,
+    NameExpressionAnalysis,
+)
+from gyomu_schema.schemas.python.type.structure import LiteralValue
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.visibility import Visibility
+from gyomu_schema.utility.fromatting import format_object
 from test_support.helpers import AnalysisTestBase
 
 
@@ -31,11 +37,20 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         assert result.dependencies == ()
 
         assert [
-            (p.name, p.kind, p.default, p.type.text if p.type else None)
+            (
+                p.name,
+                p.kind,
+                p.default
+                if p.default is None
+                else p.default.value
+                if isinstance(p.default, LiteralValue)
+                else "Unsupported",
+                p.type.text if p.type else None,
+            )
             for p in result.parameters
         ] == [
             ("name", ParameterKind.POSITIONAL_OR_KEYWORD, None, "str"),
-            ("count", ParameterKind.POSITIONAL_OR_KEYWORD, None, "int"),
+            ("count", ParameterKind.POSITIONAL_OR_KEYWORD, 1, "int"),
         ]
 
         assert result.is_async is False
@@ -95,3 +110,28 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         assert result.name == "abstract"
         assert result.visibility == Visibility.PUBLIC
         assert result.is_ellipsis_only
+
+    def test_default(self) -> None:
+        result = self._analyze_function(name="build_default_user")
+        assert result.kind == DeclarationKind.FUNCTION
+        assert result.name == "build_default_user"
+        assert len(result.parameters) == 1
+        parameter = result.parameters[0]
+        assert parameter.default is not None
+        print(format_object(parameter.default, depth=6))
+        func = parameter.default
+        assert isinstance(func, CallExpressionAnalysis)
+        assert isinstance(func.func, NameExpressionAnalysis)
+        assert func.func.name == "create_user"
+        assert len(func.keywords) == 1
+        arg = func.keywords[0]
+        assert arg.arg == "id"
+        assert isinstance(arg.value, LiteralValue)
+        assert arg.value.value == "345D"
+
+    def test_default_parameter(self) -> None:
+        result = self._analyze_function(name="build_default_parameter")
+        assert result.kind == DeclarationKind.FUNCTION
+        assert result.name == "build_default_parameter"
+        assert len(result.parameters) == 2
+        print(format_object(result.parameters, depth=6))

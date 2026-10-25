@@ -31,6 +31,7 @@ members = [
     "packages/concept",
     "packages/facts",
     "packages/test",
+    "packages/config",
     "apps/cli",
 ]
 
@@ -51,6 +52,7 @@ files = [
     "packages/concept/src",
     "packages/facts/src",
     "packages/test/src",
+    "packages/config/src",
     "apps/cli/src"
 ]
 
@@ -113,6 +115,7 @@ source_pkgs = [
     "gyomu_facts",
     "gyomu_workflow",
     "gyomu_test",
+    "gyomu_config",
 ]
 branch = true
 
