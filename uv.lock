@@ -986,6 +986,7 @@ name = "gyomu-test"
 source = { editable = "packages/test" }
 dependencies = [
     { name = "gyomu-ai-compiler" },
+    { name = "gyomu-config" },
     { name = "gyomu-infra" },
     { name = "gyomu-python-analysis" },
     { name = "gyomu-schema" },
@@ -995,6 +996,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "gyomu-ai-compiler", editable = "packages/ai_compiler" },
+    { name = "gyomu-config", editable = "packages/config" },
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
     { name = "gyomu-schema", editable = "packages/schema" },

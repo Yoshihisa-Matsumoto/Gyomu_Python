@@ -4,6 +4,7 @@ from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
 )
+from gyomu_schema.schemas.config.test.model_defaults import LiteralParameter
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
@@ -40,8 +41,16 @@ class TestCollectModelHelperInventory:
             symbol_id="project_b.models::ProductBaseModel",
             function_name="create_product_base_model",
             parameters=(
-                ParameterSummary(name="product_id", parameter_type="int", default=None),
-                ParameterSummary(name="name", parameter_type="str", default=None),
+                ParameterSummary(
+                    name="product_id",
+                    parameter_type="int",
+                    default=LiteralParameter(value=1),
+                ),
+                ParameterSummary(
+                    name="name",
+                    parameter_type="str",
+                    default=LiteralParameter(value="Example Product"),
+                ),
             ),
         )
         equal_helper_inventory(
@@ -49,9 +58,21 @@ class TestCollectModelHelperInventory:
             symbol_id="project_b.models::ProductModel",
             function_name="create_product_model",
             parameters=(
-                ParameterSummary(name="product_id", parameter_type="int", default=None),
-                ParameterSummary(name="name", parameter_type="str", default=None),
-                ParameterSummary(name="price", parameter_type="float", default=None),
+                ParameterSummary(
+                    name="product_id",
+                    parameter_type="int",
+                    default=LiteralParameter(value=1),
+                ),
+                ParameterSummary(
+                    name="name",
+                    parameter_type="str",
+                    default=LiteralParameter(value="Example Product"),
+                ),
+                ParameterSummary(
+                    name="price",
+                    parameter_type="float",
+                    default=LiteralParameter(value=1.3),
+                ),
             ),
         )
         equal_helper_inventory(
@@ -59,9 +80,15 @@ class TestCollectModelHelperInventory:
             symbol_id="project_b.models::ProductSummary",
             function_name="create_product_summary",
             parameters=(
-                ParameterSummary(name="product_id", parameter_type="int", default=None),
                 ParameterSummary(
-                    name="display_name", parameter_type="str", default=None
+                    name="product_id",
+                    parameter_type="int",
+                    default=LiteralParameter(value=1),
+                ),
+                ParameterSummary(
+                    name="display_name",
+                    parameter_type="str",
+                    default=LiteralParameter(value="Example Product"),
                 ),
             ),
         )

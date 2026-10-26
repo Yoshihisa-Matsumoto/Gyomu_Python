@@ -86,7 +86,7 @@ type Parameter = Annotated[
 
 class ParameterDefault(BaseModel):
     name: str
-    value: Parameter
+    value: Parameter | None
 
 
 class ModelDefault(BaseModel):

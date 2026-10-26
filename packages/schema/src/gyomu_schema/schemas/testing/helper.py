@@ -43,5 +43,5 @@ class HelperFileInventory:
 class HelperReconcileResult:
     create: tuple[HelperInventoryItem, ...]
     update: tuple[HelperUpdate, ...]
-    unchanged: tuple[HelperInventoryItem, ...]
-    delete_candidates: tuple[HelperInventoryItem, ...]
+    unchanged: tuple[ExistingHelperInventoryItem, ...]
+    delete_candidates: tuple[ExistingHelperInventoryItem, ...]

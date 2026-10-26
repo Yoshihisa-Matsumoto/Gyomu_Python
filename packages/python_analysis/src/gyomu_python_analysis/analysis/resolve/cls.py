@@ -1,4 +1,5 @@
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
+from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import DeclarationIdentity, SymbolId
 from returns.result import Failure, Result, Success
@@ -6,6 +7,7 @@ from returns.result import Failure, Result, Success
 from gyomu_python_analysis.analysis.query import (
     find_symbol_by_name,
 )
+from gyomu_python_analysis.analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.analysis.resolve.imports import (
     resolve_reference_file_analysis_context,
     resolve_referenced_symbol,
@@ -20,6 +22,7 @@ from gyomu_python_analysis.analysis.resolve.models import (
 from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
 from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
 from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 
 
@@ -200,3 +203,28 @@ def inherits_from_pydantic_basemodel(
             return Success(True)
 
     return Success(False)
+
+
+def resolve_class_analysis(
+    declaration_identity: DeclarationIdentity,
+    project_context: ProjectContext,
+    file_analysis_cache: FileAnalysisCache,
+) -> Result[tuple[FileAnalysisContext, ClassAnalysis], AnalysisError]:
+    context_result = file_analysis_cache.get_file_analysis_context(
+        project_context=project_context, identity=declaration_identity
+    )
+    if isinstance(context_result, Failure):
+        return context_result
+    file_analysis = context_result.unwrap()
+
+    symbol = file_analysis.metadata.symbols.get(declaration_identity)
+    if isinstance(symbol, ClassAnalysis):
+        return Success((file_analysis, symbol))
+    return Failure(
+        AnalysisError(
+            message="symbol is not found" if symbol is None else "symbol is not class",
+            file_path=declaration_identity.get_module_name(),
+            phase="resolve",
+            details={"identity": declaration_identity},
+        )
+    )

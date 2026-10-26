@@ -15,10 +15,10 @@ from gyomu_schema.schemas.config.test.model_defaults import (
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
 from packages.schema.test_support.helpers import (
+    create_attribute_parameter,
     create_call_parameter,
     create_dict_entry,
     create_dict_parameter,
-    create_enum_parameter,
     create_keyword_argument,
     create_list_parameter,
     create_literal_parameter,
@@ -50,7 +50,7 @@ class TestEnumExpression:
     def test(self) -> None:
         _assert_json_round_trip(
             AttributeParameter,
-            create_enum_parameter(),
+            create_attribute_parameter(),
         )
 
 

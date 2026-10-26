@@ -13,6 +13,7 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     LiteralParameter,
     ModelDefault,
     ModelDefaults,
+    NameParameter,
     NoneParameter,
     Parameter,
     ParameterDefault,
@@ -178,8 +179,8 @@ def create_class_type_alias_analysis(
 
 
 def create_variable_analysis(
-    indent: int,
-    location: SourceLocation,
+    indent: int = 0,
+    location: SourceLocation = create_source_location(),  # noqa: B008
     name: str = "test_func",
     identity: DeclarationIdentity | None = None,
     type: TypeAnalysis | None = None,
@@ -286,8 +287,8 @@ def create_method_analysis(
 
 
 def create_class_analysis(
-    indent: int,
-    location: SourceLocation,
+    indent: int = 0,
+    location: SourceLocation = create_source_location(),  # noqa: B008
     name: str = "test_class",
     identity: DeclarationIdentity | None = None,
     methods: tuple[MethodAnalysis, ...] = tuple(),
@@ -614,8 +615,9 @@ def create_import_analysis(
 def create_parameter_info(
     name: str = "arg",
     parameter_type: TypeAnalysis = create_type_analysis("str"),  # noqa: B008
+    default: Parameter | None = None,
 ) -> ParameterInfo:
-    return ParameterInfo(name=name, parameter_type=parameter_type)
+    return ParameterInfo(name=name, parameter_type=parameter_type, default=default)
 
 
 def create_helper_inventory_item(
@@ -657,14 +659,16 @@ def create_none_parameter(
     return NoneParameter(kind=kind)
 
 
-def create_enum_parameter(
+def create_name_parameter(name: str = "parameter1") -> NameParameter:
+    return NameParameter(name=name)
+
+
+def create_attribute_parameter(
     kind: Literal[ParameterExpressionType.ATTR] = ParameterExpressionType.ATTR,
-    enum_identity: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
-    member_name: str = "member",
+    value: Parameter = create_name_parameter(),  # noqa: B008
+    attribute: str = "member",
 ) -> AttributeParameter:
-    return AttributeParameter(
-        kind=kind, enum_identity=enum_identity, member_name=member_name
-    )
+    return AttributeParameter(kind=kind, value=value, attribute=attribute)
 
 
 def create_tuple_parameter(

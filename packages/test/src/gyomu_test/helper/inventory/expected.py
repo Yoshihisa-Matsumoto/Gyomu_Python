@@ -1,3 +1,4 @@
+from gyomu_config.file.retrieve import retrieve_config
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.resolve.cls import (
     collect_class_hierarchy,
@@ -9,6 +10,11 @@ from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.option.analysis import AnalysisOption
+from gyomu_schema.schemas.config.test.model_defaults import (
+    ModelDefault,
+    ModelDefaults,
+    Parameter,
+)
 from gyomu_schema.schemas.python.class_analysis import (
     ClassAnalysis,
     ClassVariableAnalysis,
@@ -24,6 +30,7 @@ from gyomu_test.error.inventory import (
     ProjectInventoryError,
 )
 from gyomu_test.error.test import TestError
+from gyomu_test.helper.inventory.config import build_config_request
 from gyomu_test.helper.inventory.naming import (
     _build_helper_name_from_class_name,
 )
@@ -43,18 +50,30 @@ def _is_model_candidate(
 
 
 def _build_helper_function_parameter(
-    variable: ClassVariableAnalysis,
+    variable: ClassVariableAnalysis, default: Parameter | None
 ) -> Result[ParameterInfo, MissingTypeAnnotation]:
     if variable.type is None:
         return Failure(MissingTypeAnnotation(identity=variable.identity))
     return Success(
-        ParameterInfo(name=variable.name, parameter_type=variable.type, default=None)
+        ParameterInfo(name=variable.name, parameter_type=variable.type, default=default)
+    )
+
+
+def _find_parameter(
+    variable: ClassVariableAnalysis, default: ModelDefault | None
+) -> Parameter | None:
+    if default is None:
+        return None
+    return next(
+        (param.value for param in default.parameters if param.name == variable.name),
+        None,
     )
 
 
 def _build_model_helper_inventory_item(
     symbol: ClassAnalysis,
     collections_sorted_base_first: ClassResolutionCollection,
+    default: ModelDefault | None,
 ) -> Result[
     HelperInventoryItem,
     tuple[MissingTypeAnnotation, ...],
@@ -64,7 +83,10 @@ def _build_model_helper_inventory_item(
     type_errors: list[MissingTypeAnnotation] = []
     for resolved in collections_sorted_base_first.resolved():
         for param in resolved.symbol.variables:
-            parameter_result = _build_helper_function_parameter(param)
+            target_parameter_default = _find_parameter(variable=param, default=default)
+            parameter_result = _build_helper_function_parameter(
+                param, default=target_parameter_default
+            )
             if isinstance(parameter_result, Failure):
                 type_errors.append(parameter_result.failure())
             else:
@@ -79,6 +101,17 @@ def _build_model_helper_inventory_item(
             function_name=_build_helper_name_from_class_name(symbol.name),
             parameters=tuple(parameters),
         )
+    )
+
+
+def _find_model_default(
+    symbol: ClassAnalysis, defaults: ModelDefaults | None
+) -> ModelDefault | None:
+    if defaults is None:
+        return None
+    return next(
+        (default for default in defaults.models if default.class_name == symbol.name),
+        None,
     )
 
 
@@ -101,6 +134,17 @@ def collect_model_helper_inventory(
                 lambda error: TestError(message="fail to load source").chain(error)
             )
         file_analysis = file_result.unwrap()
+
+        config_request = build_config_request(
+            file_analysis=file_analysis, project_context=project
+        )
+        default_config_result = retrieve_config(request=config_request)
+        if isinstance(default_config_result, Failure):
+            return default_config_result.alt(
+                lambda error: TestError(message="fail to retrieve ")
+            )
+        default_config = default_config_result.unwrap()
+
         for symbol in file_analysis.analysis.symbols:
             in_scope_result = _is_model_candidate(
                 symbol, file_analysis.analysis, workspace
@@ -125,10 +169,13 @@ def collect_model_helper_inventory(
                             message="fail to analyze class hierarchy"
                         ).chain(error)
                     )
-
+                target_default = _find_model_default(
+                    symbol=symbol, defaults=default_config
+                )
                 inventory_result = _build_model_helper_inventory_item(
                     symbol=symbol,
                     collections_sorted_base_first=class_hierarchy_result.unwrap(),
+                    default=target_default,
                 )
                 if isinstance(inventory_result, Failure):
                     missing_annotations.extend(inventory_result.failure())

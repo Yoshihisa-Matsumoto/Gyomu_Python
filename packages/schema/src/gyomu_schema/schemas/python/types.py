@@ -80,6 +80,9 @@ class DeclarationIdentity(BaseModel, Hashable):
     def get_symbol_name(self) -> str:
         return str(self.symbol_id).rsplit("::", maxsplit=1)[-1]
 
+    def get_module_name(self) -> PythonPath:
+        return PythonPath(str(self.symbol_id).rsplit("::", maxsplit=1)[0])
+
 
 def is_declaration_identity_equal(
     a: DeclarationIdentity, b: DeclarationIdentity

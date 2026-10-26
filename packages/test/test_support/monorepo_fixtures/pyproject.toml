@@ -6,4 +6,5 @@ version = "0.1.0"
 members = [
     "packages/project_a",
     "packages/project_b",
+    "packages/parameter",
 ]

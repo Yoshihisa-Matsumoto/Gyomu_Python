@@ -100,6 +100,11 @@ class TestCollectExistingHelperInventory:
             function_name="create_composite_product",
             parameters=(
                 ParameterSummary(
+                    name="composite_name",
+                    parameter_type="str",
+                    default=LiteralParameter(value="Test Composite"),
+                ),
+                ParameterSummary(
                     name="products",
                     parameter_type="tuple[ProductBaseModel, ...]",
                     default=CallParameter(

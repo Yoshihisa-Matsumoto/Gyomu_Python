@@ -1,14 +1,21 @@
 from pathlib import Path
+from unittest.mock import create_autospec
 
 import pytest
-from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
+from gyomu_python_analysis.analysis.initialize import (
+    initialize_project_context,
+    initialize_project_from_workspace,
+)
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.resolve.cls import (
     collect_class_hierarchy,
     inherits_from_pydantic_basemodel,
     is_dataclass_class,
+    resolve_class_analysis,
 )
+from gyomu_python_analysis.analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
+from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
@@ -24,9 +31,18 @@ from gyomu_schema.schemas.python.types import (
     SymbolId,
     WorkspaceRelativePath,
 )
-from returns.result import Success
+from pytest_mock import MockerFixture
+from returns.result import Failure, Success
 
-from packages.python_analysis.test_support.helpers import MONOREPO_FIXTURES_ROOT
+from packages.python_analysis.test_support.helpers import (
+    FIXTURES_ROOT,
+    MONOREPO_FIXTURES_ROOT,
+)
+from packages.schema.test_support.helpers import (
+    create_class_analysis,
+    create_file_analysis_context,
+    create_variable_analysis,
+)
 
 
 class TestIsDataclassClass:
@@ -394,3 +410,151 @@ class TestInheritsFromPydanticBasemodel:
         )
         assert isinstance(is_pydantic_result, Success)
         assert is_pydantic_result.unwrap() == expected
+
+
+class TestResolveClassAnalysis:
+    def test_success(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        identity = DeclarationIdentity(
+            symbol_id=SymbolId("project_a.models::Product"),
+            declaration_id=DeclarationId("."),
+        )
+        class_analysis = create_class_analysis(identity=identity)
+        file_analysis_context = create_file_analysis_context(symbol=class_analysis)
+        project_context = initialize_project_context(
+            project_root=FIXTURES_ROOT,
+            source_root=ProjectRelativePath(Path("src")),
+        ).unwrap()
+
+        file_analysis_context.metadata.symbols[identity] = class_analysis
+
+        file_analysis_cache = create_autospec(
+            FileAnalysisCache,
+            instance=True,
+        )
+        file_analysis_cache.get_file_analysis_context.return_value = Success(
+            file_analysis_context
+        )
+
+        result = resolve_class_analysis(
+            declaration_identity=identity,
+            project_context=project_context,
+            file_analysis_cache=file_analysis_cache,
+        )
+
+        assert isinstance(result, Success)
+        file_analysis, symbol = result.unwrap()
+        assert file_analysis is file_analysis_context
+        assert symbol is class_analysis
+
+        file_analysis_cache.get_file_analysis_context.assert_called_once_with(
+            project_context=project_context,
+            identity=identity,
+        )
+
+    def test_symbol_not_found(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        identity = DeclarationIdentity(
+            symbol_id=SymbolId("project_a.models::Missing"),
+            declaration_id=DeclarationId("."),
+        )
+        file_analysis_context = create_file_analysis_context()
+        project_context = initialize_project_context(
+            project_root=FIXTURES_ROOT,
+            source_root=ProjectRelativePath(Path("src")),
+        ).unwrap()
+        file_analysis_context.metadata.symbols.pop(identity, None)
+
+        file_analysis_cache = create_autospec(
+            FileAnalysisCache,
+            instance=True,
+        )
+        file_analysis_cache.get_file_analysis_context.return_value = Success(
+            file_analysis_context
+        )
+
+        result = resolve_class_analysis(
+            declaration_identity=identity,
+            project_context=project_context,
+            file_analysis_cache=file_analysis_cache,
+        )
+
+        assert isinstance(result, Failure)
+        error = result.failure()
+        assert error.message == "symbol is not found"
+        assert error.phase == "resolve"
+        assert error.details == {"identity": identity}
+
+    def test_symbol_is_not_class(
+        self,
+    ) -> None:
+        identity = DeclarationIdentity(
+            symbol_id=SymbolId("project_a.models::product_name"),
+            declaration_id=DeclarationId("."),
+        )
+
+        # 実際の SymbolAnalysis 型の fixture を使う。
+        file_analysis_context = create_file_analysis_context(
+            symbol=create_variable_analysis(identity=identity)
+        )
+        project_context = initialize_project_context(
+            project_root=FIXTURES_ROOT,
+            source_root=ProjectRelativePath(Path("src")),
+        ).unwrap()
+
+        file_analysis_cache = create_autospec(
+            FileAnalysisCache,
+            instance=True,
+        )
+        file_analysis_cache.get_file_analysis_context.return_value = Success(
+            file_analysis_context
+        )
+
+        result = resolve_class_analysis(
+            declaration_identity=identity,
+            project_context=project_context,
+            file_analysis_cache=file_analysis_cache,
+        )
+
+        assert isinstance(result, Failure)
+        error = result.failure()
+        assert error.message == "symbol is not class"
+        assert error.phase == "resolve"
+        assert error.details == {"identity": identity}
+
+    def test_file_analysis_failure(
+        self,
+    ) -> None:
+        identity = DeclarationIdentity(
+            symbol_id=SymbolId("project_a.models::Product"),
+            declaration_id=DeclarationId("."),
+        )
+        project_context = initialize_project_context(
+            project_root=FIXTURES_ROOT,
+            source_root=ProjectRelativePath(Path("src")),
+        ).unwrap()
+
+        error = AnalysisError(
+            message="failed to load file",
+            file_path=identity.get_module_name(),
+            phase="resolve",
+        )
+
+        file_analysis_cache = create_autospec(
+            FileAnalysisCache,
+            instance=True,
+        )
+        file_analysis_cache.get_file_analysis_context.return_value = Failure(error)
+
+        result = resolve_class_analysis(
+            declaration_identity=identity,
+            project_context=project_context,
+            file_analysis_cache=file_analysis_cache,
+        )
+
+        assert isinstance(result, Failure)
+        assert result.failure() is error

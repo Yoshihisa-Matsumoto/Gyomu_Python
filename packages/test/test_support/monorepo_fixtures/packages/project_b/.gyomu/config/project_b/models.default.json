@@ -1,0 +1,107 @@
+{
+  "models": [
+    {
+      "class_name": "ProductBaseModel",
+      "parameters": [
+        {
+          "name": "product_id",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "name",
+          "value": {
+            "kind": "literal",
+            "value": "Example Product"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "ProductSummary",
+      "parameters": [
+        {
+          "name": "product_id",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "display_name",
+          "value": {
+            "kind": "literal",
+            "value": "Example Product"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "CompositeProduct",
+      "parameters": [
+        {
+          "name": "composite_name",
+          "value": {
+            "kind": "literal",
+            "value": "Test Composite"
+          }
+        },
+        {
+          "name": "products",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [
+              {
+                "kind": "list",
+                "elements": [
+                  {
+                    "kind": "call",
+                    "callable_identity": {
+                      "symbol_id": "packages.project_b.test_support.helpers::build_product_base_model",
+                      "declaration_id": "."
+                    },
+                    "args": [],
+                    "kwargs": []
+                  }
+                ]
+              }
+            ],
+            "kwargs": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "ProductModel",
+      "parameters": [
+        {
+          "name": "price",
+          "value": {
+            "kind": "literal",
+            "value": 1.3
+          }
+        },
+        {
+          "name": "product_id",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "name",
+          "value": {
+            "kind": "literal",
+            "value": "Example Product"
+          }
+        }
+      ]
+    }
+  ]
+}

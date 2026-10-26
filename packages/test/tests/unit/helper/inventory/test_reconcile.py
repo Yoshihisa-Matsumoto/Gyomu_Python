@@ -2,7 +2,12 @@ from pathlib import Path
 
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.workspace import WorkspaceContext
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import ProjectRelativePath, SymbolId
+from gyomu_schema.schemas.testing.helper import (
+    ExistingHelperInventoryItem,
+    HelperFileInventory,
+    HelperInventoryItem,
+)
 from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
 from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
@@ -162,6 +167,35 @@ def create_product(product_id: int) -> ProductSummary:
         )
 
 
+def find_expected_inventory(
+    expected: tuple[HelperInventoryItem, ...], symbol_id: str
+) -> HelperInventoryItem:
+    return next(
+        inventory
+        for inventory in expected
+        if inventory.target_identity.symbol_id == SymbolId(symbol_id)
+    )
+
+
+def find_existing_inventory(
+    existing: tuple[HelperFileInventory, ...], symbol_id: str
+) -> ExistingHelperInventoryItem:
+    target_inventory: ExistingHelperInventoryItem | None = None
+    for file in existing:
+        target_inventory = next(
+            (
+                inventory
+                for inventory in file.items
+                if inventory.target_identity.symbol_id == SymbolId(symbol_id)
+            ),
+            None,
+        )
+        if target_inventory is not None:
+            return target_inventory
+
+    assert target_inventory is not None
+
+
 class TestReconcile:
     def test_from_fixture(self, workspace_context: WorkspaceContext) -> None:
         project_context = get_project_context(workspace_context, "project-b")
@@ -197,36 +231,85 @@ class TestReconcile:
 
         assert len(reconcile_result.create) == 4
         assert len(reconcile_result.update) == 1
-        assert len(reconcile_result.unchanged) == 2
+        assert len(reconcile_result.unchanged) == 3
         assert len(reconcile_result.delete_candidates) == 1
 
-        assert {item.target_identity.symbol_id for item in reconcile_result.create} == {
-            "project_b.inheritance::AnotherBase",
-            "project_b.inheritance::ProductAudit",
-            "project_b.inheritance::AuditedProduct",
-            "project_b.inheritance::MultipleProduct",
-        }
-
-        assert {
-            item.target_identity.symbol_id for item in reconcile_result.unchanged
-        } == {
-            "project_b.models::ProductBaseModel",
-            "project_b.models::ProductSummary",
-        }
-
-        assert {
-            item.target_identity.symbol_id
-            for item in reconcile_result.delete_candidates
-        } == {
-            "project_b.non_models::NonHelper",
-        }
-
-        assert (
-            reconcile_result.update[0].expected.target_identity
-            == reconcile_result.update[0].existing.target_identity
+        expected_create_records = (
+            find_expected_inventory(
+                expected=expected, symbol_id="project_b.inheritance::AnotherBase"
+            ),
+            find_expected_inventory(
+                expected=expected,
+                symbol_id="project_b.inheritance::ProductAudit",
+            ),
+            find_expected_inventory(
+                expected=expected,
+                symbol_id="project_b.inheritance::AuditedProduct",
+            ),
+            find_expected_inventory(
+                expected=expected,
+                symbol_id="project_b.inheritance::MultipleProduct",
+            ),
         )
+        assert reconcile_result.create == expected_create_records
+
+        existing_unchanged_records = (
+            find_existing_inventory(
+                existing=existing,
+                symbol_id="project_b.models::ProductBaseModel",
+            ),
+            find_existing_inventory(
+                existing=existing,
+                symbol_id="project_b.models::ProductSummary",
+            ),
+            find_existing_inventory(
+                existing=existing,
+                symbol_id="project_b.models::CompositeProduct",
+            ),
+        )
+        assert reconcile_result.unchanged == existing_unchanged_records
+
+        assert reconcile_result.delete_candidates == (
+            find_existing_inventory(
+                existing=existing,
+                symbol_id="project_b.non_models::NonHelper",
+            ),
+        )
+        assert reconcile_result.update[0].expected == find_expected_inventory(
+            expected=expected, symbol_id="project_b.models::ProductModel"
+        )
+        assert reconcile_result.update[0].existing == find_existing_inventory(
+            existing=existing, symbol_id="project_b.models::ProductModel"
+        )
+
         assert (
             reconcile_result.update[0].expected.function_name
             == reconcile_result.update[0].existing.function_name
             == "create_product_model"
         )
+
+    def test_from_parameter_fixture(self, workspace_context: WorkspaceContext) -> None:
+        project_context = get_project_context(workspace_context, "parameter")
+        expected_result = collect_model_helper_inventory(
+            project_context, workspace_context
+        )
+
+        assert isinstance(expected_result, Success)
+        expected = expected_result.unwrap()
+
+        root_context_result = initialize_project_context(
+            project_root=workspace_context.path,
+            source_root=ProjectRelativePath(Path(".")),
+        )
+        assert isinstance(root_context_result, Success)
+
+        existing_result = collect_existing_helper_inventory(
+            root=root_context_result.unwrap(),
+            target_project=project_context,
+        )
+        assert isinstance(existing_result, Success)
+        existing = existing_result.unwrap()
+
+        reconcile_result = reconcile(existing=existing, expected=expected)
+
+        print(format_object(reconcile_result, depth=4))

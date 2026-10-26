@@ -97,8 +97,8 @@ def reconcile(
 ) -> HelperReconcileResult:
     create: list[HelperInventoryItem] = []
     update: list[HelperUpdate] = []
-    unchanged: list[HelperInventoryItem] = []
-    delete_candidates: list[HelperInventoryItem] = []
+    unchanged: list[ExistingHelperInventoryItem] = []
+    delete_candidates: list[ExistingHelperInventoryItem] = []
     for file_inventory in existing:
         for existing_inventory in file_inventory.items:
             expected_inventory = next(

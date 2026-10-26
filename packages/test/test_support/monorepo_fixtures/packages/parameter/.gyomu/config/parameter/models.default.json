@@ -1,0 +1,285 @@
+{
+  "models": [
+    {
+      "class_name": "StringLiteralModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "literal",
+            "value": "hello"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "IntegerLiteralModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "literal",
+            "value": 42
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "BooleanLiteralModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "literal",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "NoneDefaultModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "none"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "NameReferenceModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "name",
+            "name": "DEFAULT_NAME"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "AttributeReferenceModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "attr",
+            "value": {
+              "kind": "name",
+              "name": "Color"
+            },
+            "attribute": "RED"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "EmptyTupleModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "tuple",
+            "elements": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "TupleLiteralModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "tuple",
+            "elements": [
+              {
+                "kind": "literal",
+                "value": 1
+              },
+              {
+                "kind": "literal",
+                "value": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "SingletonTupleModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "tuple",
+            "elements": [
+              {
+                "kind": "literal",
+                "value": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "ListLiteralModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "list",
+            "elements": [
+              {
+                "kind": "literal",
+                "value": 1
+              },
+              {
+                "kind": "literal",
+                "value": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DictLiteralModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "dict",
+            "entries": [
+              {
+                "key": {
+                  "kind": "literal",
+                  "value": "a"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 1
+                }
+              },
+              {
+                "key": {
+                  "kind": "literal",
+                  "value": "b"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 2
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "BasicModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "literal",
+            "value": "basic"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "CallDefaultModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.parameter.test_support.helpers::create_basic_model",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "KeywordCallModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.parameter.test_support.helpers::create_basic_model",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": [
+              {
+                "name": "value",
+                "value": {
+                  "kind": "literal",
+                  "value": "keyword"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "NestedCallModel",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [
+              {
+                "kind": "list",
+                "elements": [
+                  {
+                    "kind": "call",
+                    "callable_identity": {
+                      "symbol_id": "packages.parameter.test_support.helpers::create_basic_model",
+                      "declaration_id": "."
+                    },
+                    "args": [],
+                    "kwargs": []
+                  }
+                ]
+              }
+            ],
+            "kwargs": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "RequiredParameterModel",
+      "parameters": [
+        {
+          "name": "user_id",
+          "value": null
+        },
+        {
+          "name": "name",
+          "value": {
+            "kind": "literal",
+            "value": "unknown"
+          }
+        }
+      ]
+    }
+  ]
+}

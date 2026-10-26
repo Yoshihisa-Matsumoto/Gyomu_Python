@@ -31,6 +31,7 @@ def create_product_summary(
     )
 
 def create_composite_product(
+    composite_name: str = "Test Composite",
     products: tuple[ProductBaseModel,...]=tuple([build_product_base_model()])
 ) -> CompositeProduct:
-    return CompositeProduct(products=products)
+    return CompositeProduct(composite_name=composite_name,products=products)

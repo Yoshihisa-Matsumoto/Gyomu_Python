@@ -1,6 +1,7 @@
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
+    PythonPath,
     SymbolId,
 )
 
@@ -20,3 +21,11 @@ def test_declaration_identity_get_symbol_name() -> None:
         declaration_id=DeclarationId(".::User"),
     )
     assert identity.get_symbol_name() == "User"
+
+
+def test_declaration_identity_get_module_name() -> None:
+    identity = DeclarationIdentity(
+        symbol_id=SymbolId("gyomu_schema.schemas.python.user::User"),
+        declaration_id=DeclarationId(".::User"),
+    )
+    assert identity.get_module_name() == PythonPath("gyomu_schema.schemas.python.user")

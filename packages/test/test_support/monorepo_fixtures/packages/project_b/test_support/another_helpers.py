@@ -9,8 +9,8 @@ def create_non_helper(
 
 
 def create_product_model(
-    price: float,
-    product_id: int,
-    name:str
+    price: float =1.3,
+    product_id: int = 1,
+    name:str = "Example Product"
 ) -> ProductModel:
     return ProductModel(price=price,product_id=product_id,name=name)
