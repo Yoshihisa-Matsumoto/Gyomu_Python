@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 
 from gyomu_schema.schemas.config.test.model_defaults import Parameter
 from gyomu_schema.schemas.python.location import SourceLocation
@@ -13,11 +14,22 @@ class ParameterInfo:
     default: Parameter | None
 
 
+class TargetClassKind(Enum):
+    DATACLASS = "dataclass"
+    PYDANTIC_MODEL = "pydantic_model"
+    GYOMU_ERROR = "gyomu_error"
+
+
 @dataclass(frozen=True)
 class HelperInventoryItem:
     target_identity: DeclarationIdentity
     function_name: str
     parameters: tuple[ParameterInfo, ...]
+
+
+@dataclass(frozen=True)
+class ExpectedHelperInventoryItem(HelperInventoryItem):
+    kind: TargetClassKind
 
 
 @dataclass(frozen=True)

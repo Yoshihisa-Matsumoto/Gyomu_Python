@@ -1012,6 +1012,7 @@ dependencies = [
     { name = "gyomu-infra" },
     { name = "gyomu-python-analysis" },
     { name = "gyomu-schema" },
+    { name = "gyomu-test" },
     { name = "returns" },
 ]
 
@@ -1022,6 +1023,7 @@ requires-dist = [
     { name = "gyomu-infra", editable = "packages/infra" },
     { name = "gyomu-python-analysis", editable = "packages/python_analysis" },
     { name = "gyomu-schema", editable = "packages/schema" },
+    { name = "gyomu-test", editable = "packages/test" },
     { name = "returns" },
 ]
 

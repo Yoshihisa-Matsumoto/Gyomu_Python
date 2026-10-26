@@ -231,7 +231,7 @@ class TestReconcile:
 
         assert len(reconcile_result.create) == 4
         assert len(reconcile_result.update) == 1
-        assert len(reconcile_result.unchanged) == 3
+        assert len(reconcile_result.unchanged) == 4
         assert len(reconcile_result.delete_candidates) == 1
 
         expected_create_records = (
@@ -265,6 +265,10 @@ class TestReconcile:
             find_existing_inventory(
                 existing=existing,
                 symbol_id="project_b.models::CompositeProduct",
+            ),
+            find_existing_inventory(
+                existing=existing,
+                symbol_id="project_b.error::TestingError",
             ),
         )
         assert reconcile_result.unchanged == existing_unchanged_records

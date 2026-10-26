@@ -26,6 +26,7 @@ from gyomu_workflow.snapshot.models import (
 )
 from gyomu_workflow.snapshot.project import find_project_by_name
 from gyomu_workflow.snapshot.workspace import get_workspace_context
+from gyomu_workflow.test.migrate_default import migrate_default_from_existing_helpers
 from returns.result import Failure
 
 from gyomu_cli.snapshot import run_snapshot_request
@@ -138,6 +139,40 @@ def snapshot(
 
     logger.info("Done")
     # logger.error_object(request.unwrap(), 3)
+
+
+@app.command()
+def test(
+    package: str,
+    migrate_model_defaults: bool = False,
+    reconcile_helpers: bool = False,
+    additional_filename: str | None = None,
+) -> None:
+    print(
+        f"package:{package} migrate_model_defaults:{migrate_model_defaults} "
+        f"reconcile_helpers:{reconcile_helpers}"
+    )
+    current_path = FullPath(Path(getcwd()))
+
+    workspace_result = get_workspace_context(current_path)
+    if isinstance(workspace_result, Failure):
+        logger.error_object(workspace_result.failure())
+        return
+    workspace_context = workspace_result.unwrap()
+
+    package_result = find_project_by_name(workspace_context, package)
+    if isinstance(package_result, Failure):
+        logger.error(f"{package} Not Found")
+        logger.error_object(package_result.failure())
+        return
+    workspace_project_context = package_result.unwrap()
+
+    if migrate_model_defaults:
+        migrate_default_from_existing_helpers(
+            workspace_context=workspace_context,
+            workspace_project_context=workspace_project_context,
+            additional_filename=additional_filename,
+        )
 
 
 if __name__ == "__main__":

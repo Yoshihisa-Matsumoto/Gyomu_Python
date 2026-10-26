@@ -16,6 +16,7 @@ from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.type.expression import StatementAnalysis
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
+from gyomu_schema.schemas.python.types import DeclarationId
 from gyomu_schema.utility.fromatting import format_object
 
 from gyomu_python_analysis.analysis.analyzers.ast.statement import (
@@ -132,6 +133,7 @@ def _build_class_variables(
         AstClassFunctionKey,
         AstTargetSymbolType,
     ],
+    constructor_method: MethodAnalysis | None,
     imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None,
 ) -> list[ClassVariableAnalysis]:
@@ -159,6 +161,7 @@ def _build_class_variables(
                     member_path=member_path,
                     pydantic_status=pydantic_status,
                     ast_assign=ast_assign,
+                    constructor_method=constructor_method,
                     imported=imported,
                     option=option,
                 )
@@ -174,6 +177,7 @@ def _build_class_variable_analysis(
     member_path: MemberPath,
     pydantic_status: PydanticModelStatus,
     ast_assign: ast.Assign | ast.AnnAssign | None,
+    constructor_method: MethodAnalysis | None,
     imported: tuple[ImportAnalysis, ...],
     option: AnalysisOption | None,
 ) -> ClassVariableAnalysis:
@@ -188,6 +192,18 @@ def _build_class_variable_analysis(
         option=option,
     )
     variable_type = analyze_type(member.annotation, context, option)
+    if variable_type is None and constructor_method is not None:
+        target_parameter = next(
+            (
+                param
+                for param in constructor_method.parameters
+                if param.name == member.name
+            ),
+            None,
+        )
+        if target_parameter is not None and target_parameter.type is not None:
+            variable_type = target_parameter.type
+
     # value_expression = (
     #     analyze_type_expression(member.value, context, option)
     #     if member.value is not None
@@ -396,6 +412,24 @@ def _analyze_class_common(
         cls, context, option
     )
 
+    methods: list[MethodAnalysis] = _build_class_methods(
+        cls=cls,
+        parent_location=constructor_location,
+        context=context,
+        member_path=member_path,
+        ast_symbols=ast_symbols,
+        option=option,
+    )
+
+    constructor_method = next(
+        (
+            method
+            for method in methods
+            if method.identity.declaration_id == DeclarationId(".::__init__")
+        ),
+        None,
+    )
+
     parameters: list[ClassVariableAnalysis] = _build_class_variables(
         cls=cls,
         parent_location=constructor_location,
@@ -403,16 +437,8 @@ def _analyze_class_common(
         member_path=member_path,
         pydantic_status=pydantic_status,
         ast_symbols=ast_symbols,
+        constructor_method=constructor_method,
         imported=imported,
-        option=option,
-    )
-
-    methods: list[MethodAnalysis] = _build_class_methods(
-        cls=cls,
-        parent_location=constructor_location,
-        context=context,
-        member_path=member_path,
-        ast_symbols=ast_symbols,
         option=option,
     )
 

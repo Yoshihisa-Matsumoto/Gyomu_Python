@@ -1,0 +1,22 @@
+{
+  "models": [
+    {
+      "class_name": "TestingError",
+      "parameters": [
+        {
+          "name": "message",
+          "value": {
+            "kind": "literal",
+            "value": "test"
+          }
+        },
+        {
+          "name": "details",
+          "value": {
+            "kind": "none"
+          }
+        }
+      ]
+    }
+  ]
+}

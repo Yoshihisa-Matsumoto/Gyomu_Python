@@ -2,6 +2,7 @@ from gyomu_config.file.retrieve import retrieve_config
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.resolve.cls import (
     collect_class_hierarchy,
+    inherits_from_gyomu_base_error,
     inherits_from_pydantic_basemodel,
     is_dataclass_class,
 )
@@ -20,8 +21,14 @@ from gyomu_schema.schemas.python.class_analysis import (
     ClassVariableAnalysis,
 )
 from gyomu_schema.schemas.python.module import ModuleAnalysis
+from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
-from gyomu_schema.schemas.testing.helper import HelperInventoryItem, ParameterInfo
+from gyomu_schema.schemas.python.types import DeclarationIdentity
+from gyomu_schema.schemas.testing.helper import (
+    HelperInventoryItem,
+    ParameterInfo,
+    TargetClassKind,
+)
 from returns.result import Failure, Result, Success
 
 from gyomu_test.error.inventory import (
@@ -36,17 +43,28 @@ from gyomu_test.helper.inventory.naming import (
 )
 
 
-def _is_model_candidate(
+def _get_model_kind(
     symbol: SymbolAnalysis,
     module: ModuleAnalysis,
     workspace: WorkspaceContext,
-) -> Result[bool, AnalysisError]:
+) -> Result[TargetClassKind | None, AnalysisError]:
     if not isinstance(symbol, ClassAnalysis):
-        return Success(False)
+        return Success(None)
     cls = symbol
     if is_dataclass_class(cls, module):
-        return Success(True)
-    return inherits_from_pydantic_basemodel(cls, module, workspace)
+        return Success(TargetClassKind.DATACLASS)
+    pydantic_result = inherits_from_pydantic_basemodel(cls, module, workspace)
+    if isinstance(pydantic_result, Failure):
+        return pydantic_result
+    if pydantic_result.unwrap():
+        return Success(TargetClassKind.PYDANTIC_MODEL)
+
+    gyomu_error_result = inherits_from_gyomu_base_error(cls, module, workspace)
+    if isinstance(gyomu_error_result, Failure):
+        return gyomu_error_result
+    if gyomu_error_result.unwrap():
+        return Success(TargetClassKind.GYOMU_ERROR)
+    return Success(None)
 
 
 def _build_helper_function_parameter(
@@ -59,13 +77,29 @@ def _build_helper_function_parameter(
     )
 
 
+def _build_helper_function_parameter_analysis(
+    parameter_analysis: ParameterAnalysis,
+    identity: DeclarationIdentity,
+    default: Parameter | None,
+) -> Result[ParameterInfo, MissingTypeAnnotation]:
+    if parameter_analysis.type is None:
+        return Failure(MissingTypeAnnotation(identity=identity))
+    return Success(
+        ParameterInfo(
+            name=parameter_analysis.name,
+            parameter_type=parameter_analysis.type,
+            default=default,
+        )
+    )
+
+
 def _find_parameter(
-    variable: ClassVariableAnalysis, default: ModelDefault | None
+    variable_name: str, default: ModelDefault | None
 ) -> Parameter | None:
     if default is None:
         return None
     return next(
-        (param.value for param in default.parameters if param.name == variable.name),
+        (param.value for param in default.parameters if param.name == variable_name),
         None,
     )
 
@@ -73,6 +107,7 @@ def _find_parameter(
 def _build_model_helper_inventory_item(
     symbol: ClassAnalysis,
     collections_sorted_base_first: ClassResolutionCollection,
+    model_kind: TargetClassKind,
     default: ModelDefault | None,
 ) -> Result[
     HelperInventoryItem,
@@ -81,9 +116,24 @@ def _build_model_helper_inventory_item(
 
     parameters: list[ParameterInfo] = []
     type_errors: list[MissingTypeAnnotation] = []
-    for resolved in collections_sorted_base_first.resolved():
-        for param in resolved.symbol.variables:
-            target_parameter_default = _find_parameter(variable=param, default=default)
+    if model_kind != TargetClassKind.GYOMU_ERROR:
+        for resolved in collections_sorted_base_first.resolved():
+            for param in resolved.symbol.variables:
+                target_parameter_default = _find_parameter(
+                    variable_name=param.name, default=default
+                )
+                parameter_result = _build_helper_function_parameter(
+                    param, default=target_parameter_default
+                )
+                if isinstance(parameter_result, Failure):
+                    type_errors.append(parameter_result.failure())
+                else:
+                    parameters.append(parameter_result.unwrap())
+    else:
+        for param in symbol.variables:
+            target_parameter_default = _find_parameter(
+                variable_name=param.name, default=default
+            )
             parameter_result = _build_helper_function_parameter(
                 param, default=target_parameter_default
             )
@@ -91,6 +141,34 @@ def _build_model_helper_inventory_item(
                 type_errors.append(parameter_result.failure())
             else:
                 parameters.append(parameter_result.unwrap())
+        constructor = next(
+            (method for method in symbol.methods if method.name == "__init__"), None
+        )
+        if constructor is not None:
+            for parameter_analysis in constructor.parameters:
+                if parameter_analysis.name == "self":
+                    continue
+                target_parameter_default = _find_parameter(
+                    variable_name=parameter_analysis.name, default=default
+                )
+                parameter_result = _build_helper_function_parameter_analysis(
+                    parameter_analysis=parameter_analysis,
+                    identity=constructor.identity,
+                    default=target_parameter_default,
+                )
+                if isinstance(parameter_result, Failure):
+                    type_errors.append(parameter_result.failure())
+                else:
+                    existing_parameter = next(
+                        (
+                            registered
+                            for registered in parameters
+                            if registered.name == parameter_analysis.name
+                        ),
+                        None,
+                    )
+                    if existing_parameter is None:
+                        parameters.append(parameter_result.unwrap())
 
     if len(type_errors) > 0:
         return Failure(tuple(type_errors))
@@ -146,16 +224,17 @@ def collect_model_helper_inventory(
         default_config = default_config_result.unwrap()
 
         for symbol in file_analysis.analysis.symbols:
-            in_scope_result = _is_model_candidate(
+            model_kind_result = _get_model_kind(
                 symbol, file_analysis.analysis, workspace
             )
-            if isinstance(in_scope_result, Failure):
-                return in_scope_result.alt(
+            if isinstance(model_kind_result, Failure):
+                return model_kind_result.alt(
                     lambda error: TestError(
                         message="fail to check if symbol is target helper fucntion",
                     ).chain(error)
                 )
-            if in_scope_result.unwrap():
+            model_kind = model_kind_result.unwrap()
+            if model_kind is not None:
                 assert isinstance(symbol, ClassAnalysis)
                 class_hierarchy_result = collect_class_hierarchy(
                     cls=symbol,
@@ -175,6 +254,7 @@ def collect_model_helper_inventory(
                 inventory_result = _build_model_helper_inventory_item(
                     symbol=symbol,
                     collections_sorted_base_first=class_hierarchy_result.unwrap(),
+                    model_kind=model_kind,
                     default=target_default,
                 )
                 if isinstance(inventory_result, Failure):

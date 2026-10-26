@@ -1,4 +1,3 @@
-from os import getcwd
 from pathlib import Path
 
 from gyomu_infra.filesystem.file_io import write_json
@@ -17,15 +16,12 @@ from gyomu_schema.schemas.config.test.model_defaults import (
 )
 from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
 from gyomu_schema.schemas.testing.helper import HelperFileInventory
-from gyomu_schema.schemas.types import FullPath
 from gyomu_schema.utility.fromatting import format_object
-from gyomu_workflow.snapshot.workspace import get_workspace_context
-from returns.result import Failure, Success
+from returns.result import Success
 
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
-from gyomu_test.helper.inventory.expected import _is_model_candidate
+from gyomu_test.helper.inventory.expected import _get_model_kind
 from gyomu_test.helper.inventory.path import get_default_config_path
-from packages.test.tests.unit.helper.inventory.helpers import get_project_context
 
 
 def assemble_model_defaults(
@@ -47,11 +43,12 @@ def assemble_model_defaults(
         )
         assert isinstance(class_result, Success)
         file_analysis, symbol = class_result.unwrap()
-        candidate_result = _is_model_candidate(
+        model_kind_result = _get_model_kind(
             symbol=symbol, module=file_analysis.analysis, workspace=workspace
         )
-        assert isinstance(candidate_result, Success)
-        if candidate_result.unwrap():
+        assert isinstance(model_kind_result, Success)
+        model_kind = model_kind_result.unwrap()
+        if model_kind is not None:
             invalid_parameters: list[str] = []
             parameters: list[ParameterDefault] = []
             for parameter in inventory.parameters:
@@ -77,23 +74,12 @@ def assemble_model_defaults(
 
 
 def migrate(
-    package_name: str,
-    target_path: Path | None = None,
+    workspace_context: WorkspaceContext,
+    project_context: ProjectContext,
     helper_files: tuple[ProjectRelativePath, ...] = (
         ProjectRelativePath(Path("test_support/helpers.py")),
     ),
 ) -> None:
-    if target_path is None:
-        target_path = FullPath(Path(getcwd()))
-    else:
-        target_path = FullPath(target_path)
-    workspace_result = get_workspace_context(target_path)
-    if isinstance(workspace_result, Failure):
-        logger.error_object(workspace_result.failure())
-        return
-    workspace_context = workspace_result.unwrap()
-
-    project_context = get_project_context(workspace_context, package_name)
 
     root_context_result = initialize_project_context(
         project_root=workspace_context.path,

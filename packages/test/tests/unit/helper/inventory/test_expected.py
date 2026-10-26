@@ -4,7 +4,10 @@ from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
 )
-from gyomu_schema.schemas.config.test.model_defaults import LiteralParameter
+from gyomu_schema.schemas.config.test.model_defaults import (
+    LiteralParameter,
+    NoneParameter,
+)
 from gyomu_schema.schemas.python.types import (
     DeclarationId,
     DeclarationIdentity,
@@ -147,6 +150,24 @@ class TestCollectModelHelperInventory:
                 ParameterSummary(name="product_id", parameter_type="int"),
                 ParameterSummary(name="name", parameter_type="str"),
                 ParameterSummary(name="multi_name", parameter_type="str"),
+            ),
+        )
+
+        equal_helper_inventory(
+            inventories=inventories,
+            symbol_id="project_b.error::TestingError",
+            function_name="create_testing_error",
+            parameters=(
+                ParameterSummary(
+                    name="message",
+                    parameter_type="str",
+                    default=LiteralParameter(value="test"),
+                ),
+                ParameterSummary(
+                    name="details",
+                    parameter_type="Mapping[str, object] | None",
+                    default=NoneParameter(),
+                ),
             ),
         )
 

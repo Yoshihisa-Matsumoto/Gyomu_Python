@@ -9,6 +9,7 @@ from gyomu_python_analysis.analysis.initialize import (
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.resolve.cls import (
     collect_class_hierarchy,
+    inherits_from_gyomu_base_error,
     inherits_from_pydantic_basemodel,
     is_dataclass_class,
     resolve_class_analysis,
@@ -410,6 +411,70 @@ class TestInheritsFromPydanticBasemodel:
         )
         assert isinstance(is_pydantic_result, Success)
         assert is_pydantic_result.unwrap() == expected
+
+
+class TestInheritsFromGyomuBaseError:
+    @pytest.mark.parametrize(
+        ("project_name", "python_path", "symbol_name", "expected"),
+        [
+            ("project-a", "project_a.gyomu_errors.base", "BasedError", True),
+            (
+                "project-b",
+                "project_b.gyomu_errors.errors",
+                "InheritError",
+                True,
+            ),
+            (
+                "project-b",
+                "project_b.gyomu_errors.errors",
+                "NonTargetError",
+                False,
+            ),
+        ],
+    )
+    def test_gyomu_base_error(
+        self,
+        project_name: str,
+        python_path: str,
+        symbol_name: str,
+        expected: bool,
+        workspace_context: WorkspaceContext,
+    ) -> None:
+        target_project = next(
+            (
+                project
+                for project in workspace_context.projects
+                if project.config.name == project_name
+            ),
+            None,
+        )
+        # for project in workspace_context.projects:
+        #     print(project.config.name)
+        assert target_project is not None
+
+        project_context = initialize_project_from_workspace(
+            workspace_context.path, target_project
+        )
+        target_source_path = Path(python_path.replace(".", "/") + ".py")
+        result = load_file_analysis_context(
+            project_context,
+            ProjectRelativePath(Path("src") / target_source_path),
+        )
+        declaration_identity = DeclarationIdentity(
+            symbol_id=SymbolId(f"{python_path}::{symbol_name}"),
+            declaration_id=DeclarationId("."),
+        )
+        assert isinstance(result, Success)
+
+        file_context = result.unwrap()
+        symbol = file_context.metadata.symbols.get(declaration_identity)
+        assert symbol is not None
+        assert isinstance(symbol, ClassAnalysis)
+        is_gyomu_base_error_result = inherits_from_gyomu_base_error(
+            cls=symbol, module=file_context.analysis, workspace=workspace_context
+        )
+        assert isinstance(is_gyomu_base_error_result, Success)
+        assert is_gyomu_base_error_result.unwrap() == expected
 
 
 class TestResolveClassAnalysis:

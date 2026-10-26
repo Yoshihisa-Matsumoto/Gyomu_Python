@@ -188,6 +188,30 @@ def is_dataclass_class(cls: ClassAnalysis, module: ModuleAnalysis) -> bool:
     return False
 
 
+def inherits_from_gyomu_base_error(
+    cls: ClassAnalysis,
+    module: ModuleAnalysis,
+    workspace: WorkspaceContext,
+) -> Result[bool, AnalysisError]:
+    resolve_result = collect_class_hierarchy(
+        cls=cls, module=module, workspace=workspace
+    )
+    if isinstance(resolve_result, Failure):
+        return resolve_result
+    for external in resolve_result.unwrap().external():
+        if external.reference.symbol_id == SymbolId(
+            "gyomu_schema.error.base::BaseError"
+        ):
+            return Success(True)
+    for resolved in resolve_result.unwrap().resolved():
+        if resolved.symbol.identity.symbol_id == SymbolId(
+            "gyomu_schema.error.base::BaseError"
+        ):
+            return Success(True)
+
+    return Success(False)
+
+
 def inherits_from_pydantic_basemodel(
     cls: ClassAnalysis,
     module: ModuleAnalysis,

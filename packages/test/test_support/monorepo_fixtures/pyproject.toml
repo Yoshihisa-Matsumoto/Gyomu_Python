@@ -7,4 +7,5 @@ members = [
     "packages/project_a",
     "packages/project_b",
     "packages/parameter",
+    "packages/schema",
 ]

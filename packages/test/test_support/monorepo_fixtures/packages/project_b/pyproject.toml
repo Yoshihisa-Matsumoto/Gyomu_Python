@@ -4,10 +4,12 @@ version = "0.1.0"
 description = "Project B"
 
 dependencies = [
-    "project_a"
+    "project_a",
+    "gyomu_schema"
 ]
 
 
 
 [tool.uv.sources]
 project_a = { workspace = true }
+gyomu_schema = { workspace = true }
