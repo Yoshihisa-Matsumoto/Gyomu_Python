@@ -27,6 +27,7 @@ from gyomu_workflow.snapshot.models import (
 from gyomu_workflow.snapshot.project import find_project_by_name
 from gyomu_workflow.snapshot.workspace import get_workspace_context
 from gyomu_workflow.test.migrate_default import migrate_default_from_existing_helpers
+from gyomu_workflow.test.reconcile_helpers import reconcile_helper_inventories
 from returns.result import Failure
 
 from gyomu_cli.snapshot import run_snapshot_request
@@ -169,6 +170,12 @@ def test(
 
     if migrate_model_defaults:
         migrate_default_from_existing_helpers(
+            workspace_context=workspace_context,
+            workspace_project_context=workspace_project_context,
+            additional_filename=additional_filename,
+        )
+    if reconcile_helpers:
+        reconcile_helper_inventories(
             workspace_context=workspace_context,
             workspace_project_context=workspace_project_context,
             additional_filename=additional_filename,
