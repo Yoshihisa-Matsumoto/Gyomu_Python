@@ -219,7 +219,7 @@ class AnalysisTestBase:
             context=initialize_symbol_context(
                 module_name=file_name, name=symbol_name, source_lines=source_lines
             ),
-            ast=target_ast,
+            ast_func=target_ast,
         )
 
     def _analyze_variable_base(

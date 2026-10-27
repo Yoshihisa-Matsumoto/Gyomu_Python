@@ -3,8 +3,8 @@ from gyomu_workflow.snapshot.project import find_project_by_name
 from returns.result import Failure, Success
 
 from packages.concept.test_support.helpers import (
-    create_monorepo_workspace_context,
-    create_workspace_context,
+    build_monorepo_workspace_context,
+    build_workspace_context,
 )
 from packages.python_analysis.test_support.helpers import (
     create_py_project_config,
@@ -22,7 +22,7 @@ class TestFindProjectByName:
             config=create_py_project_config(name="gyomu-schema")
         )
 
-        workspace_context = create_workspace_context(
+        workspace_context = build_workspace_context(
             projects=(other_package, target_package)
         )
 
@@ -42,7 +42,7 @@ class TestFindProjectByName:
         package = create_workspace_project()
         package.config.name = "gyomu-schema"
 
-        workspace_context = create_monorepo_workspace_context()
+        workspace_context = build_monorepo_workspace_context()
         workspace_context.projects = (package,)
 
         result = find_project_by_name(
@@ -65,7 +65,7 @@ class TestFindProjectByName:
         second_package = create_workspace_project()
         second_package.config.name = "gyomu-ai"
 
-        workspace_context = create_monorepo_workspace_context()
+        workspace_context = build_monorepo_workspace_context()
         workspace_context.projects = (first_package, second_package)
 
         result = find_project_by_name(

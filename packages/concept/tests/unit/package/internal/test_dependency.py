@@ -3,19 +3,19 @@ from gyomu_concept.package.internal.dependency import collect_dependencies
 from gyomu_schema.schemas.concept.package.analysis import PackageDependencyAnalysis
 
 from packages.concept.test_support.helpers import (
-    create_monorepo_project_context,
-    create_monorepo_workspace_context,
+    build_monorepo_project_context,
+    build_monorepo_workspace_context,
 )
 
 
 @pytest.fixture
 def workspace_context():
-    return create_monorepo_workspace_context()
+    return build_monorepo_workspace_context()
 
 
 @pytest.fixture
 def project_a_context():
-    return create_monorepo_project_context("project_a")
+    return build_monorepo_project_context("project_a")
 
 
 def test_collect_runtime_dependencies(

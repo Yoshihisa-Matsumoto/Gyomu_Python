@@ -119,6 +119,11 @@ def _build_model_helper_inventory_item(
     if model_kind != TargetClassKind.GYOMU_ERROR:
         for resolved in collections_sorted_base_first.resolved():
             for param in resolved.symbol.variables:
+                if (
+                    model_kind == TargetClassKind.PYDANTIC_MODEL
+                    and param.name == "model_config"
+                ):
+                    continue
                 target_parameter_default = _find_parameter(
                     variable_name=param.name, default=default
                 )

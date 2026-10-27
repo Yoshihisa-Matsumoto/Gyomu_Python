@@ -192,17 +192,17 @@ def _build_class_variable_analysis(
         option=option,
     )
     variable_type = analyze_type(member.annotation, context, option)
-    if variable_type is None and constructor_method is not None:
-        target_parameter = next(
-            (
-                param
-                for param in constructor_method.parameters
-                if param.name == member.name
-            ),
-            None,
-        )
-        if target_parameter is not None and target_parameter.type is not None:
-            variable_type = target_parameter.type
+    # if variable_type is None and constructor_method is not None:
+    #     target_parameter = next(
+    #         (
+    #             param
+    #             for param in constructor_method.parameters
+    #             if param.name == member.name
+    #         ),
+    #         None,
+    #     )
+    #     if target_parameter is not None and target_parameter.type is not None:
+    #         variable_type = target_parameter.type
 
     # value_expression = (
     #     analyze_type_expression(member.value, context, option)

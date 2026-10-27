@@ -5,10 +5,10 @@ from gyomu_docstring.update.internal.validate import (
     validate_docstring_update_plan,
 )
 
-from packages.ai_compiler.test_support.helper import (
+from packages.ai_compiler.test_support.helpers import (
+    build_declaration_info_from_declaration_identity,
     create_context_entry,
     create_declaration_info,
-    create_declaration_info_from_declaration_identity,
     create_docstring_declaration_context,
     create_docstring_file_context,
     create_docstring_update_entry,
@@ -130,13 +130,13 @@ def test_get_docstring_identities_from_context_excludes_non_documentable_childre
                 children=(
                     create_context_entry(
                         target=documentable,
-                        member=create_declaration_info_from_declaration_identity(
+                        member=build_declaration_info_from_declaration_identity(
                             documentable
                         ),
                     ),
                     create_context_entry(
                         target=non_documentable,
-                        member=create_declaration_info_from_declaration_identity(
+                        member=build_declaration_info_from_declaration_identity(
                             non_documentable
                         ),
                         documentable=create_nondocumentable_context(),
@@ -171,17 +171,17 @@ def test_get_docstring_identities_from_context_stops_recursion_at_depth_two() ->
                 children=(
                     create_context_entry(
                         target=child,
-                        member=create_declaration_info_from_declaration_identity(child),
+                        member=build_declaration_info_from_declaration_identity(child),
                         children=(
                             create_context_entry(
                                 target=grandchild,
-                                member=create_declaration_info_from_declaration_identity(
+                                member=build_declaration_info_from_declaration_identity(
                                     grandchild
                                 ),
                                 children=(
                                     create_context_entry(
                                         target=great_grandchild,
-                                        member=create_declaration_info_from_declaration_identity(
+                                        member=build_declaration_info_from_declaration_identity(
                                             great_grandchild
                                         ),
                                     ),

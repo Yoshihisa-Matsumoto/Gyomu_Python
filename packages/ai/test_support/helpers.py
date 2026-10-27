@@ -43,55 +43,40 @@ def register_test_google_routing(
 
 
 def create_pydantic_ai_model_definition(
-    create_model: Callable[[AiModelContext | None], Model] | None = None,
-    *,
-    bucket_id: BucketId = BucketId("test-model"),  # noqa: B008
+    create_model: Callable[[AiModelContext | None], Model] = lambda _: MagicMock(
+        spec=Model
+    ),
+    bucket_id: BucketId = BucketId("test-model"),
 ) -> PydanticAiModelDefinition:
     return PydanticAiModelDefinition(
-        create_model=(
-            create_model
-            if create_model is not None
-            else lambda _: MagicMock(spec=Model)
-        ),
+        create_model=create_model,
         bucket_id=bucket_id,
     )
 
 
 def create_pydantic_ai_embedder_definition(
-    create_embedder: Callable[[AiModelContext | None], Embedder] | None = None,
-    *,
-    bucket_id: BucketId = BucketId("test-embedding"),  # noqa: B008
+    create_embedder: Callable[[AiModelContext | None], Embedder] = lambda _: MagicMock(
+        spec=Embedder
+    ),
+    bucket_id: BucketId = BucketId("test-embedding"),
 ) -> PydanticAiEmbedderDefinition:
     return PydanticAiEmbedderDefinition(
-        create_embedder=(
-            create_embedder
-            if create_embedder is not None
-            else lambda _: MagicMock(spec=Embedder)
-        ),
+        create_embedder=create_embedder,
         bucket_id=bucket_id,
     )
 
 
 def create_pydantic_ai_model_registry(
-    *,
-    fast: PydanticAiModelDefinition | None = None,
-    smart: PydanticAiModelDefinition | None = None,
-    reasoning: PydanticAiModelDefinition | None = None,
-    vision: PydanticAiModelDefinition | None = None,
-    embedding: PydanticAiEmbedderDefinition | None = None,
+    fast: PydanticAiModelDefinition = create_pydantic_ai_model_definition(),
+    smart: PydanticAiModelDefinition = create_pydantic_ai_model_definition(),
+    reasoning: PydanticAiModelDefinition = create_pydantic_ai_model_definition(),
+    vision: PydanticAiModelDefinition = create_pydantic_ai_model_definition(),
+    embedding: PydanticAiEmbedderDefinition = create_pydantic_ai_embedder_definition(),
 ) -> PydanticAiModelRegistry:
     return PydanticAiModelRegistry(
-        fast=fast if fast is not None else create_pydantic_ai_model_definition(),
-        smart=smart if smart is not None else create_pydantic_ai_model_definition(),
-        reasoning=(
-            reasoning
-            if reasoning is not None
-            else create_pydantic_ai_model_definition()
-        ),
-        vision=vision if vision is not None else create_pydantic_ai_model_definition(),
-        embedding=(
-            embedding
-            if embedding is not None
-            else create_pydantic_ai_embedder_definition()
-        ),
+        fast=fast,
+        smart=smart,
+        reasoning=reasoning,
+        vision=vision,
+        embedding=embedding,
     )

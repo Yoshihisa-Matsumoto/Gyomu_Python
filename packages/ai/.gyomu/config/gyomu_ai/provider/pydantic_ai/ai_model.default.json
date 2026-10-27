@@ -1,0 +1,191 @@
+{
+  "models": [
+    {
+      "class_name": "PydanticAiModelDefinition",
+      "parameters": [
+        {
+          "name": "create_model",
+          "value": {
+            "kind": "lambda",
+            "args": {
+              "posonlyargs": [],
+              "args": [
+                {
+                  "arg": "_",
+                  "annotation": {
+                    "kind": "none"
+                  }
+                }
+              ],
+              "vararg": null,
+              "kwonlyargs": [],
+              "kw_defaults": [],
+              "kwarg": null,
+              "defaults": []
+            },
+            "body": {
+              "kind": "call",
+              "callable_identity": {
+                "symbol_id": "unittest.mock::MagicMock",
+                "declaration_id": "."
+              },
+              "args": [],
+              "kwargs": [
+                {
+                  "name": "spec",
+                  "value": {
+                    "kind": "name",
+                    "name": "Model"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "bucket_id",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "gyomu_ai.model.ai_model::BucketId",
+              "declaration_id": "."
+            },
+            "args": [
+              {
+                "kind": "literal",
+                "value": "test-model"
+              }
+            ],
+            "kwargs": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "PydanticAiEmbedderDefinition",
+      "parameters": [
+        {
+          "name": "create_embedder",
+          "value": {
+            "kind": "lambda",
+            "args": {
+              "posonlyargs": [],
+              "args": [
+                {
+                  "arg": "_",
+                  "annotation": {
+                    "kind": "none"
+                  }
+                }
+              ],
+              "vararg": null,
+              "kwonlyargs": [],
+              "kw_defaults": [],
+              "kwarg": null,
+              "defaults": []
+            },
+            "body": {
+              "kind": "call",
+              "callable_identity": {
+                "symbol_id": "unittest.mock::MagicMock",
+                "declaration_id": "."
+              },
+              "args": [],
+              "kwargs": [
+                {
+                  "name": "spec",
+                  "value": {
+                    "kind": "name",
+                    "name": "Embedder"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "bucket_id",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "gyomu_ai.model.ai_model::BucketId",
+              "declaration_id": "."
+            },
+            "args": [
+              {
+                "kind": "literal",
+                "value": "test-embedding"
+              }
+            ],
+            "kwargs": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "PydanticAiModelRegistry",
+      "parameters": [
+        {
+          "name": "fast",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.ai.test_support.helpers::create_pydantic_ai_model_definition",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "smart",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.ai.test_support.helpers::create_pydantic_ai_model_definition",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "reasoning",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.ai.test_support.helpers::create_pydantic_ai_model_definition",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "vision",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.ai.test_support.helpers::create_pydantic_ai_model_definition",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "embedding",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.ai.test_support.helpers::create_pydantic_ai_embedder_definition",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        }
+      ]
+    }
+  ]
+}

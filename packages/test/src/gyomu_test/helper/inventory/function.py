@@ -4,11 +4,14 @@ from gyomu_python_analysis.analysis.resolve.reference import (
     resolve_declaration_identity,
 )
 from gyomu_schema.schemas.config.test.model_defaults import (
+    Argument,
+    Arguments,
     AttributeParameter,
     CallParameter,
     DictEntry,
     DictParameter,
     KeywordArgument,
+    LambdaParameter,
     ListParameter,
     LiteralParameter,
     NameParameter,
@@ -19,11 +22,14 @@ from gyomu_schema.schemas.config.test.model_defaults import (
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.type.expression import (
+    ArgumentAnalysis,
+    ArgumentsAnalysis,
     AttributeExpressionAnalysis,
     CallExpressionAnalysis,
     DictionaryExpressionAnalysis,
     ExpressionAnalysis,
     KeywordAnalysis,
+    LambdaExpressionAnalysis,
     ListExpressionAnalysis,
     NameExpressionAnalysis,
     NoneExpressionAnalysis,
@@ -72,6 +78,10 @@ def _convert_to_code(parameter: Parameter) -> str:
             for entry in parameter.entries
         )
         return f"{{{entries}}}"
+    if isinstance(parameter, LambdaParameter):
+        arguments = _convert_lambda_arguments(parameter.args)
+        body = _convert_to_code(parameter.body)
+        return f"lambda {arguments}: {body}"
     if isinstance(parameter, CallParameter):
         args = ", ".join(_convert_to_code(arg) for arg in parameter.args)
         kwargs = ", ".join(
@@ -91,6 +101,62 @@ def _convert_to_code(parameter: Parameter) -> str:
     if isinstance(parameter, NameParameter):
         return parameter.name
     raise NotImplementedError(f"Unsupported parameter type: {type(parameter).__name__}")
+
+
+def _convert_lambda_arguments(arguments: Arguments) -> str:
+    parts: list[str] = []
+
+    # Positional-only arguments
+    parts.extend(_convert_argument(argument) for argument in arguments.posonlyargs)
+
+    if arguments.posonlyargs:
+        parts.append("/")
+
+    # Regular arguments and positional defaults
+    positional_arguments = [
+        *arguments.posonlyargs,
+        *arguments.args,
+    ]
+    positional_defaults = arguments.defaults
+
+    default_start = len(positional_arguments) - len(positional_defaults)
+
+    for index, argument in enumerate(arguments.args):
+        default_index = index + len(arguments.posonlyargs) - default_start
+        if default_index >= 0:
+            parts.append(
+                f"{argument.arg} = "
+                f"{_convert_to_code(positional_defaults[default_index])}"
+            )
+        else:
+            parts.append(argument.arg)
+
+    # *args or a bare * for keyword-only arguments
+    if arguments.vararg is not None:
+        parts.append(f"*{arguments.vararg.arg}")
+    elif arguments.kwonlyargs:
+        parts.append("*")
+
+    # Keyword-only arguments
+    for argument, default in zip(
+        arguments.kwonlyargs,
+        arguments.kw_defaults,
+        strict=True,
+    ):
+        if isinstance(default, NoneParameter):
+            parts.append(argument.arg)
+        else:
+            parts.append(f"{argument.arg} = {_convert_to_code(default)}")
+
+    # **kwargs
+    if arguments.kwarg is not None:
+        parts.append(f"**{arguments.kwarg.arg}")
+
+    return ", ".join(parts)
+
+
+def _convert_argument(argument: Argument) -> str:
+    return argument.arg
 
 
 # def _convert_literal_to_code(
@@ -168,9 +234,49 @@ def build_parameter_from_expression(
         return _build_dict_parameter(expression, module)
     if isinstance(expression, AttributeExpressionAnalysis):
         return _build_attribute_parameter(expression, module)
+    if isinstance(expression, LambdaExpressionAnalysis):
+        return _build_lambda_parameter(expression, module)
     raise NotImplementedError(
         f"Unsupported parameter type: {type(expression).__name__}"
     )
+
+
+def _build_argument(arg: ArgumentAnalysis, module: ModuleAnalysis) -> Argument:
+    return Argument(
+        arg=arg.arg,
+        annotation=build_parameter_from_expression(
+            expression=arg.annotation, module=module
+        ),
+    )
+
+
+def _build_arguments(args: ArgumentsAnalysis, module: ModuleAnalysis) -> Arguments:
+
+    return Arguments(
+        posonlyargs=tuple(_build_argument(arg, module) for arg in args.posonlyargs),
+        args=tuple(_build_argument(arg, module) for arg in args.args),
+        vararg=_build_argument(args.vararg, module)
+        if args.vararg is not None
+        else None,
+        kwonlyargs=tuple(_build_argument(arg, module) for arg in args.kwonlyargs),
+        kw_defaults=tuple(
+            build_parameter_from_expression(default, module)
+            for default in args.kw_defaults
+        ),
+        kwarg=_build_argument(args.kwarg, module) if args.kwarg is not None else None,
+        defaults=tuple(
+            build_parameter_from_expression(default, module)
+            for default in args.defaults
+        ),
+    )
+
+
+def _build_lambda_parameter(
+    expression: LambdaExpressionAnalysis, module: ModuleAnalysis
+) -> LambdaParameter:
+    body = build_parameter_from_expression(expression=expression.body, module=module)
+    args = _build_arguments(expression.args, module)
+    return LambdaParameter(body=body, args=args)
 
 
 def _build_attribute_parameter(

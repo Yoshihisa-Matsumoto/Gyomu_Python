@@ -12,13 +12,13 @@ from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 
 from packages.concept.test_support.helpers import (
-    create_monorepo_project_context,
+    build_monorepo_project_context,
 )
 
 
 @pytest.fixture
 def project_a_context():
-    return create_monorepo_project_context("project_a")
+    return build_monorepo_project_context("project_a")
 
 
 class TestBuildPackageAnalysis:

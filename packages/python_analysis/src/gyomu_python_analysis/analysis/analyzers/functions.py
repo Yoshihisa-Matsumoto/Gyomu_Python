@@ -60,7 +60,7 @@ def analyze_function(
     func: Function,
     name: str,
     context: SymbolContext,
-    ast: ast.FunctionDef | ast.AsyncFunctionDef,
+    ast_func: ast.FunctionDef | ast.AsyncFunctionDef,
     option: AnalysisOption | None = None,
 ) -> FunctionAnalysis:
     """Analyzes a function definition and returns its detailed analysis structure.
@@ -68,26 +68,46 @@ def analyze_function(
     Returns:
         FunctionAnalysis: The analyzed function representation.
     """
-    # for dec in func.decorators:
-    #     print(dec.as_dict())
     parameters: list[ParameterAnalysis] = []
-    defaults = ast.args.defaults
-    default_start_index = len(func.parameters) - len(defaults)
+    ast_args = ast_func.args
 
-    for index, param in enumerate(func.parameters):
-        default_index = index - default_start_index
-        if (
-            param.kind
-            in (
-                GriffeParameterKind.var_positional,
-                GriffeParameterKind.var_keyword,
+    # 位置専用引数と通常の位置引数のデフォルト値
+    positional_args = [*ast_args.posonlyargs, *ast_args.args]
+    default_start_index = len(positional_args) - len(ast_args.defaults)
+
+    defaults_by_name: dict[str, ast.expr | None] = {
+        arg.arg: (
+            ast_args.defaults[index - default_start_index]
+            if index >= default_start_index
+            else None
+        )
+        for index, arg in enumerate(positional_args)
+    }
+
+    # キーワード専用引数のデフォルト値
+    defaults_by_name.update(
+        {
+            arg.arg: default
+            for arg, default in zip(
+                ast_args.kwonlyargs,
+                ast_args.kw_defaults,
+                strict=True,
             )
-            or default_index < 0
+        }
+    )
+
+    for param in func.parameters:
+        if param.kind in (
+            GriffeParameterKind.var_positional,
+            GriffeParameterKind.var_keyword,
         ):
             default = None
         else:
-            default = analyze_expression(
-                defaults[default_index], context, option, False
+            default_expr = defaults_by_name[param.name]
+            default = (
+                analyze_expression(default_expr, context, option, False)
+                if default_expr is not None
+                else None
             )
 
         parameters.append(
@@ -100,7 +120,8 @@ def analyze_function(
         )
 
     statements: list[StatementAnalysis] = [
-        analyze_statement(statement, context, option, False) for statement in ast.body
+        analyze_statement(statement, context, option, False)
+        for statement in ast_func.body
     ]
     is_ellipsis_only = check_ellipsis_only(statements)
 

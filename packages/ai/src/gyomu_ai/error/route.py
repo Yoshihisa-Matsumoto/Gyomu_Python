@@ -8,6 +8,9 @@ from gyomu_ai.provider.pydantic_ai.routing import ModelRouteId, ModelRouteTableI
 class RoutingError(BaseError):
     """Raised when a model routing or route table operation fails."""
 
+    table_id: ModelRouteTableId | None
+    route_id: ModelRouteId | None
+
     def __init__(
         self,
         message: str,

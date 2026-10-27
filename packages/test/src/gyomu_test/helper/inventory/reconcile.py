@@ -1,6 +1,7 @@
 import io
 import tokenize
 
+from gyomu_infra.logger import logger
 from gyomu_schema.schemas.testing.helper import (
     ExistingHelperInventoryItem,
     HelperFileInventory,
@@ -87,9 +88,13 @@ def _is_equal(
     existing_function = read_function_code(
         file_inventory=file_inventory, location=existing.location
     )
-    return _normalize_python_tokens(expected_function) == _normalize_python_tokens(
+    is_same = _normalize_python_tokens(expected_function) == _normalize_python_tokens(
         existing_function
     )
+    if not is_same:
+        logger.debug(expected_function)
+        logger.debug(existing_function)
+    return is_same
 
 
 def reconcile(

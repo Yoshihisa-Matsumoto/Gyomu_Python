@@ -1,0 +1,253 @@
+{
+  "models": [
+    {
+      "class_name": "DeclarationInfo",
+      "parameters": [
+        {
+          "name": "name",
+          "value": {
+            "kind": "literal",
+            "value": "foo"
+          }
+        },
+        {
+          "name": "kind",
+          "value": {
+            "kind": "literal",
+            "value": "class"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DocstringParameter",
+      "parameters": [
+        {
+          "name": "name",
+          "value": {
+            "kind": "literal",
+            "value": "foo"
+          }
+        },
+        {
+          "name": "sort_order",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "type",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "description",
+          "value": {
+            "kind": "none"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DocstringReturn",
+      "parameters": [
+        {
+          "name": "type",
+          "value": {
+            "kind": "literal",
+            "value": "str"
+          }
+        },
+        {
+          "name": "description",
+          "value": {
+            "kind": "literal",
+            "value": "return str"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DocstringRaise",
+      "parameters": [
+        {
+          "name": "type",
+          "value": {
+            "kind": "literal",
+            "value": "AiError"
+          }
+        },
+        {
+          "name": "description",
+          "value": {
+            "kind": "literal",
+            "value": "raise Ai Error"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "ExistingDocstring",
+      "parameters": [
+        {
+          "name": "summary",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "description",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "parameters",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "returns",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "raises",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "ContextEntry",
+      "parameters": [
+        {
+          "name": "target",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.schema.test_support.helpers::create_declaration_identity",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "member",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.ai_compiler.test_support.helpers::create_declaration_info",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "existing_docstring",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "children",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "documentable",
+          "value": {
+            "kind": "name",
+            "name": "_default_documentable"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DocstringDeclarationContext",
+      "parameters": [
+        {
+          "name": "symbol",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.ai_compiler.test_support.helpers::create_declaration_info",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "target",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.schema.test_support.helpers::create_declaration_identity",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "children",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "existing_docstring",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "code",
+          "value": {
+            "kind": "literal",
+            "value": "int"
+          }
+        },
+        {
+          "name": "dependencies",
+          "value": {
+            "kind": "none"
+          }
+        }
+      ]
+    }
+  ]
+}

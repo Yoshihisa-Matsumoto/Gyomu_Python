@@ -17,7 +17,7 @@ from gyomu_schema.schemas.config.test.model_defaults import (
 from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
 from gyomu_schema.schemas.testing.helper import HelperFileInventory
 from gyomu_schema.utility.fromatting import format_object
-from returns.result import Success
+from returns.result import Failure, Success
 
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
 from gyomu_test.helper.inventory.expected import _get_model_kind
@@ -41,6 +41,8 @@ def assemble_model_defaults(
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
         )
+        if isinstance(class_result, Failure):
+            logger.error_object(class_result.failure())
         assert isinstance(class_result, Success)
         file_analysis, symbol = class_result.unwrap()
         model_kind_result = _get_model_kind(
@@ -60,7 +62,7 @@ def assemble_model_defaults(
                 )
 
             if invalid_parameters:
-                logger.info(
+                logger.warning(
                     message=(
                         f"helper for {inventory.target_identity.symbol_id} "
                         "has parameters without default values: "
@@ -92,8 +94,11 @@ def migrate(
         target_project=project_context,
         files=helper_files,
     )
+    if isinstance(existing_result, Failure):
+        logger.error_object(existing_result.failure(), depth=6)
     assert isinstance(existing_result, Success)
     existings = existing_result.unwrap()
+    # logger.error_object(existings, depth=8)
     model_defaults_by_module: dict[PythonPath, list[ModelDefault]] = {}
     for existing in existings:
         assemble_model_defaults(

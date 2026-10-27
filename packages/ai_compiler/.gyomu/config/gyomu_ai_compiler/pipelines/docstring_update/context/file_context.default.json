@@ -1,0 +1,46 @@
+{
+  "models": [
+    {
+      "class_name": "DocstringFileContext",
+      "parameters": [
+        {
+          "name": "symbols",
+          "value": {
+            "kind": "tuple",
+            "elements": [
+              {
+                "kind": "call",
+                "callable_identity": {
+                  "symbol_id": "packages.ai_compiler.test_support.helpers::create_docstring_declaration_context",
+                  "declaration_id": "."
+                },
+                "args": [],
+                "kwargs": []
+              }
+            ]
+          }
+        },
+        {
+          "name": "retry",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "project_name",
+          "value": {
+            "kind": "literal",
+            "value": "test_project"
+          }
+        },
+        {
+          "name": "source_relative_path",
+          "value": {
+            "kind": "literal",
+            "value": "test.py"
+          }
+        }
+      ]
+    }
+  ]
+}

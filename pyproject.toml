@@ -85,6 +85,9 @@ select = [
 [tool.ruff.format]
 quote-style = "double"
 
+[tool.ruff.lint.per-file-ignores]
+"packages/*/test_support/**/*.py" = ["B008"]
+
 [tool.pytest.ini_options]
 markers = [
     "integration: tests requiring external infrastructure",

@@ -45,7 +45,7 @@ def _create_directory_project_context() -> ProjectContext:
     ).unwrap()
 
 
-def create_workspace_context(
+def build_workspace_context(
     config: PyProjectConfig = create_py_project_config(),  # noqa: B008
     projects: tuple[WorkspaceProject, ...] = tuple(),
     path: FullPath = FullPath(Path("/tmp")),  # noqa: B008
@@ -53,12 +53,12 @@ def create_workspace_context(
     return WorkspaceContext(path=path, config=config, projects=projects)
 
 
-def create_monorepo_workspace_context() -> WorkspaceContext:
+def build_monorepo_workspace_context() -> WorkspaceContext:
     root = create_workspace_root(path=FIXTURES_ROOT / "monorepo")
     return initialize_workspace_context(root=root).unwrap()
 
 
-def create_monorepo_project_context(project_name: str) -> ProjectContext:
+def build_monorepo_project_context(project_name: str) -> ProjectContext:
     return initialize_project_context(
         project_root=FIXTURES_ROOT / "monorepo" / "packages" / project_name,
         source_root=ProjectRelativePath(Path("src")),

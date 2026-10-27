@@ -50,7 +50,7 @@ from pydantic_ai.models import Model
 from pydantic_ai.models.test import TestModel
 from returns.result import Failure, Success
 
-from packages.ai.test_support.helper import (
+from packages.ai.test_support.helpers import (
     create_pydantic_ai_embedder_definition,
     create_pydantic_ai_model_definition,
     create_pydantic_ai_model_registry,

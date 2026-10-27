@@ -20,7 +20,7 @@ from gyomu_workflow.snapshot.validate import (
 from returns.result import Failure, Success
 
 from packages.concept.test_support.helpers import (
-    create_monorepo_workspace_context,
+    build_monorepo_workspace_context,
 )
 from packages.python_analysis.test_support.helpers import (
     _create_context,
@@ -46,7 +46,7 @@ class TestValidateSnapshotRequest:
                 ),
             ),
             project=create_workspace_project(),
-            workspace=create_monorepo_workspace_context(),
+            workspace=build_monorepo_workspace_context(),
         )
 
         result = validate_snapshot_request(request)
@@ -67,7 +67,7 @@ class TestValidateSnapshotRequest:
                 ),
             ),
             project=create_workspace_project(),
-            workspace=create_monorepo_workspace_context(),
+            workspace=build_monorepo_workspace_context(),
         )
 
         result = validate_snapshot_request(request)
@@ -97,7 +97,7 @@ class TestValidateSnapshotRequest:
                 ),
             ),
             project=create_workspace_project(),
-            workspace=create_monorepo_workspace_context(),
+            workspace=build_monorepo_workspace_context(),
         )
 
         result = validate_snapshot_request(request)

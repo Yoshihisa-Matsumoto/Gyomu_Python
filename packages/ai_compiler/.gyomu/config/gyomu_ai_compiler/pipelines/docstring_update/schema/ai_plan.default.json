@@ -1,0 +1,275 @@
+{
+  "models": [
+    {
+      "class_name": "UpdateReplaceAction",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "literal",
+            "value": "replace"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "ReturnUpdatePlan",
+      "parameters": [
+        {
+          "name": "action",
+          "value": {
+            "kind": "name",
+            "name": "_preserve_action"
+          }
+        },
+        {
+          "name": "confidence",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "RaiseUpdatePlan",
+      "parameters": [
+        {
+          "name": "error_type",
+          "value": {
+            "kind": "literal",
+            "value": "AiError"
+          }
+        },
+        {
+          "name": "action",
+          "value": {
+            "kind": "name",
+            "name": "_preserve_action"
+          }
+        },
+        {
+          "name": "confidence",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "ParamUpdatePlan",
+      "parameters": [
+        {
+          "name": "name",
+          "value": {
+            "kind": "literal",
+            "value": "param1"
+          }
+        },
+        {
+          "name": "sort_order",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "action",
+          "value": {
+            "kind": "name",
+            "name": "_preserve_action"
+          }
+        },
+        {
+          "name": "confidence",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DescriptionPlan",
+      "parameters": [
+        {
+          "name": "action",
+          "value": {
+            "kind": "name",
+            "name": "_preserve_action"
+          }
+        },
+        {
+          "name": "confidence",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "SummaryPlan",
+      "parameters": [
+        {
+          "name": "action",
+          "value": {
+            "kind": "name",
+            "name": "_preserve_action"
+          }
+        },
+        {
+          "name": "confidence",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "Reasoning",
+      "parameters": [
+        {
+          "name": "summary",
+          "value": {
+            "kind": "literal",
+            "value": "summary"
+          }
+        },
+        {
+          "name": "param_mapping",
+          "value": {
+            "kind": "literal",
+            "value": "parameter_mapping"
+          }
+        },
+        {
+          "name": "return_mapping",
+          "value": {
+            "kind": "literal",
+            "value": "return_mapping"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "Risk",
+      "parameters": [
+        {
+          "name": "has_human_conflict",
+          "value": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "risk_level",
+          "value": {
+            "kind": "literal",
+            "value": "low"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DocstringUpdateEntry",
+      "parameters": [
+        {
+          "name": "identity",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.schema.test_support.helpers::create_declaration_identity",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "summary",
+          "value": {
+            "kind": "name",
+            "name": "_default_summary"
+          }
+        },
+        {
+          "name": "description",
+          "value": {
+            "kind": "name",
+            "name": "_default_description"
+          }
+        },
+        {
+          "name": "returns",
+          "value": {
+            "kind": "name",
+            "name": "_default_return"
+          }
+        },
+        {
+          "name": "params",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "raises",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "reasoning",
+          "value": {
+            "kind": "name",
+            "name": "_default_reasoning"
+          }
+        },
+        {
+          "name": "risk",
+          "value": {
+            "kind": "name",
+            "name": "_default_risk"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "DocstringUpdatePlan",
+      "parameters": [
+        {
+          "name": "entries",
+          "value": {
+            "kind": "tuple",
+            "elements": [
+              {
+                "kind": "call",
+                "callable_identity": {
+                  "symbol_id": "packages.ai_compiler.test_support.helpers::create_docstring_update_entry",
+                  "declaration_id": "."
+                },
+                "args": [],
+                "kwargs": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

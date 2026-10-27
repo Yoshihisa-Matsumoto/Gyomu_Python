@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.initialize import (
     initialize_project_context,
     initialize_project_from_workspace,
@@ -11,7 +12,7 @@ from gyomu_schema.schemas.testing.helper import HelperReconcileResult, HelperUpd
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
 from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
 from gyomu_test.helper.inventory.reconcile import reconcile
-from returns.result import Success
+from returns.result import Failure, Success
 
 
 def reconcile_helper_inventories(
@@ -24,6 +25,8 @@ def reconcile_helper_inventories(
     )
     expected_result = collect_model_helper_inventory(project_context, workspace_context)
 
+    if isinstance(expected_result, Failure):
+        logger.error_object(expected_result.failure(), depth=8)
     assert isinstance(expected_result, Success)
     expected = expected_result.unwrap()
 
@@ -73,6 +76,7 @@ def get_update_reconcile_result(update: HelperUpdate) -> str:
                 output += (
                     f"      - parameter: {existing_param.name} default difference\n"
                 )
+
     for expected_param in update.expected.parameters:
         target_existing = next(
             (
@@ -85,6 +89,16 @@ def get_update_reconcile_result(update: HelperUpdate) -> str:
         if target_existing is None:
             output += f"      - parameter: {expected_param.name} only in expected\n"
 
+    if output == "":
+        for index, expected_param in enumerate(update.expected.parameters):
+            existing_param = update.existing.parameters[index]
+            if expected_param.name != existing_param.name:
+                output += (
+                    f"      - parameter: {expected_param.name} "
+                    "is located differently in helper function\n"
+                )
+    if output == "":
+        logger.error_object(update, depth=6)
     return output
 
 

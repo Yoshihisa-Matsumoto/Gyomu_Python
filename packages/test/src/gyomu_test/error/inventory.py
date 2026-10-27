@@ -37,6 +37,11 @@ class FileInventoryError(Exception):
 
 
 class ProjectInventoryError(BaseError):
+    project_name: str
+    project_root: FullPath
+    error_files: tuple[FileInventoryError, ...]
+    duplicates: tuple[DuplicateHelper, ...]
+
     def __init__(
         self,
         message: str,

@@ -22,8 +22,8 @@ from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.ai_compiler.test_support.helper import (
-    create_declaration_info_from_declaration_identity,
+from packages.ai_compiler.test_support.helpers import (
+    build_declaration_info_from_declaration_identity,
     create_docstring_declaration_context,
     create_docstring_file_context,
     create_docstring_update_entry,
@@ -47,7 +47,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
             )
@@ -89,7 +89,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
             )
@@ -144,7 +144,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
             )
@@ -188,7 +188,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
             )
@@ -237,11 +237,11 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(bar),
+                    build_declaration_info_from_declaration_identity(bar),
                     bar,
                 ),
             )
@@ -302,11 +302,11 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(bar),
+                    build_declaration_info_from_declaration_identity(bar),
                     bar,
                 ),
             )
@@ -351,7 +351,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
             )
@@ -403,7 +403,7 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
             )
@@ -433,7 +433,7 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
             )
@@ -466,11 +466,11 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(bar),
+                    build_declaration_info_from_declaration_identity(bar),
                     bar,
                 ),
             ),
@@ -508,11 +508,11 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(bar),
+                    build_declaration_info_from_declaration_identity(bar),
                     bar,
                 ),
             ),
@@ -550,15 +550,15 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(foo),
+                    build_declaration_info_from_declaration_identity(foo),
                     foo,
                 ),
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(bar),
+                    build_declaration_info_from_declaration_identity(bar),
                     bar,
                 ),
                 create_docstring_declaration_context(
-                    create_declaration_info_from_declaration_identity(baz),
+                    build_declaration_info_from_declaration_identity(baz),
                     baz,
                 ),
             ),

@@ -177,7 +177,7 @@ def _extract_symbols_internal(
                     name=symbol_name,
                     context=context,
                     option=option,
-                    ast=ast_symbol,
+                    ast_func=ast_symbol,
                 )
             )
         elif isinstance(symbol, Class):

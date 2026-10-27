@@ -17,6 +17,7 @@ class ParameterExpressionType(StrEnum):
     DICT = "dict"
     ATTR = "attr"
     NAME = "name"
+    LAMBDA = "lambda"
 
 
 class LiteralParameter(BaseModel):
@@ -59,6 +60,27 @@ class DictParameter(BaseModel):
     entries: tuple[DictEntry, ...]
 
 
+class Argument(BaseModel):
+    arg: str
+    annotation: Parameter
+
+
+class Arguments(BaseModel):
+    posonlyargs: tuple[Argument, ...]
+    args: tuple[Argument, ...]
+    vararg: Argument | None
+    kwonlyargs: tuple[Argument, ...]
+    kw_defaults: tuple[Parameter, ...]
+    kwarg: Argument | None
+    defaults: tuple[Parameter, ...]
+
+
+class LambdaParameter(BaseModel):
+    kind: Literal[ParameterExpressionType.LAMBDA] = ParameterExpressionType.LAMBDA
+    args: Arguments
+    body: Parameter
+
+
 class KeywordArgument(BaseModel):
     name: str
     value: Parameter
@@ -79,7 +101,8 @@ type Parameter = Annotated[
     | TupleParameter
     | ListParameter
     | DictParameter
-    | AttributeParameter,
+    | AttributeParameter
+    | LambdaParameter,
     Field(discriminator="kind"),
 ]
 
