@@ -17,7 +17,11 @@ from gyomu_schema.schemas.python.type.type_analysis import (
 )
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
-from test_support.helpers import AnalysisTestBase
+from test_support.helpers import (
+    AnalysisTestBase,
+    assert_type_analysis,
+    assert_variable_type,
+)
 
 
 def test_analyze_type_returns_none_for_none() -> None:
@@ -45,6 +49,7 @@ def test_analyze_type_analyzes_none_string() -> None:
     assert result is not None
     assert result.text == "None"
     assert isinstance(result.structure, NoneStructureAnalysis)
+    assert_type_analysis(result)
 
 
 def test_analyze_type_preserves_string_annotation() -> None:
@@ -59,6 +64,7 @@ def test_analyze_type_preserves_string_annotation() -> None:
     assert result is not None
     assert result.text == "MyType"
     assert result.structure is None
+    assert_type_analysis(result)
 
 
 class TestAnalyzeType(AnalysisTestBase):
@@ -89,6 +95,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert result.type.text == "int"
         assert isinstance(result.type.structure, NameStructureAnalysis)
         assert result.type.structure.name == "int"
+        assert_variable_type(result)
 
     def test_analyze_type_str(self) -> None:
         result = self._analyze_variable("value_str")
@@ -97,6 +104,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert result.type.text == "str"
         assert isinstance(result.type.structure, NameStructureAnalysis)
         assert result.type.structure.name == "str"
+        assert_variable_type(result)
 
     def test_analyze_type_none(self) -> None:
         result = self._analyze_variable("value_none")
@@ -104,6 +112,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert result.type is not None
         assert result.type.text == "None"
         assert isinstance(result.type.structure, NoneStructureAnalysis)
+        assert_variable_type(result)
 
     def test_analyze_type_custom(self) -> None:
         result = self._analyze_variable("value_custom")
@@ -112,6 +121,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert result.type.text == "Foo"
         assert isinstance(result.type.structure, NameStructureAnalysis)
         assert result.type.structure.name == "Foo"
+        assert_variable_type(result)
 
     def test_analyze_type_union(self) -> None:
         result = self._analyze_variable("value_union")
@@ -133,6 +143,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(types[3], NoneStructureAnalysis)
         # assert types[3].value == "None"
+        assert_variable_type(result)
 
     def test_analyze_type_literal_int(self) -> None:
         result = self._analyze_variable("value_literal_int")
@@ -143,6 +154,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(result.type.structure, LiteralStructureAnalysis)
         assert isinstance(result.type.structure.value, LiteralValue)
         assert result.type.structure.value.value == 1
+        assert_variable_type(result)
 
     def test_analyze_type_literal_multiple_int(self) -> None:
         result = self._analyze_variable("value_literal_int2")
@@ -154,6 +166,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(value, TupleStructureAnalysis)
         assert len(value.elements) == 2
+        assert_variable_type(result)
 
     def test_analyze_type_list(self) -> None:
         result = self._analyze_variable("value_list")
@@ -166,6 +179,7 @@ class TestAnalyzeType(AnalysisTestBase):
         element = result.type.structure.element
         assert isinstance(element, NameStructureAnalysis)
         assert element.name == "int"
+        assert_variable_type(result)
 
     def test_analyze_type_dict(self) -> None:
         result = self._analyze_variable("value_dict")
@@ -183,6 +197,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(value, NameStructureAnalysis)
         assert value.name == "int"
+        assert_variable_type(result)
 
     def test_analyze_type_set(self) -> None:
         result = self._analyze_variable("value_set")
@@ -196,6 +211,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(element, NameStructureAnalysis)
         assert element.name == "str"
+        assert_variable_type(result)
 
     def test_analyze_type_tuple(self) -> None:
         result = self._analyze_variable("value_tuple2")
@@ -215,6 +231,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.elements[1], NameStructureAnalysis)
         assert structure.elements[1].name == "int"
+        assert_variable_type(result)
 
     def test_analyze_type_tuple_variable_length(self) -> None:
         result = self._analyze_variable("value_tuple")
@@ -231,6 +248,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.elements[0], NameStructureAnalysis)
         assert structure.elements[0].name == "str"
+        assert_variable_type(result)
 
     def test_analyze_type_nested_tuple(self) -> None:
         result = self._analyze_variable("value_tuple_nested")
@@ -258,6 +276,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(inner.elements[1], NameStructureAnalysis)
         assert inner.elements[1].name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_type_nested_variable_length_tuple(self) -> None:
         result = self._analyze_variable("value_tuple_nested2")
@@ -279,6 +298,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(inner.elements[0], NameStructureAnalysis)
         assert inner.elements[0].name == "int"
+        assert_variable_type(result)
 
     def test_analyze_type_nested_variable_length_tuple_2(self) -> None:
         result = self._analyze_variable("value_tuple_nested3")
@@ -300,6 +320,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(inner.elements[0], NameStructureAnalysis)
         assert inner.elements[0].name == "int"
+        assert_variable_type(result)
 
     def test_analyze_type_callable(self) -> None:
         result = self._analyze_variable("value_callable")
@@ -319,6 +340,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_type_callable_with_multiple_parameters(self) -> None:
         result = self._analyze_variable("value_callable2")
@@ -340,6 +362,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.parameters[2], DictionaryStructureAnalysis)
 
         assert isinstance(structure.return_type, ArrayStructureAnalysis)
+        assert_variable_type(result)
 
     def test_analyze_callable_single_parameter(self) -> None:
         result = self._analyze_callable("value_callable_1")
@@ -360,6 +383,7 @@ class TestAnalyzeType(AnalysisTestBase):
         return_type = structure.return_type
         assert isinstance(return_type, NameStructureAnalysis)
         assert return_type.name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_callable_no_parameter(self) -> None:
         result = self._analyze_callable("value_callable_3")
@@ -368,6 +392,7 @@ class TestAnalyzeType(AnalysisTestBase):
         structure = result.type.structure
         assert isinstance(structure, CallableStructureAnalysis)
         assert structure.parameters == ()
+        assert_variable_type(result)
 
     def test_analyze_callable_no_parameter_with_return(self) -> None:
         result = self._analyze_callable("value_callable_5")
@@ -381,6 +406,7 @@ class TestAnalyzeType(AnalysisTestBase):
             structure.return_type,
             NoneStructureAnalysis,
         )
+        assert_variable_type(result)
 
     def test_analyze_callable_variable_parameter(self) -> None:
         result = self._analyze_callable("value_callable_15")
@@ -389,6 +415,7 @@ class TestAnalyzeType(AnalysisTestBase):
         structure = result.type.structure
         assert isinstance(structure, CallableStructureAnalysis)
         assert structure.parameters is None
+        assert_variable_type(result)
 
     def test_analyze_callable_7(self) -> None:
         result = self._analyze_callable("value_callable_7")
@@ -423,6 +450,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_callable_8(self) -> None:
         result = self._analyze_callable("value_callable_8")
@@ -447,6 +475,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert structure.return_type.types[0].name == "str"
 
         assert isinstance(structure.return_type.types[1], NoneStructureAnalysis)
+        assert_variable_type(result)
 
     def test_analyze_callable_9(self) -> None:
         result = self._analyze_callable("value_callable_9")
@@ -475,6 +504,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_callable_10(self) -> None:
         result = self._analyze_callable("value_callable_10")
@@ -504,6 +534,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(return_type.return_type, NameStructureAnalysis)
         assert return_type.return_type.name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_callable_11(self) -> None:
         result = self._analyze_callable("value_callable_11")
@@ -544,6 +575,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(return_type.return_type, NameStructureAnalysis)
         assert return_type.return_type.name == "str"
+        assert_variable_type(result)
 
     def test_analyze_callable_12(self) -> None:
         result = self._analyze_callable("value_callable_12")
@@ -570,6 +602,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_callable_13(self) -> None:
         result = self._analyze_callable("value_callable_13")
@@ -595,6 +628,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
+        assert_variable_type(result)
 
     def test_analyze_callable_14(self) -> None:
         result = self._analyze_callable("value_callable_14")
@@ -618,6 +652,7 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(parameter.types[1], NoneStructureAnalysis)
 
         assert isinstance(structure.return_type, NoneStructureAnalysis)
+        assert_variable_type(result)
 
     def test_analyze_generic_simple(self) -> None:
         result = self._analyze_generics("value_generic_simple")
@@ -636,6 +671,7 @@ class TestAnalyzeType(AnalysisTestBase):
         parameter = structure.parameters[0]
         assert isinstance(parameter, NameStructureAnalysis)
         assert parameter.name == "str"
+        assert_variable_type(result)
 
     def test_analyze_generic_nested(self) -> None:
         result = self._analyze_generics("value_generic_nested")
@@ -656,6 +692,7 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(parameter.element, NameStructureAnalysis)
         assert parameter.element.name == "str"
+        assert_variable_type(result)
 
     def test_analyze_generic_multiple(self) -> None:
         result = self._analyze_generics("value_generic_multiple")
@@ -678,6 +715,7 @@ class TestAnalyzeType(AnalysisTestBase):
         second = structure.parameters[1]
         assert isinstance(second, NameStructureAnalysis)
         assert second.name == "int"
+        assert_variable_type(result)
 
     def test_analyze_generic_deep_nested(self) -> None:
         result = self._analyze_generics("value_generic_deep_nested")
@@ -708,123 +746,4 @@ class TestAnalyzeType(AnalysisTestBase):
         second = parameter.parameters[1]
         assert isinstance(second, NameStructureAnalysis)
         assert second.name == "int"
-
-    # def test_analyze_type_dict_empty(self) -> None:
-    #     result = self._analyze_variable("CONFIG_OPTIONS")
-
-    #     assert result.type is not None
-    #     assert result.type.text == "Mapping[str, str]"
-
-    #     # assert isinstance(result.value_expression, DictionaryStructureAnalysis)
-
-    #     # key = result.value_expression.keys
-    #     # value = result.value_expression.values
-
-    #     assert key is None
-    #     assert value is None
-
-    # def test_analyzes_variable_with_type_annotation(self) -> None:
-    #     result = self._analyze_variable(
-    #         "value_int",
-    #     )
-
-    #     # assert result.type is not None
-    #     # assert result.type.text == "int"
-
-    #     result = self._analyze_variable(
-    #         "value_str",
-    #     )
-
-    #     result = self._analyze_variable(
-    #         "value_none",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_custom",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_list",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_union",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_dict",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_tuple",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_literal_int",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_literal_int2",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_literal_str",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_literal_str2",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_literal_bool",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_literal_bool2",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_callable",
-    #     )
-    #     result = self._analyze_variable(
-    #         "value_callable2",
-    #     )
-
-    #     result = self._analyze_variable("value_tuple2")
-    #     result = self._analyze_variable("value_tuple_nested")
-    #     result = self._analyze_variable("value_tuple_nested2")
-    #     result = self._analyze_variable("value_tuple_empty")
-    #     result = self._analyze_variable("value_tuple_nested3")
-    #     # print(result)
-    #     result = self._analyze_variable("value_set")
-    #     result = self._analyze_variable("value_set_nested")
-
-    # @pytest.mark.parametrize(
-    #     ("name"),
-    #     [
-    #         ("value_callable_1"),
-    #         ("value_callable_2"),
-    #         ("value_callable_3"),
-    #         ("value_callable_4"),
-    #         ("value_callable_5"),
-    #         ("value_callable_6"),
-    #         ("value_callable_7"),
-    #         ("value_callable_8"),
-    #         ("value_callable_9"),
-    #         ("value_callable_10"),
-    #         ("value_callable_11"),
-    #         ("value_callable_12"),
-    #         ("value_callable_13"),
-    #         ("value_callable_14"),
-    #         ("value_callable_15"),
-    #     ],
-    # )
-    # def test_analyzes_variable_with_callable(
-    #     self,
-    #     name: str,
-    # ) -> None:
-    #     self._analyze_callable(name)
-
-    # @pytest.mark.parametrize(
-    #     ("name"),
-    #     [
-    #         ("value_generic_simple"),
-    #         ("value_generic_nested"),
-    #         ("value_generic_multiple"),
-    #         ("value_generic_deep_nested"),
-    #     ],
-    # )
-    # def test_analyzes_variable_with_generics(
-    #     self,
-    #     name: str,
-    # ) -> None:
-    #     result = self._analyze_generics(name)
-    #     print(result)
+        assert_variable_type(result)

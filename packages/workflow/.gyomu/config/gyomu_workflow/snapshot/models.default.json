@@ -1,0 +1,130 @@
+{
+  "models": [
+    {
+      "class_name": "SnapshotTargetOption",
+      "parameters": [
+        {
+          "name": "all",
+          "value": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "file_filter",
+          "value": {
+            "kind": "none"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "SnapshotActionOption",
+      "parameters": [
+        {
+          "name": "docstring",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.workflow.test_support.helpers::create_docstring_execution_ption",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "project_context",
+          "value": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "unit_test",
+          "value": {
+            "kind": "literal",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "SnapshotExecutionOption",
+      "parameters": [
+        {
+          "name": "commit",
+          "value": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "target",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.workflow.test_support.helpers::create_snapshot_target_option",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "action",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.workflow.test_support.helpers::create_snapshot_action_option",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "SnapshotTarget",
+      "parameters": [
+        {
+          "name": "files",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "frozenset",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "deleted_files",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "frozenset",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "snapshot",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.python_analysis.test_support.helpers::create_project_snapshot",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        }
+      ]
+    }
+  ]
+}

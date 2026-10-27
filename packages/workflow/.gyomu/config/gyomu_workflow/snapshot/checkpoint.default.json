@@ -1,0 +1,237 @@
+{
+  "models": [
+    {
+      "class_name": "InputFingerprint",
+      "parameters": [
+        {
+          "name": "paths",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "hash",
+          "value": {
+            "kind": "literal",
+            "value": "ABC"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "Fingerprints",
+      "parameters": [
+        {
+          "name": "deleted_files",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "frozenset",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "source_fingerprint",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.workflow.test_support.helpers::create_input_fingerprint",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": [
+              {
+                "name": "paths",
+                "value": {
+                  "kind": "tuple",
+                  "elements": [
+                    {
+                      "kind": "call",
+                      "callable_identity": {
+                        "symbol_id": "gyomu_schema.schemas.python.types::ProjectRelativePath",
+                        "declaration_id": "."
+                      },
+                      "args": [
+                        {
+                          "kind": "call",
+                          "callable_identity": {
+                            "symbol_id": "pathlib::Path",
+                            "declaration_id": "."
+                          },
+                          "args": [
+                            {
+                              "kind": "literal",
+                              "value": "src/a.py"
+                            }
+                          ],
+                          "kwargs": []
+                        }
+                      ],
+                      "kwargs": []
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "hash",
+                "value": {
+                  "kind": "literal",
+                  "value": "SOURCE_HASH***"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_fingerprint",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.workflow.test_support.helpers::create_input_fingerprint",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": [
+              {
+                "name": "paths",
+                "value": {
+                  "kind": "tuple",
+                  "elements": [
+                    {
+                      "kind": "call",
+                      "callable_identity": {
+                        "symbol_id": "gyomu_schema.schemas.python.types::ProjectRelativePath",
+                        "declaration_id": "."
+                      },
+                      "args": [
+                        {
+                          "kind": "call",
+                          "callable_identity": {
+                            "symbol_id": "pathlib::Path",
+                            "declaration_id": "."
+                          },
+                          "args": [
+                            {
+                              "kind": "literal",
+                              "value": "pyproject.toml"
+                            }
+                          ],
+                          "kwargs": []
+                        }
+                      ],
+                      "kwargs": []
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "hash",
+                "value": {
+                  "kind": "literal",
+                  "value": "PROJECT_HASH***"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "workspace_fingerprint",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.workflow.test_support.helpers::create_input_fingerprint",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": [
+              {
+                "name": "paths",
+                "value": {
+                  "kind": "tuple",
+                  "elements": [
+                    {
+                      "kind": "call",
+                      "callable_identity": {
+                        "symbol_id": "gyomu_schema.schemas.python.types::WorkspaceRelativePath",
+                        "declaration_id": "."
+                      },
+                      "args": [
+                        {
+                          "kind": "call",
+                          "callable_identity": {
+                            "symbol_id": "pathlib::Path",
+                            "declaration_id": "."
+                          },
+                          "args": [
+                            {
+                              "kind": "literal",
+                              "value": ".gyomu/knowledge/Package.yaml"
+                            }
+                          ],
+                          "kwargs": []
+                        }
+                      ],
+                      "kwargs": []
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "hash",
+                "value": {
+                  "kind": "literal",
+                  "value": "WORKSPACE_HASH***"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "Checkpoint",
+      "parameters": [
+        {
+          "name": "package",
+          "value": {
+            "kind": "literal",
+            "value": "test-package"
+          }
+        },
+        {
+          "name": "completed_steps",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "fingerprints",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.workflow.test_support.helpers::create_fingerprints",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -27,6 +27,7 @@ from gyomu_python_analysis.project.workspace import (
     WorkspaceRoot,
     WorkspaceRootKind,
 )
+from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_python_analysis.snapshot.models import (
     AnalyzeProjectChangesResult,
 )
@@ -35,6 +36,7 @@ from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
+from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.schemas.python.type_alias import TypeAliasAnalysis
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
@@ -169,6 +171,44 @@ def create_analyze_project_change(
         current_snapshot=current_snapshot,
         diff=diff,
     )
+
+
+def assert_class_type(class_analysis: ClassAnalysis) -> None:
+    for base in class_analysis.bases:
+        assert_type_analysis(base, class_analysis.name)
+    for variable in class_analysis.variables:
+        assert_type_analysis(variable.type, class_analysis.name)
+    for method in class_analysis.methods:
+        assert_type_analysis(method.return_type, class_analysis.name)
+        for parameter in method.parameters:
+            assert_type_analysis(parameter.type, class_analysis.name)
+
+
+def assert_function_type(function: FunctionAnalysis) -> None:
+    assert_type_analysis(function.return_type)
+    for parameter in function.parameters:
+        assert_type_analysis(parameter.type)
+
+
+def assert_variable_type(variable: VariableAnalysis) -> None:
+    assert_type_analysis(variable.type)
+
+
+def assert_type_analysis(
+    type_analysis: TypeAnalysis | None, class_name: str | None = None
+) -> None:
+    if type_analysis is None:
+        return
+    generated = dump_type(type_analysis=type_analysis, class_name=class_name)
+    if type_analysis.text != generated:
+        print(f"generated:{generated}")
+        print(f"original:{type_analysis.text}")
+    original = (
+        type_analysis.text.replace("'", '"')
+        if class_name is None
+        else type_analysis.text.replace("'", '"').replace("Self", class_name)
+    )
+    assert original == generated
 
 
 @dataclass

@@ -3,6 +3,7 @@ import json
 from gyomu_python_analysis.resolve.reference import (
     resolve_declaration_identity,
 )
+from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_schema.schemas.config.test.model_defaults import (
     Argument,
     Arguments,
@@ -187,7 +188,7 @@ def generate_function_code(item: HelperInventoryItem) -> str:
 
     parameters = ",\n".join(
         (
-            f"    {parameter.name}: {parameter.parameter_type.text}"
+            f"    {parameter.name}: {dump_type(parameter.parameter_type, return_type)}"
             f"{_generate_function_parameter_default_code(parameter.default)}"
         )
         for parameter in item.parameters

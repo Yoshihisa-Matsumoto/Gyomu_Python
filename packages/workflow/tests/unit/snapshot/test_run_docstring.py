@@ -21,7 +21,7 @@ from returns.result import Failure, Success
 from packages.python_analysis.test_support.helpers import (
     _create_context,
 )
-from packages.workflow.test_support.helper import (
+from packages.workflow.test_support.helpers import (
     create_snapshot_target,
 )
 

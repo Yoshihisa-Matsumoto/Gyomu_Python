@@ -50,6 +50,8 @@ class PackageFacts:
     analysis.
     """
 
+    analysis: PackageAnalysis
+
     def __init__(self, analysis: PackageAnalysis):
         self.analysis = analysis
 

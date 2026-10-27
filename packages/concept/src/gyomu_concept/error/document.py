@@ -23,6 +23,11 @@ class DocumentBuilderError(BaseError):
         details (Mapping[str, object] | None): Optional additional details mapping.
     """
 
+    phase: DocumentBuildPhase
+    package_name: str | None
+    file_path: Path | None
+    section_id: str | None
+
     def __init__(
         self,
         message: str,

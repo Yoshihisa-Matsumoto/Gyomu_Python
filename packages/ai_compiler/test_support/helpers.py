@@ -99,8 +99,8 @@ def create_nondocumentable_context(
 
 
 def create_context_entry(
-    target: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
-    member: DeclarationInfo = create_declaration_info(),  # noqa: B008
+    target: DeclarationIdentity = create_declaration_identity(),
+    member: DeclarationInfo = create_declaration_info(),
     existing_docstring: ExistingDocstring | None = None,
     children: tuple[ContextEntry, ...] = tuple(),
     documentable: DocumentableContext | NonDocumentableContext = _default_documentable,
@@ -115,25 +115,27 @@ def create_context_entry(
 
 
 def create_docstring_declaration_context(
-    symbol: DeclarationInfo = create_declaration_info(),  # noqa: B008
-    target: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
-    children: tuple[ContextEntry, ...] = tuple(),
-    existing_docstring: ExistingDocstring | None = None,
+    target: DeclarationIdentity = create_declaration_identity(),
+    symbol: DeclarationInfo = create_declaration_info(),
     code: str = "int",
+    existing_docstring: ExistingDocstring | None = None,
     dependencies: tuple[DependencySummary, ...] | None = None,
+    children: tuple[ContextEntry, ...] = tuple(),
 ) -> DocstringDeclarationContext:
     return DocstringDeclarationContext(
+        target=target,
         symbol=symbol,
         code=code,
         existing_docstring=existing_docstring,
         dependencies=dependencies,
         children=children,
-        target=target,
     )
 
 
-def create_update_replace_action(value: str = "replace") -> UpdateReplaceAction:
-    return UpdateReplaceAction(value=value)
+def create_update_replace_action(
+    type: Literal["replace"] = "replace", value: str = "replace"
+) -> UpdateReplaceAction:
+    return UpdateReplaceAction(type=type, value=value)
 
 
 _preserve_action = UpdatePreserveAction()
@@ -147,9 +149,9 @@ def create_return_update_plan(
 
 
 def create_raise_update_plan(
-    error_type: str = "AiError",
     action: RaiseUpdateAction = _preserve_action,
     confidence: Confidence = 1,
+    error_type: str = "AiError",
 ) -> RaiseUpdatePlan:
     return RaiseUpdatePlan(action=action, confidence=confidence, error_type=error_type)
 
@@ -202,12 +204,12 @@ _default_summary = create_summary_plan()
 
 
 def create_docstring_update_entry(
-    identity: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
+    identity: DeclarationIdentity = create_declaration_identity(),
     summary: SummaryPlan = _default_summary,
-    description: DescriptionPlan = _default_description,
-    returns: ReturnUpdatePlan = _default_return,
+    description: DescriptionPlan | None = _default_description,
     params: tuple[ParamUpdatePlan, ...] = tuple(),
     raises: tuple[RaiseUpdatePlan, ...] = tuple(),
+    returns: ReturnUpdatePlan | None = _default_return,
     reasoning: Reasoning = _default_reasoning,
     risk: Risk = _default_risk,
 ) -> DocstringUpdateEntry:
@@ -230,16 +232,16 @@ def create_docstring_update_plan(
 
 
 def create_docstring_file_context(
+    project_name: str = "test_project",
+    source_relative_path: SourceRelativePath = SourceRelativePath(Path("test.py")),
     symbols: tuple[DocstringDeclarationContext, ...] = (
         create_docstring_declaration_context(),
     ),
     retry: DocstringRetryOption | None = None,
-    project_name: str = "test_project",
-    source_relative_path: str = "test.py",
 ) -> DocstringFileContext:
     return DocstringFileContext(
         project_name=project_name,
-        source_relative_path=SourceRelativePath(Path(source_relative_path)),
+        source_relative_path=source_relative_path,
         symbols=symbols,
         retry=retry,
     )

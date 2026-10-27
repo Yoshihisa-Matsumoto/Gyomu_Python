@@ -1,7 +1,6 @@
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.structure import (
-    LiteralValue,
     NameStructureAnalysis,
 )
 from gyomu_schema.schemas.python.type.type_analysis import (
@@ -15,7 +14,7 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
-from test_support.helpers import AnalysisTestBase
+from test_support.helpers import AnalysisTestBase, assert_variable_type
 
 
 class TestAnalyzeVariable(AnalysisTestBase):
@@ -49,13 +48,14 @@ class TestAnalyzeVariable(AnalysisTestBase):
                 symbol_id=SymbolId("analysis.symbol.variable::VERSION"),
                 declaration_id=DeclarationId("."),
             ),
-            value_expression=LiteralValue(value=5),
+            # value_expression=LiteralValue(value=5),
             pydantic=None,
         )
-
+        assert_variable_type(result)
         result = self._analyze_variable(
             "VERSION_STR",
         )
+        assert_variable_type(result)
 
     def test_analyzes_private_variable(self) -> None:
         result = self._analyze_variable(
@@ -66,6 +66,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.kind == DeclarationKind.VARIABLE
         assert result.name == "_internal_value"
         assert result.value_source == "10"
+        assert_variable_type(result)
 
     def test_analyzes_variable_without_value(self) -> None:
         result = self._analyze_variable(
@@ -79,6 +80,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
             text="int", structure=NameStructureAnalysis(name="int")
         )
         assert result.value_source is None
+        assert_variable_type(result)
 
     def test_analyzes_variable_expression(self) -> None:
         result = self._analyze_variable(
@@ -90,6 +92,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.visibility == Visibility.PUBLIC
         assert result.type is None
         assert result.value_source == "2 + 3"
+        assert_variable_type(result)
 
     def test_analyzes_variable_pydantic(self) -> None:
         result = self._analyze_variable(
@@ -104,6 +107,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.pydantic.description
         assert "AI decision" in result.pydantic.description
         assert result.pydantic.required
+        assert_variable_type(result)
 
     def test_analyzes_variable_pydantic2(self) -> None:
         result = self._analyze_variable(
@@ -118,6 +122,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.pydantic.description
         assert "AI decision" in result.pydantic.description
         assert result.pydantic.required
+        assert_variable_type(result)
 
     def test_analyzes_variable_pydantic3(self) -> None:
         result = self._analyze_variable(
@@ -132,6 +137,7 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.pydantic.description
         assert "AI decision" in result.pydantic.description
         assert not result.pydantic.required
+        assert_variable_type(result)
 
     def test_analyzes_variable_pydantic4(self) -> None:
         result = self._analyze_variable(
@@ -146,3 +152,4 @@ class TestAnalyzeVariable(AnalysisTestBase):
         assert result.pydantic.description
         assert "AI decision" in result.pydantic.description
         assert not result.pydantic.required
+        assert_variable_type(result)

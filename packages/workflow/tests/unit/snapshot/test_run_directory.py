@@ -15,7 +15,7 @@ from gyomu_workflow.snapshot.models import SnapshotRequest
 from gyomu_workflow.snapshot.run_directory import run_directory_action
 from returns.result import Failure, Success
 
-from packages.workflow.test_support.helper import (
+from packages.workflow.test_support.helpers import (
     create_fingerprints,
     create_snapshot_target,
 )

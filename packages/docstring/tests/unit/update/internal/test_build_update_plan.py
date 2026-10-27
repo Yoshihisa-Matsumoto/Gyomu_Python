@@ -47,8 +47,8 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
             )
         )
@@ -89,8 +89,8 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
             )
         )
@@ -144,8 +144,8 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
             )
         )
@@ -188,8 +188,8 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
             )
         )
@@ -237,12 +237,12 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(bar),
-                    bar,
+                    symbol=build_declaration_info_from_declaration_identity(bar),
+                    target=bar,
                 ),
             )
         )
@@ -302,12 +302,12 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(bar),
-                    bar,
+                    symbol=build_declaration_info_from_declaration_identity(bar),
+                    target=bar,
                 ),
             )
         )
@@ -351,8 +351,8 @@ class TestBuildDocstringUpdatePlanWithRetry:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
             )
         )
@@ -403,8 +403,8 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
             )
         )
@@ -433,8 +433,8 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
             )
         )
@@ -466,12 +466,12 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(bar),
-                    bar,
+                    symbol=build_declaration_info_from_declaration_identity(bar),
+                    target=bar,
                 ),
             ),
             retry=DocstringRetryOption(
@@ -508,12 +508,12 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(bar),
-                    bar,
+                    symbol=build_declaration_info_from_declaration_identity(bar),
+                    target=bar,
                 ),
             ),
             retry=DocstringRetryOption(
@@ -550,16 +550,16 @@ class TestOverrideDocstringUpdatePlan:
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(foo),
-                    foo,
+                    symbol=build_declaration_info_from_declaration_identity(foo),
+                    target=foo,
                 ),
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(bar),
-                    bar,
+                    symbol=build_declaration_info_from_declaration_identity(bar),
+                    target=bar,
                 ),
                 create_docstring_declaration_context(
-                    build_declaration_info_from_declaration_identity(baz),
-                    baz,
+                    symbol=build_declaration_info_from_declaration_identity(baz),
+                    target=baz,
                 ),
             ),
             retry=DocstringRetryOption(

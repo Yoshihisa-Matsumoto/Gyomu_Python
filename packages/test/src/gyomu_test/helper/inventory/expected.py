@@ -135,17 +135,17 @@ def _build_model_helper_inventory_item(
                 else:
                     parameters.append(parameter_result.unwrap())
     else:
-        for param in symbol.variables:
-            target_parameter_default = _find_parameter(
-                variable_name=param.name, default=default
-            )
-            parameter_result = _build_helper_function_parameter(
-                param, default=target_parameter_default
-            )
-            if isinstance(parameter_result, Failure):
-                type_errors.append(parameter_result.failure())
-            else:
-                parameters.append(parameter_result.unwrap())
+        # for param in symbol.variables:
+        #     target_parameter_default = _find_parameter(
+        #         variable_name=param.name, default=default
+        #     )
+        #     parameter_result = _build_helper_function_parameter(
+        #         param, default=target_parameter_default
+        #     )
+        #     if isinstance(parameter_result, Failure):
+        #         type_errors.append(parameter_result.failure())
+        #     else:
+        #         parameters.append(parameter_result.unwrap())
         constructor = next(
             (method for method in symbol.methods if method.name == "__init__"), None
         )

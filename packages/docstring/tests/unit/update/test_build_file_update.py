@@ -15,7 +15,7 @@ from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.python.location import SourceLocation
 from returns.result import Failure, Success
 
-from packages.docstring.test_support.helper import (
+from packages.docstring.test_support.helpers import (
     create_entry,
     create_rendered_docstring,
 )

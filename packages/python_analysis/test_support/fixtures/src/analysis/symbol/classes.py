@@ -1,3 +1,6 @@
+from typing import Self
+
+
 class Base:
     def __init__(self, base_value: int) -> None:
         self.base_value = base_value
@@ -75,3 +78,6 @@ class Nested:
 class TypeAlias:
     type UserId = int
     type UserList = list[UserId]
+
+class SelfRef:
+    members: tuple[Self,...]

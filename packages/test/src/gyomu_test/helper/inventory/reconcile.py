@@ -2,6 +2,7 @@ import io
 import tokenize
 
 from gyomu_infra.logger import logger
+from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_schema.schemas.testing.helper import (
     ExistingHelperInventoryItem,
     HelperFileInventory,
@@ -73,9 +74,11 @@ def _is_equal(
     if len(existing.parameters) != len(expected.parameters):
         return False
 
+    class_name = existing.target_identity.get_symbol_name()
     if not all(
         existing_param.name == expected_param.name
-        and existing_param.parameter_type.text == expected_param.parameter_type.text
+        and dump_type(existing_param.parameter_type, class_name)
+        == dump_type(expected_param.parameter_type, class_name)
         for existing_param, expected_param in zip(
             existing.parameters,
             expected.parameters,

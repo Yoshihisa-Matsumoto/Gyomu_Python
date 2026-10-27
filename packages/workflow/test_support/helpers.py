@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from pathlib import Path
 
 from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
@@ -97,9 +98,9 @@ def create_snapshot_target(
 
 
 def create_checkpoint(
-    fingerprints: Fingerprints = create_fingerprints(),  # noqa: B008
     package: str = "test-package",
     completed_steps: tuple[PipelineStep, ...] = tuple(),
+    fingerprints: Fingerprints = create_fingerprints(),
 ) -> Checkpoint:
     return Checkpoint(
         package=package,
@@ -109,22 +110,24 @@ def create_checkpoint(
 
 
 def create_py_project_structure_validation_error(
-    kind: PyProjectStructureErrorKind = PyProjectStructureErrorKind.MISSING_INIT_FILE,
-    path: ProjectRelativePath = ProjectRelativePath(Path("src/foo")),  # noqa: B008
     message: str = "test",
+    kind: PyProjectStructureErrorKind = PyProjectStructureErrorKind.MISSING_INIT_FILE,
+    path: ProjectRelativePath = ProjectRelativePath(Path("src/foo")),
+    details: Mapping[str, object] | None = None,
 ) -> PyProjectStructureValidationError:
-    return PyProjectStructureValidationError(message=message, path=path, kind=kind)
+    return PyProjectStructureValidationError(
+        message=message, kind=kind, path=path, details=details
+    )
 
 
 def create_py_project_structure_validation_errors(
+    message: str = "Invalid structure on project",
+    project_name: str = "test-project",
     errors: tuple[PyProjectStructureValidationError, ...] = (
         create_py_project_structure_validation_error(),
     ),
-    message: str = "Invalid structure on project",
-    project_name: str = "test-project",
+    details: Mapping[str, object] | None = None,
 ) -> PyProjectStructureValidationErrors:
     return PyProjectStructureValidationErrors(
-        message=message,
-        project_name=project_name,
-        errors=errors,
+        message=message, project_name=project_name, errors=errors, details=details
     )

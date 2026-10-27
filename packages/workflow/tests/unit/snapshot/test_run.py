@@ -16,7 +16,7 @@ from packages.python_analysis.test_support.helpers import (
     create_analyze_project_change,
     create_project_snapshot,
 )
-from packages.workflow.test_support.helper import (
+from packages.workflow.test_support.helpers import (
     create_checkpoint,
     create_snapshot_target,
 )

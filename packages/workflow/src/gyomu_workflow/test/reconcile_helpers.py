@@ -7,6 +7,7 @@ from gyomu_python_analysis.analysis.initialize import (
 )
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.testing.helper import HelperReconcileResult, HelperUpdate
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
@@ -70,8 +71,20 @@ def get_update_reconcile_result(update: HelperUpdate) -> str:
         if target_expected is None:
             output += f"      - parameter: {existing_param.name} only in existing\n"
         else:
-            if target_expected.parameter_type != existing_param.parameter_type:
+            expected_type = dump_type(
+                target_expected.parameter_type,
+                update.expected.target_identity.get_symbol_name(),
+            )
+            existing_type = dump_type(
+                existing_param.parameter_type,
+                update.existing.target_identity.get_symbol_name(),
+            )
+            if expected_type != existing_type:
                 output += f"      - parameter: {existing_param.name} type difference\n"
+
+                output += f"          - expected: {expected_type}\n"
+
+                output += f"          - existing: {existing_type}\n"
             if target_expected.default != existing_param.default:
                 output += (
                     f"      - parameter: {existing_param.name} default difference\n"

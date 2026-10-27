@@ -28,7 +28,7 @@ from packages.python_analysis.test_support.helpers import (
     create_analyze_project_change,
     create_project_snapshot,
 )
-from packages.workflow.test_support.helper import create_fingerprints
+from packages.workflow.test_support.helpers import create_fingerprints
 
 
 @pytest.fixture

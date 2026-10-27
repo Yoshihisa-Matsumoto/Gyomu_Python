@@ -13,6 +13,10 @@ type UpdatePhase = Literal[
 class UpdateError(BaseError):
     """Docstring Update error."""
 
+    file_path: PythonPath
+    phase: UpdatePhase
+    identity: DeclarationIdentity | None
+
     def __init__(
         self,
         message: str,

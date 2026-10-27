@@ -10,7 +10,7 @@ from gyomu_workflow.snapshot.checkpoint import (
 from gyomu_workflow.snapshot.run_readme import run_readme_action
 from returns.result import Failure, Success
 
-from packages.workflow.test_support.helper import (
+from packages.workflow.test_support.helpers import (
     create_fingerprints,
     create_snapshot_target,
 )

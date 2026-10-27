@@ -24,7 +24,7 @@ from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 from packages.ai.test_support.helpers import register_test_google_routing
-from packages.docstring.test_support.helper import (
+from packages.docstring.test_support.helpers import (
     FIXTURES_ROOT,
     assert_text_file_equals,
 )

@@ -9,7 +9,7 @@ from gyomu_schema.schemas.python.type.structure import LiteralValue
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.visibility import Visibility
 from gyomu_schema.utility.fromatting import format_object
-from test_support.helpers import AnalysisTestBase
+from test_support.helpers import AnalysisTestBase, assert_function_type
 
 
 class TestAnalyzeFunctions(AnalysisTestBase):
@@ -62,6 +62,8 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         # Identity
         assert function2.identity.symbol_id == "analysis.symbol.functions::test_async"
         assert function2.identity.declaration_id == "."
+        assert_function_type(result)
+        assert_function_type(function2)
 
     def test_analyzes_function_parameter_kinds(self) -> None:
 
@@ -101,6 +103,7 @@ class TestAnalyzeFunctions(AnalysisTestBase):
                 default=None,
             ),
         )
+        assert_function_type(result)
 
     def test_analyzes_function_ellipse(self) -> None:
         result = self._analyze_function(
@@ -110,6 +113,7 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         assert result.name == "abstract"
         assert result.visibility == Visibility.PUBLIC
         assert result.is_ellipsis_only
+        assert_function_type(result)
 
     def test_default(self) -> None:
         result = self._analyze_function(name="build_default_user")
@@ -128,6 +132,7 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         assert arg.arg == "id"
         assert isinstance(arg.value, LiteralValue)
         assert arg.value.value == "345D"
+        assert_function_type(result)
 
     def test_default_parameter(self) -> None:
         result = self._analyze_function(name="build_default_parameter")
@@ -135,3 +140,4 @@ class TestAnalyzeFunctions(AnalysisTestBase):
         assert result.name == "build_default_parameter"
         assert len(result.parameters) == 2
         print(format_object(result.parameters, depth=6))
+        assert_function_type(result)

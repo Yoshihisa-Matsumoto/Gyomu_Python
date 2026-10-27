@@ -29,7 +29,7 @@ from packages.python_analysis.test_support.helpers import (
     create_file_snapshot,
     create_project_snapshot,
 )
-from packages.workflow.test_support.helper import (
+from packages.workflow.test_support.helpers import (
     create_checkpoint,
     create_fingerprints,
     create_input_fingerprint,
@@ -148,14 +148,14 @@ class TestIsFingerprintSame:
 class TestUpdateFingerprints:
     def test_preserves_completed_steps_when_fingerprints_are_same(self) -> None:
         fingerprints = create_fingerprints()
-        checkpoint = create_checkpoint(fingerprints)
+        checkpoint = create_checkpoint(fingerprints=fingerprints)
 
         _update_fingerprints(checkpoint, fingerprints)
 
         assert checkpoint.completed_steps == tuple()
 
     def test_clears_all_steps_when_source_fingerprint_changes(self) -> None:
-        checkpoint = create_checkpoint(create_fingerprints())
+        checkpoint = create_checkpoint(fingerprints=create_fingerprints())
         updated = create_fingerprints()
 
         _update_fingerprints(checkpoint, updated)
@@ -164,7 +164,7 @@ class TestUpdateFingerprints:
         assert checkpoint.fingerprints == updated
 
     def test_clears_all_steps_when_deleted_files_change(self) -> None:
-        checkpoint = create_checkpoint(create_fingerprints())
+        checkpoint = create_checkpoint(fingerprints=create_fingerprints())
         updated = create_fingerprints(
             deleted_files=frozenset({ProjectRelativePath(Path("src/deleted.py"))})
         )

@@ -193,18 +193,6 @@
       "class_name": "DocstringDeclarationContext",
       "parameters": [
         {
-          "name": "symbol",
-          "value": {
-            "kind": "call",
-            "callable_identity": {
-              "symbol_id": "packages.ai_compiler.test_support.helpers::create_declaration_info",
-              "declaration_id": "."
-            },
-            "args": [],
-            "kwargs": []
-          }
-        },
-        {
           "name": "target",
           "value": {
             "kind": "call",
@@ -217,21 +205,15 @@
           }
         },
         {
-          "name": "children",
+          "name": "symbol",
           "value": {
             "kind": "call",
             "callable_identity": {
-              "symbol_id": "tuple",
+              "symbol_id": "packages.ai_compiler.test_support.helpers::create_declaration_info",
               "declaration_id": "."
             },
             "args": [],
             "kwargs": []
-          }
-        },
-        {
-          "name": "existing_docstring",
-          "value": {
-            "kind": "none"
           }
         },
         {
@@ -242,9 +224,27 @@
           }
         },
         {
+          "name": "existing_docstring",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
           "name": "dependencies",
           "value": {
             "kind": "none"
+          }
+        },
+        {
+          "name": "children",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "tuple",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
           }
         }
       ]

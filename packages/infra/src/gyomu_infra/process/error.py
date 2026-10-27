@@ -6,6 +6,9 @@ from gyomu_schema.error.base import BaseError, caller_context
 class ProcessError(BaseError):
     """Subprocess error."""
 
+    command: tuple[str, ...]
+    exit_code: int | None
+
     def __init__(
         self,
         message: str,

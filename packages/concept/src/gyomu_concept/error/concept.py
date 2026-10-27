@@ -21,6 +21,11 @@ class ConceptError(BaseError):
     phase, and identity context.
     """
 
+    package_name: str
+    file_path: Path
+    phase: ConceptPhase
+    identity: DeclarationIdentity | None
+
     def __init__(
         self,
         message: str,

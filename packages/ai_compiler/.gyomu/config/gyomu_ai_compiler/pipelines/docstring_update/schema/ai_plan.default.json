@@ -4,6 +4,13 @@
       "class_name": "UpdateReplaceAction",
       "parameters": [
         {
+          "name": "type",
+          "value": {
+            "kind": "literal",
+            "value": "replace"
+          }
+        },
+        {
           "name": "value",
           "value": {
             "kind": "literal",
@@ -35,13 +42,6 @@
       "class_name": "RaiseUpdatePlan",
       "parameters": [
         {
-          "name": "error_type",
-          "value": {
-            "kind": "literal",
-            "value": "AiError"
-          }
-        },
-        {
           "name": "action",
           "value": {
             "kind": "name",
@@ -53,6 +53,13 @@
           "value": {
             "kind": "literal",
             "value": 1
+          }
+        },
+        {
+          "name": "error_type",
+          "value": {
+            "kind": "literal",
+            "value": "AiError"
           }
         }
       ]
@@ -203,13 +210,6 @@
           }
         },
         {
-          "name": "returns",
-          "value": {
-            "kind": "name",
-            "name": "_default_return"
-          }
-        },
-        {
           "name": "params",
           "value": {
             "kind": "call",
@@ -231,6 +231,13 @@
             },
             "args": [],
             "kwargs": []
+          }
+        },
+        {
+          "name": "returns",
+          "value": {
+            "kind": "name",
+            "name": "_default_return"
           }
         },
         {

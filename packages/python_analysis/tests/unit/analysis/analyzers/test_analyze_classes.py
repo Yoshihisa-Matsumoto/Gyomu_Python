@@ -7,7 +7,7 @@ from gyomu_schema.schemas.python.type.structure import (
     TypeStructureKind,
 )
 from gyomu_schema.schemas.python.types import PythonPath
-from test_support.helpers import AnalysisTestBase
+from test_support.helpers import AnalysisTestBase, assert_class_type
 
 
 class TestAnalyzeClass(AnalysisTestBase):
@@ -29,7 +29,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert result.visibility.value == "public"
 
         # class Simple starts at column 0
-        assert result.location.start_line == 6
+        assert result.location.start_line == 9
         assert result.location.start_column == 0
 
         assert result.bases == ()
@@ -76,7 +76,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert position.type.structure.name == "int"
         assert position.value_source is None
         assert position.location is not None
-        assert position.location.start_line == 16
+        assert position.location.start_line == 19
         assert position.location.start_column == 4
 
     def test_analyzes_class_simple_methods(self) -> None:
@@ -109,12 +109,13 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert get_name.return_type.text == "str"
 
         assert [param.name for param in get_name.parameters] == ["self"]
+        assert_class_type(result)
 
     def test_analyzes_class_noinit(self) -> None:
         result = self._analyze_class("NoInit")
 
         assert result.name == "NoInit"
-        assert result.location.start_line == 22
+        assert result.location.start_line == 25
         assert result.location.start_column == 0
 
         # Identity
@@ -140,8 +141,9 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert variable.value_source == "10"
 
         assert variable.location is not None
-        assert variable.location.start_line == 23
+        assert variable.location.start_line == 26
         assert variable.location.start_column == 4
+        assert_class_type(result)
 
     def test_analyzes_class_inherited(self) -> None:
         result = self._analyze_class("Inherited")
@@ -154,6 +156,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         # TypeAnalysis is not implemented yet.
         assert len(result.bases) == 1
         assert result.bases[0].text == "Base"
+        assert_class_type(result)
 
     def test_analyzes_class_complex(self) -> None:
         result = self._analyze_class("Complex")
@@ -232,6 +235,7 @@ class TestAnalyzeClass(AnalysisTestBase):
             "name",
         ]
         assert create.is_async is False
+        assert_class_type(result)
 
     def test_analyzes_class_nested(self) -> None:
         result = self._analyze_class("Nested")
@@ -336,6 +340,7 @@ class TestAnalyzeClass(AnalysisTestBase):
             "self",
             "value",
         ]
+        assert_class_type(result)
 
     def test_analyzes_class_typealias(self) -> None:
         result = self._analyze_class("TypeAlias")
@@ -354,6 +359,7 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert user_list.alias_type
         assert user_list.alias_type.text == "list[UserId]"
         assert user_list.alias_type.structure
+        assert_class_type(result)
 
     def test_analyzes_class_pydantic(self) -> None:
         result = self._analyze_file("pydantic", "User")
@@ -363,6 +369,11 @@ class TestAnalyzeClass(AnalysisTestBase):
         assert field
         assert field.name == "id"
         print(repr(field))
+        assert_class_type(result)
+
+    def test_analyzes_class_self(self) -> None:
+        result = self._analyze_class("SelfRef")
+        assert_class_type(result)
 
 
 class TypeAlias:

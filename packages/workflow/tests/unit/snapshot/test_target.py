@@ -24,7 +24,7 @@ from packages.python_analysis.test_support.helpers import (
     create_file_updated,
 )
 from packages.schema.test_support.helpers import create_gyomu_io_error
-from packages.workflow.test_support.helper import (
+from packages.workflow.test_support.helpers import (
     create_py_project_structure_validation_errors,
 )
 

@@ -1,0 +1,102 @@
+{
+  "models": [
+    {
+      "class_name": "PyProjectStructureValidationError",
+      "parameters": [
+        {
+          "name": "message",
+          "value": {
+            "kind": "literal",
+            "value": "test"
+          }
+        },
+        {
+          "name": "kind",
+          "value": {
+            "kind": "attr",
+            "value": {
+              "kind": "name",
+              "name": "PyProjectStructureErrorKind"
+            },
+            "attribute": "MISSING_INIT_FILE"
+          }
+        },
+        {
+          "name": "path",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "gyomu_schema.schemas.python.types::ProjectRelativePath",
+              "declaration_id": "."
+            },
+            "args": [
+              {
+                "kind": "call",
+                "callable_identity": {
+                  "symbol_id": "pathlib::Path",
+                  "declaration_id": "."
+                },
+                "args": [
+                  {
+                    "kind": "literal",
+                    "value": "src/foo"
+                  }
+                ],
+                "kwargs": []
+              }
+            ],
+            "kwargs": []
+          }
+        },
+        {
+          "name": "details",
+          "value": {
+            "kind": "none"
+          }
+        }
+      ]
+    },
+    {
+      "class_name": "PyProjectStructureValidationErrors",
+      "parameters": [
+        {
+          "name": "message",
+          "value": {
+            "kind": "literal",
+            "value": "Invalid structure on project"
+          }
+        },
+        {
+          "name": "errors",
+          "value": {
+            "kind": "tuple",
+            "elements": [
+              {
+                "kind": "call",
+                "callable_identity": {
+                  "symbol_id": "packages.workflow.test_support.helpers::create_py_project_structure_validation_error",
+                  "declaration_id": "."
+                },
+                "args": [],
+                "kwargs": []
+              }
+            ]
+          }
+        },
+        {
+          "name": "project_name",
+          "value": {
+            "kind": "literal",
+            "value": "test-project"
+          }
+        },
+        {
+          "name": "details",
+          "value": {
+            "kind": "none"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,40 @@
       "class_name": "DocstringFileContext",
       "parameters": [
         {
+          "name": "project_name",
+          "value": {
+            "kind": "literal",
+            "value": "test_project"
+          }
+        },
+        {
+          "name": "source_relative_path",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "gyomu_schema.schemas.python.types::SourceRelativePath",
+              "declaration_id": "."
+            },
+            "args": [
+              {
+                "kind": "call",
+                "callable_identity": {
+                  "symbol_id": "pathlib::Path",
+                  "declaration_id": "."
+                },
+                "args": [
+                  {
+                    "kind": "literal",
+                    "value": "test.py"
+                  }
+                ],
+                "kwargs": []
+              }
+            ],
+            "kwargs": []
+          }
+        },
+        {
           "name": "symbols",
           "value": {
             "kind": "tuple",
@@ -24,20 +58,6 @@
           "name": "retry",
           "value": {
             "kind": "none"
-          }
-        },
-        {
-          "name": "project_name",
-          "value": {
-            "kind": "literal",
-            "value": "test_project"
-          }
-        },
-        {
-          "name": "source_relative_path",
-          "value": {
-            "kind": "literal",
-            "value": "test.py"
           }
         }
       ]
