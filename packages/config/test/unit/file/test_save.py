@@ -9,14 +9,14 @@ from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 
-class TestConfig(BaseModel):
+class SampleConfig(BaseModel):
     name: str
 
 
 class TestSaveConfig:
     def test_success(self, mocker: MockerFixture) -> None:
         path = Path("config.json")
-        config = TestConfig(name="test")
+        config = SampleConfig(name="test")
 
         path_resolver = mocker.Mock()
         path_resolver.get_path.return_value = Success(path)
@@ -27,7 +27,7 @@ class TestSaveConfig:
         )
 
         request = ConfigRequest(
-            config_type=TestConfig,
+            config_type=SampleConfig,
             context=None,
             path_resolver=path_resolver,
         )
@@ -41,7 +41,7 @@ class TestSaveConfig:
         write_json_mock.assert_called_once_with(
             path=path,
             value=config,
-            value_type=TestConfig,
+            value_type=SampleConfig,
         )
 
     def test_get_path_failure(self, mocker: MockerFixture) -> None:
@@ -59,12 +59,12 @@ class TestSaveConfig:
         )
 
         request = ConfigRequest(
-            config_type=TestConfig,
+            config_type=SampleConfig,
             context=None,
             path_resolver=path_resolver,
         )
 
-        result = save_config(request, TestConfig(name="test"))
+        result = save_config(request, SampleConfig(name="test"))
 
         assert isinstance(result, Failure)
         assert result.failure() is error
@@ -74,7 +74,7 @@ class TestSaveConfig:
 
     def test_write_json_failure(self, mocker: MockerFixture) -> None:
         path = Path("config.json")
-        config = TestConfig(name="test")
+        config = SampleConfig(name="test")
 
         # write_json が返す実際のエラー型に置き換える
         io_error = GyomuIOError(
@@ -90,7 +90,7 @@ class TestSaveConfig:
         )
 
         request = ConfigRequest(
-            config_type=TestConfig,
+            config_type=SampleConfig,
             context=None,
             path_resolver=path_resolver,
         )

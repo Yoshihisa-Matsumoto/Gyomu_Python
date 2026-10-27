@@ -7,7 +7,6 @@ from gyomu_schema.schemas.document.section import (
     SectionTranslationInstruction,
 )
 from gyomu_schema.schemas.document.validation import ValidationResult
-from gyomu_schema.utility.context import caller_context
 from gyomu_schema.utility.convert import to_json_schema
 from gyomu_schema.utility.serialization import dump_json
 from returns.result import Failure, Result, Success
@@ -89,7 +88,6 @@ def build_translation_prompt[TSchema: DocumentContent](
                 phase="prompt",
                 content_type=context.kind,
                 section_id=section_id,
-                context=caller_context(),
             ).chain(error)
         )
 

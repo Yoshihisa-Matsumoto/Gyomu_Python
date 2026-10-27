@@ -46,7 +46,7 @@ from gyomu_python_analysis.analysis.analyzers.pydantic import (
     analyze_pydantic,
 )
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
-from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
+from gyomu_python_analysis.resolve.path import normalize_reference_name
 
 
 def _retrieve_constructor_location(

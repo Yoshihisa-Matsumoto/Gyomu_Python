@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisMetadata
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import (
@@ -46,11 +46,11 @@ class TestLoadFileAnalysisContext:
         failure = Failure(error)
 
         get_module_analysis_mock = mocker.patch(
-            "gyomu_python_analysis.analysis.load_file_context.get_module_analysis",
+            "gyomu_python_analysis.resolve.load_file_context.get_module_analysis",
             return_value=failure,
         )
         create_metadata_mock = mocker.patch(
-            "gyomu_python_analysis.analysis.load_file_context"
+            "gyomu_python_analysis.resolve.load_file_context"
             ".create_file_analysis_metadata",
         )
 
@@ -86,11 +86,11 @@ class TestLoadFileAnalysisContext:
         )
 
         get_module_analysis_mock = mocker.patch(
-            "gyomu_python_analysis.analysis.load_file_context.get_module_analysis",
+            "gyomu_python_analysis.resolve.load_file_context.get_module_analysis",
             return_value=Success(module_analysis),
         )
         create_metadata_mock = mocker.patch(
-            "gyomu_python_analysis.analysis.load_file_context"
+            "gyomu_python_analysis.resolve.load_file_context"
             ".create_file_analysis_metadata",
             return_value=metadata,
         )

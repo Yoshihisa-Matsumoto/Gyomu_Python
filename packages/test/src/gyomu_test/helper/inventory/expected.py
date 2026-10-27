@@ -1,15 +1,15 @@
 from gyomu_config.file.retrieve import retrieve_config
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
-from gyomu_python_analysis.analysis.resolve.cls import (
+from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.cls import (
     collect_class_hierarchy,
     inherits_from_gyomu_base_error,
     inherits_from_pydantic_basemodel,
     is_dataclass_class,
 )
-from gyomu_python_analysis.analysis.resolve.models import ClassResolutionCollection
-from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
+from gyomu_python_analysis.resolve.models import ClassResolutionCollection
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
@@ -36,7 +36,7 @@ from gyomu_test.error.inventory import (
     MissingTypeAnnotation,
     ProjectInventoryError,
 )
-from gyomu_test.error.test import TestError
+from gyomu_test.error.test import GyomuTestError
 from gyomu_test.helper.inventory.config import build_config_request
 from gyomu_test.helper.inventory.naming import (
     _build_helper_name_from_class_name,
@@ -201,7 +201,7 @@ def _find_model_default(
 def collect_model_helper_inventory(
     project: ProjectContext,
     workspace: WorkspaceContext,
-) -> Result[tuple[HelperInventoryItem, ...], TestError | ProjectInventoryError]:
+) -> Result[tuple[HelperInventoryItem, ...], GyomuTestError | ProjectInventoryError]:
     inventories: list[HelperInventoryItem] = []
     error_files: list[FileInventoryError] = []
     for file in project.included_files:
@@ -214,7 +214,7 @@ def collect_model_helper_inventory(
         )
         if isinstance(file_result, Failure):
             return file_result.alt(
-                lambda error: TestError(message="fail to load source").chain(error)
+                lambda error: GyomuTestError(message="fail to load source").chain(error)
             )
         file_analysis = file_result.unwrap()
 
@@ -224,7 +224,7 @@ def collect_model_helper_inventory(
         default_config_result = retrieve_config(request=config_request)
         if isinstance(default_config_result, Failure):
             return default_config_result.alt(
-                lambda error: TestError(message="fail to retrieve ")
+                lambda error: GyomuTestError(message="fail to retrieve ")
             )
         default_config = default_config_result.unwrap()
 
@@ -234,7 +234,7 @@ def collect_model_helper_inventory(
             )
             if isinstance(model_kind_result, Failure):
                 return model_kind_result.alt(
-                    lambda error: TestError(
+                    lambda error: GyomuTestError(
                         message="fail to check if symbol is target helper fucntion",
                     ).chain(error)
                 )
@@ -249,7 +249,7 @@ def collect_model_helper_inventory(
                 )
                 if isinstance(class_hierarchy_result, Failure):
                     return class_hierarchy_result.alt(
-                        lambda error: TestError(
+                        lambda error: GyomuTestError(
                             message="fail to analyze class hierarchy"
                         ).chain(error)
                     )

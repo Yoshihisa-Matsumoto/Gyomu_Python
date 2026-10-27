@@ -4,16 +4,6 @@ from unittest.mock import Mock
 
 import pytest
 from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
-from gyomu_python_analysis.analysis.load_file_context import (
-    load_file_analysis_context,
-)
-from gyomu_python_analysis.analysis.resolve.imports import (
-    resolve_reference_file_analysis_context,
-    resolve_reference_symbol,
-    resolve_referenced_symbol,
-)
-from gyomu_python_analysis.analysis.resolve.models import ResolvedReference
-from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
@@ -22,6 +12,16 @@ from gyomu_python_analysis.project.workspace import (
     WorkspaceRoot,
     WorkspaceRootKind,
 )
+from gyomu_python_analysis.resolve.imports import (
+    resolve_reference_file_analysis_context,
+    resolve_reference_symbol,
+    resolve_referenced_symbol,
+)
+from gyomu_python_analysis.resolve.load_file_context import (
+    load_file_analysis_context,
+)
+from gyomu_python_analysis.resolve.models import ResolvedReference
+from gyomu_python_analysis.resolve.reference import resolve_reference
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext

@@ -2,9 +2,9 @@ from gyomu_infra.filesystem.file_io import delete_file
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from returns.result import Result, Success
 
-from gyomu_python_analysis.analysis.get_module import _get_cache_path
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.resolve.get_module import _get_cache_path
 
 
 def delete_module_cache(

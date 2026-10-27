@@ -1,4 +1,4 @@
-from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
+from gyomu_python_analysis.resolve.path import normalize_reference_name
 from gyomu_schema.schemas.python.import_analysis import ImportKind
 
 from packages.schema.test_support.helpers import create_import_analysis

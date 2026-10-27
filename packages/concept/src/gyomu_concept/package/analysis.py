@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
 from gyomu_infra.logger import logger
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.workspace import (
     find_root,
     initialize_workspace_context,
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.file_summary import FileSummary
 from gyomu_schema.schemas.concept.package.analysis import (
@@ -19,7 +19,6 @@ from gyomu_schema.schemas.concept.package.analysis import (
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.python.visibility import Visibility
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_concept.directory.internal.file_summary import build_file_summary_record
@@ -37,7 +36,6 @@ def build_package_analysis(
         Result[PackageAnalysis, ConceptError]: A Result containing the PackageAnalysis
             on success or a ConceptError on failure.
     """
-    caller = caller_context()
     root_result = find_root(context.project_root)
     if isinstance(root_result, Failure):
         logger.error_object(root_result.failure())

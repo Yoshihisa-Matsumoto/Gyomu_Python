@@ -10,7 +10,7 @@ from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 from typer.testing import CliRunner
 
-from packages.concept.test_support.helpers import create_workspace_context
+from packages.concept.test_support.helpers import build_workspace_context
 from packages.python_analysis.test_support.helpers import (
     create_py_project_config,
     create_workspace_project,
@@ -38,7 +38,7 @@ def test_snapshot_single_package_success(
     setup_snapshot: None,
 ) -> None:
     project = create_project(name="gyomu-ai")
-    workspace = create_workspace_context(projects=(project,))
+    workspace = build_workspace_context(projects=(project,))
 
     mocker.patch(
         "gyomu_cli.main.get_workspace_context",
@@ -96,7 +96,7 @@ def test_snapshot_package_not_found(
     mocker: MockerFixture,
     setup_snapshot: None,
 ) -> None:
-    workspace = create_workspace_context(projects=())
+    workspace = build_workspace_context(projects=())
     error = GyomuError(
         message="project not found",
         domain="test",
@@ -129,7 +129,7 @@ def test_snapshot_all_projects_success(
 ) -> None:
     first_project = create_project("gyomu-schema")
     second_project = create_project("gyomu-ai")
-    workspace = create_workspace_context(
+    workspace = build_workspace_context(
         projects=(first_project, second_project),
     )
 
@@ -169,7 +169,7 @@ def test_snapshot_all_projects_stops_on_failure(
     first_project = create_project("gyomu-schema")
     second_project = create_project("gyomu-ai")
     third_project = create_project("gyomu-workflow")
-    workspace = create_workspace_context(
+    workspace = build_workspace_context(
         projects=(first_project, second_project, third_project),
     )
     error = GyomuError(

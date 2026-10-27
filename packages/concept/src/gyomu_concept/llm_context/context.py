@@ -10,7 +10,6 @@ from gyomu_schema.schemas.knowledge.coding_guideline import (
     CodingGuideline,
     merge_coding_guideline,
 )
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_concept.document.context import initialize_document_base_context
@@ -37,7 +36,6 @@ def initialize_llm_context_build_context(
     """Initialize the LLM context build context with project information and coding
     guidelines.
     """
-    caller = caller_context()
     base_result = initialize_document_base_context(context, option)
     if isinstance(base_result, Failure):
         return base_result

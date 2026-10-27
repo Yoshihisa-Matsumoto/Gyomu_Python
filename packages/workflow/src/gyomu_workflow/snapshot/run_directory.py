@@ -1,7 +1,6 @@
 from gyomu_concept.directory.build import build_directory_concept
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.checkpoint import (
@@ -35,7 +34,6 @@ async def run_directory_action(
             SnapshotActionResult on success or a GyomuError on failure.
     """
     if PipelineStep.DIRECTORY_CONCEPT not in current_checkpoint.completed_steps:
-        context = caller_context()
         directory_result = await build_directory_concept(
             context=request.project_context, option=option
         )
@@ -46,7 +44,6 @@ async def run_directory_action(
                     domain="snapshot",
                     operation="run_actions",
                     reason="external_failure",
-                    context=context,
                 ).chain(error)
             )
         snapshot_result = update_snapshot(request)

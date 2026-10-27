@@ -17,7 +17,7 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.error.inventory import ProjectInventoryError
-from gyomu_test.error.test import TestError
+from gyomu_test.error.test import GyomuTestError
 from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
@@ -217,7 +217,7 @@ class TestCollectModelHelperInventory:
 
         assert isinstance(result, Failure)
         fail = result.failure()
-        assert isinstance(fail, TestError)
+        assert isinstance(fail, GyomuTestError)
         assert fail.__cause__ is analysis_error
         load_mock.assert_called_once()
 
@@ -242,7 +242,7 @@ class TestCollectModelHelperInventory:
 
         assert isinstance(result, Failure)
         fail = result.failure()
-        assert isinstance(fail, TestError)
+        assert isinstance(fail, GyomuTestError)
         assert fail.__cause__ is analysis_error
         inherits_mock.assert_called_once()
 
@@ -267,6 +267,6 @@ class TestCollectModelHelperInventory:
 
         assert isinstance(result, Failure)
         fail = result.failure()
-        assert isinstance(fail, TestError)
+        assert isinstance(fail, GyomuTestError)
         assert fail.__cause__ is analysis_error
         hierarchy_mock.assert_called_once()

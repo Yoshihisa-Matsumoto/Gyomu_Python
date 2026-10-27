@@ -2,14 +2,13 @@ from pathlib import Path
 
 from gyomu_docstring.update.process import process_docstring_update
 from gyomu_infra.logger import logger
-from gyomu_python_analysis.analysis.delete_cache import delete_module_cache
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.resolve.delete_cache import delete_module_cache
+from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption
 from gyomu_schema.schemas.python.types import ProjectRelativePath
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.checkpoint import (
@@ -76,7 +75,6 @@ async def run_docstring_action(
         return Success(None)
 
     file_path = source_project_relative_path
-    context = caller_context()
 
     file_analysis_result = load_file_analysis_context(
         context=project_context, file_path=file_path, option=option
@@ -88,7 +86,6 @@ async def run_docstring_action(
                 domain="snapshot",
                 operation="run_docstring_action",
                 reason="external_failure",
-                context=context,
                 details={"file_path": file_path},
             ).chain(error)
         )
@@ -104,7 +101,6 @@ async def run_docstring_action(
                 domain="snapshot",
                 operation="run_docstring_action",
                 reason="external_failure",
-                context=context,
                 details={"file_path": file_path},
             ).chain(error)
         )
@@ -171,7 +167,6 @@ async def run_docstring_actions(
         Result[SnapshotActionResult, GyomuError]: A Result containing the updated
             SnapshotActionResult on success or a GyomuError on failure.
     """
-    context = caller_context()
     option = build_docstring_update_option(request.option.action.docstring.log_keyword)
     if PipelineStep.DOCSTRING not in current_checkpoint.completed_steps:
         for deleted in target.deleted_files:
@@ -186,7 +181,6 @@ async def run_docstring_actions(
                             domain="snapshot",
                             operation="run_actions",
                             reason="external_failure",
-                            context=context,
                         ).chain(error)
                     )
         project_context = request.project_context
@@ -215,7 +209,6 @@ async def run_docstring_actions(
                     domain="snapshot",
                     operation="run_actions",
                     reason="external_failure",
-                    context=context,
                 ).chain(error)
             )
         analysis = analysis_result.unwrap()

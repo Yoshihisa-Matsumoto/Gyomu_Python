@@ -1,6 +1,6 @@
 import json
 
-from gyomu_python_analysis.analysis.resolve.reference import (
+from gyomu_python_analysis.resolve.reference import (
     resolve_declaration_identity,
 )
 from gyomu_schema.schemas.config.test.model_defaults import (
@@ -157,15 +157,6 @@ def _convert_lambda_arguments(arguments: Arguments) -> str:
 
 def _convert_argument(argument: Argument) -> str:
     return argument.arg
-
-
-# def _convert_literal_to_code(
-#     value: str | bytes | bool | int | float | complex | None,
-# ) -> str:
-#     if isinstance(value, str):
-#         escaped = value.replace("\\", "\\\\").replace('"', '\\"')
-#         escaped = escaped.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
-#         return f'"{escaped}"'
 
 
 #     return repr(value)

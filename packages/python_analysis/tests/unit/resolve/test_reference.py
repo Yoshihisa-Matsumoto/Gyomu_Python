@@ -2,15 +2,15 @@ from pathlib import Path
 
 import pytest
 from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
-from gyomu_python_analysis.analysis.resolve.models import ResolvedReference
-from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
     WorkspaceRoot,
     WorkspaceRootKind,
 )
+from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
+from gyomu_python_analysis.resolve.models import ResolvedReference
+from gyomu_python_analysis.resolve.reference import resolve_reference
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.import_analysis import ImportKind

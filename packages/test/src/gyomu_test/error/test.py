@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from gyomu_schema.error.base import BaseError, caller_context
 
 
-class TestError(BaseError):
+class GyomuTestError(BaseError):
     """General error in gyomu-test."""
 
     def __init__(

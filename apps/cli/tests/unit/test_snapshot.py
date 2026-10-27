@@ -5,7 +5,7 @@ from gyomu_schema.error.base import BaseError
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.concept.test_support.helpers import create_workspace_context
+from packages.concept.test_support.helpers import build_workspace_context
 from packages.python_analysis.test_support.helpers import (
     create_workspace_project,
 )
@@ -17,7 +17,7 @@ class TestRunSnapshotRequest:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_context = create_workspace_context()
+        workspace_context = build_workspace_context()
         project = create_workspace_project()
         option = create_snapshot_execution_option()
         request = MagicMock()
@@ -47,7 +47,7 @@ class TestRunSnapshotRequest:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_context = create_workspace_context()
+        workspace_context = build_workspace_context()
         project = create_workspace_project()
         option = create_snapshot_execution_option()
         request = MagicMock()
@@ -82,7 +82,7 @@ class TestRunSnapshotRequest:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_context = create_workspace_context()
+        workspace_context = build_workspace_context()
         project = create_workspace_project()
         option = create_snapshot_execution_option()
         request = MagicMock()

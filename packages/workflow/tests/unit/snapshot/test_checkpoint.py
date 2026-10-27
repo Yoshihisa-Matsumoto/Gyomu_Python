@@ -458,15 +458,13 @@ class TestToHashError:
             context="hash_file",
         )
         path = WorkspaceRelativePath(Path(".gyomu/knowledge/Package.yaml"))
-        caller = "test_caller"
 
-        result = _to_hash_error(err=io_error, path=path, caller=caller)
+        result = _to_hash_error(err=io_error, path=path)
 
         assert result.message == f"fail to hash file: {path}"
         assert result.domain == "snapshot"
         assert result.operation == "calculate workspace hash"
         assert result.reason == "external_failure"
-        assert result.context == caller
 
 
 class TestCalculateWorkspaceHash:

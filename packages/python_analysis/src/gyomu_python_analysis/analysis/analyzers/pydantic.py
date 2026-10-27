@@ -21,7 +21,7 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     UnionStructureAnalysis,
 )
 
-from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
+from gyomu_python_analysis.resolve.path import normalize_reference_name
 
 
 class PydanticModelStatus(Enum):

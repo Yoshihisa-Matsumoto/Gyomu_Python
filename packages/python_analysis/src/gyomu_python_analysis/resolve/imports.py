@@ -10,9 +10,9 @@ from gyomu_schema.schemas.python.types import (
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from returns.result import Failure, Result, Success
 
-from gyomu_python_analysis.analysis.resolve.models import ResolvedReference
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.models import ResolvedReference
 
 # def resolve_import_file_analysis_context(
 #     target_import: ImportAnalysis, workspace: WorkspaceContext

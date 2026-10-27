@@ -5,7 +5,6 @@ from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.snapshot.types import FileDeleted
 from gyomu_schema.schemas.types import FullPath
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.models import SnapshotTarget, SnapshotTargetOption
@@ -34,7 +33,7 @@ def resolve_snapshot_target(
             SnapshotTarget or a GyomuError.
     """
     validation_result = validate_python_package_structure(project_context)
-    context = caller_context()
+
     if isinstance(validation_result, Failure):
         repair_result = repair_python_package_structure(
             project_context=project_context, errors=validation_result.failure().errors
@@ -46,7 +45,6 @@ def resolve_snapshot_target(
                     domain="snapshot",
                     operation="resolve_snapshot_target",
                     reason="external_failure",
-                    context=context,
                 ).chain(error)
             )
         validation_result = validate_python_package_structure(project_context)
@@ -58,7 +56,6 @@ def resolve_snapshot_target(
                 domain="snapshot",
                 operation="resolve_snapshot_target",
                 reason="external_failure",
-                context=context,
             ).chain(error)
         )
 
@@ -74,7 +71,6 @@ def resolve_snapshot_target(
                 domain="snapshot",
                 operation="resolve_snapshot_target",
                 reason="external_failure",
-                context=context,
             ).chain(error)
         )
     change_result = result.unwrap()

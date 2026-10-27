@@ -3,7 +3,6 @@ from gyomu_concept.readme.generate import generate_readme_files
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.checkpoint import (
@@ -28,7 +27,7 @@ async def run_readme_action(
         Result[SnapshotActionResult, GyomuError]: Result containing SnapshotActionResult
             on success or GyomuError on failure
     """
-    context = caller_context()
+
     if (
         PipelineStep.README not in current_checkpoint.completed_steps
         or not _are_readme_files_exist(request.project_context)
@@ -43,7 +42,6 @@ async def run_readme_action(
                     domain="snapshot",
                     operation="run_actions",
                     reason="external_failure",
-                    context=context,
                 ).chain(error)
             )
 

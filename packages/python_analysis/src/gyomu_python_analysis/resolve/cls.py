@@ -7,23 +7,23 @@ from returns.result import Failure, Result, Success
 from gyomu_python_analysis.analysis.query import (
     find_symbol_by_name,
 )
-from gyomu_python_analysis.analysis.resolve.file_analysis_cache import FileAnalysisCache
-from gyomu_python_analysis.analysis.resolve.imports import (
+from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
+from gyomu_python_analysis.resolve.imports import (
     resolve_reference_file_analysis_context,
     resolve_referenced_symbol,
 )
-from gyomu_python_analysis.analysis.resolve.models import (
+from gyomu_python_analysis.resolve.models import (
     ClassResolution,
     ClassResolutionCollection,
     ExternalClass,
     ResolvedClass,
     UnresolvedClass,
 )
-from gyomu_python_analysis.analysis.resolve.path import normalize_reference_name
-from gyomu_python_analysis.analysis.resolve.reference import resolve_reference
-from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.path import normalize_reference_name
+from gyomu_python_analysis.resolve.reference import resolve_reference
 
 
 def _register_identity(

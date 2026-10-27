@@ -5,10 +5,10 @@ from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.initialize import (
     initialize_project_context,
 )
-from gyomu_python_analysis.analysis.resolve.cls import resolve_class_analysis
-from gyomu_python_analysis.analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.cls import resolve_class_analysis
+from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
     ModelDefaults,

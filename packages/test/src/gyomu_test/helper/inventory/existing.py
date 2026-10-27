@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from gyomu_infra.filesystem.file_io import read_source_text
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
-from gyomu_python_analysis.analysis.resolve.reference import (
+from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
+from gyomu_python_analysis.resolve.reference import (
     resolve_declaration_identity,
 )
-from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
@@ -35,7 +35,7 @@ from gyomu_test.error.inventory import (
     MissingTypeAnnotation,
     ProjectInventoryError,
 )
-from gyomu_test.error.test import TestError
+from gyomu_test.error.test import GyomuTestError
 from gyomu_test.helper.inventory.function import build_parameter_from_expression
 from gyomu_test.helper.inventory.naming import (
     _build_class_name_from_helper_name,
@@ -174,7 +174,7 @@ def collect_existing_helper_inventory(
     ),
 ) -> Result[
     tuple[HelperFileInventory, ...],
-    TestError | ProjectInventoryError,
+    GyomuTestError | ProjectInventoryError,
 ]:
 
     error_files: list[FileInventoryError] = []
@@ -191,7 +191,9 @@ def collect_existing_helper_inventory(
         )
         if isinstance(file_result, Failure):
             return file_result.alt(
-                lambda error: TestError(message="fail to analyze file").chain(error)
+                lambda error: GyomuTestError(message="fail to analyze file").chain(
+                    error
+                )
             )
         file_analysis = file_result.unwrap()
         for symbol in file_analysis.analysis.symbols:
@@ -238,7 +240,9 @@ def collect_existing_helper_inventory(
             read_result = read_source_text(source_full_path)
             if isinstance(read_result, Failure):
                 return read_result.alt(
-                    lambda error: TestError(message="fail to read source").chain(error)
+                    lambda error: GyomuTestError(message="fail to read source").chain(
+                        error
+                    )
                 )
             source = read_result.unwrap()
             source_lines = tuple(source.splitlines(keepends=True))

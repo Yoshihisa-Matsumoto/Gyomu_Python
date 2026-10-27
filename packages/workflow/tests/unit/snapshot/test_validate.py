@@ -27,7 +27,7 @@ from packages.python_analysis.test_support.helpers import (
     create_workspace_project,
 )
 from packages.workflow.workflow_test_support.helpers import (
-    create_test_project_structure,
+    build_test_project_structure,
 )
 
 
@@ -107,7 +107,7 @@ class TestValidateSnapshotRequest:
 
 class TestValidatePythonPackageStructure:
     def test_returns_success_when_structure_is_valid(self, tmp_path):
-        context = create_test_project_structure(
+        context = build_test_project_structure(
             project_root=tmp_path,
             files={
                 "src/foo/py.typed": "",
@@ -123,7 +123,7 @@ class TestValidatePythonPackageStructure:
         assert result == Success(None)
 
     def test_returns_all_missing_init_files(self, tmp_path):
-        context = create_test_project_structure(
+        context = build_test_project_structure(
             project_root=tmp_path,
             files={
                 "src/foo/py.typed": "",
@@ -154,7 +154,7 @@ class TestValidatePythonPackageStructure:
         )
 
     def test_does_not_require_init_for_directory_without_python_files(self, tmp_path):
-        context = create_test_project_structure(
+        context = build_test_project_structure(
             project_root=tmp_path,
             files={
                 "src/foo/py.typed": "",
@@ -172,7 +172,7 @@ class TestValidatePythonPackageStructure:
         self,
         tmp_path,
     ):
-        context = create_test_project_structure(
+        context = build_test_project_structure(
             project_root=tmp_path,
             files={
                 "src/foo/py.typed": "",
@@ -193,7 +193,7 @@ class TestValidatePythonPackageStructure:
         self,
         tmp_path,
     ):
-        context = create_test_project_structure(
+        context = build_test_project_structure(
             project_root=tmp_path,
             files={"src/foo/bar/baz/module.py": "", "src/foo/__init__.py": ""},
         )

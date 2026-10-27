@@ -11,7 +11,6 @@ from gyomu_schema.schemas.document.section import (
     SectionTranslationDefinition,
 )
 from gyomu_schema.schemas.document.validation import ValidationResult
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result
 
 from gyomu_ai_compiler.pipelines.document import DocumentRouteId
@@ -82,6 +81,5 @@ async def translate_document_content[TSchema: DocumentContent](
             phase="translate",
             content_type=context.kind,
             section_id=section_id,
-            context=caller_context(),
         ).chain(error)
     )

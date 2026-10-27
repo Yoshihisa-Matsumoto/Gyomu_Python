@@ -6,13 +6,13 @@ from gyomu_schema.schemas.python.types import (
 )
 from returns.result import Failure, Result, Success
 
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.path.conversion import (
     python_path_to_source_project_relative_path,
 )
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 
 
 class FileAnalysisCache:

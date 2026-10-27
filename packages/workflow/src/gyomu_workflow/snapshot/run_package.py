@@ -2,7 +2,6 @@ from gyomu_concept.package.concept import build_package_concept
 from gyomu_concept.package.internal.path import get_package_concept_path
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.checkpoint import (
@@ -38,7 +37,7 @@ async def run_package_action(
         Result[SnapshotActionResult, GyomuError]: A Result containing the
             SnapshotActionResult upon success or a GyomuError on failure.
     """
-    context = caller_context()
+
     package_concept_full_path = get_package_concept_path(
         request.project_context, option
     )
@@ -56,7 +55,6 @@ async def run_package_action(
                     domain="snapshot",
                     operation="run_actions",
                     reason="external_failure",
-                    context=context,
                 ).chain(error)
             )
 

@@ -8,7 +8,6 @@ from gyomu_schema.schemas.document.section import (
     SectionTranslationDefinition,
 )
 from gyomu_schema.schemas.document.validation import ValidationResult
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result
 
 from gyomu_ai_compiler.pipelines.translation.executor.merge import merge_retry_context
@@ -155,7 +154,6 @@ async def _retry_document_content_translation[TSchema: DocumentContent](
             content_type=context.kind,
             phase="retry",
             section_id=section_id,
-            context=caller_context(),
             details={
                 "issues": update_translation_state.validation.issues
                 if update_translation_state.validation is not None

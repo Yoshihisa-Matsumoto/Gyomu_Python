@@ -7,7 +7,6 @@ from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.package.analysis import PackageAnalysis
 from gyomu_schema.schemas.document.section import Section
-from gyomu_schema.utility.context import caller_context
 from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
@@ -48,7 +47,6 @@ async def generate_document[
         Result[None, DocumentBuilderError]: A Result indicating success with None or a
             DocumentBuilderError on failure.
     """
-    caller = caller_context()
     context_result = definition.create_context(project, option)
     if isinstance(context_result, Failure):
         return context_result

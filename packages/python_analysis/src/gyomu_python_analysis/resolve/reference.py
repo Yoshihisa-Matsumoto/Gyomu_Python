@@ -8,7 +8,7 @@ from gyomu_schema.schemas.python.types import (
 )
 
 from gyomu_python_analysis.analysis.query import find_symbol_by_name
-from gyomu_python_analysis.analysis.resolve.models import ResolvedReference
+from gyomu_python_analysis.resolve.models import ResolvedReference
 
 
 def _is_dotted_name(value: str) -> bool:

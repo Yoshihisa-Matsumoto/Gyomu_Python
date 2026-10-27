@@ -9,13 +9,13 @@ from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 
-class TestConfig(BaseModel):
+class SampleConfig(BaseModel):
     name: str
 
 
 class TestRetrieveConfig:
     def test_success(self, mocker: MockerFixture) -> None:
-        config = TestConfig(name="test")
+        config = SampleConfig(name="test")
         path = Path("config.json")
 
         path_resolver = mocker.Mock()
@@ -28,7 +28,7 @@ class TestRetrieveConfig:
         )
 
         request = ConfigRequest(
-            config_type=TestConfig,
+            config_type=SampleConfig,
             context=None,
             path_resolver=path_resolver,
         )
@@ -42,7 +42,7 @@ class TestRetrieveConfig:
         exists_mock.assert_called_once_with()
         read_json_mock.assert_called_once_with(
             path=path,
-            model_type=TestConfig,
+            model_type=SampleConfig,
         )
 
     def test_config_file_not_exists(self, mocker: MockerFixture) -> None:
@@ -55,7 +55,7 @@ class TestRetrieveConfig:
         read_json_mock = mocker.patch("gyomu_config.file.retrieve.read_json")
 
         request = ConfigRequest(
-            config_type=TestConfig,
+            config_type=SampleConfig,
             context=None,
             path_resolver=path_resolver,
         )
@@ -84,7 +84,7 @@ class TestRetrieveConfig:
         )
 
         request = ConfigRequest(
-            config_type=TestConfig,
+            config_type=SampleConfig,
             context=None,
             path_resolver=path_resolver,
         )
@@ -113,7 +113,7 @@ class TestRetrieveConfig:
         )
 
         request = ConfigRequest(
-            config_type=TestConfig,
+            config_type=SampleConfig,
             context=None,
             path_resolver=path_resolver,
         )

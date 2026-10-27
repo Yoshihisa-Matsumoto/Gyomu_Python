@@ -1,7 +1,6 @@
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.models import SnapshotRequest
@@ -21,7 +20,7 @@ def update_snapshot(request: SnapshotRequest) -> Result[ProjectSnapshot, GyomuEr
         Result[ProjectSnapshot, GyomuError]: A Result containing the updated
             ProjectSnapshot on success, or a GyomuError on failure.
     """
-    context = caller_context()
+
     analysis_result = analyze_project_changes(
         repository_root_path=request.repository_root_path,
         project_context=request.project_context,
@@ -33,7 +32,6 @@ def update_snapshot(request: SnapshotRequest) -> Result[ProjectSnapshot, GyomuEr
                 domain="snapshot",
                 operation="run_actions",
                 reason="external_failure",
-                context=context,
             ).chain(error)
         )
     return Success(analysis_result.unwrap().current_snapshot)

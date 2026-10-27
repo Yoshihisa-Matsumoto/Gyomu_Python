@@ -7,7 +7,6 @@ from gyomu_schema.schemas.document.section import (
     TranslationState,
 )
 from gyomu_schema.schemas.document.validation import ValidationResult
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result
 
 
@@ -51,7 +50,6 @@ def merge_retry_context[TSchema: DocumentContent](
                 content_type=original_context.kind,
                 phase="retry-context",
                 section_id=section_id,
-                context=caller_context(),
             )
         )
     retry_arg = RetryContextArg[TSchema](

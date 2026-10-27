@@ -8,7 +8,6 @@ from gyomu_schema.schemas.knowledge.package import Package
 from gyomu_schema.schemas.knowledge.roadmap import Roadmap
 from gyomu_schema.schemas.knowledge.technical import Technical
 from gyomu_schema.schemas.types import FullPath
-from gyomu_schema.utility.context import caller_context
 from pydantic import BaseModel
 from returns.result import Failure, Result, Success
 
@@ -78,7 +77,6 @@ def initialize_document_base_context(
             containing the
             DocumentBaseContextResult on success, or a DocumentBuilderError on failure.
     """
-    caller = caller_context()
     package_analysis_result = build_package_analysis(context, option)
     if isinstance(package_analysis_result, Failure):
         return package_analysis_result.alt(lambda error: _wrap_error(error, context))

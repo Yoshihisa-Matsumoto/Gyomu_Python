@@ -8,7 +8,6 @@ from gyomu_schema.option.concept import (
     ConceptOption,
 )
 from gyomu_schema.schemas.snapshot.types import FileChange, ProjectSnapshot
-from gyomu_schema.utility.context import caller_context
 from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
@@ -65,14 +64,12 @@ async def run_snapshot(request: SnapshotRequest) -> Result[None, GyomuError]:
             expected_snapshot=current_snapshot,
         )
         if isinstance(commit_result, Failure):
-            context = caller_context()
             return commit_result.alt(
                 lambda error: GyomuError(
                     message="fail to commit project changes",
                     domain="snapshot",
                     operation="run_snapshot",
                     reason="external_failure",
-                    context=context,
                 ).chain(error)
             )
     return Success(None)

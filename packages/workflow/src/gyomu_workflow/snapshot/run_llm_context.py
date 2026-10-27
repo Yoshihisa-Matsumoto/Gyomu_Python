@@ -3,7 +3,6 @@ from gyomu_concept.llm_context.generate import generate_llm_context_files
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.concept import ConceptOption
-from gyomu_schema.utility.context import caller_context
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.snapshot.checkpoint import (
@@ -28,7 +27,6 @@ async def run_llm_context_action(
         Result[SnapshotActionResult, GyomuError]: Result containing SnapshotActionResult
             on success or GyomuError on failure
     """
-    context = caller_context()
     if (
         PipelineStep.LLM_CONTEXT not in current_checkpoint.completed_steps
         or not _are_llm_context_files_exist(request.project_context)
@@ -43,7 +41,6 @@ async def run_llm_context_action(
                     domain="snapshot",
                     operation="run_actions",
                     reason="external_failure",
-                    context=context,
                 ).chain(error)
             )
 

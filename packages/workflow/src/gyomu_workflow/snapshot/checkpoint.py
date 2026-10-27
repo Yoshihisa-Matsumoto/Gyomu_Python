@@ -13,7 +13,6 @@ from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
 from gyomu_schema.schemas.types import FullPath
-from gyomu_schema.utility.context import caller_context
 from pydantic import BaseModel
 from returns.result import Failure, Result, Success
 
@@ -101,9 +100,7 @@ def _get_checkpoint_path(request: SnapshotRequest) -> FullPath:
     return FullPath(Path(".gyomu") / "checkpoint" / project_id / "Checkpoint.json")
 
 
-def _to_hash_error(
-    err: GyomuIOError, path: WorkspaceRelativePath, caller: str
-) -> GyomuError:
+def _to_hash_error(err: GyomuIOError, path: WorkspaceRelativePath) -> GyomuError:
     """Converts a file IO error into a GyomuError for hashing operations."""
 
     return GyomuError(
@@ -111,7 +108,6 @@ def _to_hash_error(
         domain="snapshot",
         operation="calculate workspace hash",
         reason="external_failure",
-        context=caller,
     ).chain(err)
 
 
@@ -122,12 +118,10 @@ def _calculate_workspace_hash(
     """Calculates a combined hash for workspace files."""
 
     files: list[tuple[Path, str]] = []
-    caller = caller_context()
+
     for path in paths:
         file_full_path = workspace_path / path
-        result = hash_file(file_full_path).alt(
-            partial(_to_hash_error, path=path, caller=caller)
-        )
+        result = hash_file(file_full_path).alt(partial(_to_hash_error, path=path))
         if isinstance(result, Failure):
             return result
         files.append((path, result.unwrap()))
@@ -349,7 +343,6 @@ def update_checkpoint(
                 domain="snapshot",
                 operation="update_checkpoint",
                 reason="external_failure",
-                context=caller_context(),
             ).chain(error)
         )
         .map(lambda _: new_checkpoint)
