@@ -70,7 +70,7 @@ def assemble_model_defaults(
                     )
                 )
             class_default = ModelDefault(
-                class_name=model_class_name, parameters=tuple(parameters)
+                symbol_name=model_class_name, parameters=tuple(parameters)
             )
             model_default_list.append(class_default)
 

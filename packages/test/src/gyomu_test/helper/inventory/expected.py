@@ -193,7 +193,7 @@ def _find_model_default(
     if defaults is None:
         return None
     return next(
-        (default for default in defaults.models if default.class_name == symbol.name),
+        (default for default in defaults.models if default.symbol_name == symbol.name),
         None,
     )
 

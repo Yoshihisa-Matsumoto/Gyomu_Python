@@ -749,7 +749,7 @@ def create_model_default(
     class_name: str = "Test",
     parameters: tuple[ParameterDefault, ...] = (create_parameter_default(),),
 ) -> ModelDefault:
-    return ModelDefault(class_name=class_name, parameters=parameters)
+    return ModelDefault(symbol_name=class_name, parameters=parameters)
 
 
 def create_model_defaults(

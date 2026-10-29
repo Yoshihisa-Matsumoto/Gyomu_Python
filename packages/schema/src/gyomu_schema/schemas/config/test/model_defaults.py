@@ -113,7 +113,7 @@ class ParameterDefault(BaseModel):
 
 
 class ModelDefault(BaseModel):
-    class_name: str
+    symbol_name: str
     parameters: tuple[ParameterDefault, ...]
 
 
