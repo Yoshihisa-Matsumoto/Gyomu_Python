@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from os import remove
+from os import remove, stat_result
 from pathlib import Path
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
@@ -7,6 +7,24 @@ from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.types import FullPath
 from gyomu_schema.utility.serialization import dump_json, validate_json, validate_yaml
 from returns.result import Failure, Result, Success
+
+
+def get_file_stat(path: Path) -> Result[stat_result | None, GyomuIOError]:
+    try:
+        stat_result = path.stat()
+    except FileNotFoundError:
+        return Success(None)
+    except OSError as error:
+        return Failure(
+            GyomuIOError(
+                message="fail to retrieve file stat",
+                operation=IOOperation.CHECK,
+                layer=IOLayer.FILESYSTEM,
+                target=str(path),
+            ).chain(error)
+        )
+
+    return Success(stat_result)
 
 
 def ensure_directory(path: Path) -> Result[None, GyomuIOError]:

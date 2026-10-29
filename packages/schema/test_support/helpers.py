@@ -1,7 +1,8 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Literal
 
+from gyomu_schema.error.config import ConfigError, ConfigPhase, ConfigSource
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.config.test.model_defaults import (
     AttributeParameter,
@@ -15,9 +16,11 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefaults,
     NameParameter,
     NoneParameter,
+    PackageModelDefaults,
     Parameter,
     ParameterDefault,
     ParameterExpressionType,
+    PrimitiveDefault,
     TupleParameter,
 )
 from gyomu_schema.schemas.python.class_analysis import (
@@ -604,6 +607,24 @@ def create_gyomu_io_error(
     )
 
 
+def create_config_error(
+    message: str = "config error",
+    phase: ConfigPhase = "load",
+    source: ConfigSource = "json",
+    schema: object | None = None,
+    context: str | None = None,
+    details: Mapping[str, object] | None = None,
+) -> ConfigError:
+    return ConfigError(
+        message=message,
+        phase=phase,
+        source=source,
+        schema=schema,
+        context=context,
+        details=details,
+    )
+
+
 def create_import_analysis(
     local_name: str = "BaseModel",
     imported_name: str = "pydantic.BaseModel",
@@ -735,3 +756,24 @@ def create_model_defaults(
     models: tuple[ModelDefault, ...] = (create_model_default(),),
 ) -> ModelDefaults:
     return ModelDefaults(models=models)
+
+
+def create_primitive_default(
+    type_name: str = "str",
+    variable_name: str = "parameter",
+    parameters: tuple[ParameterDefault, ...] = (create_parameter_default(),),
+) -> PrimitiveDefault:
+    return PrimitiveDefault(
+        type_name=type_name, variable_name=variable_name, parameters=parameters
+    )
+
+
+def create_package_model_defaults(
+    models_per_module_path: dict[PythonPath, ModelDefaults] = {
+        PythonPath("test"): create_model_defaults()
+    },
+    primitives: tuple[PrimitiveDefault, ...] = (create_primitive_default(),),
+) -> PackageModelDefaults:
+    return PackageModelDefaults(
+        models_per_module_path=models_per_module_path, primitives=primitives
+    )

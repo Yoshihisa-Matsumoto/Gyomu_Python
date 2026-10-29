@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from gyomu_schema.schemas.python.types import DeclarationIdentity
+from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
 
 
 class ParameterExpressionType(StrEnum):
@@ -119,3 +119,14 @@ class ModelDefault(BaseModel):
 
 class ModelDefaults(BaseModel):
     models: tuple[ModelDefault, ...]
+
+
+class PrimitiveDefault(BaseModel):
+    type_name: str
+    variable_name: str
+    parameters: tuple[ParameterDefault, ...]
+
+
+class PackageModelDefaults(BaseModel):
+    models_per_module_path: dict[PythonPath, ModelDefaults]
+    primitives: tuple[PrimitiveDefault, ...]

@@ -40,6 +40,7 @@ class IOOperation(StrEnum):
 
     DELETE = "delete"
     """Delete operation."""
+    CHECK = "check"
 
 
 class GyomuIOError(BaseError):

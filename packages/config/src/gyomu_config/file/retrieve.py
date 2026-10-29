@@ -1,9 +1,9 @@
-from gyomu_infra.filesystem.file_io import read_json
 from gyomu_schema.error.config import ConfigError
 from pydantic import BaseModel
-from returns.result import Failure, Result, Success
+from returns.result import Failure, Result
 
-from gyomu_config.request import ConfigRequest
+from gyomu_config.file.internal.retrieve import retrieve_single_config
+from gyomu_config.request import ConfigRequest, _ResolvedPathRequest
 
 
 def retrieve_config[T: BaseModel, C](
@@ -13,10 +13,6 @@ def retrieve_config[T: BaseModel, C](
     if isinstance(file_path_result, Failure):
         return file_path_result
     file_path = file_path_result.unwrap()
-    if not file_path.exists():
-        return Success(None)
-    return read_json(path=file_path, model_type=request.config_type).alt(
-        lambda error: ConfigError(
-            source="json", message="fail to read config file", phase="load"
-        ).chain(error)
+    return retrieve_single_config(
+        request=_ResolvedPathRequest[T](config_type=request.config_type, path=file_path)
     )

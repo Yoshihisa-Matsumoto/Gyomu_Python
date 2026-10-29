@@ -1,9 +1,8 @@
 from pathlib import Path
 
 from gyomu_config.file.retrieve import retrieve_config
-from gyomu_config.request import ConfigRequest
+from gyomu_config.request import ConfigRequest, _ResolvedPathRequest
 from gyomu_schema.error.config import ConfigError
-from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from pydantic import BaseModel
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
@@ -20,10 +19,8 @@ class TestRetrieveConfig:
 
         path_resolver = mocker.Mock()
         path_resolver.get_path.return_value = Success(path)
-
-        exists_mock = mocker.patch.object(Path, "exists", return_value=True)
-        read_json_mock = mocker.patch(
-            "gyomu_config.file.retrieve.read_json",
+        retrieve_single_config_mock = mocker.patch(
+            "gyomu_config.file.retrieve.retrieve_single_config",
             return_value=Success(config),
         )
 
@@ -38,36 +35,13 @@ class TestRetrieveConfig:
         assert isinstance(result, Success)
         assert result.unwrap() == config
 
-        path_resolver.get_path.assert_called_once_with(None)
-        exists_mock.assert_called_once_with()
-        read_json_mock.assert_called_once_with(
-            path=path,
-            model_type=SampleConfig,
-        )
+        retrieve_single_config_mock.assert_called_once()
 
-    def test_config_file_not_exists(self, mocker: MockerFixture) -> None:
-        path = Path("config.json")
+        actual_request = retrieve_single_config_mock.call_args.kwargs["request"]
 
-        path_resolver = mocker.Mock()
-        path_resolver.get_path.return_value = Success(path)
-
-        exists_mock = mocker.patch.object(Path, "exists", return_value=False)
-        read_json_mock = mocker.patch("gyomu_config.file.retrieve.read_json")
-
-        request = ConfigRequest(
-            config_type=SampleConfig,
-            context=None,
-            path_resolver=path_resolver,
-        )
-
-        result = retrieve_config(request)
-
-        assert isinstance(result, Success)
-        assert result.unwrap() is None
-
-        path_resolver.get_path.assert_called_once_with(None)
-        exists_mock.assert_called_once_with()
-        read_json_mock.assert_not_called()
+        assert isinstance(actual_request, _ResolvedPathRequest)
+        assert actual_request.config_type is SampleConfig
+        assert actual_request.path == path
 
     def test_get_path_failure(self, mocker: MockerFixture) -> None:
         error = ConfigError(
@@ -79,8 +53,8 @@ class TestRetrieveConfig:
         path_resolver = mocker.Mock()
         path_resolver.get_path.return_value = Failure(error)
 
-        read_json_mock = mocker.patch(
-            "gyomu_config.file.retrieve.read_json",
+        retrieve_single_config_mock = mocker.patch(
+            "gyomu_config.file.retrieve.retrieve_single_config",
         )
 
         request = ConfigRequest(
@@ -95,21 +69,23 @@ class TestRetrieveConfig:
         assert result.failure() is error
 
         path_resolver.get_path.assert_called_once_with(None)
-        read_json_mock.assert_not_called()
+        retrieve_single_config_mock.assert_not_called()
 
-    def test_read_json_failure(self, mocker: MockerFixture) -> None:
-        path = Path("config.json")
-        io_error = GyomuIOError(
-            message="fake", layer=IOLayer.FILESYSTEM, operation=IOOperation.READ
+    def test_retrieve_single_config_failure(self, mocker: MockerFixture) -> None:
+        error = ConfigError(
+            source="json",
+            message="fail to resolve config path",
+            phase="load",
         )
+
+        path = Path("config.json")
 
         path_resolver = mocker.Mock()
         path_resolver.get_path.return_value = Success(path)
-        exists_mock = mocker.patch.object(Path, "exists", return_value=True)
 
-        mocker.patch(
-            "gyomu_config.file.retrieve.read_json",
-            return_value=Failure(io_error),
+        retrieve_single_config_mock = mocker.patch(
+            "gyomu_config.file.retrieve.retrieve_single_config",
+            return_value=Failure(error),
         )
 
         request = ConfigRequest(
@@ -121,5 +97,9 @@ class TestRetrieveConfig:
         result = retrieve_config(request)
 
         assert isinstance(result, Failure)
-        assert result.failure().__cause__ == io_error
-        exists_mock.assert_called_once_with()
+        assert result.failure() is error
+
+        retrieve_single_config_mock.assert_called_once()
+        return_value = retrieve_single_config_mock.return_value
+        assert isinstance(return_value, Failure)
+        assert return_value.failure() is error

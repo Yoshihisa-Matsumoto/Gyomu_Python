@@ -9,7 +9,9 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
     ModelDefaults,
     NoneParameter,
+    PackageModelDefaults,
     ParameterDefault,
+    PrimitiveDefault,
     TupleParameter,
 )
 from gyomu_schema.utility.serialization import _assert_json_round_trip
@@ -25,7 +27,9 @@ from packages.schema.test_support.helpers import (
     create_model_default,
     create_model_defaults,
     create_none_parameter,
+    create_package_model_defaults,
     create_parameter_default,
+    create_primitive_default,
     create_tuple_parameter,
 )
 
@@ -123,4 +127,20 @@ class TestModelDefaults:
         _assert_json_round_trip(
             ModelDefaults,
             create_model_defaults(),
+        )
+
+
+class TestPrimitiveDefault:
+    def test(self) -> None:
+        _assert_json_round_trip(
+            PrimitiveDefault,
+            create_primitive_default(),
+        )
+
+
+class TestPackageModelDefaults:
+    def test(self) -> None:
+        _assert_json_round_trip(
+            PackageModelDefaults,
+            create_package_model_defaults(),
         )
