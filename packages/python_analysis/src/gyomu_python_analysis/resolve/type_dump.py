@@ -23,6 +23,8 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     UnionStructureAnalysis,
 )
 
+from gyomu_python_analysis.resolve.type_reference import _resolve_self_from_name
+
 
 def _convert_literal_to_code(
     value: str | bytes | bool | int | float | complex | None,
@@ -42,9 +44,7 @@ def _convert_type_expression(expression: TypeExpression, class_name: str | None)
 
 def _convert_structure(structure: StructureAnalysis, class_name: str | None) -> str:
     if isinstance(structure, NameStructureAnalysis):
-        if structure.name == "Self":
-            return class_name if class_name is not None else structure.name
-        return structure.name
+        return _resolve_self_from_name(structure, class_name)
     if isinstance(structure, NoneStructureAnalysis):
         return "None"
     if isinstance(structure, LiteralStructureAnalysis):

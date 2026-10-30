@@ -1,6 +1,6 @@
 from typing import cast
 
-from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.file_analysis_cache import (
@@ -11,6 +11,7 @@ from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
+from packages.python_analysis.test_support.helpers import create_analysis_error
 from packages.schema.test_support.helpers import create_declaration_identity
 
 
@@ -99,7 +100,7 @@ class TestFileAnalysisCache:
         workspace_context = cast(WorkspaceContext, mocker.Mock())
         project_context = cast(ProjectContext, mocker.Mock())
         identity = create_declaration_identity("project_a.models::Product")
-        error = cast(AnalysisError, mocker.Mock())
+        error = create_analysis_error()
 
         mocker.patch(
             "gyomu_python_analysis.resolve.file_analysis_cache."
@@ -120,14 +121,16 @@ class TestFileAnalysisCache:
         )
 
         assert isinstance(result, Failure)
-        assert result.failure() is error
+        failure = result.failure()
+        assert isinstance(failure, ResolveError)
+        assert failure.__cause__ is error
         load_mock.assert_called_once()
 
     def test_load_failure_is_not_cached(self, mocker: MockerFixture) -> None:
         workspace_context = cast(WorkspaceContext, mocker.Mock())
         project_context = cast(ProjectContext, mocker.Mock())
         identity = create_declaration_identity("project_a.models::Product")
-        error = cast(AnalysisError, mocker.Mock())
+        error = create_analysis_error()
         analysis_context = cast(FileAnalysisContext, mocker.Mock())
 
         mocker.patch(
@@ -156,7 +159,10 @@ class TestFileAnalysisCache:
         )
 
         assert isinstance(first_result, Failure)
-        assert first_result.failure() is error
+        assert isinstance(first_result, Failure)
+        failure = first_result.failure()
+        assert isinstance(failure, ResolveError)
+        assert failure.__cause__ is error
 
         assert isinstance(second_result, Success)
         assert second_result.unwrap() is analysis_context

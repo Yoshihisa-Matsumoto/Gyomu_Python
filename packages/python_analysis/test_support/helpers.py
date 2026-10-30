@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from griffe import Attribute, Class, Function, TypeAlias
+from griffe import Class, Function, TypeAlias
 from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.analyzers.ast.symbol import (
     AstTargetSymbolType,
@@ -15,23 +15,29 @@ from gyomu_python_analysis.analysis.analyzers.cls import analyze_class
 from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.functions import analyze_function
 from gyomu_python_analysis.analysis.analyzers.type_alias import analyze_type_alias
-from gyomu_python_analysis.analysis.analyzers.variables import analyze_variable
 from gyomu_python_analysis.analysis.extract.symbols import _extract_imports
 from gyomu_python_analysis.analysis.file.source_file_context import SourceFileContext
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.load import load_module
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
+from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
+from gyomu_python_analysis.error.analysis import AnalysisError, AnalysisPhase
+from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.project.workspace import (
     WorkspaceProject,
     WorkspaceRoot,
     WorkspaceRootKind,
 )
+from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_python_analysis.snapshot.models import (
     AnalyzeProjectChangesResult,
 )
+from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
+from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.import_analysis import ImportAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
@@ -53,7 +59,11 @@ from gyomu_schema.schemas.snapshot.types import (
     ProjectSnapshot,
 )
 from gyomu_schema.schemas.types import FullPath
-from returns.result import Failure
+from returns.result import Failure, Success
+
+from packages.schema.test_support.helpers import (
+    build_declaration_identity,
+)
 
 TEST_SUPPORT_ROOT = FullPath(Path(__file__).parent)
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
@@ -152,7 +162,8 @@ def create_project_snapshot(
 
 
 def create_workspace_root(
-    path: FullPath, kind: WorkspaceRootKind = WorkspaceRootKind.UV_WORKSPACE
+    path: FullPath = FIXTURES_ROOT,
+    kind: WorkspaceRootKind = WorkspaceRootKind.UV_WORKSPACE,
 ) -> WorkspaceRoot:
     return WorkspaceRoot(path=path, kind=kind)
 
@@ -171,6 +182,25 @@ def create_analyze_project_change(
         current_snapshot=current_snapshot,
         diff=diff,
     )
+
+
+def create_analysis_error(
+    message: str = "test error",
+    file_path: PythonPath | FullPath = PythonPath("test"),
+    phase: AnalysisPhase = "project-load",
+    details: Mapping[str, object] | None = None,
+) -> AnalysisError:
+    return AnalysisError(
+        message=message, file_path=file_path, phase=phase, details=details
+    )
+
+
+def create_resolve_error(
+    message: str = "test error",
+    reference: str = "test",
+    details: Mapping[str, object] | None = None,
+) -> ResolveError:
+    return ResolveError(message=message, reference=reference, details=details)
 
 
 def assert_class_type(class_analysis: ClassAnalysis) -> None:
@@ -215,6 +245,7 @@ def assert_type_analysis(
 class BaseContext:
     project: ProjectContext
     source: SourceFileContext
+    file_analysis_cach: FileAnalysisCache
 
 
 class AnalysisTestBase:
@@ -264,20 +295,29 @@ class AnalysisTestBase:
 
     def _analyze_variable_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
-    ) -> VariableAnalysis:
-        symbol, source_lines, target_ast, imported = self._analyze_symbol(
-            file_name, symbol_name, dump_required
+    ) -> tuple[VariableAnalysis, BaseContext, FileAnalysisContext]:
+        # symbol, source_lines, target_ast, imported = self._analyze_symbol(
+        #     file_name, symbol_name, dump_required
+        # )
+        # assert isinstance(symbol, Attribute)
+        # return analyze_variable(
+        #     variable=symbol,
+        #     name=symbol_name,
+        #     context=initialize_symbol_context(
+        #         module_name=file_name, name=symbol_name, source_lines=source_lines
+        #     ),
+        #     ast_symbol=target_ast,
+        #     imported=imported,
+        # ), base_context
+        file_analysis_context, base_context = self._analyze_file_full(
+            file_name=file_name
         )
-        assert isinstance(symbol, Attribute)
-        return analyze_variable(
-            variable=symbol,
-            name=symbol_name,
-            context=initialize_symbol_context(
-                module_name=file_name, name=symbol_name, source_lines=source_lines
-            ),
-            ast_symbol=target_ast,
-            imported=imported,
+        target_identity = build_declaration_identity(
+            module_path=file_name, symbol_name=symbol_name
         )
+        symbol = file_analysis_context.metadata.symbols.get(target_identity)
+        assert isinstance(symbol, VariableAnalysis)
+        return symbol, base_context, file_analysis_context
 
     def _analyze_class_base(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
@@ -297,6 +337,20 @@ class AnalysisTestBase:
             ast=target_ast,
             imported=imported,
         )
+
+    def _analyze_file_full(
+        self, file_name: PythonPath
+    ) -> tuple[FileAnalysisContext, BaseContext]:
+        module_name = file_name
+        context = self._read_module_fixture(module_name)
+        analysis_result = load_file_analysis_context(
+            context=context.project,
+            file_path=context.project.source_root / context.source.path,
+            option=AnalysisOption(no_check_cache=True),
+        )
+        assert isinstance(analysis_result, Success)
+        analysis_context = analysis_result.unwrap()
+        return analysis_context, context
 
     def _analyze_symbol(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
@@ -383,4 +437,19 @@ class AnalysisTestBase:
 
         source_file_context = result.unwrap()
 
-        return BaseContext(project=context, source=source_file_context)
+        workspace_result = initialize_workspace_context(
+            root=WorkspaceRoot(
+                path=MONOREPO_FIXTURES_ROOT, kind=WorkspaceRootKind.UV_WORKSPACE
+            )
+        )
+
+        assert isinstance(result, Success)
+
+        workspace_context = workspace_result.unwrap()
+        file_analysis_cache = FileAnalysisCache(workspace_context=workspace_context)
+
+        return BaseContext(
+            project=context,
+            source=source_file_context,
+            file_analysis_cach=file_analysis_cache,
+        )

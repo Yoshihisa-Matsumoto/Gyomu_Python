@@ -1,7 +1,7 @@
 {
   "models": [
     {
-      "class_name": "TestingError",
+      "symbol_name": "TestingError",
       "parameters": [
         {
           "name": "message",

@@ -1,11 +1,14 @@
 from pathlib import Path
-from typing import cast
 from unittest.mock import Mock
 
 import pytest
 from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
+from gyomu_python_analysis.analysis.load_file_context import (
+    load_file_analysis_context,
+)
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
@@ -16,9 +19,6 @@ from gyomu_python_analysis.resolve.imports import (
     resolve_reference_file_analysis_context,
     resolve_reference_symbol,
     resolve_referenced_symbol,
-)
-from gyomu_python_analysis.resolve.load_file_context import (
-    load_file_analysis_context,
 )
 from gyomu_python_analysis.resolve.models import ResolvedReference
 from gyomu_python_analysis.resolve.reference import resolve_reference
@@ -38,7 +38,10 @@ from gyomu_schema.schemas.python.types import (
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from returns.result import Failure, Success
 
-from packages.python_analysis.test_support.helpers import MONOREPO_FIXTURES_ROOT
+from packages.python_analysis.test_support.helpers import (
+    MONOREPO_FIXTURES_ROOT,
+    create_analysis_error,
+)
 
 
 @pytest.fixture
@@ -132,7 +135,7 @@ class TestResolveReferenceFileAnalysisContext:
 
     def test_propagates_failure(self) -> None:
         workspace = Mock(spec=WorkspaceContext)
-        error = cast(AnalysisError, Mock(spec=AnalysisError))
+        error = create_analysis_error()
         workspace.find_workspace_file_analysis_context.return_value = Failure(error)
         reference = make_user_model_reference()
 
@@ -142,7 +145,10 @@ class TestResolveReferenceFileAnalysisContext:
         )
 
         assert isinstance(result, Failure)
-        assert result.failure() is error
+        assert isinstance(result, Failure)
+        failure = result.failure()
+        assert isinstance(failure, ResolveError)
+        assert failure.__cause__ is error
 
 
 class TestResolveReferencedSymbol:
@@ -258,11 +264,14 @@ class TestResolveReferenceSymbol:
         )
 
         assert isinstance(result, Failure)
-        assert isinstance(result.failure(), AnalysisError)
+        assert isinstance(result, Failure)
+        failure = result.failure()
+        assert isinstance(failure, ResolveError)
+        assert isinstance(failure.__cause__, AnalysisError)
 
     def test_propagates_failure(self) -> None:
         workspace = Mock(spec=WorkspaceContext)
-        error = cast(AnalysisError, Mock(spec=AnalysisError))
+        error = create_analysis_error()
         workspace.find_workspace_file_analysis_context.return_value = Failure(error)
         reference = make_user_model_reference()
 
@@ -272,7 +281,9 @@ class TestResolveReferenceSymbol:
         )
 
         assert isinstance(result, Failure)
-        assert result.failure() is error
+        failure = result.failure()
+        assert isinstance(failure, ResolveError)
+        assert failure.__cause__ is error
 
 
 class TestResolveImportedSymbolTypes:

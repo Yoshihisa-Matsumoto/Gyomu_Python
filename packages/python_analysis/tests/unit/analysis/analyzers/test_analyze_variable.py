@@ -19,7 +19,9 @@ from test_support.helpers import AnalysisTestBase, assert_variable_type
 
 class TestAnalyzeVariable(AnalysisTestBase):
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        return self._analyze_variable_base(PythonPath("analysis.symbol.variable"), name)
+        return self._analyze_variable_base(
+            PythonPath("analysis.symbol.variable"), name
+        )[0]
 
     def test_analyzes_public_variable(self) -> None:
         result = self._analyze_variable(

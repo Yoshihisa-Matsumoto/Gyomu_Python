@@ -1,7 +1,7 @@
 {
   "models": [
     {
-      "class_name": "StringLiteralModel",
+      "symbol_name": "StringLiteralModel",
       "parameters": [
         {
           "name": "value",
@@ -13,7 +13,7 @@
       ]
     },
     {
-      "class_name": "IntegerLiteralModel",
+      "symbol_name": "IntegerLiteralModel",
       "parameters": [
         {
           "name": "value",
@@ -25,7 +25,7 @@
       ]
     },
     {
-      "class_name": "BooleanLiteralModel",
+      "symbol_name": "BooleanLiteralModel",
       "parameters": [
         {
           "name": "value",
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "class_name": "NoneDefaultModel",
+      "symbol_name": "NoneDefaultModel",
       "parameters": [
         {
           "name": "value",
@@ -48,7 +48,7 @@
       ]
     },
     {
-      "class_name": "NameReferenceModel",
+      "symbol_name": "NameReferenceModel",
       "parameters": [
         {
           "name": "value",
@@ -60,7 +60,7 @@
       ]
     },
     {
-      "class_name": "AttributeReferenceModel",
+      "symbol_name": "AttributeReferenceModel",
       "parameters": [
         {
           "name": "value",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "class_name": "EmptyTupleModel",
+      "symbol_name": "EmptyTupleModel",
       "parameters": [
         {
           "name": "value",
@@ -88,7 +88,7 @@
       ]
     },
     {
-      "class_name": "TupleLiteralModel",
+      "symbol_name": "TupleLiteralModel",
       "parameters": [
         {
           "name": "value",
@@ -109,7 +109,7 @@
       ]
     },
     {
-      "class_name": "SingletonTupleModel",
+      "symbol_name": "SingletonTupleModel",
       "parameters": [
         {
           "name": "value",
@@ -126,7 +126,7 @@
       ]
     },
     {
-      "class_name": "ListLiteralModel",
+      "symbol_name": "ListLiteralModel",
       "parameters": [
         {
           "name": "value",
@@ -147,7 +147,7 @@
       ]
     },
     {
-      "class_name": "DictLiteralModel",
+      "symbol_name": "DictLiteralModel",
       "parameters": [
         {
           "name": "value",
@@ -180,7 +180,7 @@
       ]
     },
     {
-      "class_name": "BasicModel",
+      "symbol_name": "BasicModel",
       "parameters": [
         {
           "name": "value",
@@ -192,7 +192,7 @@
       ]
     },
     {
-      "class_name": "CallDefaultModel",
+      "symbol_name": "CallDefaultModel",
       "parameters": [
         {
           "name": "value",
@@ -209,7 +209,7 @@
       ]
     },
     {
-      "class_name": "KeywordCallModel",
+      "symbol_name": "KeywordCallModel",
       "parameters": [
         {
           "name": "value",
@@ -234,7 +234,7 @@
       ]
     },
     {
-      "class_name": "NestedCallModel",
+      "symbol_name": "NestedCallModel",
       "parameters": [
         {
           "name": "value",
@@ -266,7 +266,7 @@
       ]
     },
     {
-      "class_name": "RequiredParameterModel",
+      "symbol_name": "RequiredParameterModel",
       "parameters": [
         {
           "name": "user_id",

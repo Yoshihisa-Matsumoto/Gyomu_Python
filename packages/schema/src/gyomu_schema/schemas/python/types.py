@@ -1,6 +1,6 @@
 from collections.abc import Hashable
 from pathlib import Path
-from typing import NewType
+from typing import NewType, Self
 
 from pydantic import BaseModel, ConfigDict
 
@@ -82,6 +82,10 @@ class DeclarationIdentity(BaseModel, Hashable):
 
     def get_module_name(self) -> PythonPath:
         return PythonPath(str(self.symbol_id).rsplit("::", maxsplit=1)[0])
+
+    @classmethod
+    def create_from_symbol_id(cls, symbol_id: SymbolId) -> Self:
+        return cls(symbol_id=symbol_id, declaration_id=DeclarationId("."))
 
 
 def is_declaration_identity_equal(

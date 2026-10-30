@@ -12,7 +12,7 @@ class TestAnalyzeType(AnalysisTestBase):
         )
 
     def _analyze_variable(self, name: str) -> VariableAnalysis:
-        return self._analyze_variable_base(PythonPath("analysis.types.name"), name)
+        return self._analyze_variable_base(PythonPath("analysis.types.name"), name)[0]
 
     def _check_name_analysis(self, variable: VariableAnalysis, expected_name: str):
         assert variable.type

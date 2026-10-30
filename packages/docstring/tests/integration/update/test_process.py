@@ -10,7 +10,7 @@ from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
 from gyomu_docstring.update.process import process_docstring_update
 from gyomu_infra.filesystem.file_io import read_json
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_schema.error.config import ConfigError
 from gyomu_schema.option.update import (
     UpdateActionOption,

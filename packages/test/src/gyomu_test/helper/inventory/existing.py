@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from gyomu_infra.filesystem.file_io import read_source_text
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.resolve.reference import (
     resolve_declaration_identity,
 )

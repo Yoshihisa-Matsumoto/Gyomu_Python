@@ -1,5 +1,6 @@
 from gyomu_config.file.retrieve import retrieve_config
-from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
+from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.cls import (
@@ -8,7 +9,6 @@ from gyomu_python_analysis.resolve.cls import (
     inherits_from_pydantic_basemodel,
     is_dataclass_class,
 )
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.resolve.models import ClassResolutionCollection
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.config.test.model_defaults import (
@@ -47,7 +47,7 @@ def _get_model_kind(
     symbol: SymbolAnalysis,
     module: ModuleAnalysis,
     workspace: WorkspaceContext,
-) -> Result[TargetClassKind | None, AnalysisError]:
+) -> Result[TargetClassKind | None, ResolveError]:
     if not isinstance(symbol, ClassAnalysis):
         return Success(None)
     cls = symbol

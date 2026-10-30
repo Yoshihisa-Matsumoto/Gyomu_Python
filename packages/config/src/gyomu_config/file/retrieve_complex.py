@@ -3,10 +3,9 @@ from pydantic import BaseModel
 from returns.result import Failure, Result
 
 from gyomu_config.file.internal.retrieve import (
-    _ResolvedPathRequest,
     retrieve_single_config,
 )
-from gyomu_config.request import ComplexConfigRequest
+from gyomu_config.request import ComplexConfigRequest, _ResolvedPathRequest
 
 
 def retrieve_complex_config[T: BaseModel, C](

@@ -2,15 +2,15 @@ from gyomu_infra.filesystem.file_io import delete_file
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from returns.result import Result, Success
 
-from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.analysis.get_module import _get_cache_path
+from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.resolve.get_module import _get_cache_path
 
 
 def delete_module_cache(
     project_context: ProjectContext,
     file_path: ProjectRelativePath,
-) -> Result[None, AnalysisError]:
+) -> Result[None, ResolveError]:
     """Deletes the analysis cache for a specified module.
 
     Deletes the analysis cache file for a given project module if it exists.
@@ -26,10 +26,9 @@ def delete_module_cache(
     cache_path = _get_cache_path(project_context, file_path)
     if cache_path.exists():
         return delete_file(cache_path).alt(
-            lambda error: AnalysisError(
+            lambda error: ResolveError(
                 "fail to delete file analysis cache",
-                file_path=cache_path,
-                phase="analysis",
+                reference=cache_path,
             ).chain(error)
         )
     return Success(None)

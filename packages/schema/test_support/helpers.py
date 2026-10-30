@@ -66,8 +66,11 @@ from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.expression import StatementAnalysis
 from gyomu_schema.schemas.python.type.structure import (
+    EllipsisStructureAnalysis,
     LiteralValue,
     NameStructureAnalysis,
+    NoneStructureAnalysis,
+    UnknownStructureAnalysis,
 )
 from gyomu_schema.schemas.python.type.type_analysis import (
     ArrayStructureAnalysis,
@@ -105,6 +108,15 @@ from gyomu_schema.schemas.types import FullPath
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
 
 print("LOADED DOCSTRING TESTS.HELPERS")
+
+
+def build_declaration_identity(
+    module_path: PythonPath, symbol_name: str
+) -> DeclarationIdentity:
+    return DeclarationIdentity(
+        symbol_id=SymbolId(f"{module_path}::{symbol_name}"),
+        declaration_id=DeclarationId("."),
+    )
 
 
 def create_declaration_identity(id: str = "test") -> DeclarationIdentity:
@@ -364,8 +376,12 @@ def create_literal_value(value: str | int | bool | float) -> LiteralValue:
     return LiteralValue(value=value)
 
 
-def create_name_structure(name: str) -> NameStructureAnalysis:
+def create_name_structure_analysis(name: str = "name") -> NameStructureAnalysis:
     return NameStructureAnalysis(name=name)
+
+
+def create_none_structure_analysis() -> NoneStructureAnalysis:
+    return NoneStructureAnalysis()
 
 
 def create_type_analysis(
@@ -374,61 +390,81 @@ def create_type_analysis(
     return TypeAnalysis(text=text, structure=structure)
 
 
-def create_union_structure(types: tuple[TypeExpression, ...]) -> UnionStructureAnalysis:
+def create_union_structure_analysis(
+    types: tuple[TypeExpression, ...] = (create_name_structure_analysis(),),
+) -> UnionStructureAnalysis:
     return UnionStructureAnalysis(types=types)
 
 
-def create_attribute_structure(
-    values: tuple[TypeExpression, ...],
+def create_attribute_structure_analysis(
+    values: tuple[TypeExpression, ...] = (create_name_structure_analysis(),),
 ) -> AttributeStructureAnalysis:
     return AttributeStructureAnalysis(values=values)
 
 
-def create_tuple_structure(
-    elements: Sequence[TypeExpression], variable_length: bool = False
+def create_tuple_structure_analysis(
+    elements: Sequence[TypeExpression] = (create_name_structure_analysis(),),
+    variable_length: bool = False,
 ) -> TupleStructureAnalysis:
     return TupleStructureAnalysis(elements=elements, variable_length=variable_length)
 
 
-def create_set_structure(element_type: TypeExpression) -> SetStructureAnalysis:
+def create_set_structure_analysis(
+    element_type: TypeExpression = create_name_structure_analysis(),
+) -> SetStructureAnalysis:
     return SetStructureAnalysis(element_type=element_type)
 
 
-def create_literal_structure(value: TypeExpression) -> LiteralStructureAnalysis:
+def create_literal_structure_analysis(
+    value: TypeExpression = create_name_structure_analysis(),
+) -> LiteralStructureAnalysis:
     return LiteralStructureAnalysis(value=value)
 
 
-def create_array_structure(element: TypeExpression) -> ArrayStructureAnalysis:
+def create_unknown_structure_analysis() -> UnknownStructureAnalysis:
+    return UnknownStructureAnalysis()
+
+
+def create_array_structure_analysis(
+    element: TypeExpression = create_name_structure_analysis(),
+) -> ArrayStructureAnalysis:
     return ArrayStructureAnalysis(element=element)
 
 
-def create_dictionary_structure(
-    keys: TypeExpression, values: TypeExpression
+def create_dictionary_structure_analysis(
+    keys: TypeExpression = create_name_structure_analysis(),
+    values: TypeExpression = create_name_structure_analysis(),
 ) -> DictionaryStructureAnalysis:
     return DictionaryStructureAnalysis(keys=keys, values=values)
 
 
-def create_callable_structure(
-    return_type: TypeExpression,
+def create_callable_structure_analysis(
+    return_type: TypeExpression = create_name_structure_analysis(),
     parameters: tuple[TypeExpression, ...] | None = None,
 ) -> CallableStructureAnalysis:
     return CallableStructureAnalysis(return_type=return_type, parameters=parameters)
 
 
-def create_call_structure(
-    function: StructureAnalysis, arguments: tuple[TypeExpression, ...]
+def create_ellipsis_structure_analysis() -> EllipsisStructureAnalysis:
+    return EllipsisStructureAnalysis()
+
+
+def create_call_structure_analysis(
+    function: StructureAnalysis = create_name_structure_analysis(),
+    arguments: tuple[TypeExpression, ...] = (create_name_structure_analysis(),),
 ) -> CallStructureAnalysis:
     return CallStructureAnalysis(function=function, arguments=arguments)
 
 
-def create_generics_structure(
-    base: TypeExpression, parameters: tuple[TypeExpression, ...]
+def create_generics_structure_analysis(
+    base: TypeExpression = create_name_structure_analysis(),
+    parameters: tuple[TypeExpression, ...] = (create_name_structure_analysis(),),
 ) -> GenericsStructureAnalysis:
     return GenericsStructureAnalysis(base=base, parameters=parameters)
 
 
-def create_keyword_structure(
-    name: str, value: TypeExpression
+def create_keyword_structure_analysis(
+    name: str = "param", value: TypeExpression = create_name_structure_analysis()
 ) -> KeywordStructureAnalysis:
     return KeywordStructureAnalysis(name=name, value=value)
 
@@ -777,3 +813,22 @@ def create_package_model_defaults(
     return PackageModelDefaults(
         models_per_module_path=models_per_module_path, primitives=primitives
     )
+
+
+STRUCTURE_FACTORIES: dict[type, StructureAnalysis] = {
+    NameStructureAnalysis: create_name_structure_analysis(),
+    NoneStructureAnalysis: create_none_structure_analysis(),
+    UnionStructureAnalysis: create_union_structure_analysis(),
+    AttributeStructureAnalysis: create_attribute_structure_analysis(),
+    TupleStructureAnalysis: create_tuple_structure_analysis(),
+    GenericsStructureAnalysis: create_generics_structure_analysis(),
+    LiteralStructureAnalysis: create_literal_structure_analysis(),
+    ArrayStructureAnalysis: create_array_structure_analysis(),
+    DictionaryStructureAnalysis: create_dictionary_structure_analysis(),
+    CallableStructureAnalysis: create_callable_structure_analysis(),
+    UnknownStructureAnalysis: create_unknown_structure_analysis(),
+    SetStructureAnalysis: create_set_structure_analysis(),
+    KeywordStructureAnalysis: create_keyword_structure_analysis(),
+    CallStructureAnalysis: create_call_structure_analysis(),
+    EllipsisStructureAnalysis: create_ellipsis_structure_analysis(),
+}

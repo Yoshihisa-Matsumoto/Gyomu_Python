@@ -22,6 +22,7 @@ from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
+from packages.python_analysis.test_support.helpers import create_resolve_error
 from packages.test.tests.unit.helper.inventory.helpers import (
     ParameterSummary,
     equal_helper_inventory,
@@ -252,15 +253,11 @@ class TestCollectModelHelperInventory:
         mocker: MockerFixture,
     ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
-        analysis_error = AnalysisError(
-            message="test",
-            file_path=PythonPath("gyomu_test.test"),
-            phase="workspace-discovery",
-        )
+        resolve_error = create_resolve_error()
 
         hierarchy_mock = mocker.patch(
             "gyomu_test.helper.inventory.expected.collect_class_hierarchy",
-            return_value=Failure(analysis_error),
+            return_value=Failure(resolve_error),
         )
 
         result = collect_model_helper_inventory(project_context, workspace_context)
@@ -268,5 +265,5 @@ class TestCollectModelHelperInventory:
         assert isinstance(result, Failure)
         fail = result.failure()
         assert isinstance(fail, GyomuTestError)
-        assert fail.__cause__ is analysis_error
+        assert fail.__cause__ is resolve_error
         hierarchy_mock.assert_called_once()

@@ -2,9 +2,9 @@ from pathlib import Path
 
 from gyomu_docstring.update.process import process_docstring_update
 from gyomu_infra.logger import logger
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.resolve.delete_cache import delete_module_cache
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.snapshot.analyze import analyze_project_changes
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.option.update import UpdateDebugInfoOption, UpdateOption

@@ -1,13 +1,13 @@
 from pathlib import Path
-from unittest.mock import create_autospec
+from typing import cast
 
 import pytest
 from gyomu_python_analysis.analysis.initialize import (
     initialize_project_context,
     initialize_project_from_workspace,
 )
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
-from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
@@ -22,7 +22,6 @@ from gyomu_python_analysis.resolve.cls import (
     resolve_class_analysis,
 )
 from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.types import (
@@ -38,6 +37,7 @@ from returns.result import Failure, Success
 from packages.python_analysis.test_support.helpers import (
     FIXTURES_ROOT,
     MONOREPO_FIXTURES_ROOT,
+    create_analysis_error,
 )
 from packages.schema.test_support.helpers import (
     create_class_analysis,
@@ -495,7 +495,7 @@ class TestResolveClassAnalysis:
 
         file_analysis_context.metadata.symbols[identity] = class_analysis
 
-        file_analysis_cache = create_autospec(
+        file_analysis_cache = mocker.create_autospec(
             FileAnalysisCache,
             instance=True,
         )
@@ -519,27 +519,25 @@ class TestResolveClassAnalysis:
             identity=identity,
         )
 
-    def test_symbol_not_found(
+    def test_symbol_resolution_failure_is_propagated(
         self,
         mocker: MockerFixture,
     ) -> None:
         identity = DeclarationIdentity(
-            symbol_id=SymbolId("project_a.models::Missing"),
+            symbol_id=SymbolId("project_a.models::product_name"),
             declaration_id=DeclarationId("."),
         )
-        file_analysis_context = create_file_analysis_context()
         project_context = initialize_project_context(
             project_root=FIXTURES_ROOT,
             source_root=ProjectRelativePath(Path("src")),
         ).unwrap()
-        file_analysis_context.metadata.symbols.pop(identity, None)
 
-        file_analysis_cache = create_autospec(
-            FileAnalysisCache,
-            instance=True,
-        )
-        file_analysis_cache.get_file_analysis_context.return_value = Success(
-            file_analysis_context
+        expected_error = create_analysis_error()
+
+        file_analysis_cache = cast(FileAnalysisCache, mocker.Mock())
+        resolve_symbol_analysis_mock = mocker.patch(
+            "gyomu_python_analysis.resolve.cls.resolve_symbol_analysis",
+            return_value=Failure(expected_error),
         )
 
         result = resolve_class_analysis(
@@ -549,14 +547,15 @@ class TestResolveClassAnalysis:
         )
 
         assert isinstance(result, Failure)
-        error = result.failure()
-        assert error.message == "symbol is not found"
-        assert error.phase == "resolve"
-        assert error.details == {"identity": identity}
+        assert result.failure() is expected_error
 
-    def test_symbol_is_not_class(
-        self,
-    ) -> None:
+        resolve_symbol_analysis_mock.assert_called_once_with(
+            identity,
+            project_context,
+            file_analysis_cache,
+        )
+
+    def test_symbol_is_not_class(self, mocker: MockerFixture) -> None:
         identity = DeclarationIdentity(
             symbol_id=SymbolId("project_a.models::product_name"),
             declaration_id=DeclarationId("."),
@@ -571,7 +570,7 @@ class TestResolveClassAnalysis:
             source_root=ProjectRelativePath(Path("src")),
         ).unwrap()
 
-        file_analysis_cache = create_autospec(
+        file_analysis_cache = mocker.create_autospec(
             FileAnalysisCache,
             instance=True,
         )
@@ -588,38 +587,4 @@ class TestResolveClassAnalysis:
         assert isinstance(result, Failure)
         error = result.failure()
         assert error.message == "symbol is not class"
-        assert error.phase == "resolve"
         assert error.details == {"identity": identity}
-
-    def test_file_analysis_failure(
-        self,
-    ) -> None:
-        identity = DeclarationIdentity(
-            symbol_id=SymbolId("project_a.models::Product"),
-            declaration_id=DeclarationId("."),
-        )
-        project_context = initialize_project_context(
-            project_root=FIXTURES_ROOT,
-            source_root=ProjectRelativePath(Path("src")),
-        ).unwrap()
-
-        error = AnalysisError(
-            message="failed to load file",
-            file_path=identity.get_module_name(),
-            phase="resolve",
-        )
-
-        file_analysis_cache = create_autospec(
-            FileAnalysisCache,
-            instance=True,
-        )
-        file_analysis_cache.get_file_analysis_context.return_value = Failure(error)
-
-        result = resolve_class_analysis(
-            declaration_identity=identity,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
-        )
-
-        assert isinstance(result, Failure)
-        assert result.failure() is error

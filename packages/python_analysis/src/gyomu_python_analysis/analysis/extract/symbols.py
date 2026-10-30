@@ -155,7 +155,11 @@ def _extract_symbols_internal(
             # print(symbol.name)
             # print(index)
             if ast_symbol is not None:
-                assert isinstance(ast_symbol, ast.Assign | ast.AnnAssign)
+                # FunctionDef/AsyncFunctionDef is for property decorator
+                assert isinstance(
+                    ast_symbol,
+                    ast.Assign | ast.AnnAssign | ast.FunctionDef | ast.AsyncFunctionDef,
+                )
             symbols.append(
                 analyze_variable(
                     variable=symbol,

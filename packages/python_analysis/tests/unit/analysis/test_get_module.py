@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
-from gyomu_python_analysis.resolve.get_module import (
+from gyomu_python_analysis.analysis.get_module import (
     _get_cache_path,
     get_module_analysis,
 )
+from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
@@ -94,14 +94,14 @@ class TestGetModuleAnalysis:
         cache_path.touch()
 
         read_json_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.read_json",
+            "gyomu_python_analysis.analysis.get_module.read_json",
             return_value=Success(expected),
         )
         load_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.load_module_analysis",
+            "gyomu_python_analysis.analysis.get_module.load_module_analysis",
         )
         write_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.write_json",
+            "gyomu_python_analysis.analysis.get_module.write_json",
         )
 
         result = get_module_analysis(context, file_path)
@@ -132,11 +132,11 @@ class TestGetModuleAnalysis:
         )
 
         load_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.load_module_analysis",
+            "gyomu_python_analysis.analysis.get_module.load_module_analysis",
             return_value=Success(expected),
         )
         write_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.write_json",
+            "gyomu_python_analysis.analysis.get_module.write_json",
             return_value=Success(None),
         )
 
@@ -175,11 +175,11 @@ class TestGetModuleAnalysis:
         cache_path.write_text("invalid json")
 
         load_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.load_module_analysis",
+            "gyomu_python_analysis.analysis.get_module.load_module_analysis",
             return_value=Success(expected),
         )
         write_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.write_json",
+            "gyomu_python_analysis.analysis.get_module.write_json",
             return_value=Success(None),
         )
 
@@ -210,16 +210,19 @@ class TestGetModuleAnalysis:
         )
 
         load_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.load_module_analysis",
+            "gyomu_python_analysis.analysis.get_module.load_module_analysis",
             return_value=Failure(expected),
         )
         write_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.write_json",
+            "gyomu_python_analysis.analysis.get_module.write_json",
         )
 
         result = get_module_analysis(context, file_path)
 
-        assert result == Failure(expected)
+        assert isinstance(result, Failure)
+        failure = result.failure()
+        assert isinstance(failure, AnalysisError)
+        assert failure is expected
 
         load_mock.assert_called_once_with(context, PythonPath("foo"), None)
 
@@ -252,11 +255,11 @@ class TestGetModuleAnalysis:
         )
 
         load_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.load_module_analysis",
+            "gyomu_python_analysis.analysis.get_module.load_module_analysis",
             return_value=Success(expected),
         )
         write_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.get_module.write_json",
+            "gyomu_python_analysis.analysis.get_module.write_json",
             return_value=Failure(write_error),
         )
 
@@ -264,9 +267,9 @@ class TestGetModuleAnalysis:
 
         assert isinstance(result, Failure)
         failure = result.failure()
+        assert isinstance(failure, AnalysisError)
         assert failure.message == "fail to write ModuleAnalysis"
         assert failure.file_path == PythonPath("foo")
-        assert failure.phase == "post-analysis"
 
         load_mock.assert_called_once_with(context, PythonPath("foo"), None)
 

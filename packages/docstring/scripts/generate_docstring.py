@@ -10,12 +10,12 @@ from gyomu_python_analysis.analysis.initialize import (
     initialize_project_context,
     initialize_project_from_workspace,
 )
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.workspace import (
     find_root,
     initialize_workspace_context,
 )
 from gyomu_python_analysis.project.workspace import WorkspaceRootKind
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_schema.option.update import (
     UpdateDebugInfoOption,
     UpdateOption,

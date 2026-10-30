@@ -1,5 +1,7 @@
 from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
+from gyomu_python_analysis.resolve.type_reference import resolve_type_analysis
+from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
     NameStructureAnalysis,
@@ -17,8 +19,11 @@ from gyomu_schema.schemas.python.type.type_analysis import (
 )
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
+from gyomu_schema.utility.fromatting import format_object
+from returns.result import Success
 from test_support.helpers import (
     AnalysisTestBase,
+    BaseContext,
     assert_type_analysis,
     assert_variable_type,
 )
@@ -70,26 +75,34 @@ def test_analyze_type_preserves_string_annotation() -> None:
 class TestAnalyzeType(AnalysisTestBase):
     def _analyze_variable_internal(
         self, name: str, module_name: PythonPath
-    ) -> VariableAnalysis:
+    ) -> tuple[VariableAnalysis, BaseContext, FileAnalysisContext]:
         return self._analyze_variable_base(module_name, name)
 
-    def _analyze_variable(self, name: str) -> VariableAnalysis:
+    def _analyze_variable(
+        self, name: str
+    ) -> tuple[VariableAnalysis, BaseContext, FileAnalysisContext]:
         return self._analyze_variable_internal(
             name, PythonPath("analysis.symbol.types")
         )
 
-    def _analyze_callable(self, name: str) -> VariableAnalysis:
+    def _analyze_callable(
+        self, name: str
+    ) -> tuple[VariableAnalysis, BaseContext, FileAnalysisContext]:
         return self._analyze_variable_internal(
             name, PythonPath("analysis.symbol.callable")
         )
 
-    def _analyze_generics(self, name: str) -> VariableAnalysis:
+    def _analyze_generics(
+        self, name: str
+    ) -> tuple[VariableAnalysis, BaseContext, FileAnalysisContext]:
         return self._analyze_variable_internal(
             name, PythonPath("analysis.symbol.generics")
         )
 
     def test_analyze_type_int(self) -> None:
-        result = self._analyze_variable("value_int")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_int"
+        )
 
         assert result.type is not None
         assert result.type.text == "int"
@@ -98,7 +111,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_str(self) -> None:
-        result = self._analyze_variable("value_str")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_str"
+        )
 
         assert result.type is not None
         assert result.type.text == "str"
@@ -106,8 +121,20 @@ class TestAnalyzeType(AnalysisTestBase):
         assert result.type.structure.name == "str"
         assert_variable_type(result)
 
+        resolve_result = resolve_type_analysis(
+            type_analysis=result.type,
+            parameter_name="param",
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+        )
+        assert isinstance(resolve_result, Success)
+        print(format_object(resolve_result.unwrap(), depth=5))
+
     def test_analyze_type_none(self) -> None:
-        result = self._analyze_variable("value_none")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_none"
+        )
 
         assert result.type is not None
         assert result.type.text == "None"
@@ -115,7 +142,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_custom(self) -> None:
-        result = self._analyze_variable("value_custom")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_custom"
+        )
 
         assert result.type is not None
         assert result.type.text == "Foo"
@@ -124,7 +153,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_union(self) -> None:
-        result = self._analyze_variable("value_union")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_union"
+        )
 
         assert result.type is not None
         assert result.type.text == "int | None | str | None"
@@ -146,7 +177,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_literal_int(self) -> None:
-        result = self._analyze_variable("value_literal_int")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_literal_int"
+        )
 
         assert result.type is not None
         assert result.type.text == "Literal[1]"
@@ -157,7 +190,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_literal_multiple_int(self) -> None:
-        result = self._analyze_variable("value_literal_int2")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_literal_int2"
+        )
 
         assert result.type is not None
         assert isinstance(result.type.structure, LiteralStructureAnalysis)
@@ -169,7 +204,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_list(self) -> None:
-        result = self._analyze_variable("value_list")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_list"
+        )
 
         assert result.type is not None
         assert result.type.text == "list[int]"
@@ -182,7 +219,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_dict(self) -> None:
-        result = self._analyze_variable("value_dict")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_dict"
+        )
 
         assert result.type is not None
         assert result.type.text == "dict[str, int]"
@@ -200,7 +239,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_set(self) -> None:
-        result = self._analyze_variable("value_set")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_set"
+        )
 
         assert result.type is not None
         assert result.type.text == "set[str]"
@@ -214,7 +255,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_tuple(self) -> None:
-        result = self._analyze_variable("value_tuple2")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_tuple2"
+        )
 
         assert result.type is not None
         assert result.type.text == "tuple[str, int]"
@@ -234,7 +277,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_tuple_variable_length(self) -> None:
-        result = self._analyze_variable("value_tuple")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_tuple"
+        )
 
         assert result.type is not None
         assert result.type.text == "tuple[str, ...]"
@@ -251,7 +296,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_nested_tuple(self) -> None:
-        result = self._analyze_variable("value_tuple_nested")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_tuple_nested"
+        )
 
         assert result.type is not None
         assert isinstance(result.type.structure, TupleStructureAnalysis)
@@ -279,7 +326,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_nested_variable_length_tuple(self) -> None:
-        result = self._analyze_variable("value_tuple_nested2")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_tuple_nested2"
+        )
 
         assert result.type is not None
         assert isinstance(result.type.structure, TupleStructureAnalysis)
@@ -301,7 +350,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_nested_variable_length_tuple_2(self) -> None:
-        result = self._analyze_variable("value_tuple_nested3")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_tuple_nested3"
+        )
 
         assert result.type is not None
         assert isinstance(result.type.structure, TupleStructureAnalysis)
@@ -323,7 +374,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_callable(self) -> None:
-        result = self._analyze_variable("value_callable")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_callable"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[Exception], bool]"
@@ -343,7 +396,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_type_callable_with_multiple_parameters(self) -> None:
-        result = self._analyze_variable("value_callable2")
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_callable2"
+        )
 
         assert result.type is not None
         assert isinstance(result.type.structure, CallableStructureAnalysis)
@@ -365,7 +420,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_single_parameter(self) -> None:
-        result = self._analyze_callable("value_callable_1")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_1"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[Exception], bool]"
@@ -386,7 +443,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_no_parameter(self) -> None:
-        result = self._analyze_callable("value_callable_3")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_3"
+        )
         assert result.type is not None
 
         structure = result.type.structure
@@ -395,7 +454,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_no_parameter_with_return(self) -> None:
-        result = self._analyze_callable("value_callable_5")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_5"
+        )
         assert result.type is not None
 
         structure = result.type.structure
@@ -409,7 +470,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_variable_parameter(self) -> None:
-        result = self._analyze_callable("value_callable_15")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_15"
+        )
         assert result.type is not None
 
         structure = result.type.structure
@@ -418,7 +481,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_7(self) -> None:
-        result = self._analyze_callable("value_callable_7")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_7"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[str | None, int | float], bool]"
@@ -453,7 +518,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_8(self) -> None:
-        result = self._analyze_callable("value_callable_8")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_8"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[str], str | None]"
@@ -478,7 +545,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_9(self) -> None:
-        result = self._analyze_callable("value_callable_9")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_9"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[Callable[[str], int]], bool]"
@@ -507,7 +576,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_10(self) -> None:
-        result = self._analyze_callable("value_callable_10")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_10"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[str], Callable[[int], bool]]"
@@ -537,7 +608,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_11(self) -> None:
-        result = self._analyze_callable("value_callable_11")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_11"
+        )
 
         assert result.type is not None
         assert result.type.text == (
@@ -578,7 +651,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_12(self) -> None:
-        result = self._analyze_callable("value_callable_12")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_12"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[tuple[str, int]], bool]"
@@ -605,7 +680,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_13(self) -> None:
-        result = self._analyze_callable("value_callable_13")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_13"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[Literal['foo'], Literal[1]], bool]"
@@ -631,7 +708,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_callable_14(self) -> None:
-        result = self._analyze_callable("value_callable_14")
+        result, base_context, file_analysis_context = self._analyze_callable(
+            "value_callable_14"
+        )
 
         assert result.type is not None
         assert result.type.text == "Callable[[str | None], None]"
@@ -655,7 +734,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_generic_simple(self) -> None:
-        result = self._analyze_generics("value_generic_simple")
+        result, base_context, file_analysis_context = self._analyze_generics(
+            "value_generic_simple"
+        )
 
         assert result.type is not None
         assert result.type.text == "GenericClass[str]"
@@ -674,7 +755,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_generic_nested(self) -> None:
-        result = self._analyze_generics("value_generic_nested")
+        result, base_context, file_analysis_context = self._analyze_generics(
+            "value_generic_nested"
+        )
 
         assert result.type is not None
         assert result.type.text == "GenericClass[list[str]]"
@@ -695,7 +778,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_generic_multiple(self) -> None:
-        result = self._analyze_generics("value_generic_multiple")
+        result, base_context, file_analysis_context = self._analyze_generics(
+            "value_generic_multiple"
+        )
 
         assert result.type is not None
         assert result.type.text == "GenericPair[str, int]"
@@ -718,7 +803,9 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_variable_type(result)
 
     def test_analyze_generic_deep_nested(self) -> None:
-        result = self._analyze_generics("value_generic_deep_nested")
+        result, base_context, file_analysis_context = self._analyze_generics(
+            "value_generic_deep_nested"
+        )
 
         assert result.type is not None
         assert result.type.text == "GenericClass[GenericPair[str, int]]"

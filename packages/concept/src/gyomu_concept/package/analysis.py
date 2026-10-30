@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
 from gyomu_infra.logger import logger
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.workspace import (
     find_root,
     initialize_workspace_context,
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.file_summary import FileSummary
 from gyomu_schema.schemas.concept.package.analysis import (

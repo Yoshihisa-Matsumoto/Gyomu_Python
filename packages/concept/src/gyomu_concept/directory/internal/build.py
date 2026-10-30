@@ -1,6 +1,6 @@
 from gyomu_infra.logger import logger
+from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.resolve.load_file_context import load_file_analysis_context
 from gyomu_schema.option.concept import ConceptOption
 from gyomu_schema.schemas.concept.directory.input import (
     DirectoryConceptInput,

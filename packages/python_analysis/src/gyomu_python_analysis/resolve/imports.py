@@ -10,7 +10,7 @@ from gyomu_schema.schemas.python.types import (
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from returns.result import Failure, Result, Success
 
-from gyomu_python_analysis.error.analysis import AnalysisError
+from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.models import ResolvedReference
 
@@ -27,17 +27,22 @@ from gyomu_python_analysis.resolve.models import ResolvedReference
 def resolve_reference_file_analysis_context(
     reference: ResolvedReference,
     workspace: WorkspaceContext,
-) -> Result[FileAnalysisContext | None, AnalysisError]:
+) -> Result[FileAnalysisContext | None, ResolveError]:
     if reference.import_analysis is None:
         return Success(None)
 
-    return workspace.find_workspace_file_analysis_context(reference.module_path)
+    return workspace.find_workspace_file_analysis_context(reference.module_path).alt(
+        lambda error: ResolveError(
+            message="fail to find file analysis context",
+            reference=reference.module_path,
+        ).chain(error)
+    )
 
 
 def resolve_referenced_symbol(
     reference: ResolvedReference,
     file_analysis_context: FileAnalysisContext,
-) -> Result[SymbolAnalysis | None, AnalysisError]:
+) -> Result[SymbolAnalysis | None, ResolveError]:
     if reference.import_analysis is None:
         return Success(None)
     symbol_id = reference.symbol_id
@@ -90,7 +95,7 @@ def resolve_referenced_symbol(
 def resolve_reference_symbol(
     reference: ResolvedReference,
     workspace: WorkspaceContext,
-) -> Result[SymbolAnalysis | None, AnalysisError]:
+) -> Result[SymbolAnalysis | None, ResolveError]:
     module_result = resolve_reference_file_analysis_context(reference, workspace)
     if isinstance(module_result, Failure):
         return module_result

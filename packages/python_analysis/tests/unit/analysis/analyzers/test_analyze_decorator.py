@@ -24,7 +24,7 @@ class TestAnalyzeDecorator(AnalysisTestBase):
     def _analyze_variable(self, name: str) -> VariableAnalysis:
         return self._analyze_variable_base(
             PythonPath("analysis.symbol.decorator"), name
-        )
+        )[0]
 
     def _analyze_file(self) -> ModuleAnalysis:
         return self._analyze_module_base(PythonPath("analysis.symbol.decorator"))

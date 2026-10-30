@@ -57,7 +57,7 @@ class TestAnalyzeDocstring(AnalysisTestBase):
     def _analyze_variable(self, file_name: str, name: str) -> VariableAnalysis:
         return self._analyze_variable_base(
             PythonPath(f"analysis.docstring.{file_name}"), name
-        )
+        )[0]
 
     def _analyze_file(self, file_name: str) -> ModuleAnalysis:
         return self._analyze_module_base(PythonPath(f"analysis.docstring.{file_name}"))

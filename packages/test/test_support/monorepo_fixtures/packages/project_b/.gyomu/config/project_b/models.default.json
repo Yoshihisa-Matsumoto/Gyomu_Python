@@ -1,7 +1,7 @@
 {
   "models": [
     {
-      "class_name": "ProductBaseModel",
+      "symbol_name": "ProductBaseModel",
       "parameters": [
         {
           "name": "product_id",
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "class_name": "ProductSummary",
+      "symbol_name": "ProductSummary",
       "parameters": [
         {
           "name": "product_id",
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "class_name": "CompositeProduct",
+      "symbol_name": "CompositeProduct",
       "parameters": [
         {
           "name": "composite_name",
@@ -78,7 +78,7 @@
       ]
     },
     {
-      "class_name": "ProductModel",
+      "symbol_name": "ProductModel",
       "parameters": [
         {
           "name": "price",

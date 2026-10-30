@@ -54,7 +54,7 @@ from packages.schema.test_support.helpers import (
     create_inner_class_analysis,
     create_method_analysis,
     create_module_analysis,
-    create_name_structure,
+    create_name_structure_analysis,
     create_source_location,
     create_type_analysis,
 )
@@ -632,7 +632,7 @@ def test_is_documentable_child_entry(
         bases = tuple(
             [
                 create_type_analysis(
-                    "BaseModel", structure=create_name_structure("BaseModel")
+                    "BaseModel", structure=create_name_structure_analysis("BaseModel")
                 )
             ]
         )

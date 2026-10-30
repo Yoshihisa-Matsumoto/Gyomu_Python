@@ -66,7 +66,7 @@ def get_module_analysis(
                 AnalysisError(
                     "fail to write ModuleAnalysis",
                     file_path=module_path,
-                    phase="post-analysis",
+                    phase="analysis",
                 ).chain(write_result.failure())
             )
 
