@@ -7,7 +7,8 @@ from gyomu_python_analysis.analysis.load import load_module
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.types import PythonPath
 from returns.result import Success
-from test_support.helpers import AnalysisTestBase
+
+from packages.python_analysis.test_support.helpers import AnalysisTestBase
 
 
 class TestCalculateSymbolLocation(AnalysisTestBase):

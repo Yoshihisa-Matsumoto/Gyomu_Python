@@ -14,7 +14,11 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
-from test_support.helpers import AnalysisTestBase, assert_variable_type
+
+from packages.python_analysis.test_support.helpers import (
+    AnalysisTestBase,
+    assert_variable_type,
+)
 
 
 class TestAnalyzeVariable(AnalysisTestBase):

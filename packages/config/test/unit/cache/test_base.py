@@ -8,12 +8,12 @@ from pydantic import BaseModel
 from returns.result import Failure, Success
 
 
-class TestConfig(BaseModel):
+class SampleConfig(BaseModel):
     name: str
     tags: list[str]
 
 
-class TestKey(BaseModel):
+class SampleKey(BaseModel):
     # キーは Hashable が必要なので、実際のテストでは
     # frozen dataclass などを使う。
     pass
@@ -35,8 +35,8 @@ def validator():
 
 
 @pytest.fixture
-def cache(validator) -> _ConfigCache[TestConfig, CacheKey, CacheState]:
-    return _ConfigCache[TestConfig, CacheKey, CacheState](validator)
+def cache(validator) -> _ConfigCache[SampleConfig, CacheKey, CacheState]:
+    return _ConfigCache[SampleConfig, CacheKey, CacheState](validator)
 
 
 @pytest.fixture
@@ -50,14 +50,14 @@ def state() -> CacheState:
 
 
 @pytest.fixture
-def config() -> TestConfig:
-    return TestConfig(name="example", tags=["one", "two"])
+def config() -> SampleConfig:
+    return SampleConfig(name="example", tags=["one", "two"])
 
 
 class TestConfigCache:
     def test_add_and_get(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         state,
@@ -76,7 +76,7 @@ class TestConfigCache:
 
     def test_add_copies_value(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         state,
@@ -90,11 +90,11 @@ class TestConfigCache:
 
         result = cache.get(key)
 
-        assert result == Success(TestConfig(name="example", tags=["one", "two"]))
+        assert result == Success(SampleConfig(name="example", tags=["one", "two"]))
 
     def test_get_returns_copy(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         state,
@@ -114,11 +114,13 @@ class TestConfigCache:
 
         second_result = cache.get(key)
 
-        assert second_result == Success(TestConfig(name="example", tags=["one", "two"]))
+        assert second_result == Success(
+            SampleConfig(name="example", tags=["one", "two"])
+        )
 
     def test_get_returns_none_on_cache_miss(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         state,
@@ -132,7 +134,7 @@ class TestConfigCache:
 
     def test_get_returns_none_when_state_differs(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         state,
@@ -150,7 +152,7 @@ class TestConfigCache:
         validator.is_valid.assert_called_once_with(state, current_state)
 
     def test_get_propagates_state_error(
-        self, cache: _ConfigCache[TestConfig, CacheKey, CacheState], validator, key
+        self, cache: _ConfigCache[SampleConfig, CacheKey, CacheState], validator, key
     ):
         error = ConfigError(
             message="fail to get file state",
@@ -165,7 +167,7 @@ class TestConfigCache:
 
     def test_get_removes_entry_when_state_is_none(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         state,
@@ -181,7 +183,7 @@ class TestConfigCache:
 
     def test_add_with_current_state(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         state,
@@ -205,7 +207,7 @@ class TestConfigCache:
 
     def test_add_with_current_state_propagates_state_error(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         config,
@@ -224,7 +226,7 @@ class TestConfigCache:
 
     def test_add_with_current_state_does_not_add_when_state_is_none(
         self,
-        cache: _ConfigCache[TestConfig, CacheKey, CacheState],
+        cache: _ConfigCache[SampleConfig, CacheKey, CacheState],
         validator,
         key,
         config,

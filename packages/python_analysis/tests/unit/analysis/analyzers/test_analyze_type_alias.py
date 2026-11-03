@@ -13,7 +13,8 @@ from gyomu_schema.schemas.python.types import (
     PythonPath,
     SymbolId,
 )
-from test_support.helpers import AnalysisTestBase
+
+from packages.python_analysis.test_support.helpers import AnalysisTestBase
 
 
 class TestAnalyzeTypeAlias(AnalysisTestBase):

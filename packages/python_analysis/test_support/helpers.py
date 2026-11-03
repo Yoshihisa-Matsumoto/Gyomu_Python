@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, assert_never
 
 from griffe import Class, Function, TypeAlias
 from gyomu_infra.logger import logger
@@ -24,14 +24,25 @@ from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.error.analysis import AnalysisError, AnalysisPhase
 from gyomu_python_analysis.error.resolve import ResolveError
-from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.context import (
+    PackageRoot,
+    ProjectContext,
+    PyProjectConfig,
+)
 from gyomu_python_analysis.project.workspace import (
     WorkspaceProject,
     WorkspaceRoot,
     WorkspaceRootKind,
 )
 from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
+from gyomu_python_analysis.resolve.models import (
+    LiteralValueType,
+    PrimitiveType,
+    ResolvedType,
+    SymbolType,
+)
 from gyomu_python_analysis.resolve.type_dump import dump_type
+from gyomu_python_analysis.resolve.type_reference import resolve_type_analysis
 from gyomu_python_analysis.snapshot.models import (
     AnalyzeProjectChangesResult,
 )
@@ -59,6 +70,7 @@ from gyomu_schema.schemas.snapshot.types import (
     ProjectSnapshot,
 )
 from gyomu_schema.schemas.types import FullPath
+from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Success
 
 from packages.schema.test_support.helpers import (
@@ -222,6 +234,122 @@ def assert_function_type(function: FunctionAnalysis) -> None:
 
 def assert_variable_type(variable: VariableAnalysis) -> None:
     assert_type_analysis(variable.type)
+
+
+@dataclass(frozen=True)
+class SimpleResolvedSymbol:
+    symbol_id: str
+    module_name: str
+
+
+def build_simple_resolved_symbol(
+    symbol_id: str = "parameter", module_name: str = "module"
+) -> SimpleResolvedSymbol:
+    return SimpleResolvedSymbol(symbol_id=symbol_id, module_name=module_name)
+
+
+type SimpleResolvedType = PrimitiveType | LiteralValueType | SimpleResolvedSymbol
+
+
+def create_primitive_type(
+    primitive_type: str = "str", parameter_name: str = "parameter"
+) -> PrimitiveType:
+    return PrimitiveType(primitive_type=primitive_type, parameter_name=parameter_name)
+
+
+# def create_symbol_type(symbol: SymbolAnalysis=create_variable_analysis(),
+#     context: FileAnalysisContext=create_file_analysis_context())->SymbolType :
+def create_literal_value_type(
+    value: str | bytes | bool | int | float | complex | None = None,
+    parameter_name: str = "parameter",
+) -> LiteralValueType:
+    return LiteralValueType(value=value, parameter_name=parameter_name)
+
+
+def create_package_root(
+    path: ProjectRelativePath = ProjectRelativePath(Path("")), module_name: str = "test"
+) -> PackageRoot:
+    return PackageRoot(path=path, module_name=module_name)
+
+
+def assert_resolved_type_included(
+    default: SimpleResolvedType,
+    defaults: tuple[ResolvedType, ...],
+) -> None:
+    if isinstance(default, PrimitiveType):
+        target_primitive = next(
+            (
+                resolve
+                for resolve in defaults
+                if isinstance(resolve, PrimitiveType)
+                and resolve.parameter_name == default.parameter_name
+                and resolve.primitive_type == default.primitive_type
+            ),
+            None,
+        )
+        if target_primitive is None:
+            print(format_object(defaults))
+            assert target_primitive is not None
+
+    elif isinstance(default, SimpleResolvedSymbol):
+        target_symbol = next(
+            (
+                resolve
+                for resolve in defaults
+                if isinstance(resolve, SymbolType)
+                and str(resolve.symbol.identity.symbol_id) == default.symbol_id
+                and str(resolve.context.analysis.module_name) == default.module_name
+            ),
+            None,
+        )
+        if target_symbol is None:
+            print(format_object(defaults, depth=4))
+            assert target_symbol is not None
+
+    elif isinstance(default, LiteralValueType):
+        target_literal = next(
+            (
+                resolve
+                for resolve in defaults
+                if isinstance(resolve, LiteralValueType)
+                and resolve.parameter_name == default.parameter_name
+                and resolve.value == default.value
+            ),
+            None,
+        )
+        if target_literal is None:
+            print(format_object(defaults, depth=4))
+            assert target_literal is not None
+    else:
+        assert_never(default)
+
+
+def assert_type_default(
+    type_analysis: TypeAnalysis,
+    parameter_name: str,
+    project_context: ProjectContext,
+    module: ModuleAnalysis,
+    file_analysis_cache: FileAnalysisCache,
+    defaults: list[SimpleResolvedType],
+    class_name: str | None = None,
+) -> None:
+    resolve_result = resolve_type_analysis(
+        type_analysis=type_analysis,
+        parameter_name=parameter_name,
+        project_context=project_context,
+        module=module,
+        file_analysis_cache=file_analysis_cache,
+        class_name=class_name,
+    )
+    assert isinstance(resolve_result, Success)
+
+    resolves = resolve_result.unwrap()
+    # print(format_object(resolves, depth=5))
+    if len(defaults) != len(resolves):
+        print(format_object(resolves, depth=5))
+    assert len(defaults) == len(resolves)
+    for default in defaults:
+        assert_resolved_type_included(default, resolves)
 
 
 def assert_type_analysis(

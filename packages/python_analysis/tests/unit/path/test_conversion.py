@@ -13,7 +13,8 @@ from gyomu_schema.schemas.python.types import (
     SourceRelativePath,
 )
 from gyomu_schema.schemas.types import FullPath
-from test_support.helpers import _default_project_config
+
+from packages.python_analysis.test_support.helpers import _default_project_config
 
 
 class TestSourceRelativePathToPythonPath:

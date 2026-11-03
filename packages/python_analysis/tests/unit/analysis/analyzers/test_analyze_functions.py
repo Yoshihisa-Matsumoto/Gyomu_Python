@@ -9,7 +9,11 @@ from gyomu_schema.schemas.python.type.structure import LiteralValue
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.visibility import Visibility
 from gyomu_schema.utility.fromatting import format_object
-from test_support.helpers import AnalysisTestBase, assert_function_type
+
+from packages.python_analysis.test_support.helpers import (
+    AnalysisTestBase,
+    assert_function_type,
+)
 
 
 class TestAnalyzeFunctions(AnalysisTestBase):

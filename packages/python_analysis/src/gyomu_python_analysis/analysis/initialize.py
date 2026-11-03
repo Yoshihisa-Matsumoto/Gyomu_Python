@@ -35,8 +35,9 @@ def initialize_project_from_workspace(
 ) -> ProjectContext:
     """Initialize a project context from workspace and project configurations."""
 
-    project_root = FullPath(workspace_path / project.path)
-    source_root = resolve_source_root(project_root)
+    project_root, source_root = _initialize_project_root_source_root(
+        workspace_path=workspace_path, project=project
+    )
     files = find_included_python_files(
         project_root=project_root, source_root=source_root
     )
@@ -94,6 +95,23 @@ def initialize_project_context(
             package_roots=package_roots,
         )
     )
+
+
+def _initialize_project_root_source_root(
+    workspace_path: FullPath, project: WorkspaceProject
+) -> tuple[FullPath, ProjectRelativePath]:
+    project_root = FullPath(workspace_path / project.path)
+    source_root = resolve_source_root(project_root)
+    return (project_root, source_root)
+
+
+def find_package_roots_from_workspace_project(
+    workspace_path: FullPath, project: WorkspaceProject
+) -> tuple[PackageRoot, ...]:
+    project_root, source_root = _initialize_project_root_source_root(
+        workspace_path=workspace_path, project=project
+    )
+    return find_package_roots(project_root=project_root, source_root=source_root)
 
 
 def find_package_roots(

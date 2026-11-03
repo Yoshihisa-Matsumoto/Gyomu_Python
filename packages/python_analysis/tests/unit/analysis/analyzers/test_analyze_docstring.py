@@ -18,7 +18,8 @@ from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
-from test_support.helpers import AnalysisTestBase
+
+from packages.python_analysis.test_support.helpers import AnalysisTestBase
 
 
 class TestExtractReturnDescription:

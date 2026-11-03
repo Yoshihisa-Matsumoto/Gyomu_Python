@@ -28,9 +28,11 @@ from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.models import (
+    AttributeType,
     LiteralValueType,
     PrimitiveType,
     ResolvedType,
+    StructuredType,
     SymbolType,
 )
 from gyomu_python_analysis.resolve.path import normalize_reference_name
@@ -46,10 +48,46 @@ def _resolve_self_from_name(
     return structure.name
 
 
+def resolve_name_structure(
+    structure: NameStructureAnalysis,
+    parameter_name: str,
+    module: ModuleAnalysis,
+    project_context: ProjectContext,
+    file_analysis_cache: FileAnalysisCache,
+    class_name: str | None,
+    need_resolve_name: bool = True,
+) -> Result[StructuredType, ResolveError]:
+    if not need_resolve_name:
+        return Success(AttributeType(attribute=structure.name))
+
+    resolved_name = _resolve_self_from_name(structure, class_name)
+    normalized_name = normalize_reference_name(
+        imported=module.imports, reference_name=resolved_name
+    )
+    resolved_reference = resolve_reference(
+        reference_name=normalized_name, module=module
+    )
+    if resolved_reference is None or resolved_reference.symbol_id is None:
+        return Success(
+            PrimitiveType(primitive_type=normalized_name, parameter_name=parameter_name)
+        )
+    else:
+        symbol_result = resolve_symbol_analysis(
+            declaration_identity=DeclarationIdentity.create_from_symbol_id(
+                resolved_reference.symbol_id
+            ),
+            project_context=project_context,
+            file_analysis_cache=file_analysis_cache,
+        )
+        if isinstance(symbol_result, Failure):
+            return symbol_result
+        file_analysis_context, symbol = symbol_result.unwrap()
+        return Success(SymbolType(symbol=symbol, context=file_analysis_context))
+
+
 def _resolve_name(
     structure: NameStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -87,7 +125,6 @@ def _resolve_name(
 def _resolve_none(
     structure: NoneStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -99,7 +136,6 @@ def _resolve_none(
 def _resolve_union(
     structure: UnionStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -107,10 +143,9 @@ def _resolve_union(
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
     for expression in structure.types:
-        expression_result = _resolve_type_expression(
+        expression_result = resolve_type_expression(
             parameter_name=parameter_name,
             expression=expression,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -125,7 +160,6 @@ def _resolve_union(
 def _resolve_attribute(
     structure: AttributeStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -133,28 +167,25 @@ def _resolve_attribute(
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     # TODO: Validate whether attribute references need resolution
     # using real-project cases such as Literal[Color.RED].
-    return Success(tuple())
-    # result: list[ResolvedType] = []
-    # for expression in structure.values:
-    #     expression_result = _resolve_type_expression(
-    #         parameter_name=parameter_name,
-    #         expression=expression,
-    #         type_text=type_text,
-    #         module=module,
-    #         project_context=project_context,
-    #         file_analysis_cache=file_analysis_cache,
-    #         class_name=class_name,
-    #     )
-    #     if isinstance(expression_result, Failure):
-    #         return expression_result
-    #     result.extend(expression_result.unwrap())
-    # return Success(tuple(result))
+    # return Success(tuple())
+    expression = structure.values[0]
+    expression_result = resolve_type_expression(
+        parameter_name=parameter_name,
+        expression=expression,
+        module=module,
+        project_context=project_context,
+        file_analysis_cache=file_analysis_cache,
+        class_name=class_name,
+    )
+    if isinstance(expression_result, Failure):
+        return expression_result
+
+    return Success(expression_result.unwrap())
 
 
 def _resolve_tuple(
     structure: TupleStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -162,10 +193,9 @@ def _resolve_tuple(
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
     for expression in structure.elements:
-        expression_result = _resolve_type_expression(
+        expression_result = resolve_type_expression(
             parameter_name=parameter_name,
             expression=expression,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -180,17 +210,15 @@ def _resolve_tuple(
 def _resolve_generics(
     structure: GenericsStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
-    expression_result = _resolve_type_expression(
+    expression_result = resolve_type_expression(
         parameter_name=parameter_name,
         expression=structure.base,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
@@ -201,10 +229,9 @@ def _resolve_generics(
     result.extend(expression_result.unwrap())
 
     for expression in structure.parameters:
-        expression_result = _resolve_type_expression(
+        expression_result = resolve_type_expression(
             parameter_name=parameter_name,
             expression=expression,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -219,16 +246,14 @@ def _resolve_generics(
 def _resolve_literal(
     structure: LiteralStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
-    return _resolve_type_expression(
+    return resolve_type_expression(
         parameter_name=parameter_name,
         expression=structure.value,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
@@ -239,16 +264,14 @@ def _resolve_literal(
 def _resolve_array(
     structure: ArrayStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
-    return _resolve_type_expression(
+    return resolve_type_expression(
         parameter_name=parameter_name,
         expression=structure.element,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
@@ -259,7 +282,6 @@ def _resolve_array(
 def _resolve_dictionary(
     structure: DictionaryStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -267,10 +289,9 @@ def _resolve_dictionary(
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
     if structure.keys is not None:
-        expression_result = _resolve_type_expression(
+        expression_result = resolve_type_expression(
             parameter_name=parameter_name,
             expression=structure.keys,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -280,10 +301,9 @@ def _resolve_dictionary(
             return expression_result
         result.extend(expression_result.unwrap())
     if structure.values is not None:
-        expression_result = _resolve_type_expression(
+        expression_result = resolve_type_expression(
             parameter_name=parameter_name,
             expression=structure.values,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -298,17 +318,15 @@ def _resolve_dictionary(
 def _resolve_callable(
     structure: CallableStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
-    expression_result = _resolve_type_expression(
+    expression_result = resolve_type_expression(
         parameter_name=parameter_name,
         expression=structure.return_type,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
@@ -319,10 +337,9 @@ def _resolve_callable(
     result.extend(expression_result.unwrap())
     if structure.parameters is not None:
         for expression in structure.parameters:
-            expression_result = _resolve_type_expression(
+            expression_result = resolve_type_expression(
                 parameter_name=parameter_name,
                 expression=expression,
-                type_text=type_text,
                 module=module,
                 project_context=project_context,
                 file_analysis_cache=file_analysis_cache,
@@ -351,16 +368,14 @@ def _resolve_callable(
 def _resolve_set(
     structure: SetStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
-    return _resolve_type_expression(
+    return resolve_type_expression(
         expression=structure.element_type,
         parameter_name=parameter_name,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
@@ -371,17 +386,15 @@ def _resolve_set(
 def _resolve_keyword(
     structure: KeywordStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
 
-    return _resolve_type_expression(
+    return resolve_type_expression(
         expression=structure.value,
         parameter_name=parameter_name,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
@@ -393,7 +406,6 @@ def _resolve_keyword(
 def _resolve_call(
     structure: CallStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -403,7 +415,6 @@ def _resolve_call(
     expression_result = _resolve_structure(
         parameter_name=parameter_name,
         structure=structure.function,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
@@ -413,10 +424,9 @@ def _resolve_call(
         return expression_result
     result.extend(expression_result.unwrap())
     for expression in structure.arguments:
-        expression_result = _resolve_type_expression(
+        expression_result = resolve_type_expression(
             parameter_name=parameter_name,
             expression=expression,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -431,7 +441,6 @@ def _resolve_call(
 def _resolve_ellipsis(
     structure: EllipsisStructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -443,7 +452,6 @@ def _resolve_ellipsis(
 def _resolve_structure(
     structure: StructureAnalysis,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -454,7 +462,6 @@ def _resolve_structure(
         return _resolve_name(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -464,7 +471,6 @@ def _resolve_structure(
         return _resolve_none(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -474,7 +480,6 @@ def _resolve_structure(
         return _resolve_literal(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -484,7 +489,6 @@ def _resolve_structure(
         return _resolve_ellipsis(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -494,7 +498,6 @@ def _resolve_structure(
         return _resolve_union(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -505,7 +508,6 @@ def _resolve_structure(
         return _resolve_attribute(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -515,7 +517,6 @@ def _resolve_structure(
         return _resolve_tuple(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -525,7 +526,6 @@ def _resolve_structure(
         return _resolve_array(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -535,7 +535,6 @@ def _resolve_structure(
         return _resolve_dictionary(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -545,7 +544,6 @@ def _resolve_structure(
         return _resolve_generics(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -555,7 +553,6 @@ def _resolve_structure(
         return _resolve_set(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -565,7 +562,6 @@ def _resolve_structure(
         return _resolve_keyword(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -575,7 +571,6 @@ def _resolve_structure(
         return _resolve_callable(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -585,7 +580,6 @@ def _resolve_structure(
         return _resolve_call(
             structure=structure,
             parameter_name=parameter_name,
-            type_text=type_text,
             module=module,
             project_context=project_context,
             file_analysis_cache=file_analysis_cache,
@@ -595,10 +589,9 @@ def _resolve_structure(
         raise ValueError(f"Unsupported Type: {type(structure).__name__}")
 
 
-def _resolve_type_expression(
+def resolve_type_expression(
     expression: TypeExpression,
     parameter_name: str,
-    type_text: str,
     module: ModuleAnalysis,
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
@@ -611,12 +604,34 @@ def _resolve_type_expression(
     return _resolve_structure(
         structure=expression,
         parameter_name=parameter_name,
-        type_text=type_text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
         class_name=class_name,
     )
+
+
+def _get_deduplication_key(item: ResolvedType) -> tuple[object, ...]:
+    if isinstance(item, PrimitiveType | LiteralValueType):
+        return (item,)
+    if isinstance(item, SymbolType):
+        return (item.symbol.identity.symbol_id,)
+
+
+def _deduplicate(resolved_types: tuple[ResolvedType, ...]) -> tuple[ResolvedType, ...]:
+    seen: set[tuple[object, ...]] = set()
+    result: list[ResolvedType] = []
+
+    for resolved_type in resolved_types:
+        key = _get_deduplication_key(resolved_type)
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        result.append(resolved_type)
+
+    return tuple(result)
 
 
 def resolve_type_analysis(
@@ -629,14 +644,20 @@ def resolve_type_analysis(
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     if type_analysis.structure is None:
         return Success(
-            (LiteralValueType(value=type_analysis.text, parameter_name=parameter_name),)
+            (
+                PrimitiveType(
+                    primitive_type=type_analysis.text, parameter_name=parameter_name
+                ),
+            )
         )
-    return _resolve_structure(
+    result = _resolve_structure(
         structure=type_analysis.structure,
         parameter_name=parameter_name,
-        type_text=type_analysis.text,
         module=module,
         project_context=project_context,
         file_analysis_cache=file_analysis_cache,
         class_name=class_name,
     )
+    if isinstance(result, Failure):
+        return result
+    return Success(_deduplicate(result.unwrap()))

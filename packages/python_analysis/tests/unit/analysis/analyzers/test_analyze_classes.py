@@ -7,7 +7,11 @@ from gyomu_schema.schemas.python.type.structure import (
     TypeStructureKind,
 )
 from gyomu_schema.schemas.python.types import PythonPath
-from test_support.helpers import AnalysisTestBase, assert_class_type
+
+from packages.python_analysis.test_support.helpers import (
+    AnalysisTestBase,
+    assert_class_type,
+)
 
 
 class TestAnalyzeClass(AnalysisTestBase):

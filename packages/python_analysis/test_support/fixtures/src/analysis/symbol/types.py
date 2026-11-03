@@ -1,4 +1,5 @@
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
 
@@ -7,7 +8,9 @@ class Color(Enum):
     RED = "red"
     GREEN = "green"
     BLUE = "blue"
-
+@dataclass
+class Foo:
+    name: str
 
 value_int: int
 value_str: str
@@ -15,6 +18,7 @@ value_none: None
 value_custom: Foo
 value_list: list[int]
 value_dict: dict[str, int]
+value_dict2: dict[str, str]
 value_tuple: tuple[str, ...]
 value_union: int | None | str | "None"
 value_literal_int: Literal[1]

@@ -52,10 +52,7 @@
       "parameters": [
         {
           "name": "value",
-          "value": {
-            "kind": "name",
-            "name": "DEFAULT_NAME"
-          }
+          "value": null
         }
       ]
     },
@@ -92,19 +89,7 @@
       "parameters": [
         {
           "name": "value",
-          "value": {
-            "kind": "tuple",
-            "elements": [
-              {
-                "kind": "literal",
-                "value": 1
-              },
-              {
-                "kind": "literal",
-                "value": 2
-              }
-            ]
-          }
+          "value": null
         }
       ]
     },
@@ -113,15 +98,7 @@
       "parameters": [
         {
           "name": "value",
-          "value": {
-            "kind": "tuple",
-            "elements": [
-              {
-                "kind": "literal",
-                "value": 1
-              }
-            ]
-          }
+          "value": null
         }
       ]
     },

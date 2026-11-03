@@ -1,6 +1,5 @@
 from gyomu_python_analysis.analysis.analyzers.context import initialize_symbol_context
 from gyomu_python_analysis.analysis.analyzers.types import analyze_type
-from gyomu_python_analysis.resolve.type_reference import resolve_type_analysis
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.type.structure import (
     LiteralValue,
@@ -19,13 +18,16 @@ from gyomu_schema.schemas.python.type.type_analysis import (
 )
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
-from gyomu_schema.utility.fromatting import format_object
-from returns.result import Success
-from test_support.helpers import (
+
+from packages.python_analysis.test_support.helpers import (
     AnalysisTestBase,
     BaseContext,
     assert_type_analysis,
+    assert_type_default,
     assert_variable_type,
+    build_simple_resolved_symbol,
+    create_literal_value_type,
+    create_primitive_type,
 )
 
 
@@ -109,6 +111,16 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(result.type.structure, NameStructureAnalysis)
         assert result.type.structure.name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(parameter_name="value_int", primitive_type="int")
+            ],
+        )
 
     def test_analyze_type_str(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -121,15 +133,16 @@ class TestAnalyzeType(AnalysisTestBase):
         assert result.type.structure.name == "str"
         assert_variable_type(result)
 
-        resolve_result = resolve_type_analysis(
+        assert_type_default(
             type_analysis=result.type,
-            parameter_name="param",
+            parameter_name=result.name,
             project_context=base_context.project,
             module=file_analysis_context.analysis,
             file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(parameter_name="value_str", primitive_type="str")
+            ],
         )
-        assert isinstance(resolve_result, Success)
-        print(format_object(resolve_result.unwrap(), depth=5))
 
     def test_analyze_type_none(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -140,6 +153,14 @@ class TestAnalyzeType(AnalysisTestBase):
         assert result.type.text == "None"
         assert isinstance(result.type.structure, NoneStructureAnalysis)
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[],
+        )
 
     def test_analyze_type_custom(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -151,6 +172,19 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(result.type.structure, NameStructureAnalysis)
         assert result.type.structure.name == "Foo"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                build_simple_resolved_symbol(
+                    symbol_id="analysis.symbol.types::Foo",
+                    module_name="analysis.symbol.types",
+                )
+            ],
+        )
 
     def test_analyze_type_union(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -176,6 +210,22 @@ class TestAnalyzeType(AnalysisTestBase):
         # assert types[3].value == "None"
         assert_variable_type(result)
 
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_union", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_union", primitive_type="int"
+                ),
+            ],
+        )
+
     def test_analyze_type_literal_int(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
             "value_literal_int"
@@ -188,6 +238,16 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(result.type.structure.value, LiteralValue)
         assert result.type.structure.value.value == 1
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_literal_value_type(parameter_name="value_literal_int", value=1),
+            ],
+        )
 
     def test_analyze_type_literal_multiple_int(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -202,6 +262,17 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(value, TupleStructureAnalysis)
         assert len(value.elements) == 2
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_literal_value_type(parameter_name="value_literal_int2", value=1),
+                create_literal_value_type(parameter_name="value_literal_int2", value=2),
+            ],
+        )
 
     def test_analyze_type_list(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -217,6 +288,16 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(element, NameStructureAnalysis)
         assert element.name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(parameter_name="value_list", primitive_type="int")
+            ],
+        )
 
     def test_analyze_type_dict(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -237,6 +318,53 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(value, NameStructureAnalysis)
         assert value.name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_dict", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_dict", primitive_type="int"
+                ),
+            ],
+        )
+
+    def test_analyze_type_dict2(self) -> None:
+        result, base_context, file_analysis_context = self._analyze_variable(
+            "value_dict2"
+        )
+
+        assert result.type is not None
+        assert result.type.text == "dict[str, str]"
+
+        assert isinstance(result.type.structure, DictionaryStructureAnalysis)
+
+        key = result.type.structure.keys
+        value = result.type.structure.values
+
+        assert isinstance(key, NameStructureAnalysis)
+        assert key.name == "str"
+
+        assert isinstance(value, NameStructureAnalysis)
+        assert value.name == "str"
+        assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_dict2", primitive_type="str"
+                ),
+            ],
+        )
 
     def test_analyze_type_set(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -253,6 +381,16 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(element, NameStructureAnalysis)
         assert element.name == "str"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(parameter_name="value_set", primitive_type="str"),
+            ],
+        )
 
     def test_analyze_type_tuple(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -275,6 +413,21 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.elements[1], NameStructureAnalysis)
         assert structure.elements[1].name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_tuple2", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_tuple2", primitive_type="int"
+                ),
+            ],
+        )
 
     def test_analyze_type_tuple_variable_length(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -294,6 +447,18 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.elements[0], NameStructureAnalysis)
         assert structure.elements[0].name == "str"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_tuple", primitive_type="str"
+                ),
+            ],
+        )
 
     def test_analyze_type_nested_tuple(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -324,6 +489,24 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(inner.elements[1], NameStructureAnalysis)
         assert inner.elements[1].name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_tuple_nested", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_tuple_nested", primitive_type="int"
+                ),
+                create_primitive_type(
+                    parameter_name="value_tuple_nested", primitive_type="bool"
+                ),
+            ],
+        )
 
     def test_analyze_type_nested_variable_length_tuple(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -348,6 +531,21 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(inner.elements[0], NameStructureAnalysis)
         assert inner.elements[0].name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_tuple_nested2", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_tuple_nested2", primitive_type="int"
+                ),
+            ],
+        )
 
     def test_analyze_type_nested_variable_length_tuple_2(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -372,6 +570,18 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(inner.elements[0], NameStructureAnalysis)
         assert inner.elements[0].name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_tuple_nested3", primitive_type="int"
+                ),
+            ],
+        )
 
     def test_analyze_type_callable(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -394,6 +604,21 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable", primitive_type="bool"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable", primitive_type="Exception"
+                ),
+            ],
+        )
 
     def test_analyze_type_callable_with_multiple_parameters(self) -> None:
         result, base_context, file_analysis_context = self._analyze_variable(
@@ -418,6 +643,21 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type, ArrayStructureAnalysis)
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable2", primitive_type="bool"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable2", primitive_type="str"
+                ),
+            ],
+        )
 
     def test_analyze_callable_single_parameter(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -441,6 +681,21 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(return_type, NameStructureAnalysis)
         assert return_type.name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_1", primitive_type="bool"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_1", primitive_type="Exception"
+                ),
+            ],
+        )
 
     def test_analyze_callable_no_parameter(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -452,6 +707,18 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure, CallableStructureAnalysis)
         assert structure.parameters == ()
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_3", primitive_type="str"
+                ),
+            ],
+        )
 
     def test_analyze_callable_no_parameter_with_return(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -468,6 +735,14 @@ class TestAnalyzeType(AnalysisTestBase):
             NoneStructureAnalysis,
         )
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[],
+        )
 
     def test_analyze_callable_variable_parameter(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -479,6 +754,18 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure, CallableStructureAnalysis)
         assert structure.parameters is None
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_15", primitive_type="str"
+                ),
+            ],
+        )
 
     def test_analyze_callable_7(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -516,6 +803,27 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_7", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_7", primitive_type="int"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_7", primitive_type="float"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_7", primitive_type="bool"
+                ),
+            ],
+        )
 
     def test_analyze_callable_8(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -543,6 +851,18 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type.types[1], NoneStructureAnalysis)
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_8", primitive_type="str"
+                ),
+            ],
+        )
 
     def test_analyze_callable_9(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -574,6 +894,24 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_9", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_9", primitive_type="int"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_9", primitive_type="bool"
+                ),
+            ],
+        )
 
     def test_analyze_callable_10(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -606,6 +944,24 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(return_type.return_type, NameStructureAnalysis)
         assert return_type.return_type.name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_10", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_10", primitive_type="int"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_10", primitive_type="bool"
+                ),
+            ],
+        )
 
     def test_analyze_callable_11(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -649,6 +1005,24 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(return_type.return_type, NameStructureAnalysis)
         assert return_type.return_type.name == "str"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_11", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_11", primitive_type="int"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_11", primitive_type="bool"
+                ),
+            ],
+        )
 
     def test_analyze_callable_12(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -678,6 +1052,24 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_12", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_12", primitive_type="int"
+                ),
+                create_primitive_type(
+                    parameter_name="value_callable_12", primitive_type="bool"
+                ),
+            ],
+        )
 
     def test_analyze_callable_13(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -706,6 +1098,22 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(structure.return_type, NameStructureAnalysis)
         assert structure.return_type.name == "bool"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_13", primitive_type="bool"
+                ),
+                create_literal_value_type(
+                    parameter_name="value_callable_13", value="foo"
+                ),
+                create_literal_value_type(parameter_name="value_callable_13", value=1),
+            ],
+        )
 
     def test_analyze_callable_14(self) -> None:
         result, base_context, file_analysis_context = self._analyze_callable(
@@ -732,6 +1140,18 @@ class TestAnalyzeType(AnalysisTestBase):
 
         assert isinstance(structure.return_type, NoneStructureAnalysis)
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_callable_14", primitive_type="str"
+                ),
+            ],
+        )
 
     def test_analyze_generic_simple(self) -> None:
         result, base_context, file_analysis_context = self._analyze_generics(
@@ -753,6 +1173,22 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(parameter, NameStructureAnalysis)
         assert parameter.name == "str"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_generic_simple", primitive_type="str"
+                ),
+                build_simple_resolved_symbol(
+                    symbol_id="analysis.symbol.generics::GenericClass",
+                    module_name="analysis.symbol.generics",
+                ),
+            ],
+        )
 
     def test_analyze_generic_nested(self) -> None:
         result, base_context, file_analysis_context = self._analyze_generics(
@@ -776,6 +1212,22 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(parameter.element, NameStructureAnalysis)
         assert parameter.element.name == "str"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_generic_nested", primitive_type="str"
+                ),
+                build_simple_resolved_symbol(
+                    symbol_id="analysis.symbol.generics::GenericClass",
+                    module_name="analysis.symbol.generics",
+                ),
+            ],
+        )
 
     def test_analyze_generic_multiple(self) -> None:
         result, base_context, file_analysis_context = self._analyze_generics(
@@ -801,6 +1253,25 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(second, NameStructureAnalysis)
         assert second.name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_generic_multiple", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_generic_multiple", primitive_type="int"
+                ),
+                build_simple_resolved_symbol(
+                    symbol_id="analysis.symbol.generics::GenericPair",
+                    module_name="analysis.symbol.generics",
+                ),
+            ],
+        )
 
     def test_analyze_generic_deep_nested(self) -> None:
         result, base_context, file_analysis_context = self._analyze_generics(
@@ -834,3 +1305,26 @@ class TestAnalyzeType(AnalysisTestBase):
         assert isinstance(second, NameStructureAnalysis)
         assert second.name == "int"
         assert_variable_type(result)
+        assert_type_default(
+            type_analysis=result.type,
+            parameter_name=result.name,
+            project_context=base_context.project,
+            module=file_analysis_context.analysis,
+            file_analysis_cache=base_context.file_analysis_cach,
+            defaults=[
+                create_primitive_type(
+                    parameter_name="value_generic_deep_nested", primitive_type="str"
+                ),
+                create_primitive_type(
+                    parameter_name="value_generic_deep_nested", primitive_type="int"
+                ),
+                build_simple_resolved_symbol(
+                    symbol_id="analysis.symbol.generics::GenericPair",
+                    module_name="analysis.symbol.generics",
+                ),
+                build_simple_resolved_symbol(
+                    symbol_id="analysis.symbol.generics::GenericClass",
+                    module_name="analysis.symbol.generics",
+                ),
+            ],
+        )

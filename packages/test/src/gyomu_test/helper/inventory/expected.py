@@ -43,6 +43,16 @@ from gyomu_test.helper.inventory.naming import (
 )
 
 
+def _is_scope_of_helper(
+    cls: ClassAnalysis,
+    module: ModuleAnalysis,
+    workspace: WorkspaceContext,
+) -> Result[bool, ResolveError]:
+    # for variable in cls.variables:
+    #     variable.type
+    return Success(True)
+
+
 def _get_model_kind(
     symbol: SymbolAnalysis,
     module: ModuleAnalysis,
@@ -52,7 +62,12 @@ def _get_model_kind(
         return Success(None)
     cls = symbol
     if is_dataclass_class(cls, module):
-        return Success(TargetClassKind.DATACLASS)
+        scope_result = _is_scope_of_helper(cls, module, workspace)
+        if isinstance(scope_result, Failure):
+            return scope_result
+        if scope_result.unwrap():
+            return Success(TargetClassKind.DATACLASS)
+        return Success(None)
     pydantic_result = inherits_from_pydantic_basemodel(cls, module, workspace)
     if isinstance(pydantic_result, Failure):
         return pydantic_result
@@ -65,6 +80,9 @@ def _get_model_kind(
     if gyomu_error_result.unwrap():
         return Success(TargetClassKind.GYOMU_ERROR)
     return Success(None)
+
+
+# def _validate_model_default( type_analysis: TypeAnalysis, default: Parameter)->Parameter | None:
 
 
 def _build_helper_function_parameter(

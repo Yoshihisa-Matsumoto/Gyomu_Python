@@ -2,23 +2,28 @@ from typing import cast
 
 from gyomu_schema.error.config import ConfigError
 from pydantic import BaseModel
-from returns.result import Failure, Result
+from returns.result import Failure, Result, Success
 
 from gyomu_config.cache.file import FileConfigCache, FileConfigCacheKey
 from gyomu_config.file.internal.retrieve import (
     retrieve_single_config,
 )
-from gyomu_config.request import ComplexConfigRequest, _ResolvedPathRequest
+from gyomu_config.request import (
+    BaseComplexConfigRequest,
+    ComplexConfigExtractorRequest,
+    ComplexConfigRequest,
+    _ResolvedPathRequest,
+)
 
 
 class ConfigManager:
     def __init__(self) -> None:
         self._cache: FileConfigCache[BaseModel] = FileConfigCache()
 
-    def retrieve_complex_config[T: BaseModel, C](
+    def _retrieve_configs[T: BaseModel, C](
         self,
-        request: ComplexConfigRequest[T, C],
-    ) -> Result[T | None, ConfigError]:
+        request: BaseComplexConfigRequest[T, C],
+    ) -> Result[tuple[T, ...], ConfigError]:
         paths_result = request.paths_resolver.get_paths(request.context)
         if isinstance(paths_result, Failure):
             return paths_result
@@ -57,8 +62,40 @@ class ConfigManager:
                 return add_result
 
             configs.append(config)
+        return Success(tuple(configs))
+
+    def retrieve_complex_config[T: BaseModel, C](
+        self,
+        request: ComplexConfigRequest[T, C],
+    ) -> Result[T | None, ConfigError]:
+        return self._retrieve_configs(request).bind(
+            lambda configs: request.merge_policy.merge(
+                configs=configs,
+                default=request.default_value,
+            )
+        )
+
+    def retrieve_extracted_config[T: BaseModel, R: BaseModel, C](
+        self,
+        request: ComplexConfigExtractorRequest[T, R, C],
+    ) -> Result[R | None, ConfigError]:
+        configs_result = self._retrieve_configs(request)
+        if isinstance(configs_result, Failure):
+            return configs_result
+
+        extracted_configs: list[R] = []
+
+        for config in configs_result.unwrap():
+            extracted_result = request.extractor.extract(
+                config, context=request.context
+            )
+            if isinstance(extracted_result, Failure):
+                return extracted_result
+            extracted = extracted_result.unwrap()
+            if extracted is not None:
+                extracted_configs.append(extracted)
 
         return request.merge_policy.merge(
-            configs=tuple(configs),
+            configs=tuple(extracted_configs),
             default=request.default_value,
         )

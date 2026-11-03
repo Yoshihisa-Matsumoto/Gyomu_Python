@@ -1,6 +1,7 @@
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.types import PythonPath
-from test_support.helpers import AnalysisTestBase
+
+from packages.python_analysis.test_support.helpers import AnalysisTestBase
 
 
 class TestAnalyzePydantic(AnalysisTestBase):

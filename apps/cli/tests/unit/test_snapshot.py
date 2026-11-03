@@ -9,7 +9,7 @@ from packages.concept.test_support.helpers import build_workspace_context
 from packages.python_analysis.test_support.helpers import (
     create_workspace_project,
 )
-from packages.workflow.test_support.helper import create_snapshot_execution_option
+from packages.workflow.test_support.helpers import create_snapshot_execution_option
 
 
 class TestRunSnapshotRequest:

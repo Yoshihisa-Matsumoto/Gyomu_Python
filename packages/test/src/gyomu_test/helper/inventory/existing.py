@@ -36,9 +36,11 @@ from gyomu_test.error.inventory import (
     ProjectInventoryError,
 )
 from gyomu_test.error.test import GyomuTestError
-from gyomu_test.helper.inventory.function import build_parameter_from_expression
 from gyomu_test.helper.inventory.naming import (
     _build_class_name_from_helper_name,
+)
+from gyomu_test.helper.inventory.parameter.expression import (
+    build_parameter_from_expression,
 )
 
 

@@ -15,7 +15,8 @@ from gyomu_python_analysis.project.workspace import WorkspaceRoot, WorkspaceRoot
 from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
-from test_support.helpers import (
+
+from packages.python_analysis.test_support.helpers import (
     MONOREPO_FIXTURES_ROOT,
     TEST_SUPPORT_ROOT,
 )

@@ -84,4 +84,10 @@ class LiteralValueType:
     parameter_name: str
 
 
+@dataclass(frozen=True)
+class AttributeType:
+    attribute: str
+
+
 type ResolvedType = PrimitiveType | SymbolType | LiteralValueType
+type StructuredType = ResolvedType | AttributeType
