@@ -14,7 +14,7 @@ from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
 from gyomu_test.helper.inventory.reconcile import _normalize_python_tokens, reconcile
 from returns.result import Success
 
-from packages.test.tests.unit.helper.inventory.helpers import get_project_context
+from packages.test.tests.unit.helper.helpers import get_project_context
 
 
 class TestNormalizePythonTokens:

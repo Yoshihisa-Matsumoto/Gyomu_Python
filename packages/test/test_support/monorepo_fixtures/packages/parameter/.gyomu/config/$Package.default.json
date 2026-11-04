@@ -1,0 +1,18 @@
+{
+  "models_per_module_path": {},
+  "primitives": [
+    {
+      "type_name": "int",
+      "variable_name": "value",
+      "parameters": [
+        {
+          "name": "value",
+          "value": {
+            "kind": "literal",
+            "value": 9
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -28,11 +28,9 @@ from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.models import (
-    AttributeType,
     LiteralValueType,
     PrimitiveType,
     ResolvedType,
-    StructuredType,
     SymbolType,
 )
 from gyomu_python_analysis.resolve.path import normalize_reference_name
@@ -55,10 +53,7 @@ def resolve_name_structure(
     project_context: ProjectContext,
     file_analysis_cache: FileAnalysisCache,
     class_name: str | None,
-    need_resolve_name: bool = True,
-) -> Result[StructuredType, ResolveError]:
-    if not need_resolve_name:
-        return Success(AttributeType(attribute=structure.name))
+) -> Result[ResolvedType, ResolveError]:
 
     resolved_name = _resolve_self_from_name(structure, class_name)
     normalized_name = normalize_reference_name(

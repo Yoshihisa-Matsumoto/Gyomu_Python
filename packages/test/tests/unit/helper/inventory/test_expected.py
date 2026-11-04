@@ -23,11 +23,11 @@ from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 from packages.python_analysis.test_support.helpers import create_resolve_error
+from packages.test.tests.unit.helper.helpers import get_project_context
 from packages.test.tests.unit.helper.inventory.helpers import (
     ParameterSummary,
     equal_helper_inventory,
     error_contains_missing_type_annotation,
-    get_project_context,
     inventory_not_exist,
 )
 

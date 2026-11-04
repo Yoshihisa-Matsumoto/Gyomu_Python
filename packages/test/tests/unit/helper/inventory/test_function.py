@@ -21,7 +21,7 @@ from packages.schema.test_support.helpers import (
     create_parameter_info,
     create_type_analysis,
 )
-from packages.test.tests.unit.helper.inventory.helpers import get_project_context
+from packages.test.tests.unit.helper.helpers import get_project_context
 
 
 class TestReadFunctionCode:

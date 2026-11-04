@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
@@ -17,23 +16,6 @@ from gyomu_schema.schemas.python.types import (
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem, ParameterInfo
 from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.error.inventory import ProjectInventoryError
-
-
-def get_project_context(
-    workspace_context: WorkspaceContext, project_name: str
-) -> ProjectContext:
-    project = next(
-        (
-            project
-            for project in workspace_context.projects
-            if project.config.name == project_name
-        ),
-        None,
-    )
-    assert project is not None
-    return initialize_project_from_workspace(
-        workspace_path=workspace_context.path, project=project
-    )
 
 
 @dataclass

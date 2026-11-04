@@ -1,15 +1,15 @@
 from os import getcwd
 from pathlib import Path
 
-from gyomu_infra.logger import logger
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
 from gyomu_test.helper.inventory.migration import migrate
-from gyomu_workflow.snapshot.workspace import get_workspace_context
-from returns.result import Failure
 
 from packages.test.test_support.helpers import MONOREPO_FIXTURES_ROOT
-from packages.test.tests.unit.helper.inventory.helpers import get_project_context
+from packages.test.tests.unit.helper.helpers import (
+    get_project_context,
+    get_workspace_context,
+)
 
 
 def migrate_default(
@@ -23,11 +23,7 @@ def migrate_default(
         target_path = FullPath(Path(getcwd()))
     else:
         target_path = FullPath(target_path)
-    workspace_result = get_workspace_context(target_path)
-    if isinstance(workspace_result, Failure):
-        logger.error_object(workspace_result.failure())
-        return
-    workspace_context = workspace_result.unwrap()
+    _, workspace_context = get_workspace_context(target_path)
 
     project_context = get_project_context(workspace_context, package_name)
 
