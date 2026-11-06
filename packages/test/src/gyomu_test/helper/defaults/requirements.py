@@ -67,6 +67,9 @@ from gyomu_test.helper.defaults.resolution import (
     PrimitiveDefaultConfigContext,
     SymbolDefaultConfigContext,
 )
+from gyomu_test.helper.inventory.config import (
+    get_helper_file_paths_from_workspace_project,
+)
 from gyomu_test.helper.inventory.expected import _get_model_kind
 from gyomu_test.helper.inventory.naming import _build_helper_name_from_class_name
 
@@ -159,6 +162,15 @@ def _find_helper_function_declaration_identity(
             ).chain(e)
         )
     workspace_project = workspace_project_result.unwrap()
+
+    file_paths_result = get_helper_file_paths_from_workspace_project(
+        workspace_root=workspace_root, workspace_project=workspace_project
+    )
+    if isinstance(file_paths_result, Failure):
+        return file_paths_result
+
+    # for file_path in file_paths_result.unwrap():
+    # TODO : 実際にhelperファイルを検索して関数を見つける
     file_path = workspace_project.path / "test_support" / "helpers.py"
     module_path = source_relative_path_to_python_path(
         path=SourceRelativePath(file_path)

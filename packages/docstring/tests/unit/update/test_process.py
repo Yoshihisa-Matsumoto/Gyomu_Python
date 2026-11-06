@@ -27,7 +27,7 @@ from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 
 from packages.schema.test_support.helpers import (
-    create_file_analysis_context,
+    build_file_analysis_context,
     create_function_analysis,
     create_source_location,
 )
@@ -47,7 +47,7 @@ def context(mocker) -> ProjectContext:
 
 @pytest.fixture
 def file_context() -> FileAnalysisContext:
-    return create_file_analysis_context(
+    return build_file_analysis_context(
         create_function_analysis(
             indent=0,
             location=create_source_location(),
@@ -67,7 +67,7 @@ class TestProcessDocstringUpdate:
         mocker,
         context: ProjectContext,
     ) -> None:
-        file_context = create_file_analysis_context()
+        file_context = build_file_analysis_context()
 
         read_text = mocker.patch(
             "gyomu_docstring.update.process.read_source_text",

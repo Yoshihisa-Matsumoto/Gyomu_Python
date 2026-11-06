@@ -19,7 +19,7 @@ from returns.result import Failure, Success
 def reconcile_helper_inventories(
     workspace_context: WorkspaceContext,
     workspace_project_context: WorkspaceProject,
-    additional_filename: str | None = None,
+    # additional_filename: str | None = None,
 ) -> None:
     project_context = initialize_project_from_workspace(
         workspace_path=workspace_context.path, project=workspace_project_context
@@ -40,12 +40,12 @@ def reconcile_helper_inventories(
     existing_result = collect_existing_helper_inventory(
         root=root_context_result.unwrap(),
         target_project=project_context,
-        files=(ProjectRelativePath(Path("test_support/helpers.py")),)
-        if additional_filename is None
-        else (
-            ProjectRelativePath(Path("test_support/helpers.py")),
-            ProjectRelativePath(Path(f"test_support/{additional_filename}.py")),
-        ),
+        # files=(ProjectRelativePath(Path("test_support/helpers.py")),)
+        # if additional_filename is None
+        # else (
+        #     ProjectRelativePath(Path("test_support/helpers.py")),
+        #     ProjectRelativePath(Path(f"test_support/{additional_filename}.py")),
+        # ),
     )
 
     assert isinstance(existing_result, Success)

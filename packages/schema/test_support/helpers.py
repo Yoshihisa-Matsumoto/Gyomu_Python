@@ -98,11 +98,6 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
-from gyomu_schema.schemas.testing.helper import (
-    ExistingHelperInventoryItem,
-    HelperInventoryItem,
-    ParameterInfo,
-)
 from gyomu_schema.schemas.types import FullPath
 
 FIXTURES_ROOT = FullPath(Path(__file__).parent / "fixtures")
@@ -470,22 +465,38 @@ def create_keyword_structure_analysis(
 
 
 def create_module_analysis(
-    symbols: tuple[SymbolAnalysis, ...],
+    path: SourceRelativePath = SourceRelativePath(Path(".")),
     name: str = "test",
+    module_name=PythonPath(""),
     docstring: DocstringAnalysis | None = None,
     imports: tuple[ImportAnalysis, ...] = tuple(),
+    symbols: tuple[SymbolAnalysis, ...] = (),
 ) -> ModuleAnalysis:
     return ModuleAnalysis(
-        path=SourceRelativePath(Path(".")),
+        path=path,
         name=name,
-        module_name=PythonPath(""),
+        module_name=module_name,
         docstring=docstring,
         imports=imports,
         symbols=symbols,
     )
 
 
+def create_file_analysis_metadata(
+    parsed_docstring: dict[DeclarationIdentity, DocstringAnalysis] = {},
+    symbols: dict[DeclarationIdentity, SymbolAnalysis | MemberAnalysis] = {},
+) -> FileAnalysisMetadata:
+    return FileAnalysisMetadata(parsed_docstring=parsed_docstring, symbols=symbols)
+
+
 def create_file_analysis_context(
+    metadata: FileAnalysisMetadata = create_file_analysis_metadata(),
+    analysis: ModuleAnalysis = create_module_analysis(),
+) -> FileAnalysisContext:
+    return FileAnalysisContext(metadata=metadata, analysis=analysis)
+
+
+def build_file_analysis_context(
     symbol: SymbolAnalysis | MemberAnalysis | None = None,
     symbol2: SymbolAnalysis | MemberAnalysis | None = None,
     symbol3: SymbolAnalysis | MemberAnalysis | None = None,
@@ -667,40 +678,6 @@ def create_import_analysis(
     kind: ImportKind = ImportKind.SYMBOL,
 ) -> ImportAnalysis:
     return ImportAnalysis(local_name=local_name, imported_name=imported_name, kind=kind)
-
-
-def create_parameter_info(
-    name: str = "arg",
-    parameter_type: TypeAnalysis = create_type_analysis("str"),  # noqa: B008
-    default: Parameter | None = None,
-) -> ParameterInfo:
-    return ParameterInfo(name=name, parameter_type=parameter_type, default=default)
-
-
-def create_helper_inventory_item(
-    target_identity: DeclarationIdentity = create_declaration_identity(id="Test"),  # noqa: B008
-    function_name: str = "create_test",
-    parameters: tuple[ParameterInfo, ...] = tuple(),
-) -> HelperInventoryItem:
-    return HelperInventoryItem(
-        target_identity=target_identity,
-        function_name=function_name,
-        parameters=parameters,
-    )
-
-
-def create_existing_helper_inventory_item(
-    target_identity: DeclarationIdentity = create_declaration_identity(id="Test"),  # noqa: B008
-    function_name: str = "create_test",
-    parameters: tuple[ParameterInfo, ...] = tuple(),
-    location: SourceLocation = create_source_location(),  # noqa: B008
-) -> ExistingHelperInventoryItem:
-    return ExistingHelperInventoryItem(
-        target_identity=target_identity,
-        function_name=function_name,
-        parameters=parameters,
-        location=location,
-    )
 
 
 def create_literal_parameter(

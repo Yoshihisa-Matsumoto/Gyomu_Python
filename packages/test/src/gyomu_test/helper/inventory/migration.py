@@ -78,9 +78,6 @@ def assemble_model_defaults(
 def migrate(
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
-    helper_files: tuple[ProjectRelativePath, ...] = (
-        ProjectRelativePath(Path("test_support/helpers.py")),
-    ),
 ) -> None:
 
     root_context_result = initialize_project_context(
@@ -92,7 +89,6 @@ def migrate(
     existing_result = collect_existing_helper_inventory(
         root=root_context_result.unwrap(),
         target_project=project_context,
-        files=helper_files,
     )
     if isinstance(existing_result, Failure):
         logger.error_object(existing_result.failure(), depth=6)

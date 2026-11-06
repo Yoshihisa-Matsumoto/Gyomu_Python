@@ -40,8 +40,8 @@ from packages.python_analysis.test_support.helpers import (
     create_analysis_error,
 )
 from packages.schema.test_support.helpers import (
+    build_file_analysis_context,
     create_class_analysis,
-    create_file_analysis_context,
     create_variable_analysis,
 )
 
@@ -487,7 +487,7 @@ class TestResolveClassAnalysis:
             declaration_id=DeclarationId("."),
         )
         class_analysis = create_class_analysis(identity=identity)
-        file_analysis_context = create_file_analysis_context(symbol=class_analysis)
+        file_analysis_context = build_file_analysis_context(symbol=class_analysis)
         project_context = initialize_project_context(
             project_root=FIXTURES_ROOT,
             source_root=ProjectRelativePath(Path("src")),
@@ -562,7 +562,7 @@ class TestResolveClassAnalysis:
         )
 
         # 実際の SymbolAnalysis 型の fixture を使う。
-        file_analysis_context = create_file_analysis_context(
+        file_analysis_context = build_file_analysis_context(
             symbol=create_variable_analysis(identity=identity)
         )
         project_context = initialize_project_context(

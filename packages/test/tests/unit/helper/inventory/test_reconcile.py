@@ -12,6 +12,7 @@ from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
 from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
 from gyomu_test.helper.inventory.reconcile import _normalize_python_tokens, reconcile
+from pytest_mock import MockerFixture
 from returns.result import Success
 
 from packages.test.tests.unit.helper.helpers import get_project_context
@@ -197,7 +198,9 @@ def find_existing_inventory(
 
 
 class TestReconcile:
-    def test_from_fixture(self, workspace_context: WorkspaceContext) -> None:
+    def test_from_fixture(
+        self, workspace_context: WorkspaceContext, mocker: MockerFixture
+    ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         expected_result = collect_model_helper_inventory(
             project_context, workspace_context
@@ -214,13 +217,13 @@ class TestReconcile:
 
         file = ProjectRelativePath(Path("test_support/helpers.py"))
         file2 = ProjectRelativePath(Path("test_support/another_helpers.py"))
+        mocker.patch(
+            "gyomu_test.helper.inventory.existing.get_helper_file_paths",
+            return_value=Success((file, file2)),
+        )
         existing_result = collect_existing_helper_inventory(
             root=root_context_result.unwrap(),
             target_project=project_context,
-            files=(
-                file,
-                file2,
-            ),
         )
         assert isinstance(existing_result, Success)
         existing = existing_result.unwrap()

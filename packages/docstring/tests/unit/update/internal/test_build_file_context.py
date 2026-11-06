@@ -44,12 +44,12 @@ from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.schemas.python.types import SymbolId
 
 from packages.schema.test_support.helpers import (
+    build_file_analysis_context,
     create_class_analysis,
     create_class_type_alias_analysis,
     create_class_variable_analysis,
     create_declaration_identity,
     create_docstring,
-    create_file_analysis_context,
     create_function_analysis,
     create_inner_class_analysis,
     create_method_analysis,
@@ -589,7 +589,7 @@ class TestBuildDocstringFileContext:
             location=create_source_location(start_offset=0, end_offset=len(source)),
         )
 
-        file_result = create_file_analysis_context(
+        file_result = build_file_analysis_context(
             symbol=function1, symbol2=cls, symbol3=function2
         )
 

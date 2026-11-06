@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from pathlib import Path
 
 from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
@@ -36,6 +35,7 @@ from gyomu_test.error.inventory import (
     ProjectInventoryError,
 )
 from gyomu_test.error.test import GyomuTestError
+from gyomu_test.helper.inventory.config import get_helper_file_paths
 from gyomu_test.helper.inventory.naming import (
     _build_class_name_from_helper_name,
 )
@@ -171,9 +171,6 @@ def _add_inventory_summary(
 def collect_existing_helper_inventory(
     root: ProjectContext,
     target_project: ProjectContext,
-    files: tuple[ProjectRelativePath, ...] = (
-        ProjectRelativePath(Path("test_support/helpers.py")),
-    ),
 ) -> Result[
     tuple[HelperFileInventory, ...],
     GyomuTestError | ProjectInventoryError,
@@ -182,6 +179,11 @@ def collect_existing_helper_inventory(
     error_files: list[FileInventoryError] = []
     file_inventories: list[HelperFileInventory] = []
     inventory_summaries: dict[DeclarationIdentity, list[FunctionInformation]] = {}
+
+    helper_file_paths_result = get_helper_file_paths(project_context=target_project)
+    if isinstance(helper_file_paths_result, Failure):
+        return helper_file_paths_result
+    files = helper_file_paths_result.unwrap()
 
     for file in files:
         inventories: list[ExistingHelperInventoryItem] = []

@@ -18,15 +18,15 @@ from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from returns.result import Failure, Success
 
 from packages.schema.test_support.helpers import (
+    build_file_analysis_context,
     create_class_analysis,
-    create_file_analysis_context,
     create_source_location,
 )
 
 
 @pytest.fixture
 def file_context():
-    return create_file_analysis_context(
+    return build_file_analysis_context(
         create_class_analysis(indent=0, location=create_source_location())
     )
 

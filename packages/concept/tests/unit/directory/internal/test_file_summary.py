@@ -13,8 +13,8 @@ from gyomu_schema.schemas.python.visibility import Visibility
 
 from packages.concept.test_support.helpers import _create_directory_project_context
 from packages.schema.test_support.helpers import (
+    build_file_analysis_context,
     create_docstring,
-    create_file_analysis_context,
     create_import_dependency_analysis,
     create_pydantic_field_analysis,
     create_source_location,
@@ -39,7 +39,7 @@ class TestBuildFileSummary:
             update={"visibility": Visibility.PRIVATE}
         )
 
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             symbol=public_symbol,
             symbol2=private_symbol,
             module_path=SourceRelativePath(Path("test.py")),
@@ -68,7 +68,7 @@ class TestBuildFileSummary:
             name="public_value",
             docstring=create_docstring(summary="Public value."),
         )
-        file_context = create_file_analysis_context(symbol=symbol)
+        file_context = build_file_analysis_context(symbol=symbol)
 
         result = build_file_summary_record(
             project_context=project_context,
@@ -88,7 +88,7 @@ class TestBuildFileSummary:
             ),
         )
 
-        file_context = create_file_analysis_context(symbol=symbol)
+        file_context = build_file_analysis_context(symbol=symbol)
 
         result = build_file_summary_record(
             project_context=project_context,
@@ -111,7 +111,7 @@ class TestBuildFileSummary:
         # replacing it with a parsed docstring in accordance with the actual
         # DocstringAnalysis schema.
 
-        file_context = create_file_analysis_context(symbol=symbol)
+        file_context = build_file_analysis_context(symbol=symbol)
 
         result = build_file_summary_record(
             project_context=project_context,
@@ -128,7 +128,7 @@ class TestBuildFileSummary:
             name="public_value",
         )
 
-        file_context = create_file_analysis_context(symbol=symbol)
+        file_context = build_file_analysis_context(symbol=symbol)
 
         result = build_file_summary_record(
             project_context=project_context,
@@ -153,7 +153,7 @@ class TestBuildFileSummary:
             },
         )
 
-        file_context = create_file_analysis_context(symbol=symbol)
+        file_context = build_file_analysis_context(symbol=symbol)
 
         result = build_file_summary_record(
             project_context=project_context,
@@ -183,7 +183,7 @@ class TestBuildFileSummary:
         symbol = symbol.model_copy(update={"dependencies": (dependency,)})
         symbol2 = symbol2.model_copy(update={"dependencies": (dependency,)})
 
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             symbol=symbol,
             symbol2=symbol2,
         )

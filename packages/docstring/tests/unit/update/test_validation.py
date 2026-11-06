@@ -15,12 +15,12 @@ from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success
 
-from packages.schema.test_support.helpers import create_file_analysis_context
+from packages.schema.test_support.helpers import build_file_analysis_context
 
 
 @pytest.fixture
 def file_context() -> FileAnalysisContext:
-    return create_file_analysis_context()
+    return build_file_analysis_context()
 
 
 def test_run_ruff_format_success(

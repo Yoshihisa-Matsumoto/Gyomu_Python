@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from gyomu_config.file.retrieve import retrieve_config
+from gyomu_config.file.retrieve import retrieve_config, retrieve_mandatory_config
 from gyomu_config.request import ConfigRequest, _ResolvedPathRequest
 from gyomu_schema.error.config import ConfigError
 from pydantic import BaseModel
@@ -103,3 +103,47 @@ class TestRetrieveConfig:
         return_value = retrieve_single_config_mock.return_value
         assert isinstance(return_value, Failure)
         assert return_value.failure() is error
+
+
+class TestRetrieveMandatoryConfig:
+    def test_success(self, mocker: MockerFixture) -> None:
+        config = SampleConfig(name="test")
+        path = Path("config.json")
+
+        retrieve_mandatory_single_config = mocker.patch(
+            "gyomu_config.file.retrieve.retrieve_mandatory_single_config",
+            return_value=Success(config),
+        )
+
+        result = retrieve_mandatory_config(path=path, config_type=SampleConfig)
+
+        assert isinstance(result, Success)
+        assert result.unwrap() == config
+
+        retrieve_mandatory_single_config.assert_called_once()
+
+        actual_request = retrieve_mandatory_single_config.call_args.kwargs["request"]
+
+        assert isinstance(actual_request, _ResolvedPathRequest)
+        assert actual_request.config_type is SampleConfig
+        assert actual_request.path == path
+
+    def test_retrieve_mandatory_config_failure(self, mocker: MockerFixture) -> None:
+        error = ConfigError(
+            source="json",
+            message="fail to resolve config path",
+            phase="load",
+        )
+
+        retrieve_mandatory_single_config = mocker.patch(
+            "gyomu_config.file.retrieve.retrieve_mandatory_single_config",
+            return_value=Failure(error),
+        )
+        path = Path("config.json")
+
+        result = retrieve_mandatory_config(path=path, config_type=SampleConfig)
+
+        assert isinstance(result, Failure)
+        assert result.failure() is error
+
+        retrieve_mandatory_single_config.assert_called_once()

@@ -134,7 +134,7 @@ class TestCollectExistingHelperInventory:
         )
 
     def test_returns_project_inventory_error(
-        self, workspace_context: WorkspaceContext
+        self, workspace_context: WorkspaceContext, mocker: MockerFixture
     ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         root_context_result = initialize_project_context(
@@ -144,11 +144,13 @@ class TestCollectExistingHelperInventory:
         assert isinstance(root_context_result, Success)
         file = ProjectRelativePath(Path("test_support/invalid_helpers.py"))
         file2 = ProjectRelativePath(Path("test_support/another_invalid_helpers.py"))
-
+        mocker.patch(
+            "gyomu_test.helper.inventory.existing.get_helper_file_paths",
+            return_value=Success((file, file2)),
+        )
         result = collect_existing_helper_inventory(
             root=root_context_result.unwrap(),
             target_project=project_context,
-            files=(file, file2),
         )
         assert isinstance(result, Failure)
         failure = result.failure()

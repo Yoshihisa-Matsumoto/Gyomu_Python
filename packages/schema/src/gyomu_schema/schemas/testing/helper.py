@@ -4,7 +4,12 @@ from enum import Enum
 from gyomu_schema.schemas.config.test.model_defaults import Parameter
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
-from gyomu_schema.schemas.python.types import DeclarationIdentity, ProjectRelativePath
+from gyomu_schema.schemas.python.types import (
+    DeclarationIdentity,
+    ProjectRelativePath,
+    PythonPath,
+)
+from pydantic import BaseModel
 
 
 @dataclass(frozen=True)
@@ -27,9 +32,9 @@ class HelperInventoryItem:
     parameters: tuple[ParameterInfo, ...]
 
 
-@dataclass(frozen=True)
-class ExpectedHelperInventoryItem(HelperInventoryItem):
-    kind: TargetClassKind
+# @dataclass(frozen=True)
+# class ExpectedHelperInventoryItem(HelperInventoryItem):
+#     kind: TargetClassKind
 
 
 @dataclass(frozen=True)
@@ -57,3 +62,13 @@ class HelperReconcileResult:
     update: tuple[HelperUpdate, ...]
     unchanged: tuple[ExistingHelperInventoryItem, ...]
     delete_candidates: tuple[ExistingHelperInventoryItem, ...]
+
+
+class HelperFileAllocation(BaseModel):
+    path: PythonPath
+    helper_filename: str
+
+
+class HelperConfig(BaseModel):
+    helper_directory: str = "test_support"
+    file_allocation: tuple[HelperFileAllocation, ...] = ()

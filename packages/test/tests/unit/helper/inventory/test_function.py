@@ -13,13 +13,16 @@ from gyomu_test.helper.inventory.function import (
     read_function_code,
 )
 from gyomu_test.helper.inventory.reconcile import _normalize_python_tokens
+from pytest_mock import MockerFixture
 from returns.result import Success
 
 from packages.schema.test_support.helpers import (
-    create_helper_inventory_item,
     create_literal_parameter,
-    create_parameter_info,
     create_type_analysis,
+)
+from packages.schema.test_support.testing_helpers import (
+    create_helper_inventory_item,
+    create_parameter_info,
 )
 from packages.test.tests.unit.helper.helpers import get_project_context
 
@@ -102,7 +105,9 @@ class TestGenerateFunctionCode:
 
 
 class TestCodeGenerationIntegration:
-    def test_validate(self, workspace_context: WorkspaceContext) -> None:
+    def test_validate(
+        self, workspace_context: WorkspaceContext, mocker: MockerFixture
+    ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         root_context_result = initialize_project_context(
             project_root=workspace_context.path,
@@ -112,13 +117,13 @@ class TestCodeGenerationIntegration:
 
         file = ProjectRelativePath(Path("test_support/helpers.py"))
         file2 = ProjectRelativePath(Path("test_support/another_helpers.py"))
+        mocker.patch(
+            "gyomu_test.helper.inventory.existing.get_helper_file_paths",
+            return_value=Success((file, file2)),
+        )
         existing_result = collect_existing_helper_inventory(
             root=root_context_result.unwrap(),
             target_project=project_context,
-            files=(
-                file,
-                file2,
-            ),
         )
         assert isinstance(existing_result, Success)
         existings = existing_result.unwrap()
@@ -135,7 +140,9 @@ class TestCodeGenerationIntegration:
                     current_code
                 ) == _normalize_python_tokens(expected_code)
 
-    def test_validate_parameter(self, workspace_context: WorkspaceContext) -> None:
+    def test_validate_parameter(
+        self, workspace_context: WorkspaceContext, mocker: MockerFixture
+    ) -> None:
         project_context = get_project_context(workspace_context, "parameter")
         root_context_result = initialize_project_context(
             project_root=workspace_context.path,
@@ -144,10 +151,13 @@ class TestCodeGenerationIntegration:
         assert isinstance(root_context_result, Success)
 
         file = ProjectRelativePath(Path("test_support/helpers.py"))
+        mocker.patch(
+            "gyomu_test.helper.inventory.existing.get_helper_file_paths",
+            return_value=Success((file,)),
+        )
         existing_result = collect_existing_helper_inventory(
             root=root_context_result.unwrap(),
             target_project=project_context,
-            files=(file,),
         )
         assert isinstance(existing_result, Success)
         existings = existing_result.unwrap()

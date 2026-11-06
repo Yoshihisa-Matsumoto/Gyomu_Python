@@ -30,9 +30,9 @@ from packages.ai_compiler.test_support.helpers import (
     create_docstring_update_plan,
 )
 from packages.schema.test_support.helpers import (
+    build_file_analysis_context,
     create_class_analysis,
     create_declaration_identity,
-    create_file_analysis_context,
     create_source_location,
 )
 
@@ -52,7 +52,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
                 ),
             )
         )
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             create_class_analysis(
                 indent=0, location=create_source_location(), identity=foo
             )
@@ -94,7 +94,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
                 ),
             )
         )
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             create_class_analysis(
                 indent=0, location=create_source_location(), identity=foo
             )
@@ -149,7 +149,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
                 ),
             )
         )
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             create_class_analysis(
                 indent=0, location=create_source_location(), identity=foo
             )
@@ -193,7 +193,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
                 ),
             )
         )
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             create_class_analysis(
                 indent=0, location=create_source_location(), identity=foo
             )
@@ -246,7 +246,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
                 ),
             )
         )
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             create_class_analysis(
                 indent=0, location=create_source_location(), identity=foo
             ),
@@ -311,7 +311,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
                 ),
             )
         )
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             create_class_analysis(
                 indent=0, location=create_source_location(), identity=foo
             ),
@@ -356,7 +356,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
                 ),
             )
         )
-        file_context = create_file_analysis_context(
+        file_context = build_file_analysis_context(
             create_class_analysis(
                 indent=0, location=create_source_location(), identity=foo
             )

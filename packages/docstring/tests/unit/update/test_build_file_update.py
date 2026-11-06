@@ -21,9 +21,9 @@ from packages.docstring.test_support.helpers import (
 )
 from packages.schema.test_support.helpers import (
     _default_identity,
+    build_file_analysis_context,
     create_class_analysis,
     create_declaration_identity,
-    create_file_analysis_context,
     create_function_analysis,
     create_method_analysis,
     create_source_location,
@@ -295,7 +295,7 @@ class TestBuildFileUpdatePlanEntry:
                 end_offset=38,
             ),
         )
-        context = create_file_analysis_context(analysis)
+        context = build_file_analysis_context(analysis)
 
         rendered = create_rendered_docstring(
             docstring='        """new"""',
@@ -322,7 +322,7 @@ class TestBuildFileUpdatePlanEntry:
             indent=4,
             location=create_source_location(start_offset=10, end_offset=20),
         )
-        context = create_file_analysis_context(analysis)
+        context = build_file_analysis_context(analysis)
 
         rendered = create_rendered_docstring(
             docstring='"""new"""',
@@ -347,7 +347,7 @@ class TestBuildFileUpdatePlanEntry:
             indent=4,
             location=create_source_location(start_offset=0, end_offset=20),
         )
-        context = create_file_analysis_context(analysis)
+        context = build_file_analysis_context(analysis)
 
         rendered = create_rendered_docstring(
             docstring=None, start_offset=4, end_offset=14, identity=analysis.identity
@@ -369,7 +369,7 @@ class TestBuildFileUpdatePlanEntry:
             indent=4,
             location=create_source_location(start_offset=0, end_offset=20),
         )
-        context = create_file_analysis_context(analysis)
+        context = build_file_analysis_context(analysis)
 
         rendered = create_rendered_docstring(
             docstring="", start_offset=4, end_offset=15, identity=analysis.identity
@@ -384,7 +384,7 @@ class TestBuildFileUpdatePlanEntry:
         assert entry.new_text == ""
 
     def test_rejects_unknown_identity(self) -> None:
-        context = create_file_analysis_context()
+        context = build_file_analysis_context()
 
         rendered = create_rendered_docstring(
             docstring='"""new"""',
@@ -407,7 +407,7 @@ class TestBuildFileUpdatePlanEntry:
             indent=None,
             location=None,
         )
-        context = create_file_analysis_context(analysis)
+        context = build_file_analysis_context(analysis)
 
         rendered = create_rendered_docstring(
             docstring='"""new"""',
@@ -444,7 +444,7 @@ class TestBuildFileUpdatePlan:
             location=create_source_location(start_offset=30, end_offset=40),
         )
 
-        context = create_file_analysis_context(
+        context = build_file_analysis_context(
             first_analysis,
             second_analysis,
         )
@@ -498,7 +498,7 @@ class TestBuildFileUpdatePlan:
             location=create_source_location(start_offset=30, end_offset=40),
         )
 
-        context = create_file_analysis_context(
+        context = build_file_analysis_context(
             first_analysis,
             second_analysis,
         )
@@ -537,7 +537,7 @@ class TestBuildFileUpdatePlan:
         assert "Overlapping" in error.__cause__.message
 
     def test_builds_empty_file_update_plan(self) -> None:
-        context = create_file_analysis_context()
+        context = build_file_analysis_context()
 
         plan = build_file_update_plan(
             context=context,
@@ -591,7 +591,7 @@ class TestBuildFileUpdatePlan:
             ),
         )
 
-        context = create_file_analysis_context(
+        context = build_file_analysis_context(
             add_analysis,
             replace_analysis,
             delete_analysis,

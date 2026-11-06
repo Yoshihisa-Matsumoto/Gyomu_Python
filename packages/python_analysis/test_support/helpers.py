@@ -75,6 +75,8 @@ from returns.result import Failure, Success
 
 from packages.schema.test_support.helpers import (
     build_declaration_identity,
+    create_class_analysis,
+    create_file_analysis_context,
 )
 
 TEST_SUPPORT_ROOT = FullPath(Path(__file__).parent)
@@ -109,6 +111,22 @@ def create_py_project_config(
         description=description,
         formatter_line_length=formatter_line_length,
         _toml_data=_toml_data,
+    )
+
+
+def create_project_context(
+    project_root: FullPath = FullPath(Path("/tmp")),
+    source_root: ProjectRelativePath = ProjectRelativePath(Path("src")),
+    config: PyProjectConfig = create_py_project_config(),
+    included_files: frozenset[ProjectRelativePath] = frozenset(),
+    package_roots: tuple[PackageRoot, ...] = tuple(),
+) -> ProjectContext:
+    return ProjectContext(
+        project_root=project_root,
+        source_root=source_root,
+        config=config,
+        included_files=included_files,
+        package_roots=package_roots,
     )
 
 
@@ -257,8 +275,13 @@ def create_primitive_type(
     return PrimitiveType(primitive_type=primitive_type, parameter_name=parameter_name)
 
 
-# def create_symbol_type(symbol: SymbolAnalysis=create_variable_analysis(),
-#     context: FileAnalysisContext=create_file_analysis_context())->SymbolType :
+def create_symbol_type(
+    symbol: SymbolAnalysis = create_class_analysis(),
+    context: FileAnalysisContext = create_file_analysis_context(),
+) -> SymbolType:
+    return SymbolType(symbol=symbol, context=context)
+
+
 def create_literal_value_type(
     value: str | bytes | bool | int | float | complex | None = None,
     parameter_name: str = "parameter",

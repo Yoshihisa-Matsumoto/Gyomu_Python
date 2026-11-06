@@ -35,7 +35,7 @@ class AttributeReferenceModel(BaseModel):
 
 
 class EmptyTupleModel(BaseModel):
-    value: tuple[int, ...]
+    value: tuple[str, ...]
 
 
 class TupleLiteralModel(BaseModel):

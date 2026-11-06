@@ -172,13 +172,11 @@ def test(
         migrate_default_from_existing_helpers(
             workspace_context=workspace_context,
             workspace_project_context=workspace_project_context,
-            additional_filename=additional_filename,
         )
     if reconcile_helpers:
         reconcile_helper_inventories(
             workspace_context=workspace_context,
             workspace_project_context=workspace_project_context,
-            additional_filename=additional_filename,
         )
 
 
