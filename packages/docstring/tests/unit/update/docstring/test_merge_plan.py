@@ -15,7 +15,7 @@ from gyomu_docstring.update.docstring.merge_plan import (
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
 from packages.schema.test_support.helpers import (
-    create_declaration_identity,
+    simple_create_declaration_identity,
 )
 
 
@@ -80,7 +80,7 @@ class TestMergePlan:
         _assert_json_round_trip(
             MergePlan,
             MergePlan(
-                identity=create_declaration_identity("ID1"),
+                identity=simple_create_declaration_identity("ID1"),
                 summary=MergePreserveAction(),
                 description=MergeDeleteAction(),
                 params=(

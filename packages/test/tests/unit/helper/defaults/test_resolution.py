@@ -15,9 +15,7 @@ from gyomu_python_analysis.resolve.models import (
     SymbolType,
 )
 from gyomu_schema.schemas.config.test.model_defaults import (
-    ModelDefault,
     PackageModelDefaults,
-    PrimitiveDefault,
 )
 from gyomu_schema.schemas.python.types import DeclarationIdentity
 from gyomu_schema.schemas.testing.helper import (
@@ -433,7 +431,7 @@ class TestDefaultResolvers:
 
     class TestPrimitiveDefaultResolverExtract:
         def test_extracts_matching_primitive_default(self):
-            expected = cast(PrimitiveDefault, Mock())
+            # expected = cast(PrimitiveDefault, Mock())
             other = Mock()
             other.variable_name = "other"
             other.type_name = "str"
@@ -520,7 +518,7 @@ class TestDefaultResolvers:
 
     class TestSymbolDefaultResolverExtract:
         def test_extracts_matching_model_default(self):
-            expected = cast(ModelDefault, Mock())
+            # expected = cast(ModelDefault, Mock())
 
             matching = Mock()
             matching.symbol_name = "SampleModel"

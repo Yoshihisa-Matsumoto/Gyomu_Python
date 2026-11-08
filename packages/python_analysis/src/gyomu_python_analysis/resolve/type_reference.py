@@ -25,17 +25,19 @@ from gyomu_schema.schemas.python.types import DeclarationIdentity
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.resolve import ResolveError
-from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
+    PackageType,
     PrimitiveType,
     ResolvedType,
     SymbolType,
 )
 from gyomu_python_analysis.resolve.path import normalize_reference_name
 from gyomu_python_analysis.resolve.reference import resolve_reference
-from gyomu_python_analysis.resolve.symbol import resolve_symbol_analysis
+from gyomu_python_analysis.resolve.symbol import (
+    resolve_workspace_symbol_analysis,
+)
 
 
 def _resolve_self_from_name(
@@ -50,8 +52,7 @@ def resolve_name_structure(
     structure: NameStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[ResolvedType, ResolveError]:
 
@@ -59,24 +60,24 @@ def resolve_name_structure(
     normalized_name = normalize_reference_name(
         imported=module.imports, reference_name=resolved_name
     )
-    resolved_reference = resolve_reference(
-        reference_name=normalized_name, module=module
-    )
+    resolved_reference = resolve_reference(reference_name=resolved_name, module=module)
     if resolved_reference is None or resolved_reference.symbol_id is None:
         return Success(
             PrimitiveType(primitive_type=normalized_name, parameter_name=parameter_name)
         )
     else:
-        symbol_result = resolve_symbol_analysis(
+        symbol_result = resolve_workspace_symbol_analysis(
             declaration_identity=DeclarationIdentity.create_from_symbol_id(
                 resolved_reference.symbol_id
             ),
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
         )
         if isinstance(symbol_result, Failure):
             return symbol_result
-        file_analysis_context, symbol = symbol_result.unwrap()
+        return_value = symbol_result.unwrap()
+        if return_value is None:
+            return Success(PackageType(symbol_id=resolved_reference.symbol_id))
+        file_analysis_context, symbol = return_value
         return Success(SymbolType(symbol=symbol, context=file_analysis_context))
 
 
@@ -84,17 +85,14 @@ def _resolve_name(
     structure: NameStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     resolved_name = _resolve_self_from_name(structure, class_name)
     normalized_name = normalize_reference_name(
         imported=module.imports, reference_name=resolved_name
     )
-    resolved_reference = resolve_reference(
-        reference_name=normalized_name, module=module
-    )
+    resolved_reference = resolve_reference(reference_name=resolved_name, module=module)
     if resolved_reference is None or resolved_reference.symbol_id is None:
         return Success(
             (
@@ -104,26 +102,24 @@ def _resolve_name(
             )
         )
     else:
-        symbol_result = resolve_symbol_analysis(
+        symbol_result = resolve_workspace_symbol_analysis(
             declaration_identity=DeclarationIdentity.create_from_symbol_id(
                 resolved_reference.symbol_id
             ),
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
         )
         if isinstance(symbol_result, Failure):
             return symbol_result
-        file_analysis_context, symbol = symbol_result.unwrap()
+        return_value = symbol_result.unwrap()
+        if return_value is None:
+            return Success((PackageType(symbol_id=resolved_reference.symbol_id),))
+
+        file_analysis_context, symbol = return_value
         return Success((SymbolType(symbol=symbol, context=file_analysis_context),))
 
 
 def _resolve_none(
     structure: NoneStructureAnalysis,
-    parameter_name: str,
-    module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
-    class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     return Success(())
 
@@ -132,8 +128,7 @@ def _resolve_union(
     structure: UnionStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
@@ -142,8 +137,7 @@ def _resolve_union(
             parameter_name=parameter_name,
             expression=expression,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
         if isinstance(expression_result, Failure):
@@ -156,8 +150,7 @@ def _resolve_attribute(
     structure: AttributeStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     # TODO: Validate whether attribute references need resolution
@@ -168,8 +161,7 @@ def _resolve_attribute(
         parameter_name=parameter_name,
         expression=expression,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
     if isinstance(expression_result, Failure):
@@ -182,8 +174,7 @@ def _resolve_tuple(
     structure: TupleStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
@@ -192,8 +183,7 @@ def _resolve_tuple(
             parameter_name=parameter_name,
             expression=expression,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
         if isinstance(expression_result, Failure):
@@ -206,8 +196,7 @@ def _resolve_generics(
     structure: GenericsStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
@@ -215,8 +204,7 @@ def _resolve_generics(
         parameter_name=parameter_name,
         expression=structure.base,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
     if isinstance(expression_result, Failure):
@@ -228,8 +216,7 @@ def _resolve_generics(
             parameter_name=parameter_name,
             expression=expression,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
         if isinstance(expression_result, Failure):
@@ -242,16 +229,14 @@ def _resolve_literal(
     structure: LiteralStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     return resolve_type_expression(
         parameter_name=parameter_name,
         expression=structure.value,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
 
@@ -260,16 +245,14 @@ def _resolve_array(
     structure: ArrayStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     return resolve_type_expression(
         parameter_name=parameter_name,
         expression=structure.element,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
 
@@ -278,8 +261,7 @@ def _resolve_dictionary(
     structure: DictionaryStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
@@ -288,8 +270,7 @@ def _resolve_dictionary(
             parameter_name=parameter_name,
             expression=structure.keys,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
         if isinstance(expression_result, Failure):
@@ -300,8 +281,7 @@ def _resolve_dictionary(
             parameter_name=parameter_name,
             expression=structure.values,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
         if isinstance(expression_result, Failure):
@@ -314,8 +294,7 @@ def _resolve_callable(
     structure: CallableStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
@@ -323,8 +302,7 @@ def _resolve_callable(
         parameter_name=parameter_name,
         expression=structure.return_type,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
     if isinstance(expression_result, Failure):
@@ -336,8 +314,7 @@ def _resolve_callable(
                 parameter_name=parameter_name,
                 expression=expression,
                 module=module,
-                project_context=project_context,
-                file_analysis_cache=file_analysis_cache,
+                workspace_context=workspace_context,
                 class_name=class_name,
             )
             if isinstance(expression_result, Failure):
@@ -364,16 +341,14 @@ def _resolve_set(
     structure: SetStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     return resolve_type_expression(
         expression=structure.element_type,
         parameter_name=parameter_name,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
 
@@ -382,8 +357,7 @@ def _resolve_keyword(
     structure: KeywordStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
 
@@ -391,8 +365,7 @@ def _resolve_keyword(
         expression=structure.value,
         parameter_name=parameter_name,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
     # Maybe need to set parameter_name to structure.name??
@@ -402,8 +375,7 @@ def _resolve_call(
     structure: CallStructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     result: list[ResolvedType] = []
@@ -411,8 +383,7 @@ def _resolve_call(
         parameter_name=parameter_name,
         structure=structure.function,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
     if isinstance(expression_result, Failure):
@@ -423,8 +394,7 @@ def _resolve_call(
             parameter_name=parameter_name,
             expression=expression,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
         if isinstance(expression_result, Failure):
@@ -435,11 +405,6 @@ def _resolve_call(
 
 def _resolve_ellipsis(
     structure: EllipsisStructureAnalysis,
-    parameter_name: str,
-    module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
-    class_name: str | None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     return Success(())
 
@@ -448,8 +413,7 @@ def _resolve_structure(
     structure: StructureAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None = None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
 
@@ -458,44 +422,31 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, NoneStructureAnalysis):
         return _resolve_none(
             structure=structure,
-            parameter_name=parameter_name,
-            module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
-            class_name=class_name,
         )
     if isinstance(structure, LiteralStructureAnalysis):
         return _resolve_literal(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, EllipsisStructureAnalysis):
         return _resolve_ellipsis(
             structure=structure,
-            parameter_name=parameter_name,
-            module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
-            class_name=class_name,
         )
     if isinstance(structure, UnionStructureAnalysis):
         return _resolve_union(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
 
@@ -504,8 +455,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, TupleStructureAnalysis):
@@ -513,8 +463,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, ArrayStructureAnalysis):
@@ -522,8 +471,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, DictionaryStructureAnalysis):
@@ -531,8 +479,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, GenericsStructureAnalysis):
@@ -540,8 +487,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, SetStructureAnalysis):
@@ -549,8 +495,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, KeywordStructureAnalysis):
@@ -558,8 +503,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, CallableStructureAnalysis):
@@ -567,8 +511,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     if isinstance(structure, CallStructureAnalysis):
@@ -576,8 +519,7 @@ def _resolve_structure(
             structure=structure,
             parameter_name=parameter_name,
             module=module,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
             class_name=class_name,
         )
     else:
@@ -588,8 +530,7 @@ def resolve_type_expression(
     expression: TypeExpression,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None = None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     if isinstance(expression, LiteralValue):
@@ -600,8 +541,7 @@ def resolve_type_expression(
         structure=expression,
         parameter_name=parameter_name,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
 
@@ -611,6 +551,8 @@ def _get_deduplication_key(item: ResolvedType) -> tuple[object, ...]:
         return (item,)
     if isinstance(item, SymbolType):
         return (item.symbol.identity.symbol_id,)
+    if isinstance(item, PackageType):
+        return (item.symbol_id,)
 
 
 def _deduplicate(resolved_types: tuple[ResolvedType, ...]) -> tuple[ResolvedType, ...]:
@@ -633,8 +575,7 @@ def resolve_type_analysis(
     type_analysis: TypeAnalysis,
     parameter_name: str,
     module: ModuleAnalysis,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     class_name: str | None = None,
 ) -> Result[tuple[ResolvedType, ...], ResolveError]:
     if type_analysis.structure is None:
@@ -649,8 +590,7 @@ def resolve_type_analysis(
         structure=type_analysis.structure,
         parameter_name=parameter_name,
         module=module,
-        project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
     if isinstance(result, Failure):

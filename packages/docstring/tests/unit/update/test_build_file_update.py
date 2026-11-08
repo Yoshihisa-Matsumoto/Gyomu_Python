@@ -23,10 +23,10 @@ from packages.schema.test_support.helpers import (
     _default_identity,
     build_file_analysis_context,
     create_class_analysis,
-    create_declaration_identity,
     create_function_analysis,
     create_method_analysis,
     create_source_location,
+    simple_create_declaration_identity,
 )
 
 
@@ -225,7 +225,7 @@ class TestBuildAdditionEntry:
             analysis=analysis,
             rendered=rendered,
         ).unwrap()
-
+        assert entry is not None
         assert entry.identity == rendered.identity
         assert entry.location.start_offset == 31
         assert entry.location.end_offset == 31
@@ -248,7 +248,7 @@ class TestBuildAdditionEntry:
             analysis=analysis,
             rendered=rendered,
         ).unwrap()
-
+        assert entry is not None
         assert entry.identity == rendered.identity
         assert entry.location.start_offset == source.index("\n")
         assert entry.location.end_offset == source.index("\n")
@@ -276,7 +276,7 @@ class TestBuildAdditionEntry:
             analysis=analysis,
             rendered=rendered,
         ).unwrap()
-
+        assert entry is not None
         assert entry.identity == rendered.identity
 
         expected = source.index("\n", start_offset)
@@ -311,7 +311,7 @@ class TestBuildFileUpdatePlanEntry:
         ).unwrap()
 
         expected = source.index("\n")
-
+        assert entry is not None
         assert entry.identity == rendered.identity
         assert entry.location.start_offset == expected
         assert entry.location.end_offset == expected
@@ -336,7 +336,7 @@ class TestBuildFileUpdatePlanEntry:
             context=context,
             rendered=rendered,
         ).unwrap()
-
+        assert entry is not None
         assert entry.identity == rendered.identity
         assert entry.location == rendered.location
         assert entry.new_text == '"""new"""'
@@ -358,7 +358,7 @@ class TestBuildFileUpdatePlanEntry:
             context=context,
             rendered=rendered,
         ).unwrap()
-
+        assert entry is not None
         assert entry.identity == rendered.identity
         assert entry.location.start_offset == 0
         assert entry.location.end_offset == 18
@@ -380,7 +380,7 @@ class TestBuildFileUpdatePlanEntry:
             context=context,
             rendered=rendered,
         ).unwrap()
-
+        assert entry is not None
         assert entry.new_text == ""
 
     def test_rejects_unknown_identity(self) -> None:
@@ -434,12 +434,12 @@ class TestBuildFileUpdatePlanEntry:
 class TestBuildFileUpdatePlan:
     def test_builds_file_update_plan(self) -> None:
         first_analysis = create_function_analysis(
-            identity=create_declaration_identity("first"),
+            identity=simple_create_declaration_identity("first"),
             indent=4,
             location=create_source_location(start_offset=10, end_offset=20),
         )
         second_analysis = create_function_analysis(
-            identity=create_declaration_identity("second"),
+            identity=simple_create_declaration_identity("second"),
             indent=4,
             location=create_source_location(start_offset=30, end_offset=40),
         )
@@ -488,12 +488,12 @@ class TestBuildFileUpdatePlan:
 
     def test_rejects_overlapping_entries(self) -> None:
         first_analysis = create_function_analysis(
-            identity=create_declaration_identity("first"),
+            identity=simple_create_declaration_identity("first"),
             indent=4,
             location=create_source_location(start_offset=10, end_offset=20),
         )
         second_analysis = create_function_analysis(
-            identity=create_declaration_identity("second"),
+            identity=simple_create_declaration_identity("second"),
             indent=4,
             location=create_source_location(start_offset=30, end_offset=40),
         )
@@ -573,6 +573,7 @@ class TestBuildFileUpdatePlan:
                 start_offset=add_start,
                 end_offset=add_end,
             ),
+            identity=simple_create_declaration_identity("add"),
         )
         replace_analysis = create_function_analysis(
             name="replace",
@@ -581,6 +582,7 @@ class TestBuildFileUpdatePlan:
                 start_offset=25,
                 end_offset=50,
             ),
+            identity=simple_create_declaration_identity("replace"),
         )
         delete_analysis = create_function_analysis(
             name="delete",
@@ -589,6 +591,7 @@ class TestBuildFileUpdatePlan:
                 start_offset=78,
                 end_offset=90,
             ),
+            identity=simple_create_declaration_identity("delete"),
         )
 
         context = build_file_analysis_context(
@@ -674,7 +677,9 @@ class TestGetDeclarationDefinitionEndOffset:
 
         result = _get_declaration_definition_end_offset(
             source=source,
-            analysis=create_function_analysis(0, location=self._location(source)),
+            analysis=create_function_analysis(
+                indent=0, location=self._location(source)
+            ),
         )
 
         expected = source.index(":\n    pass")

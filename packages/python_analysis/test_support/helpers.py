@@ -30,6 +30,7 @@ from gyomu_python_analysis.project.context import (
     PyProjectConfig,
 )
 from gyomu_python_analysis.project.workspace import (
+    WorkspaceContext,
     WorkspaceProject,
     WorkspaceRoot,
     WorkspaceRootKind,
@@ -37,6 +38,7 @@ from gyomu_python_analysis.project.workspace import (
 from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
+    PackageType,
     PrimitiveType,
     ResolvedType,
     SymbolType,
@@ -58,6 +60,7 @@ from gyomu_schema.schemas.python.type_alias import TypeAliasAnalysis
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     PythonPath,
+    SymbolId,
     WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
@@ -135,6 +138,14 @@ def create_workspace_project(
     config: PyProjectConfig = create_py_project_config(),  # noqa: B008
 ) -> WorkspaceProject:
     return WorkspaceProject(path=path, config=config)
+
+
+def create_workspace_context(
+    path: FullPath = FullPath(Path("tmp")),
+    config: PyProjectConfig = create_py_project_config(),
+    projects: tuple[WorkspaceProject, ...] = (create_workspace_project(),),
+) -> WorkspaceContext:
+    return WorkspaceContext(path=path, config=config, projects=projects)
 
 
 def _create_context() -> ProjectContext:
@@ -266,7 +277,13 @@ def build_simple_resolved_symbol(
     return SimpleResolvedSymbol(symbol_id=symbol_id, module_name=module_name)
 
 
-type SimpleResolvedType = PrimitiveType | LiteralValueType | SimpleResolvedSymbol
+type SimpleResolvedType = (
+    PrimitiveType | LiteralValueType | SimpleResolvedSymbol | PackageType
+)
+
+
+def create_package_type(symbol_id: SymbolId = SymbolId("test::Test")) -> PackageType:
+    return PackageType(symbol_id=symbol_id)
 
 
 def create_primitive_type(
@@ -343,6 +360,19 @@ def assert_resolved_type_included(
         if target_literal is None:
             print(format_object(defaults, depth=4))
             assert target_literal is not None
+    elif isinstance(default, PackageType):
+        target_package = next(
+            (
+                resolve
+                for resolve in defaults
+                if isinstance(resolve, PackageType)
+                and resolve.symbol_id == default.symbol_id
+            ),
+            None,
+        )
+        if target_package is None:
+            print(format_object(defaults, depth=4))
+            assert target_package is not None
     else:
         assert_never(default)
 
@@ -350,18 +380,16 @@ def assert_resolved_type_included(
 def assert_type_default(
     type_analysis: TypeAnalysis,
     parameter_name: str,
-    project_context: ProjectContext,
     module: ModuleAnalysis,
-    file_analysis_cache: FileAnalysisCache,
+    workspace_context: WorkspaceContext,
     defaults: list[SimpleResolvedType],
     class_name: str | None = None,
 ) -> None:
     resolve_result = resolve_type_analysis(
         type_analysis=type_analysis,
         parameter_name=parameter_name,
-        project_context=project_context,
         module=module,
-        file_analysis_cache=file_analysis_cache,
+        workspace_context=workspace_context,
         class_name=class_name,
     )
     assert isinstance(resolve_result, Success)
@@ -397,6 +425,7 @@ class BaseContext:
     project: ProjectContext
     source: SourceFileContext
     file_analysis_cach: FileAnalysisCache
+    workspace_context: WorkspaceContext
 
 
 class AnalysisTestBase:
@@ -590,7 +619,7 @@ class AnalysisTestBase:
 
         workspace_result = initialize_workspace_context(
             root=WorkspaceRoot(
-                path=MONOREPO_FIXTURES_ROOT, kind=WorkspaceRootKind.UV_WORKSPACE
+                path=FIXTURES_ROOT, kind=WorkspaceRootKind.STANDALONE_PROJECT
             )
         )
 
@@ -603,4 +632,5 @@ class AnalysisTestBase:
             project=context,
             source=source_file_context,
             file_analysis_cach=file_analysis_cache,
+            workspace_context=workspace_context,
         )

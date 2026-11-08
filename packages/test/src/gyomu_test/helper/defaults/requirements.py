@@ -7,6 +7,7 @@ from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceR
 from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
+    PackageType,
     PrimitiveType,
     ResolvedType,
     SymbolType,
@@ -66,9 +67,6 @@ from gyomu_test.helper.defaults.load import (
 from gyomu_test.helper.defaults.resolution import (
     PrimitiveDefaultConfigContext,
     SymbolDefaultConfigContext,
-)
-from gyomu_test.helper.inventory.config import (
-    get_helper_file_paths_from_workspace_project,
 )
 from gyomu_test.helper.inventory.expected import _get_model_kind
 from gyomu_test.helper.inventory.naming import _build_helper_name_from_class_name
@@ -163,14 +161,6 @@ def _find_helper_function_declaration_identity(
         )
     workspace_project = workspace_project_result.unwrap()
 
-    file_paths_result = get_helper_file_paths_from_workspace_project(
-        workspace_root=workspace_root, workspace_project=workspace_project
-    )
-    if isinstance(file_paths_result, Failure):
-        return file_paths_result
-
-    # for file_path in file_paths_result.unwrap():
-    # TODO : 実際にhelperファイルを検索して関数を見つける
     file_path = workspace_project.path / "test_support" / "helpers.py"
     module_path = source_relative_path_to_python_path(
         path=SourceRelativePath(file_path)
@@ -209,6 +199,8 @@ def _create_parameter(
         if default is not None and default.parameters[0].value is not None:
             return Success(default.parameters[0].value)
 
+        return Success(None)
+    elif isinstance(resolved_type, PackageType):
         return Success(None)
     else:
         model_kind_result = _get_model_kind(
@@ -261,13 +253,11 @@ def _resolve_parameter_default(
             expression=context.parameter.parameter_type.structure, context=context
         )
     else:
-        # parameter.parameter_type.text　にPrimitive型があるから、それから設定を読んであればParameter作る、なければMissingParameterDefault
         resolve_type_result = resolve_type_analysis(
             type_analysis=context.parameter.parameter_type,
             parameter_name=context.parameter.name,
             module=context.module,
-            project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
+            workspace_context=context.workspace_context,
         )
         if isinstance(resolve_type_result, Failure):
             return resolve_type_result.alt(
@@ -312,8 +302,7 @@ def _resolve_name_structure(
         structure=expression,
         parameter_name=context.parameter.name,
         module=context.module,
-        project_context=context.project_context,
-        file_analysis_cache=context.file_analysis_cache,
+        workspace_context=context.workspace_context,
         class_name=context.class_name,
     )
     if isinstance(name_structure_result, Failure):
@@ -429,13 +418,13 @@ def _resolve_tuple_structure(
     Parameter | MissingParameterDefault,
     GyomuTestError,
 ]:
-    is_elipsis_included: bool = False
+    # is_elipsis_included: bool = False
     missing_types: list[ResolvedType] = []
     # resolved_types: list[ResolvedSymbolDefault | ResolvedPrimitiveDefault] = []
     tuple_element_parameters: list[Parameter] = []
     for element in expression.elements:
         if isinstance(element, EllipsisStructureAnalysis):
-            is_elipsis_included = True
+            # is_elipsis_included = True
             break
         else:
             element_result = _resolve_type_expression(

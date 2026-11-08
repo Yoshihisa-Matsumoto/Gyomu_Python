@@ -84,6 +84,7 @@ select = [
 
 [tool.ruff.format]
 quote-style = "double"
+exclude = ["*.md"]
 
 [tool.ruff.lint.per-file-ignores]
 "packages/*/test_support/**/*.py" = ["B008","B006"]

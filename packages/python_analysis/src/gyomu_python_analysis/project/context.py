@@ -3,7 +3,11 @@ from dataclasses import dataclass
 from typing import Any
 
 from griffe import GriffeLoader
-from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
+from gyomu_schema.schemas.python.types import (
+    ProjectRelativePath,
+    PythonPath,
+    WorkspaceRelativePath,
+)
 from gyomu_schema.schemas.types import FullPath
 from pydantic import TypeAdapter
 from typing_extensions import TypeForm
@@ -126,6 +130,10 @@ class ProjectContext:
         self.config = config
         self.included_files = included_files
         self.package_roots = package_roots
+
+    def includes(self, module_path: PythonPath) -> bool:
+        root_module_name = module_path.split(".")[0]
+        return any(root.module_name == root_module_name for root in self.package_roots)
 
 
 @dataclass(frozen=True)

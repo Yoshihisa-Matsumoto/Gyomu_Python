@@ -48,7 +48,6 @@ from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_class_type_alias_analysis,
     create_class_variable_analysis,
-    create_declaration_identity,
     create_docstring,
     create_function_analysis,
     create_inner_class_analysis,
@@ -57,6 +56,7 @@ from packages.schema.test_support.helpers import (
     create_name_structure_analysis,
     create_source_location,
     create_type_analysis,
+    simple_create_declaration_identity,
 )
 
 
@@ -322,13 +322,13 @@ class TestBuildDependencies:
     def test_build_dependencies(self) -> None:
         dependencies = (
             DependencyAnalysis(
-                source=create_declaration_identity("id1"),
+                source=simple_create_declaration_identity("id1"),
                 target=LocalFileDependency(
                     symbol_id=SymbolId("symbol1"),
                 ),
             ),
             DependencyAnalysis(
-                source=create_declaration_identity("id2"),
+                source=simple_create_declaration_identity("id2"),
                 target=ImportedSymbolDependency(
                     symbol_id=SymbolId("symbol2"),
                 ),
@@ -506,7 +506,7 @@ class TestBuildDocstringDeclarationContext:
             ),
             dependencies=(
                 DependencyAnalysis(
-                    source=create_declaration_identity("id1"),
+                    source=simple_create_declaration_identity("id1"),
                     target=LocalFileDependency(
                         symbol_id=SymbolId("symbol1"),
                     ),
@@ -646,14 +646,14 @@ def test_is_documentable_child_entry(
                 indent=4,
                 location=create_source_location(),
                 name=name,
-                identity=create_declaration_identity(name),
+                identity=simple_create_declaration_identity(name),
             )
         case DeclarationKind.FUNCTION:
             member = create_method_analysis(
                 indent=4,
                 location=create_source_location(),
                 name=name,
-                identity=create_declaration_identity(name),
+                identity=simple_create_declaration_identity(name),
                 is_ellipsis_only=is_ellipsis_only,
             )
     assert member

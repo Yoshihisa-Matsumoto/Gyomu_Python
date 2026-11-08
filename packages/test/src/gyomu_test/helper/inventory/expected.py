@@ -24,6 +24,7 @@ from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
 from gyomu_schema.schemas.python.types import DeclarationIdentity
+from gyomu_schema.schemas.python.visibility import Visibility
 from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
     ParameterInfo,
@@ -61,6 +62,9 @@ def _get_model_kind(
     if not isinstance(symbol, ClassAnalysis):
         return Success(None)
     cls = symbol
+    if symbol.visibility != Visibility.PUBLIC:
+        return Success(None)
+
     if is_dataclass_class(cls, module):
         scope_result = _is_scope_of_helper(cls, module, workspace)
         if isinstance(scope_result, Failure):
@@ -80,9 +84,6 @@ def _get_model_kind(
     if gyomu_error_result.unwrap():
         return Success(TargetClassKind.GYOMU_ERROR)
     return Success(None)
-
-
-# def _validate_model_default( type_analysis: TypeAnalysis, default: Parameter)->Parameter | None:
 
 
 def _build_helper_function_parameter(

@@ -13,13 +13,13 @@ from gyomu_schema.schemas.python.type.expression import (
 )
 from pytest_mock import MockerFixture
 
-from packages.schema.test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import simple_create_declaration_identity
 
 
 @pytest.fixture
 def context() -> SymbolContext:
     return SymbolContext(
-        declaration=create_declaration_identity("test"),
+        declaration=simple_create_declaration_identity("test"),
         dependencies=[],
         source_lines=[],
         line_start_offsets=[],

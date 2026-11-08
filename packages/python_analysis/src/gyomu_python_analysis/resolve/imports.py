@@ -31,11 +31,15 @@ def resolve_reference_file_analysis_context(
     if reference.import_analysis is None:
         return Success(None)
 
-    return workspace.find_workspace_file_analysis_context(reference.module_path).alt(
-        lambda error: ResolveError(
-            message="fail to find file analysis context",
-            reference=reference.module_path,
-        ).chain(error)
+    return (
+        workspace.find_workspace_file_analysis_context(reference.module_path)
+        .alt(
+            lambda error: ResolveError(
+                message="fail to find file analysis context",
+                reference=reference.module_path,
+            ).chain(error)
+        )
+        .bind(lambda result: Success(result[0] if result is not None else None))
     )
 
 

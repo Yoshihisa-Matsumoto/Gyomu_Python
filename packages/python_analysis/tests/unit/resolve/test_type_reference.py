@@ -1,10 +1,9 @@
 from typing import get_args
 from unittest.mock import MagicMock
 
-from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.symbol import (
-    resolve_symbol_analysis as actual_resolve_symbol_analysis,
+    resolve_workspace_symbol_analysis as actual_resolve_workspace_symbol_analysis,
 )
 from gyomu_python_analysis.resolve.type_reference import (
     _resolve_structure,
@@ -42,16 +41,14 @@ def test_all_structure_types_have_handlers(mocker) -> None:
     module.imports = {}
     module.symbols = tuple()
 
-    project_context = MagicMock(spec=ProjectContext)
-    file_analysis_cache = MagicMock(spec=FileAnalysisCache)
+    workspace_context = MagicMock(spec=WorkspaceContext)
     for structure in STRUCTURE_FACTORIES.values():
         if not isinstance(structure, UnknownStructureAnalysis):
-            result = _resolve_structure(
+            _resolve_structure(
                 structure=structure,
                 parameter_name="param",
                 module=module,
-                project_context=project_context,
-                file_analysis_cache=file_analysis_cache,
+                workspace_context=workspace_context,
             )
 
 
@@ -77,9 +74,8 @@ class TestResolveTypeAnalysis(AnalysisTestBase):
         resolve_result = resolve_type_analysis(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
         )
         assert isinstance(resolve_result, Success)
 
@@ -94,16 +90,15 @@ class TestResolveTypeAnalysis(AnalysisTestBase):
 
         expected_error = create_resolve_error()
         resolve_symbol_analysis_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.type_reference.resolve_symbol_analysis",
+            "gyomu_python_analysis.resolve.type_reference.resolve_workspace_symbol_analysis",
             return_value=Failure(expected_error),
         )
 
         resolve_result = resolve_type_analysis(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
         )
 
         assert resolve_result == Failure(expected_error)
@@ -122,10 +117,9 @@ class TestResolveTypeAnalysis(AnalysisTestBase):
 
         call_count = 0
 
-        def resolve_symbol_analysis_side_effect(
+        def resolve_workspace_symbol_analysis_side_effect(
             declaration_identity: DeclarationIdentity,
-            project_context: ProjectContext,
-            file_analysis_cache: FileAnalysisCache,
+            workspace_context: WorkspaceContext,
         ) -> object:
             nonlocal call_count
             call_count += 1
@@ -133,23 +127,21 @@ class TestResolveTypeAnalysis(AnalysisTestBase):
             if call_count == 2:
                 return Failure(expected_error)
 
-            return actual_resolve_symbol_analysis(
+            return actual_resolve_workspace_symbol_analysis(
                 declaration_identity=declaration_identity,
-                project_context=project_context,
-                file_analysis_cache=file_analysis_cache,
+                workspace_context=workspace_context,
             )
 
         resolve_symbol_analysis_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.type_reference.resolve_symbol_analysis",
-            side_effect=resolve_symbol_analysis_side_effect,
+            "gyomu_python_analysis.resolve.type_reference.resolve_workspace_symbol_analysis",
+            side_effect=resolve_workspace_symbol_analysis_side_effect,
         )
 
         resolve_result = resolve_type_analysis(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
+            workspace_context=base_context.workspace_context,
         )
 
         assert resolve_result == Failure(expected_error)

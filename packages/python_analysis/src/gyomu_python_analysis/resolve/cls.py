@@ -240,7 +240,8 @@ def resolve_class_analysis(
     )
     if isinstance(symbol_result, Failure):
         return symbol_result
-    file_analysis, symbol = symbol_result.unwrap()
+    record = symbol_result.unwrap()
+    file_analysis, symbol = record
     if isinstance(symbol, ClassAnalysis):
         return Success((file_analysis, symbol))
     return Failure(

@@ -2,8 +2,8 @@ from gyomu_docstring.update.docstring.rendered_symbol import RenderedSymbolDocst
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
 from packages.schema.test_support.helpers import (
-    create_declaration_identity,
     create_source_location,
+    simple_create_declaration_identity,
 )
 
 
@@ -12,7 +12,7 @@ class TestRenderedSymbolDocstring:
         _assert_json_round_trip(
             RenderedSymbolDocstring,
             RenderedSymbolDocstring(
-                identity=create_declaration_identity("ID1"),
+                identity=simple_create_declaration_identity("ID1"),
                 docstring="ABCDE",
                 location=create_source_location(),
             ),

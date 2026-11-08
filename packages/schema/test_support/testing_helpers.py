@@ -20,9 +20,9 @@ from gyomu_schema.schemas.testing.helper import (
 )
 
 from packages.schema.test_support.helpers import (
-    create_declaration_identity,
     create_source_location,
     create_type_analysis,
+    simple_create_declaration_identity,
 )
 
 
@@ -35,7 +35,9 @@ def create_parameter_info(
 
 
 def create_helper_inventory_item(
-    target_identity: DeclarationIdentity = create_declaration_identity(id="Test"),  # noqa: B008
+    target_identity: DeclarationIdentity = simple_create_declaration_identity(
+        id="Test"
+    ),  # noqa: B008
     function_name: str = "create_test",
     parameters: tuple[ParameterInfo, ...] = tuple(),
 ) -> HelperInventoryItem:
@@ -47,7 +49,9 @@ def create_helper_inventory_item(
 
 
 def create_existing_helper_inventory_item(
-    target_identity: DeclarationIdentity = create_declaration_identity(id="Test"),  # noqa: B008
+    target_identity: DeclarationIdentity = simple_create_declaration_identity(
+        id="Test"
+    ),  # noqa: B008
     function_name: str = "create_test",
     parameters: tuple[ParameterInfo, ...] = tuple(),
     location: SourceLocation = create_source_location(),  # noqa: B008

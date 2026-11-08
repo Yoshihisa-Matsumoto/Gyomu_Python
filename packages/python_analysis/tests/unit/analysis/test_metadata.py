@@ -15,8 +15,8 @@ from gyomu_schema.schemas.python.types import PythonPath, SourceRelativePath
 from gyomu_schema.schemas.python.visibility import Visibility
 
 from packages.schema.test_support.helpers import (
-    create_declaration_identity,
     create_source_location,
+    simple_create_declaration_identity,
 )
 
 
@@ -41,7 +41,7 @@ class TestCreateFileAnalysisMetadata:
     ) -> None:
         symbol = TypeAliasAnalysis(
             name="test",
-            identity=create_declaration_identity("test"),
+            identity=simple_create_declaration_identity("test"),
             visibility=Visibility.PUBLIC,
             decorators=tuple(),
             location=create_source_location(),
@@ -85,7 +85,7 @@ class TestCreateFileAnalysisMetadata:
     ) -> None:
         symbol = TypeAliasAnalysis(
             name="test",
-            identity=create_declaration_identity("test"),
+            identity=simple_create_declaration_identity("test"),
             visibility=Visibility.PUBLIC,
             decorators=tuple(),
             location=create_source_location(),
@@ -190,7 +190,7 @@ def create_class(
         name=id,
         visibility=Visibility.PUBLIC,
         decorators=tuple(),
-        identity=create_declaration_identity(id),
+        identity=simple_create_declaration_identity(id),
         indent=0,
         dependencies=tuple(),
         location=create_source_location(),
@@ -221,7 +221,7 @@ def create_method(id: str, doc: bool) -> MethodAnalysis:
         name=id,
         visibility=Visibility.PUBLIC,
         decorators=tuple(),
-        identity=create_declaration_identity(id),
+        identity=simple_create_declaration_identity(id),
         location=create_source_location(),
         indent=indent,
         docstring=docstring,
@@ -248,7 +248,7 @@ def create_class_variable(id: str, doc: bool) -> ClassVariableAnalysis:
         visibility=Visibility.PUBLIC,
         docstring=docstring,
         decorators=tuple(),
-        identity=create_declaration_identity(id),
+        identity=simple_create_declaration_identity(id),
         location=create_source_location(),
         pydantic=None,
         indent=4,
@@ -275,7 +275,7 @@ def create_class_typealias(id: str, doc: bool) -> ClassTypeAliasAnalysis:
         visibility=Visibility.PUBLIC,
         docstring=docstring,
         decorators=tuple(),
-        identity=create_declaration_identity(id),
+        identity=simple_create_declaration_identity(id),
         location=create_source_location(),
         indent=4,
         alias_type=None,
@@ -307,7 +307,7 @@ def create_class_inner_class(
         visibility=Visibility.PUBLIC,
         docstring=docstring,
         decorators=tuple(),
-        identity=create_declaration_identity(id),
+        identity=simple_create_declaration_identity(id),
         location=create_source_location(),
         indent=4,
         bases=tuple(),

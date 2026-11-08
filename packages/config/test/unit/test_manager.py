@@ -367,9 +367,9 @@ class TestConfigManager:
 
             assert result == Success(extracted_config)
             assert extractor.extract.call_args_list == [
-                mocker.call(first_config),
-                mocker.call(second_config),
-                mocker.call(third_config),
+                mocker.call(first_config, context="test-context"),
+                mocker.call(second_config, context="test-context"),
+                mocker.call(third_config, context="test-context"),
             ]
             merge_policy.merge.assert_called_once_with(
                 configs=(

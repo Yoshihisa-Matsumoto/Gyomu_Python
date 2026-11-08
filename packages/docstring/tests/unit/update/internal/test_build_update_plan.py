@@ -32,8 +32,8 @@ from packages.ai_compiler.test_support.helpers import (
 from packages.schema.test_support.helpers import (
     build_file_analysis_context,
     create_class_analysis,
-    create_declaration_identity,
     create_source_location,
+    simple_create_declaration_identity,
 )
 
 
@@ -43,7 +43,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         self,
         mocker: MockerFixture,
     ) -> None:
-        foo = create_declaration_identity("foo")
+        foo = simple_create_declaration_identity("foo")
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
@@ -85,7 +85,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         self,
         mocker: MockerFixture,
     ) -> None:
-        foo = create_declaration_identity("foo")
+        foo = simple_create_declaration_identity("foo")
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
@@ -140,7 +140,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         self,
         mocker: MockerFixture,
     ) -> None:
-        foo = create_declaration_identity("foo")
+        foo = simple_create_declaration_identity("foo")
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
@@ -184,7 +184,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         self,
         mocker: MockerFixture,
     ) -> None:
-        foo = create_declaration_identity("foo")
+        foo = simple_create_declaration_identity("foo")
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
@@ -232,8 +232,8 @@ class TestBuildDocstringUpdatePlanWithRetry:
         self,
         mocker: MockerFixture,
     ) -> None:
-        foo = create_declaration_identity("foo")
-        bar = create_declaration_identity("bar")
+        foo = simple_create_declaration_identity("foo")
+        bar = simple_create_declaration_identity("bar")
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
@@ -297,8 +297,8 @@ class TestBuildDocstringUpdatePlanWithRetry:
         self,
         mocker: MockerFixture,
     ) -> None:
-        foo = create_declaration_identity("foo")
-        bar = create_declaration_identity("bar")
+        foo = simple_create_declaration_identity("foo")
+        bar = simple_create_declaration_identity("bar")
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
@@ -347,7 +347,7 @@ class TestBuildDocstringUpdatePlanWithRetry:
         self,
         mocker: MockerFixture,
     ) -> None:
-        foo = create_declaration_identity("foo")
+        foo = simple_create_declaration_identity("foo")
         context = create_docstring_file_context(
             symbols=(
                 create_docstring_declaration_context(
@@ -395,8 +395,8 @@ class TestOverrideDocstringUpdatePlan:
     def test_filters_entries_not_in_context(
         self,
     ) -> None:
-        foo = create_declaration_identity("foo")
-        unknown = create_declaration_identity("unknown")
+        foo = simple_create_declaration_identity("foo")
+        unknown = simple_create_declaration_identity("unknown")
         foo_entry = create_docstring_update_entry(identity=foo)
         unknown_entry = create_docstring_update_entry(identity=unknown)
 
@@ -425,8 +425,8 @@ class TestOverrideDocstringUpdatePlan:
     def test_filters_entries_when_retry_is_none(
         self,
     ) -> None:
-        foo = create_declaration_identity("foo")
-        unknown = create_declaration_identity("unknown")
+        foo = simple_create_declaration_identity("foo")
+        unknown = simple_create_declaration_identity("unknown")
         foo_entry = create_docstring_update_entry(identity=foo)
         unknown_entry = create_docstring_update_entry(identity=unknown)
 
@@ -458,8 +458,8 @@ class TestOverrideDocstringUpdatePlan:
     def test_adds_missing_entries_to_original_plan(
         self,
     ) -> None:
-        foo = create_declaration_identity("foo")
-        bar = create_declaration_identity("bar")
+        foo = simple_create_declaration_identity("foo")
+        bar = simple_create_declaration_identity("bar")
         foo_entry = create_docstring_update_entry(identity=foo)
         bar_entry = create_docstring_update_entry(identity=bar)
 
@@ -500,8 +500,8 @@ class TestOverrideDocstringUpdatePlan:
     def test_keeps_original_when_missing_entry_is_not_in_plan(
         self,
     ) -> None:
-        foo = create_declaration_identity("foo")
-        bar = create_declaration_identity("bar")
+        foo = simple_create_declaration_identity("foo")
+        bar = simple_create_declaration_identity("bar")
         foo_entry = create_docstring_update_entry(identity=foo)
         # bar_entry = create_docstring_update_entry(identity=bar)
 
@@ -540,9 +540,9 @@ class TestOverrideDocstringUpdatePlan:
     def test_override_docstring_update_plan_only_adds_entries_for_missing_identities(
         self,
     ) -> None:
-        foo = create_declaration_identity("foo")
-        bar = create_declaration_identity("bar")
-        baz = create_declaration_identity("baz")
+        foo = simple_create_declaration_identity("foo")
+        bar = simple_create_declaration_identity("bar")
+        baz = simple_create_declaration_identity("baz")
         foo_entry = create_docstring_update_entry(identity=foo)
         bar_entry = create_docstring_update_entry(identity=bar)
         baz_entry = create_docstring_update_entry(identity=baz)

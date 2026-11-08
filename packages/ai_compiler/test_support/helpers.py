@@ -37,7 +37,9 @@ from gyomu_schema.schemas.confidence import Confidence
 from gyomu_schema.schemas.python.dependency import DependencySummary
 from gyomu_schema.schemas.python.types import DeclarationIdentity, SourceRelativePath
 
-from packages.schema.test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import (
+    simple_create_declaration_identity,
+)
 
 
 def create_declaration_info(name: str = "foo", kind: str = "class") -> DeclarationInfo:
@@ -99,7 +101,7 @@ def create_nondocumentable_context(
 
 
 def create_context_entry(
-    target: DeclarationIdentity = create_declaration_identity(),
+    target: DeclarationIdentity = simple_create_declaration_identity(),
     member: DeclarationInfo = create_declaration_info(),
     existing_docstring: ExistingDocstring | None = None,
     children: tuple[ContextEntry, ...] = tuple(),
@@ -115,7 +117,7 @@ def create_context_entry(
 
 
 def create_docstring_declaration_context(
-    target: DeclarationIdentity = create_declaration_identity(),
+    target: DeclarationIdentity = simple_create_declaration_identity(),
     symbol: DeclarationInfo = create_declaration_info(),
     code: str = "int",
     existing_docstring: ExistingDocstring | None = None,
@@ -204,7 +206,7 @@ _default_summary = create_summary_plan()
 
 
 def create_docstring_update_entry(
-    identity: DeclarationIdentity = create_declaration_identity(),
+    identity: DeclarationIdentity = simple_create_declaration_identity(),
     summary: SummaryPlan = _default_summary,
     description: DescriptionPlan | None = _default_description,
     params: tuple[ParamUpdatePlan, ...] = tuple(),

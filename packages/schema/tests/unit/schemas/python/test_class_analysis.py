@@ -5,10 +5,10 @@ from packages.schema.test_support.helpers import (
     create_class_analysis,
     create_class_type_alias_analysis,
     create_class_variable_analysis,
-    create_declaration_identity,
     create_inner_class_analysis,
     create_method_analysis,
     create_source_location,
+    simple_create_declaration_identity,
 )
 
 
@@ -20,12 +20,12 @@ class TestClassAnalysis:
                 0,
                 create_source_location(),
                 "test1",
-                create_declaration_identity("id1"),
+                simple_create_declaration_identity("id1"),
                 methods=(
                     create_method_analysis(
                         indent=4,
                         location=create_source_location(),
-                        identity=create_declaration_identity("method1"),
+                        identity=simple_create_declaration_identity("method1"),
                     ),
                 ),
                 variables=(
@@ -33,7 +33,7 @@ class TestClassAnalysis:
                         indent=4,
                         location=create_source_location(),
                         name="test_var1",
-                        identity=create_declaration_identity("id3"),
+                        identity=simple_create_declaration_identity("id3"),
                     ),
                 ),
                 type_aliases=(
@@ -41,7 +41,7 @@ class TestClassAnalysis:
                         indent=4,
                         location=create_source_location(),
                         name="test_alias1",
-                        identity=create_declaration_identity("id4"),
+                        identity=simple_create_declaration_identity("id4"),
                     ),
                 ),
                 inner_classes=(
@@ -49,12 +49,12 @@ class TestClassAnalysis:
                         indent=4,
                         location=create_source_location(),
                         name="inner1",
-                        identity=create_declaration_identity("id5"),
+                        identity=simple_create_declaration_identity("id5"),
                         methods=(
                             create_method_analysis(
                                 indent=4,
                                 location=create_source_location(),
-                                identity=create_declaration_identity("method23"),
+                                identity=simple_create_declaration_identity("method23"),
                             ),
                         ),
                     ),

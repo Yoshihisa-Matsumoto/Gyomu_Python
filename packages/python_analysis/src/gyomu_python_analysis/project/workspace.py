@@ -45,7 +45,7 @@ class WorkspaceContext:
     def find_workspace_file_analysis_context(
         self,
         module_path: PythonPath,
-    ) -> Result[FileAnalysisContext | None, AnalysisError]:
+    ) -> Result[tuple[FileAnalysisContext, ProjectContext] | None, AnalysisError]:
         """Find analysis context for a module in a workspace-managed package.
 
         Gyomu Context: Returns Success(None) when the module's root package is not
@@ -71,7 +71,9 @@ class WorkspaceContext:
                         details={"project_name": target_package.config.name},
                     )
                 )
-            return load_file_analysis_context(target_package, project_source_path)
+            return load_file_analysis_context(target_package, project_source_path).bind(
+                lambda file: Success((file, target_package))
+            )
 
 
 class WorkspaceRootKind(Enum):

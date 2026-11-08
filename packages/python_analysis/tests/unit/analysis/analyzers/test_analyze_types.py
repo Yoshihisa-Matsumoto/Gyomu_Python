@@ -114,9 +114,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
+            workspace_context=base_context.workspace_context,
             defaults=[
                 create_primitive_type(parameter_name="value_int", primitive_type="int")
             ],
@@ -136,9 +135,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(parameter_name="value_str", primitive_type="str")
             ],
@@ -156,9 +154,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[],
         )
 
@@ -175,9 +172,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 build_simple_resolved_symbol(
                     symbol_id="analysis.symbol.types::Foo",
@@ -213,9 +209,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_union", primitive_type="str"
@@ -241,9 +236,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_literal_value_type(parameter_name="value_literal_int", value=1),
             ],
@@ -265,9 +259,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_literal_value_type(parameter_name="value_literal_int2", value=1),
                 create_literal_value_type(parameter_name="value_literal_int2", value=2),
@@ -291,9 +284,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(parameter_name="value_list", primitive_type="int")
             ],
@@ -321,9 +313,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_dict", primitive_type="str"
@@ -356,9 +347,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_dict2", primitive_type="str"
@@ -384,9 +374,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(parameter_name="value_set", primitive_type="str"),
             ],
@@ -416,9 +405,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_tuple2", primitive_type="str"
@@ -450,9 +438,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_tuple", primitive_type="str"
@@ -492,9 +479,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_tuple_nested", primitive_type="str"
@@ -534,9 +520,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_tuple_nested2", primitive_type="str"
@@ -573,9 +558,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_tuple_nested3", primitive_type="int"
@@ -607,9 +591,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable", primitive_type="bool"
@@ -646,9 +629,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable2", primitive_type="bool"
@@ -684,9 +666,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_1", primitive_type="bool"
@@ -710,9 +691,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_3", primitive_type="str"
@@ -738,9 +718,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[],
         )
 
@@ -757,9 +736,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_15", primitive_type="str"
@@ -806,9 +784,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_7", primitive_type="str"
@@ -854,9 +831,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_8", primitive_type="str"
@@ -897,9 +873,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_9", primitive_type="str"
@@ -947,9 +922,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_10", primitive_type="str"
@@ -1008,9 +982,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_11", primitive_type="str"
@@ -1055,9 +1028,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_12", primitive_type="str"
@@ -1101,9 +1073,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_13", primitive_type="bool"
@@ -1143,9 +1114,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_callable_14", primitive_type="str"
@@ -1176,9 +1146,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_generic_simple", primitive_type="str"
@@ -1215,9 +1184,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_generic_nested", primitive_type="str"
@@ -1256,9 +1224,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_generic_multiple", primitive_type="str"
@@ -1308,9 +1275,8 @@ class TestAnalyzeType(AnalysisTestBase):
         assert_type_default(
             type_analysis=result.type,
             parameter_name=result.name,
-            project_context=base_context.project,
+            workspace_context=base_context.workspace_context,
             module=file_analysis_context.analysis,
-            file_analysis_cache=base_context.file_analysis_cach,
             defaults=[
                 create_primitive_type(
                     parameter_name="value_generic_deep_nested", primitive_type="str"

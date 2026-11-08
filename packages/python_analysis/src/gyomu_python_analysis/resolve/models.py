@@ -79,9 +79,14 @@ class SymbolType:
 
 
 @dataclass(frozen=True)
+class PackageType:
+    symbol_id: SymbolId
+
+
+@dataclass(frozen=True)
 class LiteralValueType:
     value: str | bytes | bool | int | float | complex | None
     parameter_name: str
 
 
-type ResolvedType = PrimitiveType | SymbolType | LiteralValueType
+type ResolvedType = PrimitiveType | SymbolType | LiteralValueType | PackageType

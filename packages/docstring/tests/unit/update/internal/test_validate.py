@@ -15,7 +15,7 @@ from packages.ai_compiler.test_support.helpers import (
     create_docstring_update_plan,
     create_nondocumentable_context,
 )
-from packages.schema.test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import simple_create_declaration_identity
 
 
 def test_validate_docstring_update_plan_returns_valid_when_identities_match() -> None:
@@ -25,23 +25,23 @@ def test_validate_docstring_update_plan_returns_valid_when_identities_match() ->
                 symbol=create_declaration_info("foo", "str"),
                 existing_docstring=None,
                 children=(),
-                target=create_declaration_identity("foo"),
+                target=simple_create_declaration_identity("foo"),
             ),
             create_docstring_declaration_context(
                 symbol=create_declaration_info("bar", "str"),
                 existing_docstring=None,
                 children=(),
-                target=create_declaration_identity("bar"),
+                target=simple_create_declaration_identity("bar"),
             ),
         )
     )
     plan = create_docstring_update_plan(
         entries=(
             create_docstring_update_entry(
-                identity=create_declaration_identity("foo"),
+                identity=simple_create_declaration_identity("foo"),
             ),
             create_docstring_update_entry(
-                identity=create_declaration_identity("bar"),
+                identity=simple_create_declaration_identity("bar"),
             ),
         )
     )
@@ -54,8 +54,8 @@ def test_validate_docstring_update_plan_returns_valid_when_identities_match() ->
 def test_validate_docstring_update_plan_returns_invalid_when_identity_is_missing() -> (
     None
 ):
-    foo = create_declaration_identity("foo")
-    bar = create_declaration_identity("bar")
+    foo = simple_create_declaration_identity("foo")
+    bar = simple_create_declaration_identity("bar")
 
     context = create_docstring_file_context(
         symbols=(
@@ -76,7 +76,7 @@ def test_validate_docstring_update_plan_returns_invalid_when_identity_is_missing
     plan = create_docstring_update_plan(
         entries=(
             create_docstring_update_entry(
-                identity=create_declaration_identity("foo"),
+                identity=simple_create_declaration_identity("foo"),
             ),
         )
     )
@@ -88,8 +88,8 @@ def test_validate_docstring_update_plan_returns_invalid_when_identity_is_missing
 
 
 def test_validate_docstring_update_plan_ignores_plan_only_identity() -> None:
-    foo = create_declaration_identity("foo")
-    extra = create_declaration_identity("extra")
+    foo = simple_create_declaration_identity("foo")
+    extra = simple_create_declaration_identity("extra")
 
     context = create_docstring_file_context(
         symbols=(
@@ -118,15 +118,15 @@ def test_validate_docstring_update_plan_ignores_plan_only_identity() -> None:
 def test_get_docstring_identities_from_context_excludes_non_documentable_children() -> (
     None
 ):
-    root = create_declaration_identity("root")
-    documentable = create_declaration_identity("documentable")
-    non_documentable = create_declaration_identity("non_documentable")
+    root = simple_create_declaration_identity("root")
+    documentable = simple_create_declaration_identity("documentable")
+    non_documentable = simple_create_declaration_identity("non_documentable")
 
     context = create_docstring_file_context(
         symbols=(
             create_docstring_declaration_context(
                 symbol=create_declaration_info("root", "int"),
-                target=create_declaration_identity("root"),
+                target=simple_create_declaration_identity("root"),
                 children=(
                     create_context_entry(
                         target=documentable,
@@ -152,10 +152,10 @@ def test_get_docstring_identities_from_context_excludes_non_documentable_childre
 
 
 def test_get_docstring_identities_from_context_stops_recursion_at_depth_two() -> None:
-    root = create_declaration_identity("root")
-    child = create_declaration_identity("child")
-    grandchild = create_declaration_identity("grandchild")
-    great_grandchild = create_declaration_identity("great_grandchild")
+    root = simple_create_declaration_identity("root")
+    child = simple_create_declaration_identity("child")
+    grandchild = simple_create_declaration_identity("grandchild")
+    great_grandchild = simple_create_declaration_identity("great_grandchild")
 
     # root
     # └── child          depth 0
@@ -167,7 +167,7 @@ def test_get_docstring_identities_from_context_stops_recursion_at_depth_two() ->
         symbols=(
             create_docstring_declaration_context(
                 symbol=create_declaration_info("root", "int"),
-                target=create_declaration_identity("root"),
+                target=simple_create_declaration_identity("root"),
                 children=(
                     create_context_entry(
                         target=child,

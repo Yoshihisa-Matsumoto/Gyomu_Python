@@ -29,6 +29,7 @@ from gyomu_schema.schemas.python.class_analysis import (
     ClassVariableAnalysis,
     InnerClassAnalysis,
 )
+from gyomu_schema.schemas.python.decorator import DecoratorAnalysis
 from gyomu_schema.schemas.python.dependency import (
     DependencyAnalysis,
     ImportedSymbolDependency,
@@ -61,6 +62,7 @@ from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKi
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.method_analysis import MethodAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
+from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
@@ -114,7 +116,7 @@ def build_declaration_identity(
     )
 
 
-def create_declaration_identity(id: str = "test") -> DeclarationIdentity:
+def simple_create_declaration_identity(id: str = "test") -> DeclarationIdentity:
     return DeclarationIdentity(
         symbol_id=SymbolId(id),
         declaration_id=DeclarationId("."),
@@ -146,24 +148,28 @@ _default_identity = DeclarationIdentity(
 
 
 def create_type_alias_analysis(
-    indent: int,
-    location: SourceLocation,
-    name: str = "test_func",
-    identity: DeclarationIdentity | None = None,
+    name: str = "test_alias",
+    visibility: Visibility = Visibility.PUBLIC,
+    docstring: DocstringAnalysis | None = None,
+    decorators: tuple[DecoratorAnalysis, ...] = (),
+    identity: DeclarationIdentity = simple_create_declaration_identity("test_alias"),
+    location: SourceLocation = create_source_location(),
+    dependencies: tuple[DependencyAnalysis, ...] = (),
+    indent: int = 0,
+    kind: Literal[DeclarationKind.TYPEALIAS] = DeclarationKind.TYPEALIAS,
+    alias_type: TypeAnalysis | None = None,
 ) -> TypeAliasAnalysis:
-    if identity is None:
-        identity = create_declaration_identity(name)
     return TypeAliasAnalysis(
         name=name,
-        docstring=None,
+        visibility=visibility,
+        docstring=docstring,
+        decorators=decorators,
         identity=identity,
-        decorators=tuple(),
-        dependencies=tuple(),
-        indent=indent,
-        kind=DeclarationKind.TYPEALIAS,
-        visibility=Visibility.PUBLIC,
         location=location,
-        alias_type=None,
+        dependencies=dependencies,
+        indent=indent,
+        kind=kind,
+        alias_type=alias_type,
     )
 
 
@@ -174,7 +180,7 @@ def create_class_type_alias_analysis(
     identity: DeclarationIdentity | None = None,
 ) -> ClassTypeAliasAnalysis:
     if identity is None:
-        identity = create_declaration_identity(name)
+        identity = simple_create_declaration_identity(name)
     return ClassTypeAliasAnalysis(
         name=name,
         docstring=None,
@@ -192,15 +198,13 @@ def create_variable_analysis(
     indent: int = 0,
     location: SourceLocation = create_source_location(),  # noqa: B008
     name: str = "test_func",
-    identity: DeclarationIdentity | None = None,
+    identity: DeclarationIdentity = simple_create_declaration_identity("test_func"),
     type: TypeAnalysis | None = None,
     value_source: str | None = None,
-    value_expression: TypeExpression | None = None,
     pydantic: PydanticFieldAnalysis | None = None,
     docstring: DocstringAnalysis | None = None,
 ) -> VariableAnalysis:
-    if identity is None:
-        identity = create_declaration_identity(name)
+
     return VariableAnalysis(
         name=name,
         docstring=docstring,
@@ -211,61 +215,70 @@ def create_variable_analysis(
         kind=DeclarationKind.VARIABLE,
         visibility=Visibility.PUBLIC,
         location=location,
-        type=None,
+        type=type,
         value_source=value_source,
         pydantic=pydantic,
     )
 
 
 def create_class_variable_analysis(
-    indent: int,
-    location: SourceLocation,
-    name: str = "test_func",
-    identity: DeclarationIdentity | None = None,
+    name: str = "test_variable",
+    visibility: Visibility = Visibility.PUBLIC,
+    docstring: DocstringAnalysis | None = None,
+    decorators: tuple[DecoratorAnalysis, ...] = (),
+    identity: DeclarationIdentity = simple_create_declaration_identity("test_variable"),
+    location: SourceLocation | None = None,
+    indent: int | None = None,
+    kind: Literal[DeclarationKind.VARIABLE] = DeclarationKind.VARIABLE,
+    type: TypeAnalysis | None = None,
+    value_source: str | None = None,
+    pydantic: PydanticFieldAnalysis | None = None,
 ) -> ClassVariableAnalysis:
-    if identity is None:
-        identity = create_declaration_identity(name)
+
     return ClassVariableAnalysis(
         name=name,
-        docstring=None,
+        visibility=visibility,
+        docstring=docstring,
         identity=identity,
-        decorators=tuple(),
+        decorators=decorators,
         indent=indent,
-        kind=DeclarationKind.VARIABLE,
-        visibility=Visibility.PUBLIC,
+        kind=kind,
         location=location,
-        type=None,
-        value_source=None,
-        pydantic=None,
+        type=type,
+        value_source=value_source,
+        pydantic=pydantic,
     )
 
 
 def create_function_analysis(
-    indent: int,
-    location: SourceLocation,
-    name: str = "test_func",
-    identity: DeclarationIdentity | None = None,
-    docstring: DocstringAnalysis | None = None,
-    dependencies: tuple[DependencyAnalysis, ...] = tuple(),
+    parameters: tuple[ParameterAnalysis, ...] = (),
+    return_type: TypeAnalysis | None = None,
+    is_async: bool = False,
     is_ellipsis_only: bool = False,
-    statements: tuple[StatementAnalysis, ...] = tuple(),
+    name: str = "test_func",
+    visibility: Visibility = Visibility.PUBLIC,
+    docstring: DocstringAnalysis | None = None,
+    decorators: tuple[DecoratorAnalysis, ...] = (),
+    identity: DeclarationIdentity = simple_create_declaration_identity("test_func"),
+    location: SourceLocation = create_source_location(),
+    dependencies: tuple[DependencyAnalysis, ...] = (),
+    indent: int = 0,
+    kind: Literal[DeclarationKind.FUNCTION] = DeclarationKind.FUNCTION,
 ) -> FunctionAnalysis:
-    if identity is None:
-        identity = create_declaration_identity(name)
     return FunctionAnalysis(
+        parameters=parameters,
+        return_type=return_type,
+        is_async=is_async,
+        is_ellipsis_only=is_ellipsis_only,
         name=name,
+        visibility=visibility,
         docstring=docstring,
+        decorators=decorators,
         identity=identity,
-        decorators=tuple(),
+        location=location,
         dependencies=dependencies,
         indent=indent,
-        is_async=False,
-        kind=DeclarationKind.FUNCTION,
-        parameters=tuple(),
-        return_type=None,
-        visibility=Visibility.PUBLIC,
-        location=location,
-        is_ellipsis_only=is_ellipsis_only,
+        kind=kind,
     )
 
 
@@ -279,7 +292,7 @@ def create_method_analysis(
     statements: tuple[StatementAnalysis, ...] = tuple(),
 ) -> MethodAnalysis:
     if identity is None:
-        identity = create_declaration_identity(name)
+        identity = simple_create_declaration_identity(name)
     return MethodAnalysis(
         name=name,
         docstring=docstring,
@@ -308,7 +321,7 @@ def create_class_analysis(
     bases: tuple[TypeAnalysis, ...] = tuple(),
 ) -> ClassAnalysis:
     if identity is None:
-        identity = create_declaration_identity(name)
+        identity = simple_create_declaration_identity(name)
     return ClassAnalysis(
         name=name,
         docstring=None,
@@ -335,7 +348,7 @@ def create_inner_class_analysis(
     methods: tuple[MethodAnalysis, ...] = tuple(),
 ) -> InnerClassAnalysis:
     if identity is None:
-        identity = create_declaration_identity(name)
+        identity = simple_create_declaration_identity(name)
     return InnerClassAnalysis(
         name=name,
         docstring=None,
@@ -624,14 +637,14 @@ def create_custom_list_section(
 
 def create_import_dependency_analysis(id: str) -> DependencyAnalysis:
     return DependencyAnalysis(
-        source=create_declaration_identity(id),
+        source=simple_create_declaration_identity(id),
         target=ImportedSymbolDependency(symbol_id=SymbolId(id)),
     )
 
 
 def create_local_dependency_analysis(id: str) -> DependencyAnalysis:
     return DependencyAnalysis(
-        source=create_declaration_identity(id),
+        source=simple_create_declaration_identity(id),
         target=LocalFileDependency(symbol_id=SymbolId(id)),
     )
 
@@ -742,7 +755,7 @@ def create_keyword_argument(
 
 def create_call_parameter(
     kind: Literal[ParameterExpressionType.CALL] = ParameterExpressionType.CALL,
-    callable_identity: DeclarationIdentity = create_declaration_identity(),  # noqa: B008
+    callable_identity: DeclarationIdentity = simple_create_declaration_identity(),  # noqa: B008
     args: tuple[Parameter, ...] = (),
     kwargs: tuple[KeywordArgument, ...] = (),
 ) -> CallParameter:

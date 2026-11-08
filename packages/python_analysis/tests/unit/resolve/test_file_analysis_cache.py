@@ -12,14 +12,14 @@ from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 from packages.python_analysis.test_support.helpers import create_analysis_error
-from packages.schema.test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import simple_create_declaration_identity
 
 
 class TestFileAnalysisCache:
     def test_cache_miss(self, mocker: MockerFixture) -> None:
         workspace_context = cast(WorkspaceContext, mocker.Mock())
         project_context = cast(ProjectContext, mocker.Mock())
-        identity = create_declaration_identity("project_a.models::Product")
+        identity = simple_create_declaration_identity("project_a.models::Product")
         python_path = identity.get_module_name()
 
         file_path = "project_a/models.py"
@@ -60,9 +60,9 @@ class TestFileAnalysisCache:
         workspace_context = cast(WorkspaceContext, mocker.Mock())
         project_context = cast(ProjectContext, mocker.Mock())
 
-        identity1 = create_declaration_identity("project_a.models::Product1")
+        identity1 = simple_create_declaration_identity("project_a.models::Product1")
 
-        identity2 = create_declaration_identity("project_a.models::Product2")
+        identity2 = simple_create_declaration_identity("project_a.models::Product2")
 
         analysis_context = cast(FileAnalysisContext, mocker.Mock())
 
@@ -99,7 +99,7 @@ class TestFileAnalysisCache:
     def test_load_failure(self, mocker: MockerFixture) -> None:
         workspace_context = cast(WorkspaceContext, mocker.Mock())
         project_context = cast(ProjectContext, mocker.Mock())
-        identity = create_declaration_identity("project_a.models::Product")
+        identity = simple_create_declaration_identity("project_a.models::Product")
         error = create_analysis_error()
 
         mocker.patch(
@@ -129,7 +129,7 @@ class TestFileAnalysisCache:
     def test_load_failure_is_not_cached(self, mocker: MockerFixture) -> None:
         workspace_context = cast(WorkspaceContext, mocker.Mock())
         project_context = cast(ProjectContext, mocker.Mock())
-        identity = create_declaration_identity("project_a.models::Product")
+        identity = simple_create_declaration_identity("project_a.models::Product")
         error = create_analysis_error()
         analysis_context = cast(FileAnalysisContext, mocker.Mock())
 

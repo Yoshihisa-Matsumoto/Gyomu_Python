@@ -108,17 +108,17 @@ class TestFindWorkspaceProject:
                 create_package_root(module_name=name) for name in project_roots[index]
             )
 
-        with mocker.patch(
+        mocker.patch(
             "gyomu_python_analysis.resolve.project_membership."
             "find_package_roots_from_workspace_project",
             side_effect=find_roots,
-        ):
-            result = find_workspace_project(
-                file_context=file_context,
-                workspace_root=workspace_root,
-                workspace_context=workspace_context,
-            )
-            actual = None if isinstance(result, Failure) else result.unwrap()
+        )
+        result = find_workspace_project(
+            file_context=file_context,
+            workspace_root=workspace_root,
+            workspace_context=workspace_context,
+        )
+        actual = None if isinstance(result, Failure) else result.unwrap()
 
         expected = (
             workspace_projects[expected_index] if expected_index is not None else None

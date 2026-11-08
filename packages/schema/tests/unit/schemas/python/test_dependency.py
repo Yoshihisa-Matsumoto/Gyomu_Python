@@ -7,7 +7,7 @@ from gyomu_schema.schemas.python.dependency import (
 from gyomu_schema.schemas.python.types import SymbolId
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
-from packages.schema.test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import simple_create_declaration_identity
 
 
 class TestLocalFileDependency:
@@ -31,7 +31,7 @@ class TestDependencyAnalysis:
         _assert_json_round_trip(
             DependencyAnalysis,
             DependencyAnalysis(
-                source=create_declaration_identity("id1"),
+                source=simple_create_declaration_identity("id1"),
                 target=ImportedSymbolDependency(symbol_id=SymbolId("A1")),
             ),
         )

@@ -25,7 +25,7 @@ from gyomu_ai_compiler.pipelines.docstring_update.schema.ai_plan import (
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 from pydantic import TypeAdapter
 
-from packages.schema.test_support.helpers import create_declaration_identity
+from packages.schema.test_support.helpers import simple_create_declaration_identity
 
 
 def test_replace_action_json_schema() -> None:
@@ -325,7 +325,7 @@ class TestDocstringUpdateEntry:
         _assert_json_round_trip(
             DocstringUpdateEntry,
             DocstringUpdateEntry(
-                identity=create_declaration_identity("ID1"),
+                identity=simple_create_declaration_identity("ID1"),
                 summary=SummaryPlan(action=UpdatePreserveAction(), confidence=0),
                 description=DescriptionPlan(
                     action=UpdatePreserveAction(), confidence=0
@@ -366,7 +366,7 @@ class TestDocstringUpdatePlan:
             DocstringUpdatePlan(
                 entries=(
                     DocstringUpdateEntry(
-                        identity=create_declaration_identity("ID1"),
+                        identity=simple_create_declaration_identity("ID1"),
                         summary=SummaryPlan(
                             action=UpdatePreserveAction(), confidence=0
                         ),

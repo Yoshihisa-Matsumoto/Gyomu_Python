@@ -5,7 +5,7 @@ from gyomu_docstring.update.docstring.file_update_plan import (
 
 from packages.docstring.test_support.helpers import create_entry
 from packages.schema.test_support.helpers import (
-    create_declaration_identity,
+    simple_create_declaration_identity,
 )
 
 
@@ -16,7 +16,7 @@ class TestApplyFileUpdate:
         plan = FileUpdatePlan(
             items=(
                 create_entry(
-                    identity=create_declaration_identity("replace"),
+                    identity=simple_create_declaration_identity("replace"),
                     start_offset=2,
                     end_offset=5,
                     new_text="XYZ",
@@ -34,7 +34,7 @@ class TestApplyFileUpdate:
         plan = FileUpdatePlan(
             items=(
                 create_entry(
-                    identity=create_declaration_identity("add"),
+                    identity=simple_create_declaration_identity("add"),
                     start_offset=5,
                     end_offset=5,
                     new_text="XYZ",
@@ -52,7 +52,7 @@ class TestApplyFileUpdate:
         plan = FileUpdatePlan(
             items=(
                 create_entry(
-                    identity=create_declaration_identity("delete"),
+                    identity=simple_create_declaration_identity("delete"),
                     start_offset=2,
                     end_offset=5,
                     new_text="",
@@ -70,19 +70,19 @@ class TestApplyFileUpdate:
         plan = FileUpdatePlan(
             items=(
                 create_entry(
-                    identity=create_declaration_identity("XX"),
+                    identity=simple_create_declaration_identity("XX"),
                     start_offset=2,
                     end_offset=4,
                     new_text="XX",
                 ),
                 create_entry(
-                    identity=create_declaration_identity("YYY"),
+                    identity=simple_create_declaration_identity("YYY"),
                     start_offset=6,
                     end_offset=6,
                     new_text="YYY",
                 ),
                 create_entry(
-                    identity=create_declaration_identity("Z"),
+                    identity=simple_create_declaration_identity("Z"),
                     start_offset=8,
                     end_offset=10,
                     new_text="",

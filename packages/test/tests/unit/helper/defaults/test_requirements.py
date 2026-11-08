@@ -31,13 +31,13 @@ from packages.python_analysis.test_support.helpers import (
 from packages.schema.test_support.helpers import (
     create_call_parameter,
     create_class_analysis,
-    create_declaration_identity,
     create_file_analysis_context,
     create_list_parameter,
     create_literal_parameter,
     create_module_analysis,
     create_none_parameter,
     create_tuple_parameter,
+    simple_create_declaration_identity,
 )
 from packages.schema.test_support.testing_helpers import create_parameter_info
 from packages.test.test_support.helpers import (
@@ -154,7 +154,7 @@ class TestResolveFunctionParameterDefaults:
                     create_resolved_parameter_default(
                         parameter=create_parameter_info(name="value"),
                         default=create_call_parameter(
-                            callable_identity=create_declaration_identity(
+                            callable_identity=simple_create_declaration_identity(
                                 id="packages.parameter.test_support.helpers::create_basic_model"
                             )
                         ),
@@ -282,13 +282,13 @@ class TestResolveFunctionParameterDefaults:
     ) -> None:
         context = helper_inventory_test_context
 
-        with mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.expected.retrieve_config",
             return_value=Success(None),
-        ):
-            inventory_result = collect_model_helper_inventory(
-                context.project_context, context.workspace_context
-            )
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
         assert isinstance(inventory_result, Success)
         inventories = inventory_result.unwrap()
         inventory = get_inventory(inventories, model_name)
@@ -314,13 +314,13 @@ class TestResolveFunctionParameterDefaults:
     ) -> None:
         context = helper_inventory_test_context
 
-        with mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.expected.retrieve_config",
             return_value=Success(None),
-        ):
-            inventory_result = collect_model_helper_inventory(
-                context.project_context, context.workspace_context
-            )
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
         assert isinstance(inventory_result, Success)
         inventories = inventory_result.unwrap()
         inventory = get_inventory(inventories, "IntegerLiteralModel")
@@ -353,13 +353,13 @@ class TestResolveFunctionParameterDefaults:
         mocker: MockerFixture,
     ) -> None:
         context = helper_inventory_test_context
-        with mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.expected.retrieve_config",
             return_value=Success(None),
-        ):
-            inventory_result = collect_model_helper_inventory(
-                context.project_context, context.workspace_context
-            )
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
         assert isinstance(inventory_result, Success)
         inventories = inventory_result.unwrap()
         inventory = get_inventory(inventories, "CallDefaultModel")
@@ -391,13 +391,13 @@ class TestResolveFunctionParameterDefaults:
         mocker: MockerFixture,
     ) -> None:
         context = helper_inventory_test_context
-        with mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.expected.retrieve_config",
             return_value=Success(None),
-        ):
-            inventory_result = collect_model_helper_inventory(
-                context.project_context, context.workspace_context
-            )
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
         assert isinstance(inventory_result, Success)
         inventories = inventory_result.unwrap()
         inventory = get_inventory(inventories, "CallDefaultModel")
@@ -429,13 +429,13 @@ class TestResolveFunctionParameterDefaults:
         mocker: MockerFixture,
     ) -> None:
         context = helper_inventory_test_context
-        with mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.expected.retrieve_config",
             return_value=Success(None),
-        ):
-            inventory_result = collect_model_helper_inventory(
-                context.project_context, context.workspace_context
-            )
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
         assert isinstance(inventory_result, Success)
         inventories = inventory_result.unwrap()
         inventory = get_inventory(inventories, "AttributeReferenceModel")
@@ -467,13 +467,13 @@ class TestResolveFunctionParameterDefaults:
         mocker: MockerFixture,
     ) -> None:
         context = helper_inventory_test_context
-        with mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.expected.retrieve_config",
             return_value=Success(None),
-        ):
-            inventory_result = collect_model_helper_inventory(
-                context.project_context, context.workspace_context
-            )
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
         assert isinstance(inventory_result, Success)
         inventories = inventory_result.unwrap()
         inventory = get_inventory(inventories, "IntegerLiteralModel")
