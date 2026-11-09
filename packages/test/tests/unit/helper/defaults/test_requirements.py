@@ -6,7 +6,6 @@ from gyomu_config.manager import ConfigManager
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceRoot
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem
 from gyomu_schema.schemas.types import FullPath
@@ -58,7 +57,6 @@ class HelperInventoryTestContext:
     workspace_root: WorkspaceRoot
     workspace_context: WorkspaceContext
     project_context: ProjectContext
-    file_analysis_cache: FileAnalysisCache
     config_manager: ConfigManager
 
 
@@ -68,8 +66,6 @@ def helper_inventory_test_context() -> HelperInventoryTestContext:
     workspace_root, workspace_context = get_workspace_context(target_path)
 
     project_context = get_project_context(workspace_context, "parameter")
-
-    file_analysis_cache = FileAnalysisCache(workspace_context=workspace_context)
 
     config_manager = ConfigManager()
 
@@ -83,7 +79,6 @@ def helper_inventory_test_context() -> HelperInventoryTestContext:
         workspace_root=workspace_root,
         workspace_context=workspace_context,
         project_context=project_context,
-        file_analysis_cache=file_analysis_cache,
         config_manager=config_manager,
     )
 
@@ -117,7 +112,6 @@ class TestResolveFunctionParameterDefaults:
             workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
             config_manager=context.config_manager,
         )
 
@@ -298,7 +292,6 @@ class TestResolveFunctionParameterDefaults:
             workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
             config_manager=context.config_manager,
         )
 
@@ -330,8 +323,8 @@ class TestResolveFunctionParameterDefaults:
         )
 
         mocker.patch.object(
-            context.file_analysis_cache,
-            "get_file_analysis_context",
+            context.workspace_context,
+            "find_file_analysis_context",
             return_value=Failure(expected_error),
         )
 
@@ -340,7 +333,6 @@ class TestResolveFunctionParameterDefaults:
             workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
             config_manager=context.config_manager,
         )
 
@@ -376,7 +368,6 @@ class TestResolveFunctionParameterDefaults:
             workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
             config_manager=context.config_manager,
         )
 
@@ -414,7 +405,6 @@ class TestResolveFunctionParameterDefaults:
             workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
             config_manager=context.config_manager,
         )
 
@@ -452,7 +442,6 @@ class TestResolveFunctionParameterDefaults:
             workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
             config_manager=context.config_manager,
         )
 
@@ -490,7 +479,6 @@ class TestResolveFunctionParameterDefaults:
             workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
-            file_analysis_cache=context.file_analysis_cache,
             config_manager=context.config_manager,
         )
 

@@ -8,41 +8,7 @@ from gyomu_schema.schemas.python.variable import VariableAnalysis
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.resolve import ResolveError
-from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
-
-
-def resolve_symbol_analysis(
-    declaration_identity: DeclarationIdentity,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
-) -> Result[tuple[FileAnalysisContext, SymbolAnalysis], ResolveError]:
-    context_result = file_analysis_cache.get_file_analysis_context(
-        project_context=project_context, identity=declaration_identity
-    )
-    if isinstance(context_result, Failure):
-        return context_result.alt(
-            lambda error: ResolveError(
-                message="fail to resolve symbol",
-                reference=declaration_identity.get_module_name(),
-                details={"identity": declaration_identity},
-            ).chain(error)
-        )
-    file_analysis = context_result.unwrap()
-
-    symbol = file_analysis.metadata.symbols.get(declaration_identity)
-    if symbol is not None and isinstance(
-        symbol, VariableAnalysis | ClassAnalysis | FunctionAnalysis | TypeAliasAnalysis
-    ):
-        return Success((file_analysis, symbol))
-    return Failure(
-        ResolveError(
-            message="symbol is not found",
-            reference=declaration_identity.get_module_name(),
-            details={"identity": declaration_identity},
-        )
-    )
 
 
 def resolve_workspace_symbol_analysis(
@@ -51,8 +17,8 @@ def resolve_workspace_symbol_analysis(
 ) -> Result[tuple[FileAnalysisContext, SymbolAnalysis] | None, ResolveError]:
     module_path = declaration_identity.get_module_name()
 
-    find_result = workspace_context.find_workspace_file_analysis_context(
-        module_path=module_path
+    find_result = workspace_context.find_file_analysis_context(
+        target_identity=declaration_identity
     )
     if isinstance(find_result, Failure):
         return find_result.alt(

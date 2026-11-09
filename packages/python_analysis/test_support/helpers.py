@@ -35,7 +35,6 @@ from gyomu_python_analysis.project.workspace import (
     WorkspaceRoot,
     WorkspaceRootKind,
 )
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
     PackageType,
@@ -424,7 +423,6 @@ def assert_type_analysis(
 class BaseContext:
     project: ProjectContext
     source: SourceFileContext
-    file_analysis_cach: FileAnalysisCache
     workspace_context: WorkspaceContext
 
 
@@ -626,11 +624,9 @@ class AnalysisTestBase:
         assert isinstance(result, Success)
 
         workspace_context = workspace_result.unwrap()
-        file_analysis_cache = FileAnalysisCache(workspace_context=workspace_context)
 
         return BaseContext(
             project=context,
             source=source_file_context,
-            file_analysis_cach=file_analysis_cache,
             workspace_context=workspace_context,
         )

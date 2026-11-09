@@ -4,7 +4,6 @@ from gyomu_config.manager import ConfigManager
 from gyomu_python_analysis.path.conversion import source_relative_path_to_python_path
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceRoot
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
     PackageType,
@@ -117,7 +116,6 @@ class ParameterConfigurationContext:
     workspace_root: WorkspaceRoot
     workspace_context: WorkspaceContext
     project_context: ProjectContext
-    file_analysis_cache: FileAnalysisCache
     config_manager: ConfigManager
     class_name: str
 
@@ -128,7 +126,6 @@ class ParameterConfigurationContext:
         workspace_root: WorkspaceRoot,
         workspace_context: WorkspaceContext,
         project_context: ProjectContext,
-        file_analysis_cache: FileAnalysisCache,
         config_manager: ConfigManager,
         class_name: str,
     ) -> None:
@@ -137,7 +134,6 @@ class ParameterConfigurationContext:
         self.workspace_root = workspace_root
         self.workspace_context = workspace_context
         self.project_context = project_context
-        self.file_analysis_cache = file_analysis_cache
         self.config_manager = config_manager
         self.class_name = class_name
 
@@ -555,7 +551,6 @@ def resolve_function_parameter_defaults(
     workspace_root: WorkspaceRoot,
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
     config_manager: ConfigManager,
 ) -> Result[
     tuple[
@@ -567,8 +562,8 @@ def resolve_function_parameter_defaults(
     result: list[
         ConfiguredParameterDefault | ResolvedParameterDefault | MissingParameterDefault
     ] = []
-    cache_result = file_analysis_cache.get_file_analysis_context(
-        project_context=project_context, identity=inventory.target_identity
+    cache_result = workspace_context.find_file_analysis_context(
+        target_identity=inventory.target_identity
     )
     if isinstance(cache_result, Failure):
         return cache_result.alt(
@@ -577,6 +572,8 @@ def resolve_function_parameter_defaults(
             )
         )
     file_analysis_context = cache_result.unwrap()
+    if file_analysis_context is None:
+        return Failure(GyomuTestError("test"))
 
     for parameter in inventory.parameters:
         if parameter.default is not None:
@@ -585,11 +582,10 @@ def resolve_function_parameter_defaults(
 
         context = ParameterConfigurationContext(
             parameter=parameter,
-            module=file_analysis_context.analysis,
+            module=file_analysis_context[0].analysis,
             workspace_root=workspace_root,
             workspace_context=workspace_context,
             project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
             config_manager=config_manager,
             class_name=inventory.target_identity.get_symbol_name(),
         )

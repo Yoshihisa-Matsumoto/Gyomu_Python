@@ -6,7 +6,6 @@ from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.resolve.reference import (
     resolve_declaration_identity,
 )
-from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.parameter import ParameterAnalysis
@@ -190,9 +189,7 @@ def collect_existing_helper_inventory(
         missing_annotations: list[MissingTypeAnnotation] = []
         reference_errors: list[InvalidReference] = []
         file_path = ProjectRelativePath(target_project.config.path / file)
-        file_result = load_file_analysis_context(
-            root, file_path, option=AnalysisOption(no_check_cache=True)
-        )
+        file_result = load_file_analysis_context(root, file_path)
         if isinstance(file_result, Failure):
             return file_result.alt(
                 lambda error: GyomuTestError(message="fail to analyze file").chain(

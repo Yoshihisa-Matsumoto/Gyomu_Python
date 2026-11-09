@@ -11,7 +11,10 @@ from gyomu_python_analysis.analysis.workspace import (
     read_pyproject_toml,
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
-from gyomu_python_analysis.project.workspace import WorkspaceRoot, WorkspaceRootKind
+from gyomu_python_analysis.project.workspace import (
+    WorkspaceRoot,
+    WorkspaceRootKind,
+)
 from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Success

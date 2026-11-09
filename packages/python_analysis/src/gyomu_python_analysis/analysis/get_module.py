@@ -1,10 +1,9 @@
-from gyomu_infra.filesystem.file_io import read_json, write_json
-from gyomu_infra.logger import logger
+from gyomu_infra.filesystem.file_io import get_file_stat
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
-from returns.result import Failure, Result, Success
+from returns.result import Failure, Result
 
 from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.error.analysis import AnalysisError
@@ -13,6 +12,22 @@ from gyomu_python_analysis.path.conversion import (
     source_relative_path_to_python_path,
 )
 from gyomu_python_analysis.project.context import ProjectContext
+
+
+def _check_cache_validity(source_path: FullPath, cache_path: FullPath) -> bool:
+    if source_path.exists() and cache_path.exists():
+        source_stat_result = get_file_stat(source_path)
+        if isinstance(source_stat_result, Failure):
+            return False
+        source_stat = source_stat_result.unwrap()
+        cache_stat_result = get_file_stat(cache_path)
+        if isinstance(cache_stat_result, Failure):
+            return False
+        cache_stat = cache_stat_result.unwrap()
+        if source_stat is not None and cache_stat is not None:
+            return source_stat.st_mtime_ns < cache_stat.st_mtime_ns
+
+    return False
 
 
 def get_module_analysis(
@@ -36,39 +51,42 @@ def get_module_analysis(
             success or AnalysisError on failure.
     """
 
-    cache_path = _get_cache_path(context, file_path)
+    # cache_path = _get_cache_path(context, file_path)
+    # source_path = context.project_root / file_path
 
-    if (option is None or not option.no_check_cache) and cache_path.exists():
-        cache_result = read_json(cache_path, ModuleAnalysis)
+    # if _check_cache_validity(source_path=source_path, cache_path=cache_path) and (
+    #     option is None or not option.no_check_cache
+    # ):
+    #     cache_result = read_json(cache_path, ModuleAnalysis)
 
-        if isinstance(cache_result, Success):
-            if (
-                file_hash is None
-                or file_hash == cache_result.unwrap().name == file_hash
-            ):
-                return cache_result
-        else:
-            message = (
-                f"fail to parse ModuleAnalysis on {cache_path}, \n"
-                f"error: {repr(cache_result.failure())}"
-            )
-            logger.error(message)
+    #     if isinstance(cache_result, Success):
+    #         if (
+    #             file_hash is None
+    #             or file_hash == cache_result.unwrap().name == file_hash
+    #         ):
+    #             return cache_result
+    #     else:
+    #         message = (
+    #             f"fail to parse ModuleAnalysis on {cache_path}, \n"
+    #             f"error: {repr(cache_result.failure())}"
+    #         )
+    #         logger.error(message)
 
     source_relative_path = project_relative_path_to_source_relative_path(
         path=file_path, context=context
     )
     module_path = source_relative_path_to_python_path(path=source_relative_path)
     result = load_module_analysis(context, module_path, option)
-    if isinstance(result, Success):
-        write_result = write_json(cache_path, result.unwrap(), ModuleAnalysis)
-        if isinstance(write_result, Failure):
-            return Failure(
-                AnalysisError(
-                    "fail to write ModuleAnalysis",
-                    file_path=module_path,
-                    phase="analysis",
-                ).chain(write_result.failure())
-            )
+    # if isinstance(result, Success):
+    #     write_result = write_json(cache_path, result.unwrap(), ModuleAnalysis)
+    #     if isinstance(write_result, Failure):
+    #         return Failure(
+    #             AnalysisError(
+    #                 "fail to write ModuleAnalysis",
+    #                 file_path=module_path,
+    #                 phase="analysis",
+    #             ).chain(write_result.failure())
+    #         )
 
     return result
 

@@ -8,7 +8,6 @@ from gyomu_python_analysis.analysis.initialize import (
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.cls import resolve_class_analysis
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
     ModelDefaults,
@@ -30,16 +29,13 @@ def assemble_model_defaults(
     project_context: ProjectContext,
     workspace: WorkspaceContext,
 ) -> None:
-    file_analysis_cache = FileAnalysisCache(workspace_context=workspace)
     for inventory in file_inventory.items:
         model_class_name = inventory.target_identity.get_symbol_name()
         model_path = inventory.target_identity.get_module_name()
         model_default_list = model_defaults_by_module.setdefault(model_path, [])
 
         class_result = resolve_class_analysis(
-            declaration_identity=inventory.target_identity,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            declaration_identity=inventory.target_identity, workspace_context=workspace
         )
         if isinstance(class_result, Failure):
             logger.error_object(class_result.failure())

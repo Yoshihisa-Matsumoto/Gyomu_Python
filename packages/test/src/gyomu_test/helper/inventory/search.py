@@ -8,7 +8,6 @@ from gyomu_python_analysis.project.workspace import (
 )
 from gyomu_python_analysis.resolve.models import SymbolType
 from gyomu_python_analysis.resolve.type_reference import resolve_type_analysis
-from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.function_analysis import FunctionAnalysis
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
@@ -41,8 +40,8 @@ def _get_helper_file_paths(
             result.append((test_project_context, test_path))
 
     if model_project_context is None:
-        model_search_result = workspace_context.find_workspace_file_analysis_context(
-            model_identity.get_module_name()
+        model_search_result = workspace_context.find_file_analysis_context(
+            target_identity=model_identity
         )
         if isinstance(model_search_result, Failure):
             return model_search_result.alt(
@@ -160,13 +159,11 @@ def _get_helper_candidates(
 
     root_context = root_context_result.unwrap()
     helper_file_paths = helper_file_paths_result.unwrap()
-    analysis_option = AnalysisOption(no_check_cache=True)
     for project_context, helper_file_path in helper_file_paths:
         file_path = ProjectRelativePath(project_context.config.path / helper_file_path)
         file_result = load_file_analysis_context(
             context=root_context,
             file_path=file_path,
-            option=analysis_option,
         )
         if isinstance(file_result, Failure):
             return file_result.alt(

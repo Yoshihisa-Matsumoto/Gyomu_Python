@@ -32,7 +32,7 @@ def resolve_reference_file_analysis_context(
         return Success(None)
 
     return (
-        workspace.find_workspace_file_analysis_context(reference.module_path)
+        workspace.find_file_analysis_context_by_module_path(reference.module_path)
         .alt(
             lambda error: ResolveError(
                 message="fail to find file analysis context",

@@ -143,7 +143,6 @@ def build_docstring_update_option(
             docstring_update_context=True,
             keyword=log_keyword,
         ),
-        no_check_cache=True,
     )
 
 

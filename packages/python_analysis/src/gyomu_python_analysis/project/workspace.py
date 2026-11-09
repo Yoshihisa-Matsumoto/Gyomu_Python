@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
-from gyomu_schema.schemas.python.types import PythonPath
+from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath, SymbolId
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
@@ -17,6 +17,38 @@ from gyomu_python_analysis.project.context import (
     PyProjectConfig,
     WorkspaceProject,
 )
+
+
+class _FileAnalysisCache:
+    def __init__(self) -> None:
+        self._cache: dict[PythonPath, FileAnalysisContext] = {}
+
+    def get_file_analysis_context(
+        self,
+        project_context: ProjectContext,
+        identity: DeclarationIdentity,
+    ) -> Result[FileAnalysisContext, AnalysisError]:
+        python_path = identity.get_module_name()
+        context = self._cache.get(python_path)
+        if context is not None:
+            return Success(context)
+        file_path = python_path_to_source_project_relative_path(
+            path=python_path, context=project_context
+        )
+        context_result = load_file_analysis_context(
+            context=project_context,
+            file_path=file_path,
+        )
+        if isinstance(context_result, Failure):
+            return context_result
+        return Success(self._cache.setdefault(python_path, context_result.unwrap()))
+
+    def invalidate_file_analysis(
+        self,
+        module_path: PythonPath,
+    ) -> None:
+        if self._cache.get(module_path) is not None:
+            self._cache.pop(module_path)
 
 
 @dataclass
@@ -35,6 +67,7 @@ class WorkspaceContext:
         self.config = config
         self.projects = projects
         self._project_indexes: dict[str, ProjectContext] = {}
+        self._file_analysis_cache = _FileAnalysisCache()
 
     def _initialize_project_indexes(self) -> None:
         for project in self.projects:
@@ -42,9 +75,8 @@ class WorkspaceContext:
             for package_root in project_context.package_roots:
                 self._project_indexes[package_root.module_name] = project_context
 
-    def find_workspace_file_analysis_context(
-        self,
-        module_path: PythonPath,
+    def find_file_analysis_context_by_module_path(
+        self, module_path: PythonPath
     ) -> Result[tuple[FileAnalysisContext, ProjectContext] | None, AnalysisError]:
         """Find analysis context for a module in a workspace-managed package.
 
@@ -52,6 +84,23 @@ class WorkspaceContext:
         managed by the workspace. Returns Failure when the package is managed but
         the target module does not exist or cannot be analyzed.
         """
+        return self.find_file_analysis_context(
+            DeclarationIdentity.create_from_symbol_id(
+                symbol_id=SymbolId(f"{module_path}::Test")
+            )
+        )
+
+    def find_file_analysis_context(
+        self,
+        target_identity: DeclarationIdentity,
+    ) -> Result[tuple[FileAnalysisContext, ProjectContext] | None, AnalysisError]:
+        """Find analysis context for a module in a workspace-managed package.
+
+        Gyomu Context: Returns Success(None) when the module's root package is not
+        managed by the workspace. Returns Failure when the package is managed but
+        the target module does not exist or cannot be analyzed.
+        """
+        module_path = target_identity.get_module_name()
         if len(self._project_indexes) == 0:
             self._initialize_project_indexes()
         root_module_name = module_path.split(".")[0]
@@ -71,9 +120,15 @@ class WorkspaceContext:
                         details={"project_name": target_package.config.name},
                     )
                 )
-            return load_file_analysis_context(target_package, project_source_path).bind(
-                lambda file: Success((file, target_package))
-            )
+            return self._file_analysis_cache.get_file_analysis_context(
+                target_package, target_identity
+            ).bind(lambda file: Success((file, target_package)))
+
+    def invalidate_file_analysis(
+        self,
+        module_path: PythonPath,
+    ) -> None:
+        self._file_analysis_cache.invalidate_file_analysis(module_path)
 
 
 class WorkspaceRootKind(Enum):

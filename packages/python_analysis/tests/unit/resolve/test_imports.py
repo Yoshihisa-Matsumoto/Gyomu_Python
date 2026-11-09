@@ -117,7 +117,7 @@ class TestResolveReferenceFileAnalysisContext:
 
         assert isinstance(result, Success)
         assert result.unwrap() is None
-        workspace.find_workspace_file_analysis_context.assert_not_called()
+        workspace.find_file_analysis_context_by_module_path.assert_not_called()
 
     def test_resolves_existing_module(
         self,
@@ -136,7 +136,9 @@ class TestResolveReferenceFileAnalysisContext:
     def test_propagates_failure(self) -> None:
         workspace = Mock(spec=WorkspaceContext)
         error = create_analysis_error()
-        workspace.find_workspace_file_analysis_context.return_value = Failure(error)
+        workspace.find_file_analysis_context_by_module_path.return_value = Failure(
+            error
+        )
         reference = make_user_model_reference()
 
         result = resolve_reference_file_analysis_context(
@@ -272,7 +274,9 @@ class TestResolveReferenceSymbol:
     def test_propagates_failure(self) -> None:
         workspace = Mock(spec=WorkspaceContext)
         error = create_analysis_error()
-        workspace.find_workspace_file_analysis_context.return_value = Failure(error)
+        workspace.find_file_analysis_context_by_module_path.return_value = Failure(
+            error
+        )
         reference = make_user_model_reference()
 
         result = resolve_reference_symbol(

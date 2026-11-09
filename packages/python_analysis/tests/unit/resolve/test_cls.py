@@ -1,9 +1,7 @@
 from pathlib import Path
-from typing import cast
 
 import pytest
 from gyomu_python_analysis.analysis.initialize import (
-    initialize_project_context,
     initialize_project_from_workspace,
 )
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
@@ -21,7 +19,6 @@ from gyomu_python_analysis.resolve.cls import (
     is_dataclass_class,
     resolve_class_analysis,
 )
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.types import (
@@ -38,11 +35,11 @@ from packages.python_analysis.test_support.helpers import (
     FIXTURES_ROOT,
     MONOREPO_FIXTURES_ROOT,
     create_analysis_error,
+    create_workspace_root,
 )
 from packages.schema.test_support.helpers import (
     build_file_analysis_context,
     create_class_analysis,
-    create_variable_analysis,
 )
 
 
@@ -488,36 +485,27 @@ class TestResolveClassAnalysis:
         )
         class_analysis = create_class_analysis(identity=identity)
         file_analysis_context = build_file_analysis_context(symbol=class_analysis)
-        project_context = initialize_project_context(
-            project_root=FIXTURES_ROOT,
-            source_root=ProjectRelativePath(Path("src")),
+        workspace_context = initialize_workspace_context(
+            create_workspace_root(
+                path=FIXTURES_ROOT, kind=WorkspaceRootKind.STANDALONE_PROJECT
+            )
         ).unwrap()
 
         file_analysis_context.metadata.symbols[identity] = class_analysis
 
-        file_analysis_cache = mocker.create_autospec(
-            FileAnalysisCache,
-            instance=True,
-        )
-        file_analysis_cache.get_file_analysis_context.return_value = Success(
-            file_analysis_context
+        mocker.patch(
+            "gyomu_python_analysis.resolve.cls.resolve_workspace_symbol_analysis",
+            return_value=Success((file_analysis_context, class_analysis)),
         )
 
         result = resolve_class_analysis(
-            declaration_identity=identity,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            declaration_identity=identity, workspace_context=workspace_context
         )
 
         assert isinstance(result, Success)
         file_analysis, symbol = result.unwrap()
         assert file_analysis is file_analysis_context
         assert symbol is class_analysis
-
-        file_analysis_cache.get_file_analysis_context.assert_called_once_with(
-            project_context=project_context,
-            identity=identity,
-        )
 
     def test_symbol_resolution_failure_is_propagated(
         self,
@@ -527,32 +515,29 @@ class TestResolveClassAnalysis:
             symbol_id=SymbolId("project_a.models::product_name"),
             declaration_id=DeclarationId("."),
         )
-        project_context = initialize_project_context(
-            project_root=FIXTURES_ROOT,
-            source_root=ProjectRelativePath(Path("src")),
-        ).unwrap()
 
         expected_error = create_analysis_error()
 
-        file_analysis_cache = cast(FileAnalysisCache, mocker.Mock())
-        resolve_symbol_analysis_mock = mocker.patch(
-            "gyomu_python_analysis.resolve.cls.resolve_symbol_analysis",
+        workspace_context = initialize_workspace_context(
+            create_workspace_root(
+                path=FIXTURES_ROOT, kind=WorkspaceRootKind.STANDALONE_PROJECT
+            )
+        ).unwrap()
+        resolve_workspace_symbol_analysis_mock = mocker.patch(
+            "gyomu_python_analysis.resolve.cls.resolve_workspace_symbol_analysis",
             return_value=Failure(expected_error),
         )
 
         result = resolve_class_analysis(
-            declaration_identity=identity,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            declaration_identity=identity, workspace_context=workspace_context
         )
 
         assert isinstance(result, Failure)
         assert result.failure() is expected_error
 
-        resolve_symbol_analysis_mock.assert_called_once_with(
+        resolve_workspace_symbol_analysis_mock.assert_called_once_with(
             identity,
-            project_context,
-            file_analysis_cache,
+            workspace_context=workspace_context,
         )
 
     def test_symbol_is_not_class(self, mocker: MockerFixture) -> None:
@@ -562,29 +547,19 @@ class TestResolveClassAnalysis:
         )
 
         # 実際の SymbolAnalysis 型の fixture を使う。
-        file_analysis_context = build_file_analysis_context(
-            symbol=create_variable_analysis(identity=identity)
-        )
-        project_context = initialize_project_context(
-            project_root=FIXTURES_ROOT,
-            source_root=ProjectRelativePath(Path("src")),
-        ).unwrap()
 
-        file_analysis_cache = mocker.create_autospec(
-            FileAnalysisCache,
-            instance=True,
-        )
-        file_analysis_cache.get_file_analysis_context.return_value = Success(
-            file_analysis_context
-        )
+        workspace_context = initialize_workspace_context(
+            create_workspace_root(
+                path=FIXTURES_ROOT, kind=WorkspaceRootKind.STANDALONE_PROJECT
+            )
+        ).unwrap()
 
         result = resolve_class_analysis(
             declaration_identity=identity,
-            project_context=project_context,
-            file_analysis_cache=file_analysis_cache,
+            workspace_context=workspace_context,
         )
 
         assert isinstance(result, Failure)
         error = result.failure()
-        assert error.message == "symbol is not class"
+        assert error.message == "symbol is not resolved class"
         assert error.details == {"identity": identity}

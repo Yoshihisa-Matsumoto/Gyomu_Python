@@ -10,7 +10,6 @@ from gyomu_python_analysis.resolve.cls import (
     is_dataclass_class,
 )
 from gyomu_python_analysis.resolve.models import ClassResolutionCollection
-from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
     ModelDefaults,
@@ -229,7 +228,6 @@ def collect_model_helper_inventory(
         file_result = load_file_analysis_context(
             project,
             file,
-            option=AnalysisOption(no_check_cache=True),
         )
         if isinstance(file_result, Failure):
             return file_result.alt(

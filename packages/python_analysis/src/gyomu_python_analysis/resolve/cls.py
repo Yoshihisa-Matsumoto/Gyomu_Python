@@ -8,9 +8,7 @@ from gyomu_python_analysis.analysis.query import (
     find_symbol_by_name,
 )
 from gyomu_python_analysis.error.resolve import ResolveError
-from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
-from gyomu_python_analysis.resolve.file_analysis_cache import FileAnalysisCache
 from gyomu_python_analysis.resolve.imports import (
     resolve_reference_file_analysis_context,
     resolve_referenced_symbol,
@@ -24,7 +22,9 @@ from gyomu_python_analysis.resolve.models import (
 )
 from gyomu_python_analysis.resolve.path import normalize_reference_name
 from gyomu_python_analysis.resolve.reference import resolve_reference
-from gyomu_python_analysis.resolve.symbol import resolve_symbol_analysis
+from gyomu_python_analysis.resolve.symbol import (
+    resolve_workspace_symbol_analysis,
+)
 
 
 def _register_identity(
@@ -231,22 +231,21 @@ def inherits_from_pydantic_basemodel(
 
 
 def resolve_class_analysis(
-    declaration_identity: DeclarationIdentity,
-    project_context: ProjectContext,
-    file_analysis_cache: FileAnalysisCache,
+    declaration_identity: DeclarationIdentity, workspace_context: WorkspaceContext
 ) -> Result[tuple[FileAnalysisContext, ClassAnalysis], ResolveError]:
-    symbol_result = resolve_symbol_analysis(
-        declaration_identity, project_context, file_analysis_cache
+    symbol_result = resolve_workspace_symbol_analysis(
+        declaration_identity, workspace_context=workspace_context
     )
     if isinstance(symbol_result, Failure):
         return symbol_result
     record = symbol_result.unwrap()
-    file_analysis, symbol = record
-    if isinstance(symbol, ClassAnalysis):
-        return Success((file_analysis, symbol))
+    if record is not None:
+        file_analysis, symbol = record
+        if isinstance(symbol, ClassAnalysis):
+            return Success((file_analysis, symbol))
     return Failure(
         ResolveError(
-            message="symbol is not class",
+            message="symbol is not resolved class",
             reference=declaration_identity.get_module_name(),
             details={"identity": declaration_identity},
         )
