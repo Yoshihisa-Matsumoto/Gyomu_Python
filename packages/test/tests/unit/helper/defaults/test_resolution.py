@@ -34,7 +34,11 @@ from gyomu_test.helper.defaults.resolution import (
 )
 from returns.result import Failure, Success
 
-from packages.schema.test_support.helpers import create_config_error
+from packages.schema.test_support.helpers import (
+    create_config_error,
+    create_parameter_default,
+    create_primitive_default,
+)
 
 
 class TestFindMissingFunctionParameterDefaults:
@@ -432,16 +436,27 @@ class TestDefaultResolvers:
     class TestPrimitiveDefaultResolverExtract:
         def test_extracts_matching_primitive_default(self):
             # expected = cast(PrimitiveDefault, Mock())
-            other = Mock()
+            other = create_primitive_default(
+                type_name="str",
+                variable_name="other",
+                parameters=(create_parameter_default(),),
+            )
             other.variable_name = "other"
             other.type_name = "str"
 
-            matching = Mock()
-            matching.variable_name = "value"
-            matching.type_name = "str"
+            matching = create_primitive_default(
+                type_name="str",
+                variable_name="value",
+                parameters=(create_parameter_default(),),
+            )
 
+            primitives = Mock()
+            primitives.defaults_per_variable_name = {
+                "other": other.parameters,
+                "value": matching.parameters,
+            }
             config = Mock()
-            config.primitives = [other, matching]
+            config.primitives_per_type = {"str": primitives}
 
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_primitive_type(
@@ -467,7 +482,7 @@ class TestDefaultResolvers:
 
         def test_returns_none_when_primitive_default_is_missing(self):
             config = Mock()
-            config.primitives = []
+            config.primitives_per_type = {}
 
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_primitive_type(),
@@ -488,12 +503,16 @@ class TestDefaultResolvers:
             assert result == Success(None)
 
         def test_extracts_literal_default_using_value_type_name(self):
-            matching = Mock()
-            matching.variable_name = "value"
-            matching.type_name = "str"
+            matching = create_primitive_default(
+                type_name="str",
+                variable_name="value",
+                parameters=(create_parameter_default(),),
+            )
 
+            primitives = Mock()
+            primitives.defaults_per_variable_name = {"value": matching.parameters}
             config = Mock()
-            config.primitives = [matching]
+            config.primitives_per_type = {"str": primitives}
 
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_literal_type(

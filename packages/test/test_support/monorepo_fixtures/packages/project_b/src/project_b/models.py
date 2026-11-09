@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+from enum import StrEnum
 
 from pydantic import BaseModel
-
 
 class ProductBaseModel(BaseModel):
     """Represent the common product fields."""

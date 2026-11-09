@@ -331,7 +331,7 @@ class TestBuildDocstringUpdateOption:
                 docstring_update_context=True,
                 keyword="test-keyword",
             ),
-            no_check_cache=True,
+            no_check_cache=False,
         )
 
     def test_builds_option_without_log_keyword(self) -> None:
@@ -347,7 +347,7 @@ class TestBuildDocstringUpdateOption:
                 docstring_update_context=True,
                 keyword=None,
             ),
-            no_check_cache=True,
+            no_check_cache=False,
         )
 
 

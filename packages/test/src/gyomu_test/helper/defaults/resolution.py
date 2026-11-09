@@ -1,4 +1,4 @@
-from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
     WorkspaceRoot,
@@ -50,6 +50,23 @@ def _get_config_path(root_path: FullPath) -> FullPath:
     return root_path / ".gyomu" / "config"
 
 
+def _get_workspace_config_path(workspace_root: WorkspaceRoot) -> FullPath:
+    return _get_config_path(workspace_root.path) / "$Workspace.default.json"
+
+
+def _get_project_config_path(project_context: ProjectContext) -> FullPath:
+    return _get_config_path(project_context.project_root) / "$Package.default.json"
+
+
+def _get_project_config_path_from_workspace(
+    workspace_root: WorkspaceRoot, workspace_project: WorkspaceProject
+) -> FullPath:
+    return (
+        _get_config_path(workspace_root.path / workspace_project.path)
+        / "$Package.default.json"
+    )
+
+
 class PrimitiveDefaultConfigContext:
     type_default: PrimitiveType | LiteralValueType
     workspace_root: WorkspaceRoot
@@ -98,10 +115,7 @@ class SymbolDefaultResolver:
         workspace_context = context.workspace_context
         project_context = context.project_context
         workspace_root = context.workspace_root
-        paths.append(
-            _get_config_path(context.project_context.project_root)
-            / "$Package.default.json"
-        )
+        paths.append(_get_project_config_path(context.project_context))
 
         if isinstance(type_default, SymbolType):
             model_kind_result = _get_model_kind(
@@ -139,16 +153,14 @@ class SymbolDefaultResolver:
                     )
 
                 paths.append(
-                    _get_config_path(
-                        workspace_root.path / workspace_project_result.unwrap().path
+                    _get_project_config_path_from_workspace(
+                        workspace_root=workspace_root,
+                        workspace_project=workspace_project_result.unwrap(),
                     )
-                    / "$Package.default.json"
                 )
 
         if workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE:
-            paths.append(
-                _get_config_path(workspace_root.path) / "$Workspace.default.json"
-            )
+            paths.append(_get_workspace_config_path(workspace_root))
 
         return Success(tuple(paths))
 
@@ -182,15 +194,10 @@ class PrimitiveDefaultResolver:
     ) -> Result[tuple[FullPath, ...], ConfigError]:
         paths: list[FullPath] = []
         workspace_root = context.workspace_root
-        paths.append(
-            _get_config_path(context.project_context.project_root)
-            / "$Package.default.json"
-        )
+        paths.append(_get_project_config_path(context.project_context))
 
         if workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE:
-            paths.append(
-                _get_config_path(workspace_root.path) / "$Workspace.default.json"
-            )
+            paths.append(_get_workspace_config_path(workspace_root))
 
         return Success(tuple(paths))
 
@@ -198,28 +205,20 @@ class PrimitiveDefaultResolver:
         self, config: PackageModelDefaults, context: PrimitiveDefaultConfigContext
     ) -> Result[PrimitiveDefault | None, ConfigError]:
         type_default = context.type_default
-
-        if isinstance(type_default, PrimitiveType):
-            return Success(
-                next(
-                    (
-                        primitive
-                        for primitive in config.primitives
-                        if primitive.variable_name == type_default.parameter_name
-                        and primitive.type_name == type_default.primitive_type
-                    ),
-                    None,
-                )
+        parameter_name = type_default.parameter_name
+        type_name = (
+            type_default.primitive_type
+            if isinstance(type_default, PrimitiveType)
+            else type(type_default.value).__name__
+        )
+        primitives = config.primitives_per_type.get(type_name)
+        if primitives is None:
+            return Success(None)
+        defaults = primitives.defaults_per_variable_name.get(parameter_name)
+        if defaults is None:
+            return Success(None)
+        return Success(
+            PrimitiveDefault(
+                type_name=type_name, variable_name=parameter_name, parameters=defaults
             )
-        else:
-            return Success(
-                next(
-                    (
-                        primitive
-                        for primitive in config.primitives
-                        if primitive.variable_name == type_default.parameter_name
-                        and primitive.type_name == type(type_default.value).__name__
-                    ),
-                    None,
-                )
-            )
+        )

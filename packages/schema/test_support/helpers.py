@@ -21,6 +21,7 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ParameterDefault,
     ParameterExpressionType,
     PrimitiveDefault,
+    PrimitiveDefaults,
     TupleParameter,
 )
 from gyomu_schema.schemas.python.class_analysis import (
@@ -794,14 +795,25 @@ def create_primitive_default(
     )
 
 
+def create_primitive_defaults(
+    defaults_per_variable_name: dict[str, tuple[ParameterDefault, ...]] = {
+        "var": (create_parameter_default(),),
+    },
+) -> PrimitiveDefaults:
+    return PrimitiveDefaults(defaults_per_variable_name=defaults_per_variable_name)
+
+
 def create_package_model_defaults(
     models_per_module_path: dict[PythonPath, ModelDefaults] = {
         PythonPath("test"): create_model_defaults()
     },
-    primitives: tuple[PrimitiveDefault, ...] = (create_primitive_default(),),
+    primitives_per_type: dict[str, PrimitiveDefaults] = {
+        "str": create_primitive_defaults()
+    },
 ) -> PackageModelDefaults:
     return PackageModelDefaults(
-        models_per_module_path=models_per_module_path, primitives=primitives
+        models_per_module_path=models_per_module_path,
+        primitives_per_type=primitives_per_type,
     )
 
 

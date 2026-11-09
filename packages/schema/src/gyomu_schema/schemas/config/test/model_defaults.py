@@ -127,6 +127,10 @@ class PrimitiveDefault(BaseModel):
     parameters: tuple[ParameterDefault, ...]
 
 
+class PrimitiveDefaults(BaseModel):
+    defaults_per_variable_name: dict[str, tuple[ParameterDefault, ...]]
+
+
 class PackageModelDefaults(BaseModel):
     models_per_module_path: dict[PythonPath, ModelDefaults]
-    primitives: tuple[PrimitiveDefault, ...]
+    primitives_per_type: dict[str, PrimitiveDefaults]

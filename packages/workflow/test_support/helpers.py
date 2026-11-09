@@ -28,6 +28,10 @@ from packages.python_analysis.test_support.helpers import (
 )
 
 
+def create_file_filter(pattern: str = "test") -> FileFilter:
+    return FileFilter(pattern=pattern)
+
+
 def create_snapshot_target_option(
     all: bool = False, file_filter: FileFilter | None = None
 ) -> SnapshotTargetOption:

@@ -1,6 +1,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -31,7 +32,7 @@ class NameReferenceModel(BaseModel):
 
 
 class AttributeReferenceModel(BaseModel):
-    value: Color
+    value: Literal[Color.BLUE]
 
 
 class EmptyTupleModel(BaseModel):

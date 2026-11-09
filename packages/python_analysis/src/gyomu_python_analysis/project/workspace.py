@@ -47,8 +47,7 @@ class _FileAnalysisCache:
         self,
         module_path: PythonPath,
     ) -> None:
-        if self._cache.get(module_path) is not None:
-            self._cache.pop(module_path)
+        self._cache.pop(module_path, None)
 
 
 @dataclass

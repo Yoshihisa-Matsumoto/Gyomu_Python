@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import pytest
@@ -36,6 +36,7 @@ from packages.schema.test_support.helpers import (
     create_module_analysis,
     create_none_parameter,
     create_tuple_parameter,
+    create_type_analysis,
     simple_create_declaration_identity,
 )
 from packages.schema.test_support.testing_helpers import create_parameter_info
@@ -97,6 +98,7 @@ class TestResolveFunctionParameterDefaults:
     def test_with_function_parameter_default(
         self,
         helper_inventory_test_context: HelperInventoryTestContext,
+        mocker: MockerFixture,
     ) -> None:
         context = helper_inventory_test_context
 
@@ -298,6 +300,104 @@ class TestResolveFunctionParameterDefaults:
         assert isinstance(result, Success)
 
         parameters = result.unwrap()
+        validate_parameters(result=parameters, expected=expected_result)
+
+    def test_str_text_parameter(
+        self,
+        helper_inventory_test_context: HelperInventoryTestContext,
+        mocker: MockerFixture,
+    ) -> None:
+        context = helper_inventory_test_context
+
+        mocker.patch(
+            "gyomu_test.helper.inventory.expected.retrieve_config",
+            return_value=Success(None),
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
+        assert isinstance(inventory_result, Success)
+        inventories = inventory_result.unwrap()
+        inventory = get_inventory(inventories, "StringLiteralModel")
+        fake_type = create_type_analysis(text="str")
+        inventory = replace(
+            inventory,
+            parameters=(
+                replace(
+                    inventory.parameters[0],
+                    parameter_type=fake_type,
+                ),
+            ),
+        )
+        result = resolve_function_parameter_defaults(
+            inventory=inventory,
+            workspace_root=context.workspace_root,
+            workspace_context=context.workspace_context,
+            project_context=context.project_context,
+            config_manager=context.config_manager,
+        )
+
+        assert isinstance(result, Success)
+
+        parameters = result.unwrap()
+        expected_result: tuple[
+            ResolvedParameterDefault | MissingParameterDefault, ...
+        ] = (
+            create_missing_parameter_default(
+                parameter=create_parameter_info(name="value"),
+                missing_types=(
+                    create_primitive_type(parameter_name="value", primitive_type="str"),
+                ),
+            ),
+        )
+        validate_parameters(result=parameters, expected=expected_result)
+
+    def test_int_text_parameter(
+        self,
+        helper_inventory_test_context: HelperInventoryTestContext,
+        mocker: MockerFixture,
+    ) -> None:
+        context = helper_inventory_test_context
+
+        mocker.patch(
+            "gyomu_test.helper.inventory.expected.retrieve_config",
+            return_value=Success(None),
+        )
+        inventory_result = collect_model_helper_inventory(
+            context.project_context, context.workspace_context
+        )
+        assert isinstance(inventory_result, Success)
+        inventories = inventory_result.unwrap()
+        inventory = get_inventory(inventories, "IntegerLiteralModel")
+        fake_type = create_type_analysis(text="int")
+        inventory = replace(
+            inventory,
+            parameters=(
+                replace(
+                    inventory.parameters[0],
+                    parameter_type=fake_type,
+                ),
+            ),
+        )
+        result = resolve_function_parameter_defaults(
+            inventory=inventory,
+            workspace_root=context.workspace_root,
+            workspace_context=context.workspace_context,
+            project_context=context.project_context,
+            config_manager=context.config_manager,
+        )
+
+        assert isinstance(result, Success)
+
+        parameters = result.unwrap()
+        expected_result: tuple[
+            ResolvedParameterDefault | MissingParameterDefault, ...
+        ] = (
+            create_resolved_parameter_default(
+                parameter=create_parameter_info(name="value"),
+                default=create_literal_parameter(value=9),
+            ),
+        )
         validate_parameters(result=parameters, expected=expected_result)
 
     def test_file_analysis_failure(
