@@ -21,7 +21,7 @@ from gyomu_python_analysis.project.workspace import (
 
 def find_root(
     start_directory: FullPath,
-) -> Result[WorkspaceRoot, AnalysisError]:
+) -> Result[WorkspaceContext, AnalysisError]:
     """Finds the workspace root from a starting directory.
 
     Finds the workspace root directory by searching upwards from the given start
@@ -49,9 +49,10 @@ def find_root(
                 return toml_result
             toml_data = toml_result.unwrap()
             if is_uv_workspace(toml_data):
-                return Success(
-                    WorkspaceRoot(path=current, kind=WorkspaceRootKind.UV_WORKSPACE)
+                workspace_root = WorkspaceRoot(
+                    path=current, kind=WorkspaceRootKind.UV_WORKSPACE
                 )
+                return initialize_workspace_context(workspace_root)
 
         parent = current.parent
 
@@ -61,11 +62,10 @@ def find_root(
         current = FullPath(parent)
 
     if first_pyproject is not None:
-        return Success(
-            WorkspaceRoot(
-                path=first_pyproject, kind=WorkspaceRootKind.STANDALONE_PROJECT
-            )
+        workspace_root = WorkspaceRoot(
+            path=first_pyproject, kind=WorkspaceRootKind.STANDALONE_PROJECT
         )
+        return initialize_workspace_context(workspace_root)
 
     return Failure(
         AnalysisError(
@@ -181,7 +181,7 @@ def initialize_workspace_context(
             return project_config_result
         return Success(
             WorkspaceContext(
-                path=root.path,
+                workspace_root=root,
                 config=config_result.unwrap(),
                 projects=tuple(
                     [
@@ -224,7 +224,7 @@ def initialize_workspace_context(
             )
         return Success(
             WorkspaceContext(
-                path=root.path,
+                workspace_root=root,
                 config=config_result.unwrap(),
                 projects=tuple(projects),
             )
@@ -246,7 +246,7 @@ def enumerate_workspace_target_files(
     """
     files: list[WorkspaceRelativePath] = []
     concept_files = FileSearch.search(
-        workspace_context.path / ".gyomu" / "knowledge",
+        workspace_context.workspace_root.path / ".gyomu" / "knowledge",
         [
             FileFilterInfo(
                 kind=FileFilterType.FILE_NAME,
@@ -257,7 +257,9 @@ def enumerate_workspace_target_files(
     )
     for info in concept_files:
         files.append(
-            WorkspaceRelativePath(info.full_path.relative_to(workspace_context.path))
+            WorkspaceRelativePath(
+                info.full_path.relative_to(workspace_context.workspace_root.path)
+            )
         )
 
     return tuple(files)

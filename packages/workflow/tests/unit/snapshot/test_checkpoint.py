@@ -563,7 +563,7 @@ class TestGetWorkspaceFingerprint:
             hash="WORKSPACE_HASH",
         )
         calculate_hash.assert_called_once_with(
-            workspace_path=snapshot_request.workspace.path,
+            workspace_path=snapshot_request.workspace.workspace_root.path,
             paths=paths,
         )
 

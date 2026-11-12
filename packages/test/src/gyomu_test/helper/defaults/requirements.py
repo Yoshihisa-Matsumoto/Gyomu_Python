@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from gyomu_config.manager import ConfigManager
 from gyomu_python_analysis.path.conversion import source_relative_path_to_python_path
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceRoot
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
     PackageType,
@@ -113,7 +113,6 @@ class ConfiguredParameterDefault:
 class ParameterConfigurationContext:
     parameter: ParameterInfo
     module: ModuleAnalysis
-    workspace_root: WorkspaceRoot
     workspace_context: WorkspaceContext
     project_context: ProjectContext
     config_manager: ConfigManager
@@ -123,7 +122,6 @@ class ParameterConfigurationContext:
         self,
         parameter: ParameterInfo,
         module: ModuleAnalysis,
-        workspace_root: WorkspaceRoot,
         workspace_context: WorkspaceContext,
         project_context: ProjectContext,
         config_manager: ConfigManager,
@@ -131,7 +129,6 @@ class ParameterConfigurationContext:
     ) -> None:
         self.parameter = parameter
         self.module = module
-        self.workspace_root = workspace_root
         self.workspace_context = workspace_context
         self.project_context = project_context
         self.config_manager = config_manager
@@ -139,13 +136,11 @@ class ParameterConfigurationContext:
 
 
 def _find_helper_function_declaration_identity(
-    workspace_root: WorkspaceRoot,
     workspace_context: WorkspaceContext,
     resolved_symbol: SymbolType,
 ) -> Result[DeclarationIdentity, GyomuTestError]:
     workspace_project_result = find_workspace_project(
         file_context=resolved_symbol.context,
-        workspace_root=workspace_root,
         workspace_context=workspace_context,
     )
     if isinstance(workspace_project_result, Failure):
@@ -174,7 +169,6 @@ def _find_helper_function_declaration_identity(
 
 def _create_parameter(
     resolved_type: ResolvedType,
-    workspace_root: WorkspaceRoot,
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
@@ -182,7 +176,6 @@ def _create_parameter(
     if isinstance(resolved_type, PrimitiveType | LiteralValueType):
         context = PrimitiveDefaultConfigContext(
             type_default=resolved_type,
-            workspace_root=workspace_root,
             workspace_context=workspace_context,
             project_context=project_context,
         )
@@ -211,7 +204,6 @@ def _create_parameter(
         model_kind = model_kind_result.unwrap()
         if model_kind is not None:
             helper_identity_result = _find_helper_function_declaration_identity(
-                workspace_root=workspace_root,
                 workspace_context=workspace_context,
                 resolved_symbol=resolved_type,
             )
@@ -223,7 +215,6 @@ def _create_parameter(
         else:
             symbol_context = SymbolDefaultConfigContext(
                 type_default=resolved_type,
-                workspace_root=workspace_root,
                 workspace_context=workspace_context,
                 project_context=project_context,
             )
@@ -266,7 +257,6 @@ def _resolve_parameter_default(
             return Failure(GyomuTestError("should be primitive type"))
         primitive_context = PrimitiveDefaultConfigContext(
             type_default=resolved_type,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
         )
@@ -308,7 +298,6 @@ def _resolve_name_structure(
     name_structure = name_structure_result.unwrap()
     name_parameter_result = _create_parameter(
         resolved_type=name_structure,
-        workspace_root=context.workspace_root,
         workspace_context=context.workspace_context,
         project_context=context.project_context,
         config_manager=context.config_manager,
@@ -548,7 +537,6 @@ def _resolve_type_expression(
 
 def resolve_function_parameter_defaults(
     inventory: HelperInventoryItem,
-    workspace_root: WorkspaceRoot,
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
@@ -583,7 +571,6 @@ def resolve_function_parameter_defaults(
         context = ParameterConfigurationContext(
             parameter=parameter,
             module=file_analysis_context[0].analysis,
-            workspace_root=workspace_root,
             workspace_context=workspace_context,
             project_context=project_context,
             config_manager=config_manager,

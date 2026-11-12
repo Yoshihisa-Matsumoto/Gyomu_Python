@@ -7,6 +7,7 @@ from gyomu_concept.document.path.knowledge import (
 )
 from gyomu_concept.error.document import DocumentBuilderError
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.option.concept import ConceptActionOption, ConceptOption
 from gyomu_schema.schemas.types import FullPath
 from pytest_mock import MockerFixture
@@ -62,9 +63,14 @@ class TestGetRootKnowledgePath:
         context: ProjectContext,
     ) -> None:
         repository_root = Path("/repository")
+
+        workspace_context = mocker.Mock(WorkspaceContext)
+        workspace_context.workspace_root = create_workspace_root(
+            path=FullPath(repository_root)
+        )
         mocker.patch(
             "gyomu_concept.document.path.knowledge.find_root",
-            return_value=Success(create_workspace_root(path=FullPath(repository_root))),
+            return_value=Success(workspace_context),
         )
 
         result = get_root_knowledge_path(context)
@@ -78,9 +84,13 @@ class TestGetRootKnowledgePath:
         context: ProjectContext,
     ) -> None:
         repository_root = Path("/repository")
+        workspace_context = mocker.Mock(WorkspaceContext)
+        workspace_context.workspace_root = create_workspace_root(
+            path=FullPath(repository_root)
+        )
         mocker.patch(
             "gyomu_concept.document.path.knowledge.find_root",
-            return_value=Success(create_workspace_root(path=FullPath(repository_root))),
+            return_value=Success(workspace_context),
         )
 
         result = get_root_knowledge_path(

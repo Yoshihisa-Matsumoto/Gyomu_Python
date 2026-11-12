@@ -22,7 +22,8 @@ def reconcile_helper_inventories(
     # additional_filename: str | None = None,
 ) -> None:
     project_context = initialize_project_from_workspace(
-        workspace_path=workspace_context.path, project=workspace_project_context
+        workspace_path=workspace_context.workspace_root.path,
+        project=workspace_project_context,
     )
     expected_result = collect_model_helper_inventory(project_context, workspace_context)
 
@@ -32,7 +33,7 @@ def reconcile_helper_inventories(
     expected = expected_result.unwrap()
 
     root_context_result = initialize_project_context(
-        project_root=workspace_context.path,
+        project_root=workspace_context.workspace_root.path,
         source_root=ProjectRelativePath(Path(".")),
     )
     assert isinstance(root_context_result, Success)

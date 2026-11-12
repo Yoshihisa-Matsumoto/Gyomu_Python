@@ -139,12 +139,21 @@ def create_workspace_project(
     return WorkspaceProject(path=path, config=config)
 
 
+def create_workspace_root(
+    path: FullPath = FIXTURES_ROOT,
+    kind: WorkspaceRootKind = WorkspaceRootKind.UV_WORKSPACE,
+) -> WorkspaceRoot:
+    return WorkspaceRoot(path=path, kind=kind)
+
+
 def create_workspace_context(
-    path: FullPath = FullPath(Path("tmp")),
+    workspace_root: WorkspaceRoot = create_workspace_root(),
     config: PyProjectConfig = create_py_project_config(),
     projects: tuple[WorkspaceProject, ...] = (create_workspace_project(),),
 ) -> WorkspaceContext:
-    return WorkspaceContext(path=path, config=config, projects=projects)
+    return WorkspaceContext(
+        workspace_root=workspace_root, config=config, projects=projects
+    )
 
 
 def _create_context() -> ProjectContext:
@@ -199,13 +208,6 @@ def create_project_snapshot(
     ),
 ) -> ProjectSnapshot:
     return ProjectSnapshot(project_root=project_root, files=files)
-
-
-def create_workspace_root(
-    path: FullPath = FIXTURES_ROOT,
-    kind: WorkspaceRootKind = WorkspaceRootKind.UV_WORKSPACE,
-) -> WorkspaceRoot:
-    return WorkspaceRoot(path=path, kind=kind)
 
 
 def create_analyze_project_change(

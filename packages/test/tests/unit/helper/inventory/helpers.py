@@ -131,7 +131,7 @@ def _to_workspace_relative_path(
     path: ProjectRelativePath, project: ProjectContext, workspace: WorkspaceContext
 ) -> WorkspaceRelativePath:
     full_path = project.project_root / path
-    return WorkspaceRelativePath(full_path.relative_to(workspace.path))
+    return WorkspaceRelativePath(full_path.relative_to(workspace.workspace_root.path))
 
 
 def error_contains_missing_parameter_type_annotation(

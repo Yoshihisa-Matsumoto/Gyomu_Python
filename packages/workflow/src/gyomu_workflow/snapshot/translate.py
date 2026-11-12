@@ -23,11 +23,11 @@ def translate_snapshot_request(
     """
 
     project_context = initialize_project_from_workspace(
-        workspace_context.path, target_package
+        workspace_context.workspace_root.path, target_package
     )
 
     return SnapshotRequest(
-        repository_root_path=workspace_context.path,
+        repository_root_path=workspace_context.workspace_root.path,
         project_context=project_context,
         option=option,
         project=target_package,

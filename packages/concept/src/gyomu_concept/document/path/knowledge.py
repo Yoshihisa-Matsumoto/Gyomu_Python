@@ -55,7 +55,7 @@ def get_root_knowledge_path(
                 package_name=context.config.name,
             )
         )
-    workspace_root = repository_root_result.unwrap().path
+    workspace_root = repository_root_result.unwrap().workspace_root.path
     return Success(
         workspace_root
         / ".gyomu"

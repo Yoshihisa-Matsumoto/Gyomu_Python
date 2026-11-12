@@ -4,7 +4,6 @@ from gyomu_infra.logger import logger
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.workspace import (
     find_root,
-    initialize_workspace_context,
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.context import ProjectContext
@@ -48,20 +47,7 @@ def build_package_analysis(
                 identity=None,
             ).chain(error)
         )
-    workspace = root_result.unwrap()
-    workspace_result = initialize_workspace_context(workspace)
-    if isinstance(workspace_result, Failure):
-        logger.error_object(workspace_result.failure())
-        return workspace_result.alt(
-            lambda error: ConceptError(
-                message="fail to build package analysis",
-                file_path=context.project_root,
-                package_name=context.config.name,
-                phase="package-concept",
-                identity=None,
-            ).chain(error)
-        )
-    workspace_context = workspace_result.unwrap()
+    workspace_context = root_result.unwrap()
 
     aggregate_result = _aggregate_file_and_load_directory(context, option)
     if isinstance(aggregate_result, Failure):

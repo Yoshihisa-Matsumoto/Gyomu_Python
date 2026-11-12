@@ -138,7 +138,7 @@ def _get_workspace_fingerprint(
 
     files = enumerate_workspace_target_files(request.workspace)
     hash_result = _calculate_workspace_hash(
-        workspace_path=request.workspace.path, paths=files
+        workspace_path=request.workspace.workspace_root.path, paths=files
     )
     if isinstance(hash_result, Failure):
         return hash_result

@@ -77,7 +77,7 @@ def migrate(
 ) -> None:
 
     root_context_result = initialize_project_context(
-        project_root=workspace_context.path,
+        project_root=workspace_context.workspace_root.path,
         source_root=ProjectRelativePath(Path(".")),
     )
     assert isinstance(root_context_result, Success)

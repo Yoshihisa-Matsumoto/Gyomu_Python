@@ -7,7 +7,7 @@ from gyomu_python_analysis.project.context import (
     ProjectContext,
     WorkspaceProject,
 )
-from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceRoot
 from gyomu_python_analysis.resolve.project_membership import (
     find_workspace_project,
     is_file_in_project,
@@ -37,9 +37,11 @@ def create_project_context(
 
 
 def create_workspace_context(
+    workspace_root: WorkspaceRoot,
     projects: tuple[WorkspaceProject, ...],
 ) -> WorkspaceContext:
     workspace_context = Mock()
+    workspace_context.workspace_root = workspace_root
     workspace_context.projects = projects
     return cast(WorkspaceContext, workspace_context)
 
@@ -100,7 +102,9 @@ class TestFindWorkspaceProject:
         )
         file_context = create_file_context(module_name=module_name)
         workspace_root = create_workspace_root()
-        workspace_context = create_workspace_context(projects=workspace_projects)
+        workspace_context = create_workspace_context(
+            workspace_root=workspace_root, projects=workspace_projects
+        )
 
         def find_roots(*, workspace_path, project):
             index = workspace_projects.index(project)
@@ -115,7 +119,6 @@ class TestFindWorkspaceProject:
         )
         result = find_workspace_project(
             file_context=file_context,
-            workspace_root=workspace_root,
             workspace_context=workspace_context,
         )
         actual = None if isinstance(result, Failure) else result.unwrap()

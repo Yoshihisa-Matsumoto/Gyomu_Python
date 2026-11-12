@@ -13,7 +13,6 @@ from gyomu_python_analysis.analysis.initialize import (
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.analysis.workspace import (
     find_root,
-    initialize_workspace_context,
 )
 from gyomu_python_analysis.project.workspace import WorkspaceRootKind
 from gyomu_schema.option.update import (
@@ -79,13 +78,9 @@ async def main():
     if isinstance(result, Failure):
         logger.error_object(result.failure())
         return
-    workspace = result.unwrap()
-    assert workspace.kind == WorkspaceRootKind.UV_WORKSPACE
-    result = initialize_workspace_context(workspace)
-    if isinstance(result, Failure):
-        logger.error_object(result.failure())
-        return
     workspace_context = result.unwrap()
+    assert workspace_context.workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE
+
     target_package = next(
         project
         for project in workspace_context.projects
@@ -96,7 +91,7 @@ async def main():
         return
     package_fullpath = FullPath(workspace_context.config.path / target_package.path)
     project_context = initialize_project_from_workspace(
-        workspace_context.path, target_package
+        workspace_context.workspace_root.path, target_package
     )
     target_file_path = find_included_file(project_context.included_files, args[1])
     if target_file_path is None:

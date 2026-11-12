@@ -6,7 +6,6 @@ import pytest
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceRoot,
     WorkspaceRootKind,
 )
 from gyomu_python_analysis.resolve.models import (
@@ -133,15 +132,15 @@ class TestFindMissingFunctionParameterDefaults:
 
 
 class TestDefaultResolvers:
-    @staticmethod
-    def _create_workspace_root(
-        path: Path,
-        kind: WorkspaceRootKind,
-    ) -> WorkspaceRoot:
-        workspace_root = Mock()
-        workspace_root.path = path
-        workspace_root.kind = kind
-        return cast(WorkspaceRoot, workspace_root)
+    # @staticmethod
+    # def _create_workspace_root(
+    #     path: Path,
+    #     kind: WorkspaceRootKind,
+    # ) -> WorkspaceRoot:
+    #     workspace_root = Mock()
+    #     workspace_root.path = path
+    #     workspace_root.kind = kind
+    #     return cast(WorkspaceRoot, workspace_root)
 
     @staticmethod
     def _create_project_context(project_root: Path) -> ProjectContext:
@@ -150,8 +149,17 @@ class TestDefaultResolvers:
         return cast(ProjectContext, project_context)
 
     @staticmethod
-    def _create_workspace_context() -> WorkspaceContext:
-        return cast(WorkspaceContext, Mock())
+    def _create_workspace_context(
+        path: Path,
+        kind: WorkspaceRootKind,
+    ) -> WorkspaceContext:
+        workspace_root = Mock()
+        workspace_root.path = path
+        workspace_root.kind = kind
+
+        workspace_context = cast(WorkspaceContext, Mock())
+        workspace_context.workspace_root = workspace_root
+        return workspace_context
 
     @staticmethod
     def _create_primitive_type(
@@ -190,26 +198,24 @@ class TestDefaultResolvers:
     @staticmethod
     def _create_primitive_context(
         type_default: PrimitiveType | LiteralValueType,
-        workspace_root: WorkspaceRoot,
+        workspace_context: WorkspaceContext,
         project_context: ProjectContext,
     ) -> PrimitiveDefaultConfigContext:
         return PrimitiveDefaultConfigContext(
             type_default=type_default,
-            workspace_root=workspace_root,
-            workspace_context=TestDefaultResolvers._create_workspace_context(),
+            workspace_context=workspace_context,
             project_context=project_context,
         )
 
     @staticmethod
     def _create_symbol_context(
         type_default: SymbolType,
-        workspace_root: WorkspaceRoot,
+        workspace_context: WorkspaceContext,
         project_context: ProjectContext,
     ) -> SymbolDefaultConfigContext:
         return SymbolDefaultConfigContext(
             type_default=type_default,
-            workspace_root=workspace_root,
-            workspace_context=TestDefaultResolvers._create_workspace_context(),
+            workspace_context=workspace_context,
             project_context=project_context,
         )
 
@@ -220,7 +226,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_primitive_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     workspace_path,
                     WorkspaceRootKind.UV_WORKSPACE,
                 ),
@@ -247,7 +253,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_primitive_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     project_path,
                     cast(WorkspaceRootKind, Mock()),
                 ),
@@ -282,7 +288,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_symbol_context(
                 type_default=TestDefaultResolvers._create_symbol_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     workspace_path,
                     WorkspaceRootKind.UV_WORKSPACE,
                 ),
@@ -322,7 +328,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_symbol_context(
                 type_default=TestDefaultResolvers._create_symbol_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     workspace_path,
                     WorkspaceRootKind.UV_WORKSPACE,
                 ),
@@ -375,7 +381,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_symbol_context(
                 type_default=TestDefaultResolvers._create_symbol_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     workspace_path,
                     WorkspaceRootKind.UV_WORKSPACE,
                 ),
@@ -420,7 +426,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_symbol_context(
                 type_default=TestDefaultResolvers._create_symbol_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     workspace_path,
                     WorkspaceRootKind.UV_WORKSPACE,
                 ),
@@ -463,7 +469,7 @@ class TestDefaultResolvers:
                     parameter_name="value",
                     primitive_type="str",
                 ),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     Path("/project"),
                     cast(WorkspaceRootKind, Mock()),
                 ),
@@ -486,7 +492,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_primitive_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     Path("/project"),
                     cast(WorkspaceRootKind, Mock()),
                 ),
@@ -519,7 +525,7 @@ class TestDefaultResolvers:
                     parameter_name="value",
                     value="sample",
                 ),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     Path("/project"),
                     cast(WorkspaceRootKind, Mock()),
                 ),
@@ -558,7 +564,7 @@ class TestDefaultResolvers:
                     module_name="other_package.models",
                     symbol_name="SampleModel",
                 ),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     Path("/project"),
                     cast(WorkspaceRootKind, Mock()),
                 ),
@@ -580,7 +586,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_symbol_context(
                 type_default=TestDefaultResolvers._create_symbol_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     Path("/project"),
                     cast(WorkspaceRootKind, Mock()),
                 ),
@@ -607,7 +613,7 @@ class TestDefaultResolvers:
 
             context = TestDefaultResolvers._create_symbol_context(
                 type_default=TestDefaultResolvers._create_symbol_type(),
-                workspace_root=TestDefaultResolvers._create_workspace_root(
+                workspace_context=TestDefaultResolvers._create_workspace_context(
                     Path("/project"),
                     cast(WorkspaceRootKind, Mock()),
                 ),

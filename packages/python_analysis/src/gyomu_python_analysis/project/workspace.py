@@ -50,6 +50,31 @@ class _FileAnalysisCache:
         self._cache.pop(module_path, None)
 
 
+class WorkspaceRootKind(Enum):
+    """Defines the kind of workspace root, such as a uv workspace or a standalone
+    project.
+    """
+
+    UV_WORKSPACE = "uv-workspace"
+    """Represents a uv-managed workspace root."""
+
+    STANDALONE_PROJECT = "standalone-project"
+    """Represents a standalone project root."""
+
+
+@dataclass(frozen=True)
+class WorkspaceRoot:
+    """Represents the root directory of a workspace, including its path and root
+    kind.
+    """
+
+    path: FullPath
+    """The full path of the workspace root."""
+
+    kind: WorkspaceRootKind
+    """The kind of workspace root."""
+
+
 @dataclass
 class WorkspaceContext:
     """Encapsulates workspace context, containing the workspace configuration and its
@@ -58,11 +83,11 @@ class WorkspaceContext:
 
     def __init__(
         self,
-        path: FullPath,
+        workspace_root: WorkspaceRoot,
         config: PyProjectConfig,
         projects: tuple[WorkspaceProject, ...],
     ) -> None:
-        self.path = path
+        self.workspace_root = workspace_root
         self.config = config
         self.projects = projects
         self._project_indexes: dict[str, ProjectContext] = {}
@@ -70,7 +95,9 @@ class WorkspaceContext:
 
     def _initialize_project_indexes(self) -> None:
         for project in self.projects:
-            project_context = initialize_project_from_workspace(self.path, project)
+            project_context = initialize_project_from_workspace(
+                self.workspace_root.path, project
+            )
             for package_root in project_context.package_roots:
                 self._project_indexes[package_root.module_name] = project_context
 
@@ -128,28 +155,3 @@ class WorkspaceContext:
         module_path: PythonPath,
     ) -> None:
         self._file_analysis_cache.invalidate_file_analysis(module_path)
-
-
-class WorkspaceRootKind(Enum):
-    """Defines the kind of workspace root, such as a uv workspace or a standalone
-    project.
-    """
-
-    UV_WORKSPACE = "uv-workspace"
-    """Represents a uv-managed workspace root."""
-
-    STANDALONE_PROJECT = "standalone-project"
-    """Represents a standalone project root."""
-
-
-@dataclass(frozen=True)
-class WorkspaceRoot:
-    """Represents the root directory of a workspace, including its path and root
-    kind.
-    """
-
-    path: FullPath
-    """The full path of the workspace root."""
-
-    kind: WorkspaceRootKind
-    """The kind of workspace root."""

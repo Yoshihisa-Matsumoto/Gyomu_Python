@@ -12,6 +12,8 @@
     "packages/facts/src",
     "packages/test/src",
     "packages/config/src",
+    "packages/interaction/src",
+    "packages/interaction_cli/src",
     "apps/cli/src"
   ]
 }

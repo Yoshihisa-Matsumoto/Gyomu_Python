@@ -4,7 +4,7 @@ from pathlib import Path
 from gyomu_config.file.retrieve import retrieve_mandatory_config
 from gyomu_config.request import ConfigRequest
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
-from gyomu_python_analysis.project.workspace import WorkspaceRoot
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.config import ConfigError
 from gyomu_schema.schemas.config.test.model_defaults import ModelDefaults
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
@@ -60,11 +60,11 @@ def _load_helper_config(
 
 
 def get_helper_file_paths_from_workspace_project(
-    workspace_root: WorkspaceRoot,
+    workspace_context: WorkspaceContext,
     workspace_project: WorkspaceProject,
 ) -> Result[tuple[ProjectRelativePath, ...], GyomuTestError]:
     return _get_helper_file_paths(
-        project_root=workspace_root.path / workspace_project.path
+        project_root=workspace_context.workspace_root.path / workspace_project.path
     )
 
 

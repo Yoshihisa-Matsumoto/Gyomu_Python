@@ -17,6 +17,8 @@ members = [
     "gyomu-docstring",
     "gyomu-facts",
     "gyomu-infra",
+    "gyomu-interaction",
+    "gyomu-interaction-cli",
     "gyomu-python-analysis",
     "gyomu-schema",
     "gyomu-test",
@@ -943,6 +945,40 @@ dev = [
     { name = "sqlacodegen", specifier = ">=4,<5" },
     { name = "types-python-dateutil", specifier = ">=2.9.0.20260807" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20260815" },
+]
+
+[[package]]
+name = "gyomu-interaction"
+source = { editable = "packages/interaction" }
+dependencies = [
+    { name = "gyomu-infra" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-schema", editable = "packages/schema" },
+    { name = "returns" },
+]
+
+[[package]]
+name = "gyomu-interaction-cli"
+source = { editable = "packages/interaction_cli" }
+dependencies = [
+    { name = "gyomu-infra" },
+    { name = "gyomu-interaction" },
+    { name = "gyomu-schema" },
+    { name = "returns" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "gyomu-infra", editable = "packages/infra" },
+    { name = "gyomu-interaction", editable = "packages/interaction" },
+    { name = "gyomu-schema", editable = "packages/schema" },
+    { name = "returns" },
 ]
 
 [[package]]

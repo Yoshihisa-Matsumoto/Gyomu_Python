@@ -10,7 +10,7 @@ from gyomu_python_analysis.project.context import (
     ProjectContext,
     WorkspaceProject,
 )
-from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceRoot
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 
 
 def is_file_in_project(
@@ -24,13 +24,12 @@ def is_file_in_project(
 
 def find_workspace_project(
     file_context: FileAnalysisContext,
-    workspace_root: WorkspaceRoot,
     workspace_context: WorkspaceContext,
 ) -> Result[WorkspaceProject, ResolveError]:
     for workspace_project in workspace_context.projects:
         if _is_file_in_workspace_project(
             file_context=file_context,
-            workspace_root=workspace_root,
+            workspace_context=workspace_context,
             workspace_project=workspace_project,
         ):
             return Success(workspace_project)
@@ -60,11 +59,11 @@ def _is_file_in_project_roots(
 
 def _is_file_in_workspace_project(
     file_context: FileAnalysisContext,
-    workspace_root: WorkspaceRoot,
+    workspace_context: WorkspaceContext,
     workspace_project: WorkspaceProject,
 ) -> bool:
     package_roots = find_package_roots_from_workspace_project(
-        workspace_path=workspace_root.path, project=workspace_project
+        workspace_path=workspace_context.workspace_root.path, project=workspace_project
     )
     return _is_file_in_project_roots(
         file_context=file_context, package_roots=package_roots

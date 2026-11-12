@@ -3,15 +3,14 @@ from collections.abc import Mapping
 from gyomu_python_analysis.analysis.initialize import initialize_project_from_workspace
 from gyomu_python_analysis.analysis.workspace import (
     find_root,
-    initialize_workspace_context,
 )
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceRoot,
 )
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
+    PackageType,
     PrimitiveType,
     ResolvedType,
     SymbolType,
@@ -61,21 +60,17 @@ def get_project_context(
     )
     assert project is not None
     return initialize_project_from_workspace(
-        workspace_path=workspace_context.path, project=project
+        workspace_path=workspace_context.workspace_root.path, project=project
     )
 
 
 def get_workspace_context(
     current_path: FullPath,
-) -> tuple[WorkspaceRoot, WorkspaceContext]:
+) -> WorkspaceContext:
 
     root_result = find_root(current_path)
     assert isinstance(root_result, Success)
-    workspace = root_result.unwrap()
-    workspace_context_result = initialize_workspace_context(workspace)
-    assert isinstance(workspace_context_result, Success)
-
-    return workspace, workspace_context_result.unwrap()
+    return root_result.unwrap()
 
 
 def validate_keyword_argument(
@@ -234,12 +229,16 @@ def validate_resolved_type(result: ResolvedType, expected: ResolvedType) -> None
         assert isinstance(expected, LiteralValueType)
         assert result.parameter_name == expected.parameter_name
         assert result.value == expected.value
-    else:
+    elif isinstance(result, SymbolType):
         assert isinstance(expected, SymbolType)
         assert result.symbol.name == expected.symbol.name
         assert (
             result.context.analysis.module_name == expected.context.analysis.module_name
         )
+    else:
+        assert isinstance(result, PackageType)
+        assert isinstance(expected, PackageType)
+        assert result.symbol_id == expected.symbol_id
 
 
 def validate_missing_parameter_default(

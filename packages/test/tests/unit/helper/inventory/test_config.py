@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
 from gyomu_schema.schemas.testing.helper import HelperConfig, HelperFileAllocation
 from gyomu_schema.schemas.types import FullPath
@@ -151,6 +152,8 @@ class TestGetHelperFilePathsFromWorkspaceProject:
 
         workspace_project: WorkspaceProject = create_workspace_project()
         workspace_root = create_workspace_root(path=FullPath(tmp_path))
+        workspace_context = mocker.Mock(WorkspaceContext)
+        workspace_context.workspace_root = workspace_root
         expected_paths = (ProjectRelativePath(Path("test_support/helpers.py")),)
         get_paths_mock = mocker.patch(
             "gyomu_test.helper.inventory.config._get_helper_file_paths",
@@ -158,7 +161,7 @@ class TestGetHelperFilePathsFromWorkspaceProject:
         )
 
         result = get_helper_file_paths_from_workspace_project(
-            workspace_root=workspace_root,
+            workspace_context=workspace_context,
             workspace_project=workspace_project,
         )
 

@@ -5,7 +5,7 @@ import pytest
 from gyomu_config.manager import ConfigManager
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.context import ProjectContext
-from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceRoot
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem
 from gyomu_schema.schemas.types import FullPath
@@ -55,7 +55,6 @@ from packages.test.tests.unit.helper.helpers import (
 
 @dataclass
 class HelperInventoryTestContext:
-    workspace_root: WorkspaceRoot
     workspace_context: WorkspaceContext
     project_context: ProjectContext
     config_manager: ConfigManager
@@ -64,20 +63,19 @@ class HelperInventoryTestContext:
 @pytest.fixture
 def helper_inventory_test_context() -> HelperInventoryTestContext:
     target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-    workspace_root, workspace_context = get_workspace_context(target_path)
+    workspace_context = get_workspace_context(target_path)
 
     project_context = get_project_context(workspace_context, "parameter")
 
     config_manager = ConfigManager()
 
     root_context_result = initialize_project_context(
-        project_root=workspace_context.path,
+        project_root=workspace_context.workspace_root.path,
         source_root=ProjectRelativePath(Path(".")),
     )
     assert isinstance(root_context_result, Success)
 
     return HelperInventoryTestContext(
-        workspace_root=workspace_root,
         workspace_context=workspace_context,
         project_context=project_context,
         config_manager=config_manager,
@@ -111,7 +109,6 @@ class TestResolveFunctionParameterDefaults:
 
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -291,7 +288,6 @@ class TestResolveFunctionParameterDefaults:
 
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -331,7 +327,6 @@ class TestResolveFunctionParameterDefaults:
         )
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -381,7 +376,6 @@ class TestResolveFunctionParameterDefaults:
         )
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -430,7 +424,6 @@ class TestResolveFunctionParameterDefaults:
 
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -465,7 +458,6 @@ class TestResolveFunctionParameterDefaults:
 
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -502,7 +494,6 @@ class TestResolveFunctionParameterDefaults:
 
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -539,7 +530,6 @@ class TestResolveFunctionParameterDefaults:
 
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
@@ -576,7 +566,6 @@ class TestResolveFunctionParameterDefaults:
 
         result = resolve_function_parameter_defaults(
             inventory=inventory,
-            workspace_root=context.workspace_root,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,

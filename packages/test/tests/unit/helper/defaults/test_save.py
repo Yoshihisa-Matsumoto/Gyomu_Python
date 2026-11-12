@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 from gyomu_config.request import ConfigRequest
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
-from gyomu_python_analysis.project.workspace import WorkspaceRoot
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.config import ConfigError
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
@@ -334,7 +334,7 @@ class TestSavePrimitiveParameterDefaultConfig:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_root = cast(WorkspaceRoot, Mock())
+        workspace_context = cast(WorkspaceContext, Mock())
         project_context = cast(ProjectContext, Mock())
         primitive = create_primitive_default()
         config_path = cast(FullPath, Path("/project/.gyomu/config.json"))
@@ -359,7 +359,7 @@ class TestSavePrimitiveParameterDefaultConfig:
         )
 
         result = save_primitive_parameter_default_config(
-            workspace_root,
+            workspace_context,
             project_context,
             primitive,
         )
@@ -380,7 +380,7 @@ class TestSavePrimitiveParameterDefaultConfig:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_root = cast(WorkspaceRoot, Mock())
+        workspace_context = cast(WorkspaceContext, Mock())
         primitive = create_primitive_default()
         config_path = cast(FullPath, Path("/workspace/.gyomu/config.json"))
 
@@ -402,7 +402,7 @@ class TestSavePrimitiveParameterDefaultConfig:
         )
 
         result = save_primitive_parameter_default_config(
-            workspace_root,
+            workspace_context,
             None,
             primitive,
         )
@@ -415,7 +415,7 @@ class TestSavePrimitiveParameterDefaultConfig:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_root = cast(WorkspaceRoot, Mock())
+        workspace_context = cast(WorkspaceContext, Mock())
         primitive = create_primitive_default()
         error = cast(GyomuTestError, Exception("read failed"))
 
@@ -431,7 +431,7 @@ class TestSavePrimitiveParameterDefaultConfig:
         save_mock = mocker.patch("gyomu_test.helper.defaults.save._save_config")
 
         result = save_primitive_parameter_default_config(
-            workspace_root,
+            workspace_context,
             None,
             primitive,
         )
@@ -446,7 +446,7 @@ class TestSaveSymbolParameterDefaultConfig:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_root = cast(WorkspaceRoot, Mock())
+        workspace_context = cast(WorkspaceContext, Mock())
         workspace_project = cast(WorkspaceProject, Mock())
         module_path = cast(PythonPath, "my_package.models")
         model_default = create_model_default("Product")
@@ -472,7 +472,7 @@ class TestSaveSymbolParameterDefaultConfig:
         )
 
         result = save_symbol_parameter_default_config(
-            workspace_root,
+            workspace_context,
             workspace_project,
             module_path,
             model_default,
@@ -480,7 +480,7 @@ class TestSaveSymbolParameterDefaultConfig:
 
         assert isinstance(result, Success)
         path_mock.assert_called_once_with(
-            workspace_root=workspace_root,
+            workspace_context=workspace_context,
             workspace_project=workspace_project,
         )
         retrieve_mock.assert_called_once_with(config_path=config_path)
@@ -498,7 +498,7 @@ class TestSaveSymbolParameterDefaultConfig:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_root = cast(WorkspaceRoot, Mock())
+        workspace_context = cast(WorkspaceContext, Mock())
         module_path = cast(PythonPath, "my_package.models")
         model_default = create_model_default("Product")
         config_path = cast(FullPath, Path("/workspace/.gyomu/config.json"))
@@ -521,7 +521,7 @@ class TestSaveSymbolParameterDefaultConfig:
         )
 
         result = save_symbol_parameter_default_config(
-            workspace_root,
+            workspace_context,
             None,
             module_path,
             model_default,
@@ -535,7 +535,7 @@ class TestSaveSymbolParameterDefaultConfig:
         self,
         mocker: MockerFixture,
     ) -> None:
-        workspace_root = cast(WorkspaceRoot, Mock())
+        workspace_context = cast(WorkspaceContext, Mock())
         module_path = cast(PythonPath, "my_package.models")
         model_default = create_model_default("Product")
         error = cast(GyomuTestError, Exception("read failed"))
@@ -552,7 +552,7 @@ class TestSaveSymbolParameterDefaultConfig:
         save_mock = mocker.patch("gyomu_test.helper.defaults.save._save_config")
 
         result = save_symbol_parameter_default_config(
-            workspace_root,
+            workspace_context,
             None,
             module_path,
             model_default,

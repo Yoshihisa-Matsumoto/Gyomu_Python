@@ -9,7 +9,6 @@ from gyomu_python_analysis.analysis.workspace import initialize_workspace_contex
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceRoot,
     WorkspaceRootKind,
 )
 from gyomu_python_analysis.resolve.cls import (
@@ -97,7 +96,7 @@ class TestIsDataclassClass:
 def workspace_context() -> WorkspaceContext:
 
     result = initialize_workspace_context(
-        root=WorkspaceRoot(
+        root=create_workspace_root(
             path=MONOREPO_FIXTURES_ROOT, kind=WorkspaceRootKind.UV_WORKSPACE
         )
     )
@@ -276,7 +275,7 @@ class TestCollectClassHierarchy:
         assert target_project is not None
 
         project_context = initialize_project_from_workspace(
-            workspace_context.path, target_project
+            workspace_context.workspace_root.path, target_project
         )
         target_source_path = Path(python_path.replace(".", "/") + ".py")
         result = load_file_analysis_context(
@@ -386,7 +385,7 @@ class TestInheritsFromPydanticBasemodel:
         assert target_project is not None
 
         project_context = initialize_project_from_workspace(
-            workspace_context.path, target_project
+            workspace_context.workspace_root.path, target_project
         )
         target_source_path = Path(python_path.replace(".", "/") + ".py")
         result = load_file_analysis_context(
@@ -450,7 +449,7 @@ class TestInheritsFromGyomuBaseError:
         assert target_project is not None
 
         project_context = initialize_project_from_workspace(
-            workspace_context.path, target_project
+            workspace_context.workspace_root.path, target_project
         )
         target_source_path = Path(python_path.replace(".", "/") + ".py")
         result = load_file_analysis_context(

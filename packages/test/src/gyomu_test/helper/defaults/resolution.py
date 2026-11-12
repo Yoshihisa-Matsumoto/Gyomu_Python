@@ -1,7 +1,6 @@
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceRoot,
     WorkspaceRootKind,
 )
 from gyomu_python_analysis.resolve.models import (
@@ -50,8 +49,11 @@ def _get_config_path(root_path: FullPath) -> FullPath:
     return root_path / ".gyomu" / "config"
 
 
-def _get_workspace_config_path(workspace_root: WorkspaceRoot) -> FullPath:
-    return _get_config_path(workspace_root.path) / "$Workspace.default.json"
+def _get_workspace_config_path(workspace_context: WorkspaceContext) -> FullPath:
+    return (
+        _get_config_path(workspace_context.workspace_root.path)
+        / "$Workspace.default.json"
+    )
 
 
 def _get_project_config_path(project_context: ProjectContext) -> FullPath:
@@ -59,48 +61,42 @@ def _get_project_config_path(project_context: ProjectContext) -> FullPath:
 
 
 def _get_project_config_path_from_workspace(
-    workspace_root: WorkspaceRoot, workspace_project: WorkspaceProject
+    workspace_context: WorkspaceContext, workspace_project: WorkspaceProject
 ) -> FullPath:
     return (
-        _get_config_path(workspace_root.path / workspace_project.path)
+        _get_config_path(workspace_context.workspace_root.path / workspace_project.path)
         / "$Package.default.json"
     )
 
 
 class PrimitiveDefaultConfigContext:
     type_default: PrimitiveType | LiteralValueType
-    workspace_root: WorkspaceRoot
     workspace_context: WorkspaceContext
     project_context: ProjectContext
 
     def __init__(
         self,
         type_default: PrimitiveType | LiteralValueType,
-        workspace_root: WorkspaceRoot,
         workspace_context: WorkspaceContext,
         project_context: ProjectContext,
     ):
         self.type_default = type_default
-        self.workspace_root = workspace_root
         self.workspace_context = workspace_context
         self.project_context = project_context
 
 
 class SymbolDefaultConfigContext:
     type_default: SymbolType
-    workspace_root: WorkspaceRoot
     workspace_context: WorkspaceContext
     project_context: ProjectContext
 
     def __init__(
         self,
         type_default: SymbolType,
-        workspace_root: WorkspaceRoot,
         workspace_context: WorkspaceContext,
         project_context: ProjectContext,
     ):
         self.type_default = type_default
-        self.workspace_root = workspace_root
         self.workspace_context = workspace_context
         self.project_context = project_context
 
@@ -114,7 +110,6 @@ class SymbolDefaultResolver:
         type_default = context.type_default
         workspace_context = context.workspace_context
         project_context = context.project_context
-        workspace_root = context.workspace_root
         paths.append(_get_project_config_path(context.project_context))
 
         if isinstance(type_default, SymbolType):
@@ -139,7 +134,6 @@ class SymbolDefaultResolver:
             ):
                 workspace_project_result = find_workspace_project(
                     file_context=type_default.context,
-                    workspace_root=workspace_root,
                     workspace_context=workspace_context,
                 )
                 if isinstance(workspace_project_result, Failure):
@@ -154,13 +148,15 @@ class SymbolDefaultResolver:
 
                 paths.append(
                     _get_project_config_path_from_workspace(
-                        workspace_root=workspace_root,
+                        workspace_context=workspace_context,
                         workspace_project=workspace_project_result.unwrap(),
                     )
                 )
 
-        if workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE:
-            paths.append(_get_workspace_config_path(workspace_root))
+        if workspace_context.workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE:
+            paths.append(
+                _get_workspace_config_path(workspace_context=workspace_context)
+            )
 
         return Success(tuple(paths))
 
@@ -193,11 +189,12 @@ class PrimitiveDefaultResolver:
         context: PrimitiveDefaultConfigContext,
     ) -> Result[tuple[FullPath, ...], ConfigError]:
         paths: list[FullPath] = []
-        workspace_root = context.workspace_root
         paths.append(_get_project_config_path(context.project_context))
-
-        if workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE:
-            paths.append(_get_workspace_config_path(workspace_root))
+        workspace_context = context.workspace_context
+        if workspace_context.workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE:
+            paths.append(
+                _get_workspace_config_path(workspace_context=workspace_context)
+            )
 
         return Success(tuple(paths))
 

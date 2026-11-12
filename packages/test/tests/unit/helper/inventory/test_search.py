@@ -102,7 +102,7 @@ class TestGetGeneratedHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, test_project_name)
 
@@ -215,7 +215,7 @@ class TestGetGeneratedHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, test_project_name)
 
@@ -251,7 +251,7 @@ class TestGetGeneratedHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, "project-b")
 
@@ -278,7 +278,7 @@ class TestGetGeneratedHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, "project-b")
 
@@ -305,7 +305,7 @@ class TestGetGeneratedHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, "project-b")
 
@@ -332,7 +332,7 @@ class TestGetGeneratedHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, "project-b")
 
@@ -450,7 +450,7 @@ class TestGetAllHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, test_project_name)
 
@@ -574,7 +574,7 @@ class TestGetAllHelperCandidates:
         mocker: MockerFixture,
     ) -> None:
         target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        _, workspace_context = get_workspace_context(target_path)
+        workspace_context = get_workspace_context(target_path)
 
         project_context = get_project_context(workspace_context, test_project_name)
 

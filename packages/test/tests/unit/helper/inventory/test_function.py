@@ -110,7 +110,7 @@ class TestCodeGenerationIntegration:
     ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         root_context_result = initialize_project_context(
-            project_root=workspace_context.path,
+            project_root=workspace_context.workspace_root.path,
             source_root=ProjectRelativePath(Path(".")),
         )
         assert isinstance(root_context_result, Success)
@@ -145,7 +145,7 @@ class TestCodeGenerationIntegration:
     ) -> None:
         project_context = get_project_context(workspace_context, "parameter")
         root_context_result = initialize_project_context(
-            project_root=workspace_context.path,
+            project_root=workspace_context.workspace_root.path,
             source_root=ProjectRelativePath(Path(".")),
         )
         assert isinstance(root_context_result, Success)

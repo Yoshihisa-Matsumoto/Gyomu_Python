@@ -39,7 +39,7 @@ class TestCollectExistingHelperInventory:
     def test_build_from_fixture(self, workspace_context: WorkspaceContext) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         root_context_result = initialize_project_context(
-            project_root=workspace_context.path,
+            project_root=workspace_context.workspace_root.path,
             source_root=ProjectRelativePath(Path(".")),
         )
         assert isinstance(root_context_result, Success)
@@ -138,7 +138,7 @@ class TestCollectExistingHelperInventory:
     ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         root_context_result = initialize_project_context(
-            project_root=workspace_context.path,
+            project_root=workspace_context.workspace_root.path,
             source_root=ProjectRelativePath(Path(".")),
         )
         assert isinstance(root_context_result, Success)
@@ -219,7 +219,7 @@ class TestCollectExistingHelperInventory:
     ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         root_context_result = initialize_project_context(
-            project_root=workspace_context.path,
+            project_root=workspace_context.workspace_root.path,
             source_root=ProjectRelativePath(Path(".")),
         )
         assert isinstance(root_context_result, Success)
@@ -253,7 +253,7 @@ class TestCollectExistingHelperInventory:
     ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
         root_context_result = initialize_project_context(
-            project_root=workspace_context.path,
+            project_root=workspace_context.workspace_root.path,
             source_root=ProjectRelativePath(Path(".")),
         )
         assert isinstance(root_context_result, Success)

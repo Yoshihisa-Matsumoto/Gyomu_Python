@@ -6,7 +6,6 @@ from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceRoot,
     WorkspaceRootKind,
 )
 from gyomu_python_analysis.resolve.models import ResolvedReference
@@ -17,13 +16,16 @@ from gyomu_schema.schemas.python.import_analysis import ImportKind
 from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath, SymbolId
 from returns.result import Success
 
-from packages.python_analysis.test_support.helpers import MONOREPO_FIXTURES_ROOT
+from packages.python_analysis.test_support.helpers import (
+    MONOREPO_FIXTURES_ROOT,
+    create_workspace_root,
+)
 
 
 @pytest.fixture
 def workspace_context() -> WorkspaceContext:
     result = initialize_workspace_context(
-        root=WorkspaceRoot(
+        root=create_workspace_root(
             path=MONOREPO_FIXTURES_ROOT,
             kind=WorkspaceRootKind.UV_WORKSPACE,
         )
@@ -47,7 +49,7 @@ def consumer_context(
     assert target_project is not None
 
     project_context = initialize_project_from_workspace(
-        workspace_context.path,
+        workspace_context.workspace_root.path,
         target_project,
     )
     consumer_result = load_file_analysis_context(

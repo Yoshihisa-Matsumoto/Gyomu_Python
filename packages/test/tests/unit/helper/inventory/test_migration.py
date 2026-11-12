@@ -26,7 +26,7 @@ def migrate_default(
         target_path = FullPath(Path(getcwd()))
     else:
         target_path = FullPath(target_path)
-    _, workspace_context = get_workspace_context(target_path)
+    workspace_context = get_workspace_context(target_path)
 
     project_context = get_project_context(workspace_context, package_name)
     mocker.patch(

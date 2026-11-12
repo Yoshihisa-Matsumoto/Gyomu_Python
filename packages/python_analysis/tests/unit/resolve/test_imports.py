@@ -12,7 +12,6 @@ from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceRoot,
     WorkspaceRootKind,
 )
 from gyomu_python_analysis.resolve.imports import (
@@ -41,13 +40,14 @@ from returns.result import Failure, Success
 from packages.python_analysis.test_support.helpers import (
     MONOREPO_FIXTURES_ROOT,
     create_analysis_error,
+    create_workspace_root,
 )
 
 
 @pytest.fixture
 def workspace_context() -> WorkspaceContext:
     result = initialize_workspace_context(
-        root=WorkspaceRoot(
+        root=create_workspace_root(
             path=MONOREPO_FIXTURES_ROOT,
             kind=WorkspaceRootKind.UV_WORKSPACE,
         )
@@ -317,7 +317,7 @@ class TestResolveImportedSymbolTypes:
         assert target_project is not None
 
         project_context = initialize_project_from_workspace(
-            workspace_context.path,
+            workspace_context.workspace_root.path,
             target_project,
         )
         consumer_result = load_file_analysis_context(

@@ -216,7 +216,7 @@ class TestWorkspaceContext:
     class TestFindFileAnalysisContext:
         def test_success(self, mocker: MockerFixture) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
             project_context = get_project_context(
                 workspace_context,
                 "project-b",
@@ -263,7 +263,7 @@ class TestWorkspaceContext:
             mocker: MockerFixture,
         ) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
 
             # インデックスを空にしないことで初期化処理を避ける
             workspace_context._project_indexes["other_package"] = get_project_context(
@@ -295,7 +295,7 @@ class TestWorkspaceContext:
             mocker: MockerFixture,
         ) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
             project_context = get_project_context(
                 workspace_context,
                 "project-b",
@@ -339,7 +339,7 @@ class TestWorkspaceContext:
             mocker: MockerFixture,
         ) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
 
             project = next(
                 project
@@ -381,7 +381,7 @@ class TestWorkspaceContext:
 
             assert workspace_context._project_indexes
             assert initialize_mock.call_args_list == [
-                call(workspace_context.path, workspace_project)
+                call(workspace_context.workspace_root.path, workspace_project)
                 for workspace_project in workspace_context.projects
             ]
 
@@ -390,7 +390,7 @@ class TestWorkspaceContext:
             mocker: MockerFixture,
         ) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
 
             file_analysis_context = mocker.Mock()
             get_file_analysis_mock = mocker.patch.object(
@@ -418,7 +418,7 @@ class TestWorkspaceContext:
                 package_root.module_name
                 for project in workspace_context.projects
                 for package_root in initialize_project_from_workspace(
-                    workspace_context.path,
+                    workspace_context.workspace_root.path,
                     project,
                 ).package_roots
             }
@@ -428,7 +428,7 @@ class TestWorkspaceContext:
     class TestFindFileAnalysisContextByModulePath:
         def test_success(self, mocker: MockerFixture) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
 
             expected_identity = DeclarationIdentity.create_from_symbol_id(
                 symbol_id=SymbolId("project_b.models::Test"),
@@ -450,7 +450,7 @@ class TestWorkspaceContext:
 
         def test_success_none(self, mocker: MockerFixture) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
 
             expected_result = Success(None)
             find_mock = mocker.patch.object(
@@ -472,7 +472,7 @@ class TestWorkspaceContext:
 
         def test_failure(self, mocker: MockerFixture) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
 
             expected_result = Failure(create_analysis_error())
             find_mock = mocker.patch.object(
@@ -495,7 +495,7 @@ class TestWorkspaceContext:
     class TestInvalidateFileAnalysis:
         def test_invalidate_file_analysis(self, mocker: MockerFixture) -> None:
             target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-            _, workspace_context = get_workspace_context(target_path)
+            workspace_context = get_workspace_context(target_path)
 
             invalidate_mock = mocker.patch.object(
                 workspace_context._file_analysis_cache,

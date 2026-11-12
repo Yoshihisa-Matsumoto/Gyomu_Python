@@ -149,7 +149,7 @@ def _get_helper_candidates(
         return helper_file_paths_result
 
     root_context_result = initialize_project_context(
-        project_root=workspace_context.path,
+        project_root=workspace_context.workspace_root.path,
         source_root=ProjectRelativePath(Path(".")),
     )
     if isinstance(root_context_result, Failure):

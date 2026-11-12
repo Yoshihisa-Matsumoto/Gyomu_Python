@@ -12,7 +12,8 @@ def migrate_default_from_existing_helpers(
     # additional_filename: str | None = None,
 ) -> None:
     project_context = initialize_project_from_workspace(
-        workspace_path=workspace_context.path, project=workspace_project_context
+        workspace_path=workspace_context.workspace_root.path,
+        project=workspace_project_context,
     )
     migrate(
         workspace_context=workspace_context,

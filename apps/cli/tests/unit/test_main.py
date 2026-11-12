@@ -29,7 +29,7 @@ def create_project(
 @pytest.fixture
 def setup_snapshot(mocker: MockerFixture) -> None:
     mocker.patch("gyomu_cli.main.register_google_routing")
-    mocker.patch("gyomu_cli.main.get_workspace_context")
+    mocker.patch("gyomu_cli.main.find_root")
     mocker.patch("gyomu_cli.main.run_snapshot_request")
 
 
@@ -41,7 +41,7 @@ def test_snapshot_single_package_success(
     workspace = build_workspace_context(projects=(project,))
 
     mocker.patch(
-        "gyomu_cli.main.get_workspace_context",
+        "gyomu_cli.main.find_root",
         return_value=Success(workspace),
     )
     mocker.patch(
@@ -79,7 +79,7 @@ def test_snapshot_workspace_failure(
         reason="invalid_input",
     )
     mocker.patch(
-        "gyomu_cli.main.get_workspace_context",
+        "gyomu_cli.main.find_root",
         return_value=Failure(error),
     )
     logger_mock = mocker.patch("gyomu_cli.main.logger.error_object")
@@ -104,7 +104,7 @@ def test_snapshot_package_not_found(
         reason="invalid_input",
     )
     mocker.patch(
-        "gyomu_cli.main.get_workspace_context",
+        "gyomu_cli.main.find_root",
         return_value=Success(workspace),
     )
     mocker.patch(
@@ -134,7 +134,7 @@ def test_snapshot_all_projects_success(
     )
 
     mocker.patch(
-        "gyomu_cli.main.get_workspace_context",
+        "gyomu_cli.main.find_root",
         return_value=Success(workspace),
     )
     find_mock = mocker.patch("gyomu_cli.main.find_project_by_name")
@@ -180,7 +180,7 @@ def test_snapshot_all_projects_stops_on_failure(
     )
 
     mocker.patch(
-        "gyomu_cli.main.get_workspace_context",
+        "gyomu_cli.main.find_root",
         return_value=Success(workspace),
     )
     run_mock = mocker.patch(

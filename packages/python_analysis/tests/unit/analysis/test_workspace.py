@@ -12,7 +12,6 @@ from gyomu_python_analysis.analysis.workspace import (
 )
 from gyomu_python_analysis.error.analysis import AnalysisError
 from gyomu_python_analysis.project.workspace import (
-    WorkspaceRoot,
     WorkspaceRootKind,
 )
 from gyomu_schema.schemas.python.types import WorkspaceRelativePath
@@ -22,6 +21,7 @@ from returns.result import Failure, Success
 from packages.python_analysis.test_support.helpers import (
     MONOREPO_FIXTURES_ROOT,
     TEST_SUPPORT_ROOT,
+    create_workspace_root,
 )
 
 
@@ -48,10 +48,10 @@ class TestFindRoot:
 
         assert isinstance(result, Success)
 
-        root = result.unwrap()
+        context = result.unwrap()
 
-        assert root.path == MONOREPO_FIXTURES_ROOT
-        assert root.kind == WorkspaceRootKind.UV_WORKSPACE
+        assert context.workspace_root.path == MONOREPO_FIXTURES_ROOT
+        assert context.workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE
 
     def test_finds_monorepo_root_from_project(self, project_path: Path) -> None:
         MONOREPO_FIXTURES_ROOT = FullPath(project_path / "monorepo_fixtures")
@@ -61,10 +61,10 @@ class TestFindRoot:
 
         assert isinstance(result, Success)
 
-        root = result.unwrap()
+        context = result.unwrap()
 
-        assert root.path == MONOREPO_FIXTURES_ROOT
-        assert root.kind == WorkspaceRootKind.UV_WORKSPACE
+        assert context.workspace_root.path == MONOREPO_FIXTURES_ROOT
+        assert context.workspace_root.kind == WorkspaceRootKind.UV_WORKSPACE
 
     def test_finds_standalone_project_root(self, project_path: Path) -> None:
         FIXTURES_ROOT = FullPath(project_path / "fixtures")
@@ -72,10 +72,10 @@ class TestFindRoot:
 
         assert isinstance(result, Success)
 
-        root = result.unwrap()
+        context = result.unwrap()
 
-        assert root.path == FIXTURES_ROOT
-        assert root.kind == WorkspaceRootKind.STANDALONE_PROJECT
+        assert context.workspace_root.path == FIXTURES_ROOT
+        assert context.workspace_root.kind == WorkspaceRootKind.STANDALONE_PROJECT
 
     def test_returns_failure_when_pyproject_is_not_found(
         self,
@@ -188,13 +188,9 @@ class TestInitializeWorkspaceContext:
 
         assert isinstance(root_result, Success)
 
-        result = initialize_workspace_context(root_result.unwrap())
+        context = root_result.unwrap()
 
-        assert isinstance(result, Success)
-
-        context = result.unwrap()
-
-        assert context.path == MONOREPO_FIXTURES_ROOT
+        assert context.workspace_root.path == MONOREPO_FIXTURES_ROOT
         assert context.config.path == Path(".")
         assert context.config.name == "test-monorepo"
 
@@ -214,15 +210,9 @@ class TestInitializeWorkspaceContext:
 
         assert isinstance(root_result, Success)
 
-        root = root_result.unwrap()
+        context = root_result.unwrap()
 
-        assert root.kind == WorkspaceRootKind.STANDALONE_PROJECT
-
-        result = initialize_workspace_context(root)
-
-        assert isinstance(result, Success)
-
-        context = result.unwrap()
+        assert context.workspace_root.kind == WorkspaceRootKind.STANDALONE_PROJECT
 
         assert len(context.projects) == 1
 
@@ -236,7 +226,7 @@ class TestEnumerateWorkspaceTargetFiles:
     def test_includes_knowledge_files(self, project_path: Path) -> None:
 
         result = initialize_workspace_context(
-            root=WorkspaceRoot(
+            root=create_workspace_root(
                 path=MONOREPO_FIXTURES_ROOT, kind=WorkspaceRootKind.UV_WORKSPACE
             )
         )

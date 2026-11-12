@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
     WorkspaceProject,
+    WorkspaceRoot,
 )
 from gyomu_schema.schemas.types import FullPath
 from gyomu_workflow.snapshot.models import SnapshotExecutionOption, SnapshotRequest
@@ -15,7 +16,9 @@ class TestTranslateSnapshotRequest:
     def test_creates_snapshot_request(self, mocker: MockerFixture) -> None:
         repository_root_path = FullPath(Path("/workspace"))
         workspace_context = MagicMock(spec=WorkspaceContext)
-        workspace_context.path = repository_root_path
+        workspace_root = MagicMock(spec=WorkspaceRoot)
+        workspace_root.path = repository_root_path
+        workspace_context.workspace_root = workspace_root
 
         target_package = MagicMock(spec=WorkspaceProject)
         option = MagicMock(spec=SnapshotExecutionOption)

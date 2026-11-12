@@ -4,7 +4,12 @@ from pathlib import Path
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
-from gyomu_python_analysis.project.workspace import WorkspaceContext, WorkspaceProject
+from gyomu_python_analysis.project.workspace import (
+    WorkspaceContext,
+    WorkspaceProject,
+    WorkspaceRoot,
+    WorkspaceRootKind,
+)
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
 )
@@ -50,7 +55,10 @@ def build_workspace_context(
     projects: tuple[WorkspaceProject, ...] = tuple(),
     path: FullPath = FullPath(Path("/tmp")),  # noqa: B008
 ) -> WorkspaceContext:
-    return WorkspaceContext(path=path, config=config, projects=projects)
+    workspace_root = WorkspaceRoot(path=path, kind=WorkspaceRootKind.UV_WORKSPACE)
+    return WorkspaceContext(
+        workspace_root=workspace_root, config=config, projects=projects
+    )
 
 
 def build_monorepo_workspace_context() -> WorkspaceContext:

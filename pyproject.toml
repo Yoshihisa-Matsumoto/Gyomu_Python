@@ -32,6 +32,8 @@ members = [
     "packages/facts",
     "packages/test",
     "packages/config",
+    "packages/interaction",
+    "packages/interaction_cli",
     "apps/cli",
 ]
 
@@ -53,6 +55,8 @@ files = [
     "packages/facts/src",
     "packages/test/src",
     "packages/config/src",
+    "packages/interaction/src",
+    "packages/interaction_cli/src",
     "apps/cli/src"
 ]
 
@@ -120,6 +124,8 @@ source_pkgs = [
     "gyomu_workflow",
     "gyomu_test",
     "gyomu_config",
+    "gyomu_interaction",
+    "gyomu_interaction_cli"
 ]
 branch = true
 

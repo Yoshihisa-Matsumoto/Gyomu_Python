@@ -15,6 +15,7 @@ from gyomu_ai.provider.pydantic_ai.routing import (
 from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
 from gyomu_ai_compiler.pipelines.document import DocumentRouteId
 from gyomu_infra.logger import logger
+from gyomu_python_analysis.analysis.workspace import find_root
 from gyomu_schema.option.retry import RetryObserver
 from gyomu_schema.schemas.types import FullPath
 from gyomu_workflow.snapshot.models import (
@@ -25,7 +26,6 @@ from gyomu_workflow.snapshot.models import (
     SnapshotTargetOption,
 )
 from gyomu_workflow.snapshot.project import find_project_by_name
-from gyomu_workflow.snapshot.workspace import get_workspace_context
 from gyomu_workflow.test.migrate_default import migrate_default_from_existing_helpers
 from gyomu_workflow.test.reconcile_helpers import reconcile_helper_inventories
 from returns.result import Failure
@@ -113,7 +113,7 @@ def snapshot(
         ),
     )
     current_path = FullPath(Path(getcwd()))
-    workspace_result = get_workspace_context(current_path)
+    workspace_result = find_root(current_path)
     if isinstance(workspace_result, Failure):
         logger.error_object(workspace_result.failure())
         return
@@ -155,7 +155,7 @@ def test(
     )
     current_path = FullPath(Path(getcwd()))
 
-    workspace_result = get_workspace_context(current_path)
+    workspace_result = find_root(current_path)
     if isinstance(workspace_result, Failure):
         logger.error_object(workspace_result.failure())
         return
