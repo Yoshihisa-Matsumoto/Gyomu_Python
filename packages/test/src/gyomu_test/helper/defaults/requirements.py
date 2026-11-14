@@ -93,13 +93,6 @@ class ResolvedPrimitiveDefault:
 
 
 @dataclass(frozen=True)
-class MissingParameterDefault:
-    parameter: ParameterInfo
-    missing_types: tuple[ResolvedType, ...]
-    # resolved_types: tuple[ResolvedSymbolDefault | ResolvedPrimitiveDefault, ...]
-
-
-@dataclass(frozen=True)
 class ResolvedParameterDefault:
     parameter: ParameterInfo
     default: Parameter
@@ -108,6 +101,42 @@ class ResolvedParameterDefault:
 @dataclass(frozen=True)
 class ConfiguredParameterDefault:
     parameter: ParameterInfo
+
+
+@dataclass(frozen=True)
+class MissingParameterDefault:
+    parameter: ParameterInfo
+    missing_types: tuple[ResolvedType, ...]
+    # resolved_types: tuple[ResolvedSymbolDefault | ResolvedPrimitiveDefault, ...]
+
+
+def get_primitive_type_name(
+    parameter: MissingParameterDefault,
+) -> str | None:
+    if len(parameter.missing_types) != 1:
+        return None
+
+    missing_type = parameter.missing_types[0]
+
+    if isinstance(missing_type, PrimitiveType):
+        return missing_type.primitive_type
+
+    if isinstance(missing_type, LiteralValueType):
+        value = missing_type.value
+        if value is None:
+            return None
+        return type(value).__name__
+
+    return None
+
+
+def is_supported_primitive_parameter_type(parameter: MissingParameterDefault) -> bool:
+    return get_primitive_type_name(parameter) in {
+        "str",
+        "int",
+        "bool",
+        "float",
+    }
 
 
 class ParameterConfigurationContext:

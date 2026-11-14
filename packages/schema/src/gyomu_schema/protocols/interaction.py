@@ -20,6 +20,13 @@ class ValueCodec[RawInputT, ContextT, ValueT](Protocol):
     ) -> Result[ValueT, ValidationError]: ...
 
 
+class DocumentTextProvider[ContextT](Protocol):
+    def create_initial_text(
+        self,
+        context: ContextT,
+    ) -> str: ...
+
+
 class InteractionExecutor[RawInputT](Protocol):
     def execute[ContextT, ValueT](
         self,

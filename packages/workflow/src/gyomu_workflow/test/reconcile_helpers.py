@@ -1,19 +1,10 @@
-from pathlib import Path
-
 from gyomu_infra.logger import logger
-from gyomu_python_analysis.analysis.initialize import (
-    initialize_project_context,
-    initialize_project_from_workspace,
-)
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.type_dump import dump_type
-from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.testing.helper import HelperReconcileResult, HelperUpdate
-from gyomu_test.helper.inventory.existing import collect_existing_helper_inventory
-from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
-from gyomu_test.helper.inventory.reconcile import reconcile
-from returns.result import Failure, Success
+
+from gyomu_workflow.test.helpers import _reconcile
 
 
 def reconcile_helper_inventories(
@@ -21,38 +12,12 @@ def reconcile_helper_inventories(
     workspace_project_context: WorkspaceProject,
     # additional_filename: str | None = None,
 ) -> None:
-    project_context = initialize_project_from_workspace(
-        workspace_path=workspace_context.workspace_root.path,
-        project=workspace_project_context,
-    )
-    expected_result = collect_model_helper_inventory(project_context, workspace_context)
 
-    if isinstance(expected_result, Failure):
-        logger.error_object(expected_result.failure(), depth=8)
-    assert isinstance(expected_result, Success)
-    expected = expected_result.unwrap()
+    reconcile_result, project_context = _reconcile(
+        workspace_context=workspace_context,
+        workspace_project_context=workspace_project_context,
+    ).unwrap()
 
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    assert isinstance(root_context_result, Success)
-
-    existing_result = collect_existing_helper_inventory(
-        root=root_context_result.unwrap(),
-        target_project=project_context,
-        # files=(ProjectRelativePath(Path("test_support/helpers.py")),)
-        # if additional_filename is None
-        # else (
-        #     ProjectRelativePath(Path("test_support/helpers.py")),
-        #     ProjectRelativePath(Path(f"test_support/{additional_filename}.py")),
-        # ),
-    )
-
-    assert isinstance(existing_result, Success)
-    existing = existing_result.unwrap()
-
-    reconcile_result = reconcile(existing=existing, expected=expected)
     dump_reconcile_result(
         reconcile_result=reconcile_result, project_context=project_context
     )

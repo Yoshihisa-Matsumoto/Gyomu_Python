@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from gyomu_schema.schemas.python.types import (
+    DeclarationIdentity,
     ProjectRelativePath,
     PythonPath,
     SourceRelativePath,
@@ -66,3 +67,10 @@ def source_relative_path_to_full_path(
     context.
     """
     return FullPath(context.project_root / context.source_root / path)
+
+
+def get_project_relative_path(
+    project_context: ProjectContext, identity: DeclarationIdentity
+) -> ProjectRelativePath:
+    module_path = identity.get_module_name()
+    return python_path_to_source_project_relative_path(module_path, project_context)

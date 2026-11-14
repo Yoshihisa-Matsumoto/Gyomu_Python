@@ -19,10 +19,14 @@ found, external failure, unexpected errors, concurrent modification, or out of b
 class GyomuError(BaseError):
     """Application-level Gyomu error."""
 
+    operation: str
+    domain: str
+    reason: GyomuErrorReason
+    retryable: bool
+
     def __init__(
         self,
         message: str,
-        *,
         operation: str,
         domain: str,
         reason: GyomuErrorReason,

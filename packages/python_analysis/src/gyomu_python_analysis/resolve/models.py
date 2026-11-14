@@ -85,7 +85,7 @@ class PackageType:
 
 @dataclass(frozen=True)
 class LiteralValueType:
-    value: str | bytes | bool | int | float | complex | None
+    value: str | bytes | bool | int | float | complex
     parameter_name: str
 
 

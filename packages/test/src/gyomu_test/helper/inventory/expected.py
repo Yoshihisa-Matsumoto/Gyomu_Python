@@ -241,7 +241,7 @@ def collect_model_helper_inventory(
         default_config_result = retrieve_config(request=config_request)
         if isinstance(default_config_result, Failure):
             return default_config_result.alt(
-                lambda error: GyomuTestError(message="fail to retrieve ")
+                lambda error: GyomuTestError(message="fail to retrieve ").chain(error)
             )
         default_config = default_config_result.unwrap()
 

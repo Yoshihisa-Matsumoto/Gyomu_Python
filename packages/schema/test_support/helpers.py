@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Literal
 
 from gyomu_schema.error.config import ConfigError, ConfigPhase, ConfigSource
+from gyomu_schema.error.gyomu import GyomuError, GyomuErrorReason
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.schemas.config.test.model_defaults import (
     AttributeParameter,
@@ -665,6 +666,26 @@ def create_gyomu_io_error(
         target=target,
         retryable=retryable,
         reason=reason,
+    )
+
+
+def create_gyomu_error(
+    message: str = "error",
+    operation: str = "test operation",
+    domain: str = "test domain",
+    reason: GyomuErrorReason = "external_failure",
+    retryable: bool = False,
+    context: str | None = None,
+    details: Mapping[str, object] | None = None,
+) -> GyomuError:
+    return GyomuError(
+        message=message,
+        operation=operation,
+        domain=domain,
+        reason=reason,
+        retryable=retryable,
+        context=context,
+        details=details,
     )
 
 

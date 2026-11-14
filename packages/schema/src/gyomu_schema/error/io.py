@@ -46,10 +46,15 @@ class IOOperation(StrEnum):
 class GyomuIOError(BaseError):
     """I/O operation error."""
 
+    layer: IOLayer
+    operation: IOOperation
+    target: str | None
+    retryable: bool
+    reason: str | None
+
     def __init__(
         self,
         message: str,
-        *,
         layer: IOLayer,
         operation: IOOperation,
         target: str | None = None,

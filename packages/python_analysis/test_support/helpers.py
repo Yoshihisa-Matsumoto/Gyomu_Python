@@ -301,7 +301,7 @@ def create_symbol_type(
 
 
 def create_literal_value_type(
-    value: str | bytes | bool | int | float | complex | None = None,
+    value: str | bytes | bool | int | float | complex = "test",
     parameter_name: str = "parameter",
 ) -> LiteralValueType:
     return LiteralValueType(value=value, parameter_name=parameter_name)

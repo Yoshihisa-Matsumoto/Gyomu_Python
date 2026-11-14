@@ -174,7 +174,7 @@ class TestDefaultResolvers:
     @staticmethod
     def _create_literal_type(
         parameter_name: str = "value",
-        value: str | bytes | bool | int | float | complex | None = "sample",
+        value: str | bytes | bool | int | float | complex = "sample",
     ) -> LiteralValueType:
         return LiteralValueType(
             parameter_name=parameter_name,

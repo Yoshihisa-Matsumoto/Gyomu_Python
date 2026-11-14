@@ -9,12 +9,11 @@ from gyomu_schema.schemas.interaction.request import (
     InteractionRequest,
 )
 from gyomu_schema.schemas.interaction.result import (
-    InteractionAccepted,
-    InteractionCancelled,
-    InteractionRejected,
     InteractionResult,
 )
-from returns.result import Failure, Result, Success
+from returns.result import Failure, Result
+
+from gyomu_interaction_cli.direct import execute_direct_interaction
 
 
 class CliInteractionExecutor(InteractionExecutor[str]):
@@ -42,23 +41,6 @@ class CliInteractionExecutor(InteractionExecutor[str]):
                 )
             )
 
-        while True:
-            try:
-                raw_input = self._input(f"{request.instruction}\n> ")
-            except (EOFError, KeyboardInterrupt):
-                return Success(InteractionCancelled())
-
-            if raw_input == ":cancel":
-                return Success(InteractionCancelled())
-
-            if raw_input == ":reject":
-                return Success(InteractionRejected())
-
-            parsed = request.codec.parse(raw_input, request.context)
-
-            if isinstance(parsed, Failure):
-                error = parsed.failure()
-                print(f"Invalid input: {error}", file=self._output)
-                continue
-
-            return Success(InteractionAccepted(parsed.unwrap()))
+        return execute_direct_interaction(
+            request=request, input_func=self._input, output=self._output
+        )
