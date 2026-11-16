@@ -24,7 +24,6 @@ from gyomu_schema.schemas.interaction.request import (
 )
 from gyomu_schema.schemas.interaction.result import (
     InteractionCancelled,
-    InteractionRejected,
 )
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.testing.helper import (
@@ -105,7 +104,7 @@ def _reconcile(
 def update_helper_inventories(
     workspace_context: WorkspaceContext,
     workspace_project_context: WorkspaceProject,
-    interaction: InteractionExecutor,
+    interaction: InteractionExecutor[str],
 ) -> Result[None, GyomuError]:
     result = _reconcile(
         workspace_context=workspace_context,
@@ -134,7 +133,7 @@ def _create_helper_inventory(
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
-    interaction: InteractionExecutor,
+    interaction: InteractionExecutor[str],
 ) -> Result[None, GyomuError]:
     for create_item in create:
         parameter_result = resolve_function_parameter_defaults(
@@ -267,7 +266,7 @@ def _build_interaction_request(
 
 def _define_parameter(
     parameter_context: DefaultTypeParameterContext,
-    interaction: InteractionExecutor,
+    interaction: InteractionExecutor[str],
 ) -> Result[ResolvedParameterDefault, GyomuError]:
     request_result = _build_interaction_request(parameter_context=parameter_context)
     if isinstance(request_result, Failure):
@@ -277,7 +276,7 @@ def _define_parameter(
     if isinstance(interaction_result, Failure):
         return interaction_result
     result = interaction_result.unwrap()
-    if isinstance(result, InteractionRejected | InteractionCancelled):
+    if isinstance(result, InteractionCancelled):
         return Failure(
             GyomuError(
                 "parameter was not defined by user",

@@ -6,9 +6,11 @@ from pydantic import BaseModel
 from returns.result import Failure, Success
 
 from gyomu_infra.filesystem.file_io import (
+    create_temp_file,
     ensure_directory,
     enumerate_files,
     read_json,
+    read_json_data,
     read_text,
     read_yaml,
     write_json,
@@ -329,3 +331,103 @@ class TestReadYaml:
 
         assert isinstance(result, Failure)
         assert isinstance(result.failure(), GyomuIOError)
+
+
+class TestReadJsonData:
+    def test_reads_json_object(self, tmp_path: Path) -> None:
+        path = tmp_path / "example.json"
+        path.write_text(
+            '{"name": "example", "value": 42}',
+            encoding="utf-8",
+        )
+
+        result = read_json_data(path)
+
+        assert result == Success({"name": "example", "value": 42})
+
+    def test_returns_validation_error_for_invalid_json(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "example.json"
+        path.write_text('{"name": "example",', encoding="utf-8")
+
+        result = read_json_data(path)
+
+        assert isinstance(result, Failure)
+        error = result.failure()
+        assert isinstance(error, ValidationError)
+        assert error.context == "serialization.parse_json"
+        assert error.details
+        assert "line" in error.details
+        assert "column" in error.details
+
+    def test_returns_validation_error_when_root_is_not_object(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "example.json"
+        path.write_text('[{"name": "example"}]', encoding="utf-8")
+
+        result = read_json_data(path)
+
+        assert isinstance(result, Failure)
+        error = result.failure()
+        assert isinstance(error, ValidationError)
+
+    def test_returns_io_error_when_file_does_not_exist(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        path = tmp_path / "missing.json"
+
+        result = read_json_data(path)
+
+        assert isinstance(result, Failure)
+        error = result.failure()
+        assert isinstance(error, GyomuIOError)
+        assert error.layer == IOLayer.FILESYSTEM
+        assert error.operation == IOOperation.READ
+        assert error.target == str(path)
+
+
+class TestCreateTempFile:
+    def test_creates_temp_file(self, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(
+            "gyomu_infra.filesystem.file_io.tempfile.tempdir",
+            str(tmp_path),
+        )
+
+        result = create_temp_file()
+
+        assert isinstance(result, Success)
+
+        path = result.unwrap()
+        try:
+            assert path.is_file()
+
+            # The file is closed and can be opened normally.
+            with path.open("w", encoding="utf-8") as file:
+                file.write("Hello, Gyomu!")
+
+            assert path.read_text(encoding="utf-8") == "Hello, Gyomu!"
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_returns_failure_when_temp_file_creation_fails(
+        self,
+        mocker,
+    ) -> None:
+        mocker.patch(
+            "gyomu_infra.filesystem.file_io.tempfile.NamedTemporaryFile",
+            side_effect=OSError("Permission denied"),
+        )
+
+        result = create_temp_file()
+
+        assert isinstance(result, Failure)
+
+        error = result.failure()
+        assert isinstance(error, GyomuIOError)
+        assert error.layer == IOLayer.FILESYSTEM
+        assert error.operation == IOOperation.WRITE

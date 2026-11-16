@@ -1,0 +1,167 @@
+import contextlib
+import shlex
+from collections.abc import Callable
+from pathlib import Path
+from typing import TextIO
+
+from gyomu_config.gyomu.load import load_gyomu_config_section
+from gyomu_infra.filesystem.file_io import (
+    create_temp_file,
+    delete_file,
+    read_text,
+    write_text,
+)
+from gyomu_infra.process.executor import execute_background
+from gyomu_schema.error.gyomu import GyomuError
+from gyomu_schema.schemas.interaction.request import InteractionDocumentRequest
+from gyomu_schema.schemas.interaction.result import (
+    InteractionAccepted,
+    InteractionCancelled,
+    InteractionResult,
+)
+from returns.result import Failure, Result, Success
+
+from gyomu_interaction_cli.confirm import confirm_or_cancel
+from gyomu_interaction_cli.editor.protocol import (
+    VSCODE_SETTING,
+    TextEditorConfig,
+)
+
+
+def _wrap_gyomu_error(error: BaseException, message: str) -> GyomuError:
+    return GyomuError(
+        message=message,
+        operation="document interaction",
+        domain="interaction",
+        reason="external_failure",
+    ).chain(error)
+
+
+def create_initial_document(
+    initial_text: str,
+) -> Result[Path, GyomuError]:
+    """Create a temporary document and write its initial text."""
+
+    temp_file_result = create_temp_file()
+    if isinstance(temp_file_result, Failure):
+        return Failure(
+            _wrap_gyomu_error(
+                error=temp_file_result.failure(),
+                message="fail to create temp file",
+            )
+        )
+
+    temp_file = temp_file_result.unwrap()
+
+    write_result = write_text(
+        path=temp_file,
+        content=initial_text,
+    )
+    if isinstance(write_result, Failure):
+        with contextlib.suppress(OSError):
+            delete_file(temp_file)
+
+        return Failure(
+            _wrap_gyomu_error(
+                error=write_result.failure(),
+                message="fail to write temp file",
+            )
+        )
+
+    return Success(temp_file)
+
+
+def open_document(command: str, file_path: Path) -> Result[None, GyomuError]:
+    try:
+        arguments = shlex.split(command)
+    except ValueError as error:
+        return Failure(
+            _wrap_gyomu_error(
+                error=error,
+                message="fail to parse editor command",
+            )
+        )
+
+    arguments = [
+        argument.replace("##FILENAME##", str(file_path)) for argument in arguments
+    ]
+
+    result = execute_background(command=arguments)
+    if isinstance(result, Failure):
+        return result.alt(
+            lambda error: _wrap_gyomu_error(
+                error=error,
+                message="fail to execute opening file",
+            )
+        )
+
+    return Success(None)
+
+
+def execute_document_interaction[ContextT, ValueT](
+    request: InteractionDocumentRequest[str, ContextT, ValueT],
+    *,
+    input_func: Callable[[str], str],
+    output: TextIO,
+) -> Result[InteractionResult[ValueT], GyomuError]:
+    config_result = load_gyomu_config_section(
+        section_name="test.interaction-cli.text-editor",
+        model_type=TextEditorConfig,
+        default=VSCODE_SETTING,
+    )
+    if isinstance(config_result, Failure):
+        return config_result.alt(
+            lambda error: _wrap_gyomu_error(
+                error=error,
+                message="fail to load config",
+            )
+        )
+
+    text_result = request.text_provider.create_initial_text(
+        context=request.context,
+    )
+    if isinstance(text_result, Failure):
+        return text_result
+
+    document_result = create_initial_document(
+        initial_text=text_result.unwrap(),
+    )
+    if isinstance(document_result, Failure):
+        return document_result
+
+    temp_file = document_result.unwrap()
+
+    try:
+        while True:
+            open_result = open_document(
+                command=config_result.unwrap().command,
+                file_path=temp_file,
+            )
+            if isinstance(open_result, Failure):
+                return open_result
+
+            confirmed = confirm_or_cancel(input_func=input_func, output=output)
+            if not confirmed:
+                return Success(InteractionCancelled())
+
+            read_result = read_text(path=temp_file)
+            if isinstance(read_result, Failure):
+                return read_result.alt(
+                    lambda error: _wrap_gyomu_error(
+                        error=error,
+                        message="fail to read temp file",
+                    )
+                )
+
+            parsed = request.codec.parse(
+                read_result.unwrap(),
+                request.context,
+            )
+            if isinstance(parsed, Failure):
+                print(f"Invalid input: {parsed.failure()}", file=output)
+                continue
+
+            return Success(InteractionAccepted(parsed.unwrap()))
+    finally:
+        with contextlib.suppress(OSError):
+            delete_file(temp_file)

@@ -1,11 +1,11 @@
 from collections.abc import Sequence
 from pathlib import Path
-from subprocess import CompletedProcess, run
+from subprocess import CompletedProcess, Popen, run
 
 from returns.result import Failure, Result, Success
 
 from gyomu_infra.process.error import ProcessError
-from gyomu_infra.process.model import ProcessResult
+from gyomu_infra.process.model import ProcessHandle, ProcessResult
 
 
 def execute(
@@ -55,3 +55,29 @@ def execute(
             stderr=completed_process.stderr,
         )
     )
+
+
+def execute_background(
+    command: Sequence[str],
+    *,
+    cwd: Path | None = None,
+) -> Result[ProcessHandle, ProcessError]:
+    command_tuple = tuple(command)
+
+    try:
+        process = Popen(
+            command_tuple,
+            cwd=cwd,
+            text=True,
+        )
+    except OSError as error:
+        return Failure(
+            ProcessError(
+                str(error),
+                command=command_tuple,
+                exit_code=None,
+                details={"exception": type(error).__name__},
+            )
+        )
+
+    return Success(ProcessHandle(process=process))

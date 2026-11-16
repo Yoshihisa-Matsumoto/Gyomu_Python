@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from subprocess import Popen
 
 
 @dataclass(frozen=True)
@@ -15,3 +16,8 @@ class ProcessResult:
 
     stderr: str
     """The standard error captured from the process."""
+
+
+@dataclass(frozen=True)
+class ProcessHandle:
+    process: Popen[str]

@@ -24,7 +24,7 @@ class DocumentTextProvider[ContextT](Protocol):
     def create_initial_text(
         self,
         context: ContextT,
-    ) -> str: ...
+    ) -> Result[str, GyomuError]: ...
 
 
 class InteractionExecutor[RawInputT](Protocol):

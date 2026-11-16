@@ -15,8 +15,6 @@ class InteractionBaseRequest[RawInputT, ContextT, ValueT]:
     instruction: str
     context: ContextT
     codec: ValueCodec[RawInputT, ContextT, ValueT]
-    input_mode: InputMode
-    initial_value: ValueT | None
 
 
 @dataclass(frozen=True)

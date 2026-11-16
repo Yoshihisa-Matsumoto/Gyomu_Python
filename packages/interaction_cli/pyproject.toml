@@ -7,7 +7,6 @@ requires-python = ">=3.13"
 dependencies = [
     "gyomu-schema",
     "gyomu-infra",
-    "gyomu-interaction",
     "returns",
 ]
 license = "MIT"

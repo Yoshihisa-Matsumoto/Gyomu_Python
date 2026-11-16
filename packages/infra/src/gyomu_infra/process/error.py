@@ -12,7 +12,6 @@ class ProcessError(BaseError):
     def __init__(
         self,
         message: str,
-        *,
         command: tuple[str, ...],
         exit_code: int | None,
         details: Mapping[str, object] | None = None,

@@ -7,15 +7,8 @@ class InteractionAccepted[ValueT]:
 
 
 @dataclass(frozen=True)
-class InteractionRejected:
-    pass
-
-
-@dataclass(frozen=True)
 class InteractionCancelled:
     pass
 
 
-type InteractionResult[ValueT] = (
-    InteractionAccepted[ValueT] | InteractionRejected | InteractionCancelled
-)
+type InteractionResult[ValueT] = InteractionAccepted[ValueT] | InteractionCancelled

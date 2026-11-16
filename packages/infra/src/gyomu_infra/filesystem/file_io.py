@@ -1,6 +1,9 @@
+import json
+import tempfile
 from collections.abc import Callable
 from os import remove, stat_result
 from pathlib import Path
+from typing import Any
 
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
@@ -140,6 +143,39 @@ def read_json[T](
     return validate_json(model_type, text_result.unwrap())
 
 
+def read_json_data(
+    path: Path,
+) -> Result[dict[str, Any], GyomuIOError | ValidationError]:
+    text_result = read_text(path)
+
+    if isinstance(text_result, Failure):
+        return text_result
+
+    try:
+        data = json.loads(text_result.unwrap())
+    except json.JSONDecodeError as error:
+        return Failure(
+            ValidationError(
+                "Failed to parse JSON.",
+                details={
+                    "message": error.msg,
+                    "line": error.lineno,
+                    "column": error.colno,
+                },
+                context="serialization.parse_json",
+            ).chain(error)
+        )
+
+    if not isinstance(data, dict):
+        return Failure(
+            ValidationError(
+                "Expected a JSON object at the root.",
+            )
+        )
+
+    return Success(data)
+
+
 def read_yaml[T](
     path: Path,
     model_type: type[T],
@@ -197,4 +233,27 @@ def delete_file(path: Path) -> Result[None, GyomuIOError]:
                 target=str(path),
                 reason=str(error),
             )
+        )
+
+
+def create_temp_file() -> Result[Path, GyomuIOError]:
+    """Create an empty temporary file and return its path.
+
+    The file is closed before the path is returned and is not deleted
+    automatically.
+    """
+    try:
+        with tempfile.NamedTemporaryFile(delete=False) as file:
+            path = Path(file.name)
+
+        return Success(path)
+    except OSError as error:
+        return Failure(
+            GyomuIOError(
+                "Failed to create temporary file.",
+                layer=IOLayer.FILESYSTEM,
+                operation=IOOperation.WRITE,
+                target="temporary file",
+                reason=str(error),
+            ).chain(error)
         )

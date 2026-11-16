@@ -11,9 +11,10 @@ from gyomu_schema.schemas.interaction.request import (
 from gyomu_schema.schemas.interaction.result import (
     InteractionResult,
 )
-from returns.result import Failure, Result
+from returns.result import Result
 
 from gyomu_interaction_cli.direct import execute_direct_interaction
+from gyomu_interaction_cli.document import execute_document_interaction
 
 
 class CliInteractionExecutor(InteractionExecutor[str]):
@@ -30,17 +31,11 @@ class CliInteractionExecutor(InteractionExecutor[str]):
         self,
         request: InteractionRequest[str, ContextT, ValueT],
     ) -> Result[InteractionResult[ValueT], GyomuError]:
-        if request.input_mode is not InputMode.DIRECT:
-            return Failure(
-                GyomuError(
-                    "Unsupported interaction input mode.",
-                    operation="Execution",
-                    domain="Interaction CLI",
-                    reason="invalid_input",
-                    details={"input_mode": request.input_mode.value},
-                )
+        if request.input_mode == InputMode.DIRECT:
+            return execute_direct_interaction(
+                request=request, input_func=self._input, output=self._output
             )
 
-        return execute_direct_interaction(
+        return execute_document_interaction(
             request=request, input_func=self._input, output=self._output
         )
