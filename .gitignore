@@ -27,3 +27,6 @@ log/
 
 # snapshot
 __snapshots__
+
+# test validation temp file
+**/test_support/validation_workspace/
