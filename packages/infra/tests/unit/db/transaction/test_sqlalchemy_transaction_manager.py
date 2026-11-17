@@ -57,9 +57,8 @@ class TestSqlAlchemyTransactionManager_Exit:
 
         manager = SqlAlchemyTransactionManager(session, None)
 
-        result = manager.__exit__(None, None, None)
+        manager.__exit__(None, None, None)
 
-        assert result is None
         transaction.commit.assert_called_once_with()
         transaction.rollback.assert_not_called()
 
@@ -73,13 +72,12 @@ class TestSqlAlchemyTransactionManager_Exit:
         exc = ValueError("test error")
         traceback = MagicMock(spec=TracebackType)
 
-        result = manager.__exit__(
+        manager.__exit__(
             ValueError,
             exc,
             traceback,
         )
 
-        assert result is None
         transaction.rollback.assert_called_once_with()
         transaction.commit.assert_not_called()
 

@@ -76,7 +76,7 @@ async def test_generate_text_with_tool(registry: PydanticAiModelRegistry) -> Non
 
     execution = PydanticAiModelExecution(registry, RetryOption(3))
 
-    tool = AiTool(
+    tool = AiTool[GetValueInput, str, GetValueInput](
         name="get_value",
         description="Gets a value for the specified key.",
         input_type=GetValueInput,
@@ -158,7 +158,7 @@ async def test_generate_text_with_tool_failure(
             ),
         )
 
-    tool = AiTool(
+    tool = AiTool[GetValueInput, str, TestToolConfig](
         name="get_value",
         description="Gets a value for the specified key.",
         input_type=GetValueInput,

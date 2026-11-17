@@ -77,7 +77,7 @@ def validate_keyword_argument(
     result: KeywordArgument, expected: KeywordArgument
 ) -> None:
     assert result.name == expected.name
-    assert validate_parameter(result.value, expected.value)
+    validate_parameter(result.value, expected.value)
 
 
 def validate_call_parameter(result: CallParameter, expected: CallParameter) -> None:

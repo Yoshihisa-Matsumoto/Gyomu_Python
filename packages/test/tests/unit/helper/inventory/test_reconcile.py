@@ -195,6 +195,7 @@ def find_existing_inventory(
             return target_inventory
 
     assert target_inventory is not None
+    return target_inventory
 
 
 class TestReconcile:

@@ -28,17 +28,17 @@ async def update_with_real_llm(
     project_full_path: FullPath, source_project_relative_path: ProjectRelativePath
 ) -> None:
     load_dotenv()
-    result = initialize_project_context(
+    project_context_result = initialize_project_context(
         project_root=project_full_path,
         source_root=ProjectRelativePath(Path("src")),
     )
-    if isinstance(result, Failure):
-        print(repr(result.failure()))
+    if isinstance(project_context_result, Failure):
+        print(repr(project_context_result.failure()))
         return
 
-    assert isinstance(result, Success)
+    assert isinstance(project_context_result, Success)
 
-    project_context = result.unwrap()
+    project_context = project_context_result.unwrap()
 
     file_path = source_project_relative_path
 
@@ -54,12 +54,12 @@ async def update_with_real_llm(
         # action=UpdateActionOption(no_llm_request=True),
         no_check_cache=True,
     )
-    result = load_file_analysis_context(
+    file_analysis_result = load_file_analysis_context(
         context=project_context, file_path=file_path, option=option
     )
-    assert isinstance(result, Success)
+    assert isinstance(file_analysis_result, Success)
 
-    file_context = result.unwrap()
+    file_context = file_analysis_result.unwrap()
     result = await process_docstring_update(
         context=project_context, file_context=file_context, option=option
     )
@@ -71,7 +71,7 @@ async def update_with_real_llm(
     assert isinstance(result, Success)
 
 
-async def main():
+async def main() -> None:
     args = sys.argv[1:]
     current_path = FullPath(Path(getcwd()))
     result = find_root(current_path)

@@ -1,7 +1,9 @@
 from collections.abc import Awaitable, Callable
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from gyomu_ai.execution.result import AiGenerateObjectResult
 from gyomu_ai.provider.pydantic_ai import route_service as route_service_module
 from gyomu_ai.provider.pydantic_ai.execution import PydanticAiModelExecution
 from gyomu_ai.provider.pydantic_ai.routing import (
@@ -97,7 +99,7 @@ class TestPydanticAiRoutingExecution:
 
         expected = Success("success")
 
-        execution.run_node = AsyncMock(return_value=expected)
+        execution.run_node = AsyncMock(return_value=expected)  # type: ignore[method-assign]
 
         async def execute(
             service: PydanticAiModelExecution,
@@ -128,9 +130,7 @@ class TestPydanticAiRoutingExecution:
         error = MagicMock(spec=AiError)
         error.resolution = AiFailResolution()
 
-        execution.run_node = AsyncMock(
-            return_value=Failure(error),
-        )
+        execution.run_node = AsyncMock(return_value=Failure(error))  # type: ignore[method-assign]
 
         async def execute(
             service: PydanticAiModelExecution,
@@ -163,7 +163,7 @@ class TestPydanticAiRoutingExecution:
 
         expected = Success("success")
 
-        execution.run_node = AsyncMock(
+        execution.run_node = AsyncMock(  # type: ignore[method-assign]
             side_effect=[
                 Failure(first_error),
                 expected,
@@ -200,7 +200,7 @@ class TestPydanticAiRoutingExecution:
         last_error = MagicMock(spec=AiError)
         last_error.resolution = AiFallbackResolution()
 
-        execution.run_node = AsyncMock(
+        execution.run_node = AsyncMock(  # type: ignore[method-assign]
             side_effect=[
                 Failure(first_error),
                 Failure(last_error),
@@ -305,7 +305,9 @@ class TestPydanticAiRoutingExecution:
             side_effect=execute,
         )
 
-        actual = await execution.generate_object(conversation, params)
+        actual: Result[
+            AiGenerateObjectResult[Any], AiError
+        ] = await execution.generate_object(conversation, params)
 
         assert isinstance(actual, Success)
         assert actual is expected

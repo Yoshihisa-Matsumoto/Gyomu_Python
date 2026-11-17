@@ -82,24 +82,24 @@ async def test_update(
 
     file_path = ProjectRelativePath(Path("src") / "docstring" / (case + ".py"))
 
-    result = load_file_analysis_context(
+    file_result = load_file_analysis_context(
         context=project_context,
         file_path=file_path,
     )
-    if isinstance(result, Failure):
-        print(format_object(result.failure()))
-    assert isinstance(result, Success)
+    if isinstance(file_result, Failure):
+        print(format_object(file_result.failure()))
+    assert isinstance(file_result, Success)
 
-    file_context = result.unwrap()
+    file_context = file_result.unwrap()
 
-    result = read_json(
+    json_result = read_json(
         project_path / "expected_plan" / (case + ".json"), DocstringUpdatePlan
     )
-    if isinstance(result, Failure):
-        print(format_object(result.failure()))
-    assert isinstance(result, Success)
+    if isinstance(json_result, Failure):
+        print(format_object(json_result.failure()))
+    assert isinstance(json_result, Success)
 
-    plan = result.unwrap()
+    plan = json_result.unwrap()
 
     mocker.patch(
         "gyomu_docstring.update.internal.build_update_plan.generate_docstring_update_plan",
@@ -130,12 +130,12 @@ async def test_update(
             action=UpdateActionOption(no_update_docstring=True),
         )
 
-    result = await process_docstring_update(
+    process_result = await process_docstring_update(
         context=project_context, file_context=file_context, option=option
     )
-    if isinstance(result, Failure):
-        print(repr(result.failure()))
-    assert isinstance(result, Success)
+    if isinstance(process_result, Failure):
+        print(repr(process_result.failure()))
+    assert isinstance(process_result, Success)
 
     expected_path = ProjectRelativePath(Path("expected") / (case + ".py"))
     assert_text_file_equals(
@@ -164,13 +164,13 @@ async def test_update_with_real_llm(
 
     file_path = ProjectRelativePath(Path("src") / "docstring" / "example.py")
 
-    result = load_file_analysis_context(
+    file_result = load_file_analysis_context(
         context=project_context,
         file_path=file_path,
     )
-    assert isinstance(result, Success)
+    assert isinstance(file_result, Success)
 
-    file_context = result.unwrap()
+    file_context = file_result.unwrap()
 
     original_source = (project_path / file_path).read_text()
 
@@ -184,23 +184,23 @@ async def test_update_with_real_llm(
             docstring_update_context=True,
         )
     )
-    result = await process_docstring_update(
+    process_result = await process_docstring_update(
         context=project_context, file_context=file_context, option=option
     )
-    if isinstance(result, Failure):
-        print(repr(result.failure()))
-    assert isinstance(result, Success)
+    if isinstance(process_result, Failure):
+        print(repr(process_result.failure()))
+    assert isinstance(process_result, Success)
 
     updated_source = (project_path / file_path).read_text()
 
     assert updated_source != original_source
 
-    result = load_file_analysis_context(
+    file_result = load_file_analysis_context(
         context=project_context, file_path=file_path, file_hash="DFDF"
     )
-    assert isinstance(result, Success)
+    assert isinstance(file_result, Success)
 
-    updated_file_context = result.unwrap()
+    updated_file_context = file_result.unwrap()
 
     original_symbols = file_context.metadata.symbols.keys()
     updated_symbols = updated_file_context.metadata.symbols.keys()

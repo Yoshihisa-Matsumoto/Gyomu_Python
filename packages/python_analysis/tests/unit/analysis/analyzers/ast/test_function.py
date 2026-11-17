@@ -92,11 +92,11 @@ def test_outer(
 
     assert len(statement.value.args) == 1
 
-    argument = assert_expression_type(
+    name_argument = assert_expression_type(
         statement.value.args[0],
         NameExpressionAnalysis,
     )
-    assert argument.name == "value"
+    assert name_argument.name == "value"
 
     assert statement.value.keywords == ()
 
@@ -311,10 +311,10 @@ def test_outer_with_async_function(
 
     assert len(statement.value.args) == 1
 
-    argument = assert_expression_type(
+    name_argument = assert_expression_type(
         statement.value.args[0],
         NameExpressionAnalysis,
     )
-    assert argument.name == "value"
+    assert name_argument.name == "value"
 
     assert statement.value.keywords == ()

@@ -19,7 +19,6 @@ from gyomu_schema.schemas.interaction.request import (
 from gyomu_schema.schemas.interaction.result import (
     InteractionAccepted,
     InteractionCancelled,
-    InteractionRejected,
 )
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem
@@ -229,21 +228,6 @@ class TestDefineParameter:
         assert isinstance(request, InteractionDirectRequest)
         assert request.context is context
         assert isinstance(request.codec, PrimitiveValueCodec)
-
-    def test_rejected_returns_failure(self) -> None:
-        context = self._create_context()
-        executor = Mock(spec=InteractionExecutor)
-        executor.execute.return_value = Success(InteractionRejected())
-
-        result = _define_parameter(
-            parameter_context=context,
-            interaction=executor,
-        )
-
-        assert isinstance(result, Failure)
-        assert isinstance(result.failure(), GyomuError)
-        assert result.failure().reason == "external_failure"
-        executor.execute.assert_called_once()
 
     def test_cancelled_returns_failure(self) -> None:
         context = self._create_context()

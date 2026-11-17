@@ -311,7 +311,7 @@ class TestPydanticAiModelExecution_GenerateText:
         ) -> ToolResult[int]:
             return await execute(input, config)
 
-        tool = AiTool(
+        tool = AiTool[AddInput, int, DummyToolConfig](
             name="add",
             description="Add two numbers.",
             input_type=AddInput,
@@ -386,7 +386,7 @@ class TestPydanticAiModelExecution_GenerateText:
         ) -> ToolResult[int]:
             return await execute(input, config)
 
-        tool = AiTool(
+        tool = AiTool[AddInput, int, DummyToolConfig](
             name="add",
             description="Add two numbers.",
             input_type=AddInput,
@@ -700,7 +700,7 @@ class TestPydanticAiModelExecution_GenerateObject:
         ) -> ToolResult[int]:
             return await execute(input, config)
 
-        tool = AiTool(
+        tool = AiTool[AddInput, int, DummyToolConfig](
             name="add",
             description="Add two numbers.",
             input_type=AddInput,
@@ -984,7 +984,7 @@ class TestPydanticAiModelExecution_StreamText:
         ) -> ToolResult[int]:
             return await execute(input, config)
 
-        tool = AiTool(
+        tool = AiTool[AddInput, int, DummyToolConfig](
             name="add",
             description="Add two numbers.",
             input_type=AddInput,
@@ -1163,7 +1163,7 @@ class TestPydanticAiToolCall:
         ) -> ToolResult[int]:
             return await execute(input, config)
 
-        tool = AiTool(
+        tool = AiTool[AddInput, int, DummyToolConfig](
             name="add",
             description="Add two numbers.",
             input_type=AddInput,
@@ -1223,7 +1223,7 @@ class TestPydanticAiToolCall:
         ) -> ToolResult[int]:
             return await execute(input, config)
 
-        tool = AiTool(
+        tool = AiTool[AddInput, int, DummyToolConfig](
             name="add",
             description="Add two numbers.",
             input_type=AddInput,

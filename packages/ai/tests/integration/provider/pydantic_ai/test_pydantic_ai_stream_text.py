@@ -81,7 +81,7 @@ async def test_stream_text_with_tool(registry: PydanticAiModelRegistry) -> None:
             data="value-for-customer_name",
         )
 
-    tool = AiTool(
+    tool = AiTool[GetValueInput, str, GetValueConfig](
         name="get_value",
         description="Get a value by key.",
         input_type=GetValueInput,

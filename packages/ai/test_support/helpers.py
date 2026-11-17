@@ -28,7 +28,7 @@ def register_test_google_routing(
     project_dot_env: Path,
     route_id_list: list[ModelRouteId],
     retry_observer: RetryObserver | None = None,
-):
+) -> None:
     route: RouteNode = RouteNode(
         registry=create_default_pydantic_ai_model_registry(project_dot_env)
     )

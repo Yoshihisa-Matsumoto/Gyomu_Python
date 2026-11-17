@@ -482,7 +482,7 @@ def create_keyword_structure_analysis(
 def create_module_analysis(
     path: SourceRelativePath = SourceRelativePath(Path(".")),
     name: str = "test",
-    module_name=PythonPath(""),
+    module_name: PythonPath = PythonPath(""),
     docstring: DocstringAnalysis | None = None,
     imports: tuple[ImportAnalysis, ...] = tuple(),
     symbols: tuple[SymbolAnalysis, ...] = (),

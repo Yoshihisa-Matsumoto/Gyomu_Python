@@ -3,10 +3,13 @@ from pathlib import Path
 
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
-from gyomu_python_analysis.project.context import ProjectContext, PyProjectConfig
+from gyomu_python_analysis.project.context import (
+    ProjectContext,
+    PyProjectConfig,
+    WorkspaceProject,
+)
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceProject,
     WorkspaceRoot,
     WorkspaceRootKind,
 )

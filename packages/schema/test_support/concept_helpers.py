@@ -523,7 +523,7 @@ def create_section(
     id: str = "section_id",
     title: str | None = None,
     contents: tuple[DocumentContent, ...] = (create_paragraph(),),
-) -> Section:
+) -> Section[str]:
     return Section(id=id, title=title, contents=contents)
 
 
@@ -551,18 +551,18 @@ def create_section_translation_instruction(
 
 
 def create_section_with_instruction(
-    section: Section = create_section(),  # noqa: B008
+    section: Section[str] = create_section(),  # noqa: B008
     translation_instruction: str | None = None,
-) -> SectionWithInstruction:
+) -> SectionWithInstruction[str]:
     return SectionWithInstruction(
         section=section, translation_instruction=translation_instruction
     )
 
 
 def create_built_section(
-    section: Section = create_section(),  # noqa: B008
+    section: Section[str] = create_section(),  # noqa: B008
     translation: SectionTranslationDefinition = create_section_no_translation(),  # noqa: B008, E501
-) -> BuiltSection:
+) -> BuiltSection[str]:
     return BuiltSection(section=section, translation=translation)
 
 
@@ -602,8 +602,9 @@ def create_translation_request(
 
 
 def create_document(
-    title: str = "Test Document", sections: tuple[Section, ...] = (create_section(),)
-) -> Document:
+    title: str = "Test Document",
+    sections: tuple[Section[str], ...] = (create_section(),),
+) -> Document[str]:
     return Document(title=title, sections=sections)
 
 
@@ -622,7 +623,7 @@ def create_document_base_context(
     analysis: PackageAnalysis = create_package_analysis__default(),  # noqa: B008
     concept: PackageConcept = create_package_concept(),  # noqa: B008
     knowledge: Knowledge = create_knowledge(),  # noqa: B008
-) -> DocumentBaseContext:
+) -> DocumentBaseContext[Knowledge]:
     return DocumentBaseContext(analysis=analysis, concept=concept, knowledge=knowledge)
 
 

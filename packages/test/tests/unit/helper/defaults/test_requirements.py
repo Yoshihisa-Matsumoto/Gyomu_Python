@@ -111,16 +111,16 @@ class TestResolveFunctionParameterDefaults:
         inventories = result.unwrap()
         inventory = get_inventory(inventories, "StringLiteralModel")
 
-        result = resolve_function_parameter_defaults(
+        parameter_result = resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
             config_manager=context.config_manager,
         )
 
-        assert isinstance(result, Success)
+        assert isinstance(parameter_result, Success)
 
-        parameters = result.unwrap()
+        parameters = parameter_result.unwrap()
         print(format_object(parameters, depth=8))
 
         for parameter in parameters:

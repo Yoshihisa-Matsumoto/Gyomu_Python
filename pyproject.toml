@@ -42,21 +42,7 @@ members = [
 python_version = "3.13"
 strict = true
 plugins = ["returns.contrib.mypy.returns_plugin"]
-files = [
-    "packages/schema/src",
-    "packages/infra/src",
-    "packages/ai/src",
-    "packages/python_analysis/src",
-    "packages/docstring/src",
-    "packages/ai_compiler/src",
-    "packages/workflow/src",
-    "packages/concept/src",
-    "packages/facts/src",
-    "packages/test/src",
-    "packages/config/src",
-    "packages/interaction_cli/src",
-    "apps/cli/src"
-]
+
 
 [tool.ruff]
 target-version = "py313"

@@ -2,8 +2,10 @@ import subprocess
 from pathlib import Path
 
 from dotenv import load_dotenv
+from gyomu_schema.config.config_loader_option import EnvironmentLoaderOption
+from gyomu_schema.db.config import DbConfig
 
-from gyomu_infra.db.connection.factory import get_main_db_connection_string
+from gyomu_infra.config.loader import ConfigLoader
 
 load_dotenv()
 
@@ -20,7 +22,15 @@ OUTPUT_DIR = (
 
 
 def main() -> None:
-    connection_string = get_main_db_connection_string()
+    config = ConfigLoader.load(
+        DbConfig,
+        EnvironmentLoaderOption(
+            use_dot_env=True,
+            dot_env_path=Path("../../../.env"),
+            variables={"GYOMU_COMMON_MAINDB_CONNECTION": "connection_string"},
+        ),
+    ).unwrap()
+    connection_string = config.connection_string
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 

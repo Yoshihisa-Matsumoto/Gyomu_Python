@@ -61,11 +61,11 @@ class TestAnalyzeType(AnalysisTestBase):
             "value_union",
         )
 
-        result = self._analyze_class(
+        class_result = self._analyze_class(
             "Box",
         )
-        assert result.variables[0].name == "value"
-        val = result.variables[0]
+        assert class_result.variables[0].name == "value"
+        val = class_result.variables[0]
         assert val.type
         assert val.type.structure
         assert isinstance(val.type.structure, NameStructureAnalysis)

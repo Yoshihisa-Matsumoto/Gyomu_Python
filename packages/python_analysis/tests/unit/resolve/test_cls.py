@@ -294,14 +294,14 @@ class TestCollectClassHierarchy:
         assert symbol is not None
         assert isinstance(symbol, ClassAnalysis)
 
-        result = collect_class_hierarchy(
+        class_hierarchy_result = collect_class_hierarchy(
             cls=symbol,
             module=file_context.analysis,
             workspace=workspace_context,
             is_base_first=is_base_first,
         )
-        assert isinstance(result, Success)
-        class_resolutions = result.unwrap()
+        assert isinstance(class_hierarchy_result, Success)
+        class_resolutions = class_hierarchy_result.unwrap()
 
         resolved = [resolved.symbol.name for resolved in class_resolutions.resolved()]
         unresolved = [

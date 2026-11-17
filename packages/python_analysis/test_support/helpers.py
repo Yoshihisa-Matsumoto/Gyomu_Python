@@ -28,10 +28,10 @@ from gyomu_python_analysis.project.context import (
     PackageRoot,
     ProjectContext,
     PyProjectConfig,
+    WorkspaceProject,
 )
 from gyomu_python_analysis.project.workspace import (
     WorkspaceContext,
-    WorkspaceProject,
     WorkspaceRoot,
     WorkspaceRootKind,
 )

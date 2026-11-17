@@ -54,7 +54,6 @@ def create_symbol(name: str, symbol_id: SymbolId | None = None) -> SymbolAnalysi
         kind=DeclarationKind.VARIABLE,
         type=None,
         value_source="",
-        value_expression=None,
         pydantic=None,
     )
 
@@ -101,7 +100,7 @@ def test_finds_imported_name() -> None:
         )
     ]
 
-    result = _find_imported("UserId", imported)
+    result = _find_imported("UserId", tuple(imported))
     assert result
     assert result.imported_name == "gyomu_schema.schemas.user.UserId"
 
@@ -115,7 +114,7 @@ def test_returns_none_when_imported_name_not_found() -> None:
         )
     ]
 
-    result = _find_imported("UserName", imported)
+    result = _find_imported("UserName", tuple(imported))
 
     assert result is None
 
@@ -190,7 +189,7 @@ def test_analyzes_imported_symbol_dependency() -> None:
         create_symbol(name="UserId"),
     ]
 
-    result = analyze_dependency(record, imported, symbols)
+    result = analyze_dependency(record, tuple(imported), symbols)
 
     assert result == DependencyAnalysis(
         source=source,
@@ -218,7 +217,7 @@ def test_analyzes_local_file_dependency() -> None:
 
     result = analyze_dependency(
         record,
-        imported=[],
+        imported=(),
         symbols=[user_id],
     )
 
@@ -243,7 +242,7 @@ def test_returns_none_when_dependency_cannot_be_resolved() -> None:
 
     result = analyze_dependency(
         record,
-        imported=[],
+        imported=(),
         symbols=[],
     )
 
@@ -311,7 +310,7 @@ def test_resolves_dependencies() -> None:
 
     result = resolve_dependencies(
         dependencies=dependencies,
-        imported=imported,
+        imported=tuple(imported),
         symbols=symbols,
     )
 

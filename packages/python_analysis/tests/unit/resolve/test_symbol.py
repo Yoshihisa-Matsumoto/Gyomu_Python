@@ -80,7 +80,7 @@ class TestResolveWorkspaceSymbolAnalysis:
         file_analysis_context.metadata.symbols = {
             declaration_identity: symbol,
         }
-        workspace_context.find_file_analysis_context = Mock(
+        workspace_context.find_file_analysis_context = Mock(  # type: ignore[method-assign]
             return_value=Success((file_analysis_context, project_context))
         )
 
@@ -100,7 +100,7 @@ class TestResolveWorkspaceSymbolAnalysis:
         declaration_identity: DeclarationIdentity,
         workspace_context: WorkspaceContext,
     ) -> None:
-        workspace_context.find_file_analysis_context = Mock(return_value=Success(None))
+        workspace_context.find_file_analysis_context = Mock(return_value=Success(None))  # type: ignore[method-assign]
 
         result = resolve_workspace_symbol_analysis(
             declaration_identity=declaration_identity,
@@ -118,7 +118,7 @@ class TestResolveWorkspaceSymbolAnalysis:
         workspace_context: WorkspaceContext,
     ) -> None:
         file_analysis_context.metadata.symbols = {}
-        workspace_context.find_file_analysis_context = Mock(
+        workspace_context.find_file_analysis_context = Mock(  # type: ignore[method-assign]
             return_value=Success((file_analysis_context, project_context))
         )
 
@@ -147,7 +147,7 @@ class TestResolveWorkspaceSymbolAnalysis:
         file_analysis_context.metadata.symbols = {
             declaration_identity: create_class_variable_analysis(),
         }
-        workspace_context.find_file_analysis_context = Mock(
+        workspace_context.find_file_analysis_context = Mock(  # type: ignore[method-assign]
             return_value=Success((file_analysis_context, project_context))
         )
 
@@ -171,7 +171,7 @@ class TestResolveWorkspaceSymbolAnalysis:
         declaration_identity: DeclarationIdentity,
         workspace_context: WorkspaceContext,
     ) -> None:
-        workspace_context.find_file_analysis_context = Mock(
+        workspace_context.find_file_analysis_context = Mock(  # type: ignore[method-assign]
             return_value=Failure(
                 ResolveError(
                     message="original lookup error",

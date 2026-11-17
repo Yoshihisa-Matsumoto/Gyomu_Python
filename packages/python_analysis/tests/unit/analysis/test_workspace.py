@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from typing import Any
 
 import pytest
 from gyomu_python_analysis.analysis.workspace import (
@@ -170,7 +171,7 @@ class TestGetUvWorkspaceMembers:
         assert get_uv_workspace_members({}) == []
 
     def test_returns_empty_list_when_workspace_is_missing_members(self) -> None:
-        toml_data = {
+        toml_data: dict[str, Any] = {
             "tool": {
                 "uv": {
                     "workspace": {},
@@ -235,6 +236,8 @@ class TestEnumerateWorkspaceTargetFiles:
 
         context = result.unwrap()
 
-        result = enumerate_workspace_target_files(context)
+        files_result = enumerate_workspace_target_files(context)
 
-        assert result == (WorkspaceRelativePath(Path(".gyomu/knowledge/Coding.yaml")),)
+        assert files_result == (
+            WorkspaceRelativePath(Path(".gyomu/knowledge/Coding.yaml")),
+        )

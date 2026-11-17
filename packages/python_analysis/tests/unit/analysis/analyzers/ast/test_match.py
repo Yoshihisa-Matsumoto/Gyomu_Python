@@ -106,9 +106,9 @@ def test_simple_match(
     assert statement.value.value == "one"
 
     case = result.cases[2]
-    pattern = assert_case_mattern(case.pattern, MatchAs)
-    assert pattern.name is None
-    assert pattern.pattern is None
+    matchas_pattern = assert_case_mattern(case.pattern, MatchAs)
+    assert matchas_pattern.name is None
+    assert matchas_pattern.pattern is None
     assert isinstance(case.guard, NoneExpressionAnalysis)
 
     assert len(case.body) == 1
@@ -312,9 +312,9 @@ def test_match_with_or_pattern(
     assert statement.value.value == "medium"
 
     case = result.cases[2]
-    pattern = assert_case_mattern(case.pattern, MatchAs)
-    assert pattern.name is None
-    assert pattern.pattern is None
+    matchas_pattern = assert_case_mattern(case.pattern, MatchAs)
+    assert matchas_pattern.name is None
+    assert matchas_pattern.pattern is None
     assert isinstance(case.guard, NoneExpressionAnalysis)
 
     assert len(case.body) == 1
@@ -401,9 +401,9 @@ def test_match_sequence(
     assert isinstance(statement, ReturnStatementAnalysis)
 
     case = result.cases[3]
-    pattern = assert_case_mattern(case.pattern, MatchAs)
-    assert pattern.name is None
-    assert pattern.pattern is None
+    matchas_pattern = assert_case_mattern(case.pattern, MatchAs)
+    assert matchas_pattern.name is None
+    assert matchas_pattern.pattern is None
     assert isinstance(case.guard, NoneExpressionAnalysis)
 
     statement = case.body[0]
@@ -484,9 +484,9 @@ def test_match_mapping(
     assert isinstance(statement, ReturnStatementAnalysis)
 
     case = result.cases[2]
-    pattern = assert_case_mattern(case.pattern, MatchAs)
-    assert pattern.name is None
-    assert pattern.pattern is None
+    matchas_pattern = assert_case_mattern(case.pattern, MatchAs)
+    assert matchas_pattern.name is None
+    assert matchas_pattern.pattern is None
     assert isinstance(case.guard, NoneExpressionAnalysis)
 
     statement = case.body[0]
@@ -565,9 +565,9 @@ def test_match_class(
     assert isinstance(statement, ReturnStatementAnalysis)
 
     case = result.cases[2]
-    pattern = assert_case_mattern(case.pattern, MatchAs)
-    assert pattern.name is None
-    assert pattern.pattern is None
+    matchas_pattern = assert_case_mattern(case.pattern, MatchAs)
+    assert matchas_pattern.name is None
+    assert matchas_pattern.pattern is None
     assert isinstance(case.guard, NoneExpressionAnalysis)
 
     statement = case.body[0]

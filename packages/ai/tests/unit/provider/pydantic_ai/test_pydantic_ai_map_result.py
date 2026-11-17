@@ -27,6 +27,7 @@ from gyomu_schema.utility.execution_timer import ExecutionTimer
 from pydantic import BaseModel
 from pydantic_ai import (
     FinishReason,
+    ModelMessage,
     ModelRequest,
     ModelResponse,
     ModelResponseState,
@@ -405,7 +406,7 @@ class TestMapResultMetadata:
 
 class TestMapResultCalculateUsage:
     def test_calculates_usage_from_model_responses(self) -> None:
-        messages = [
+        messages: list[ModelMessage] = [
             ModelRequest(parts=[]),
             ModelResponse(
                 parts=[],
@@ -475,7 +476,7 @@ class TestMapResultCalculateUsage:
         )
 
     def test_calculates_usage_from_model_responses_with_cost(self) -> None:
-        messages = [
+        messages: list[ModelMessage] = [
             ModelRequest(parts=[]),
             ModelResponse(
                 parts=[],
@@ -506,7 +507,7 @@ class TestMapResultCalculateUsage:
         )
 
     def test_returns_none_cost_when_all_responses_have_no_cost(self) -> None:
-        messages = [
+        messages: list[ModelMessage] = [
             ModelResponse(
                 parts=[],
                 usage=RequestUsage(
@@ -537,7 +538,7 @@ class TestFindToolReturns:
     def test_finds_matching_tool_returns(self) -> None:
         tool_call_id = "call_1"
 
-        messages = [
+        messages: list[ModelMessage] = [
             ModelResponse(
                 parts=[
                     ToolCallPart(
@@ -569,7 +570,7 @@ class TestFindToolReturns:
         }
 
     def test_ignores_non_matching_tool_returns(self) -> None:
-        messages = [
+        messages: list[ModelMessage] = [
             ModelResponse(
                 parts=[
                     ToolCallPart(
@@ -599,7 +600,7 @@ class TestFindToolReturns:
         assert result == {}
 
     def test_finds_multiple_tool_returns(self) -> None:
-        messages = [
+        messages: list[ModelMessage] = [
             ModelResponse(
                 parts=[
                     ToolCallPart(
@@ -643,7 +644,7 @@ class TestFindToolReturns:
 
 class TestBuildToolCalls:
     def test_returns_none_when_there_are_no_tool_calls(self) -> None:
-        messages = [
+        messages: list[ModelMessage] = [
             ModelRequest(parts=[]),
             ModelResponse(
                 parts=[],
@@ -694,7 +695,7 @@ class TestBuildToolCalls:
             timestamp=return_timestamp,
         )
 
-        messages = [
+        messages: list[ModelMessage] = [
             ModelResponse(
                 parts=[tool_call],
                 usage=RequestUsage(
@@ -751,7 +752,7 @@ class TestBuildToolCalls:
             tzinfo=UTC,
         )
 
-        messages = [
+        messages: list[ModelMessage] = [
             ModelResponse(
                 parts=[
                     ToolCallPart(
@@ -827,7 +828,7 @@ class TestBuildToolCalls:
             tzinfo=UTC,
         )
 
-        messages = [
+        messages: list[ModelMessage] = [
             ModelResponse(
                 parts=[
                     ToolCallPart(
@@ -1030,7 +1031,7 @@ class TestMapGenerateObjectResult:
             ),
         ]
 
-        result = map_result.map_generate_object_result(
+        result: AiGenerateObjectResult = map_result.map_generate_object_result(
             timer,
             response,
         )

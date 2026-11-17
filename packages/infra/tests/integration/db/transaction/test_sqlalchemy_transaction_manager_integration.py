@@ -54,15 +54,15 @@ class TestSqlAlchemyTransactionManager:
                 assert isinstance(result, Success)
         parameter_id = result.unwrap().id
         with Session(db_engine) as session:
-            result = session.execute(
+            session_result = session.execute(
                 select(GyomuParamMaster).where(
                     GyomuParamMaster.id == parameter_id,
                 )
             ).scalar_one_or_none()
 
-            assert result is not None
-            assert result.item_key == TEST_ITEM_KEY
-            assert result.item_value == "commit-test"
+            assert session_result is not None
+            assert session_result.item_key == TEST_ITEM_KEY
+            assert session_result.item_value == "commit-test"
 
     def test_rollback_on_exception(self, db_engine: Engine) -> None:
 
@@ -84,13 +84,13 @@ class TestSqlAlchemyTransactionManager:
                 raise RuntimeError("rollback test")
 
         with Session(db_engine) as session:
-            result = session.execute(
+            session_result = session.execute(
                 select(GyomuParamMaster).where(
                     GyomuParamMaster.id == uuid7(),
                 )
             ).scalar_one_or_none()
 
-            assert result is None
+            assert session_result is None
 
     def test_explicit_rollback(self, db_engine: Engine) -> None:
         parameter_id = uuid7()
@@ -115,10 +115,10 @@ class TestSqlAlchemyTransactionManager:
                 assert isinstance(rollback_result, Success)
 
         with Session(db_engine) as session:
-            result = session.execute(
+            session_result = session.execute(
                 select(GyomuParamMaster).where(
                     GyomuParamMaster.id == parameter_id,
                 )
             ).scalar_one_or_none()
 
-            assert result is None
+            assert session_result is None

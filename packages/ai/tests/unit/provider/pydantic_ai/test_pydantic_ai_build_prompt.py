@@ -171,10 +171,10 @@ class TestBuildPrompt:
             assert history2.timestamp == assistant_message.created_at
             assert len(history2.parts) == 1
 
-            part = history2.parts[0]
+            answer = history2.parts[0]
 
-            assert isinstance(part, TextPart)
-            assert part.content == "Answer"
+            assert isinstance(answer, TextPart)
+            assert answer.content == "Answer"
 
     def test_rejects_conversation_without_request(
         self,

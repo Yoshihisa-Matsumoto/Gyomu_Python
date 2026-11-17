@@ -39,6 +39,7 @@ from gyomu_schema.schemas.python.docstring import (
 )
 from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKind
 from gyomu_schema.schemas.python.location import SourceLocation
+from gyomu_schema.schemas.python.symbol import MemberAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.type_analysis import TypeAnalysis
 from gyomu_schema.schemas.python.types import SymbolId
@@ -639,7 +640,7 @@ def test_is_documentable_child_entry(
     cls = create_class_analysis(
         indent=0, location=create_source_location(), bases=bases
     )
-    member = None
+    member: MemberAnalysis | None = None
     match kind:
         case DeclarationKind.VARIABLE:
             member = create_class_variable_analysis(

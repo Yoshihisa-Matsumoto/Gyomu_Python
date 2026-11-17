@@ -276,11 +276,11 @@ def test_nested_if(
 
     assert len(statement.test.comparators) == 1
 
-    comparator = assert_expression_type(
+    name_comparator = assert_expression_type(
         statement.test.comparators[0],
         NameExpressionAnalysis,
     )
-    assert comparator.name == "threshold"
+    assert name_comparator.name == "threshold"
 
     assert len(statement.body) == 1
     assert len(statement.orelse) == 1

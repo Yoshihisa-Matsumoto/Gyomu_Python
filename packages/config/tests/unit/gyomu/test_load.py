@@ -9,7 +9,7 @@ from returns.result import Failure, Success
 from packages.schema.test_support.helpers import create_config_error
 
 
-class TestConfig(BaseModel):
+class ConfigTestConfig(BaseModel):
     enabled: bool
 
 
@@ -33,16 +33,16 @@ class TestLoadGyomuConfigSection:
                 }
             ),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test.interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
         assert isinstance(result, Success)
-        assert result.unwrap() == TestConfig(enabled=True)
+        assert result.unwrap() == ConfigTestConfig(enabled=True)
         read_json_data_mock.assert_called_once_with(file_path)
 
     def test_file_not_exists(self, mocker: MockerFixture) -> None:
@@ -54,11 +54,11 @@ class TestLoadGyomuConfigSection:
         read_json_data_mock = mocker.patch(
             "gyomu_config.gyomu.load.read_json_data",
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test.interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
@@ -78,11 +78,11 @@ class TestLoadGyomuConfigSection:
             "gyomu_config.gyomu.load.read_json_data",
             return_value=Failure(create_config_error()),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test.interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
@@ -104,11 +104,11 @@ class TestLoadGyomuConfigSection:
             "gyomu_config.gyomu.load.read_json_data",
             return_value=Success({"test": {}}),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test.interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
@@ -127,11 +127,11 @@ class TestLoadGyomuConfigSection:
             "gyomu_config.gyomu.load.read_json_data",
             return_value=Success({"test": True}),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test.interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
@@ -158,11 +158,11 @@ class TestLoadGyomuConfigSection:
             "gyomu_config.gyomu.load.read_json_data",
             return_value=Success({"test": {"interaction": {"enabled": True}}}),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
@@ -186,11 +186,11 @@ class TestLoadGyomuConfigSection:
             "gyomu_config.gyomu.load.read_json_data",
             return_value=Success({"test": {"interaction": {"enabled": True}}}),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test..interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
@@ -214,11 +214,11 @@ class TestLoadGyomuConfigSection:
             "gyomu_config.gyomu.load.read_json_data",
             return_value=Success({"test": {"interaction": {"enabled": "invalid"}}}),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test.interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
@@ -241,11 +241,11 @@ class TestLoadGyomuConfigSection:
             "gyomu_config.gyomu.load.read_json_data",
             return_value=Success({"test": {"interaction": {}}}),
         )
-        default = TestConfig(enabled=False)
+        default = ConfigTestConfig(enabled=False)
 
         result = load_gyomu_config_section(
             section_name="test.interaction",
-            model_type=TestConfig,
+            model_type=ConfigTestConfig,
             default=default,
         )
 
