@@ -1,4 +1,5 @@
-from collections.abc import Sequence
+import os
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from subprocess import CompletedProcess, Popen, run
 
@@ -12,6 +13,7 @@ def execute(
     command: Sequence[str],
     *,
     cwd: Path | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> Result[ProcessResult, ProcessError]:
     """Execute a command and return its result.
 
@@ -28,6 +30,10 @@ def execute(
     """
     command_tuple = tuple(command)
 
+    process_env = os.environ.copy()
+    if env is not None:
+        process_env.update(env)
+
     try:
         completed_process: CompletedProcess[str] = run(
             command_tuple,
@@ -35,6 +41,7 @@ def execute(
             capture_output=True,
             text=True,
             check=False,
+            env=process_env,
         )
     except OSError as error:
         return Failure(
@@ -61,15 +68,16 @@ def execute_background(
     command: Sequence[str],
     *,
     cwd: Path | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> Result[ProcessHandle, ProcessError]:
     command_tuple = tuple(command)
 
+    process_env = os.environ.copy()
+    if env is not None:
+        process_env.update(env)
+
     try:
-        process = Popen(
-            command_tuple,
-            cwd=cwd,
-            text=True,
-        )
+        process = Popen(command_tuple, cwd=cwd, text=True, env=process_env)
     except OSError as error:
         return Failure(
             ProcessError(

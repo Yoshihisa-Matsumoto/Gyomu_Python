@@ -9,3 +9,8 @@ members = [
     "packages/parameter",
     "packages/schema",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["returns.contrib.mypy.returns_plugin"]

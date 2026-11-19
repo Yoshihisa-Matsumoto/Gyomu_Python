@@ -43,19 +43,6 @@ def collect_test_dirs() -> list[Path]:
     )
 
 
-def collect_test_files() -> list[Path]:
-    """Collect Python test files, excluding resources directories."""
-    return sorted(
-        file
-        for parent in (ROOT / "packages", ROOT / "apps")
-        if parent.exists()
-        for tests_dir in parent.glob("*/tests")
-        if tests_dir.is_dir()
-        for file in tests_dir.rglob("*.py")
-        if file.is_file() and "resources" not in file.relative_to(tests_dir).parts
-    )
-
-
 def run_mypy(
     paths: list[Path],
     *,
@@ -110,7 +97,7 @@ def main() -> int:
         ),
         (
             "tests",
-            collect_test_files(),
+            collect_test_dirs(),
             "mypy-tests.ini",
             True,
             True,

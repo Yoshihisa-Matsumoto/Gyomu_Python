@@ -2,7 +2,12 @@ from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
 
-RESOURCE_DIR = Path(__file__).parent.parent.parent / "resources" / "compress"
+RESOURCE_DIR = (
+    Path(__file__).parent.parent.parent.parent
+    / "test_support"
+    / "resources"
+    / "compress"
+)
 TEMP_ZIP = RESOURCE_DIR / "temp.zip"
 
 

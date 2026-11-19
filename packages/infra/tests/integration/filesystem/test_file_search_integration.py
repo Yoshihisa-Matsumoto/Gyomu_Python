@@ -10,7 +10,9 @@ from gyomu_schema.filesystem.file import (
 
 from gyomu_infra.filesystem.file_search import FileSearch
 
-RESOURCE_DIR = Path(__file__).parent.parent.parent / "resources" / "source"
+RESOURCE_DIR = (
+    Path(__file__).parent.parent.parent.parent / "test_support" / "resources" / "source"
+)
 
 
 def _file_names(result: list[FileInfo]) -> set[str]:

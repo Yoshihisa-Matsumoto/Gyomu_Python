@@ -5,10 +5,11 @@ from gyomu_schema.error.base import BaseError, caller_context
 
 
 class ResolveError(BaseError):
+    reference: str | Path
+
     def __init__(
         self,
         message: str,
-        *,
         reference: str | Path,
         details: Mapping[str, object] | None = None,
     ) -> None:

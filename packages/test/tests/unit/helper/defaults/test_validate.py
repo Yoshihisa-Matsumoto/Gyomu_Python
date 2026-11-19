@@ -65,5 +65,6 @@ value: Literal[Color.BLUE] = Color.BLUE
             workspace_context=validation_test_context.workspace_context,
         )
         if isinstance(result, Failure):
-            print(format_object(result.failure().__cause__))
+            print(format_object(result.failure(), depth=8))
+
         assert isinstance(result, Success)

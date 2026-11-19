@@ -91,6 +91,7 @@ class WorkspaceContext:
         self.config = config
         self.projects = projects
         self._project_indexes: dict[str, ProjectContext] = {}
+        self._project_contexts: dict[str, ProjectContext] = {}
         self._file_analysis_cache = _FileAnalysisCache()
 
     def _initialize_project_indexes(self) -> None:
@@ -98,8 +99,14 @@ class WorkspaceContext:
             project_context = initialize_project_from_workspace(
                 self.workspace_root.path, project
             )
+            self._project_contexts[project.config.name] = project_context
             for package_root in project_context.package_roots:
                 self._project_indexes[package_root.module_name] = project_context
+
+    def get_project_context(self, package_name: str) -> ProjectContext | None:
+        if len(self._project_contexts) == 0:
+            self._initialize_project_indexes()
+        return self._project_contexts.get(package_name)
 
     def find_file_analysis_context_by_module_path(
         self, module_path: PythonPath
