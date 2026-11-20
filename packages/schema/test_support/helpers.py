@@ -5,6 +5,7 @@ from typing import Literal
 from gyomu_schema.error.config import ConfigError, ConfigPhase, ConfigSource
 from gyomu_schema.error.gyomu import GyomuError, GyomuErrorReason
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
+from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.config.test.model_defaults import (
     AttributeParameter,
     CallParameter,
@@ -68,7 +69,10 @@ from gyomu_schema.schemas.python.parameter import ParameterAnalysis
 from gyomu_schema.schemas.python.pydantic import PydanticFieldAnalysis
 from gyomu_schema.schemas.python.symbol import MemberAnalysis, SymbolAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
-from gyomu_schema.schemas.python.type.expression import StatementAnalysis
+from gyomu_schema.schemas.python.type.expression import (
+    ExpressionAnalysis,
+    StatementAnalysis,
+)
 from gyomu_schema.schemas.python.type.structure import (
     EllipsisStructureAnalysis,
     LiteralValue,
@@ -205,6 +209,7 @@ def create_variable_analysis(
     value_source: str | None = None,
     pydantic: PydanticFieldAnalysis | None = None,
     docstring: DocstringAnalysis | None = None,
+    value_expression: ExpressionAnalysis | None = None,
 ) -> VariableAnalysis:
 
     return VariableAnalysis(
@@ -220,6 +225,7 @@ def create_variable_analysis(
         type=type,
         value_source=value_source,
         pydantic=pydantic,
+        value_expression=value_expression,
     )
 
 
@@ -702,6 +708,22 @@ def create_config_error(
         phase=phase,
         source=source,
         schema=schema,
+        context=context,
+        details=details,
+    )
+
+
+def create_validation_error(
+    message: str = "test",
+    location: tuple[str | int, ...] | None = None,
+    input: object | None = None,
+    context: str | None = None,
+    details: Mapping[str, object] | None = None,
+) -> ValidationError:
+    return ValidationError(
+        message=message,
+        location=location,
+        input=input,
         context=context,
         details=details,
     )

@@ -47,8 +47,10 @@ plugins = ["returns.contrib.mypy.returns_plugin"]
 [tool.ruff]
 target-version = "py313"
 line-length = 88
+force-exclude = true
 exclude = [
     "packages/infra/src/gyomu_infra/db/model/generated",
+    "packages/infra/test_support/resources",
     "packages/python_analysis/python_analysis_test_support/fixtures",
     "packages/python_analysis/test_support/fixtures",
     "packages/python_analysis/test_support/monorepo_fixtures",

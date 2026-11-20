@@ -8,9 +8,9 @@ from gyomu_config.gyomu.load import load_gyomu_config_section
 from gyomu_infra.filesystem.file_io import (
     create_temp_file,
     delete_file,
-    read_text,
     write_text,
 )
+from gyomu_infra.logger import logger
 from gyomu_infra.process.executor import execute_background
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.schemas.interaction.request import InteractionDocumentRequest
@@ -38,11 +38,11 @@ def _wrap_gyomu_error(error: BaseException, message: str) -> GyomuError:
 
 
 def create_initial_document(
-    initial_text: str,
+    initial_text: str, temporary_directory: Path | None
 ) -> Result[Path, GyomuError]:
     """Create a temporary document and write its initial text."""
 
-    temp_file_result = create_temp_file()
+    temp_file_result = create_temp_file(temporary_directory=temporary_directory)
     if isinstance(temp_file_result, Failure):
         return Failure(
             _wrap_gyomu_error(
@@ -99,7 +99,7 @@ def open_document(command: str, file_path: Path) -> Result[None, GyomuError]:
 
 
 def execute_document_interaction[ContextT, ValueT](
-    request: InteractionDocumentRequest[str, ContextT, ValueT],
+    request: InteractionDocumentRequest[Path, ContextT, ValueT],
     *,
     input_func: Callable[[str], str],
     output: TextIO,
@@ -125,6 +125,7 @@ def execute_document_interaction[ContextT, ValueT](
 
     document_result = create_initial_document(
         initial_text=text_result.unwrap(),
+        temporary_directory=request.temporary_directory,
     )
     if isinstance(document_result, Failure):
         return document_result
@@ -144,17 +145,17 @@ def execute_document_interaction[ContextT, ValueT](
             if not confirmed:
                 return Success(InteractionCancelled())
 
-            read_result = read_text(path=temp_file)
-            if isinstance(read_result, Failure):
-                return read_result.alt(
-                    lambda error: _wrap_gyomu_error(
-                        error=error,
-                        message="fail to read temp file",
-                    )
-                )
+            # read_result = read_text(path=temp_file)
+            # if isinstance(read_result, Failure):
+            #     return read_result.alt(
+            #         lambda error: _wrap_gyomu_error(
+            #             error=error,
+            #             message="fail to read temp file",
+            #         )
+            #     )
 
             parsed = request.codec.parse(
-                read_result.unwrap(),
+                temp_file,
                 request.context,
             )
             if isinstance(parsed, Failure):
@@ -163,5 +164,9 @@ def execute_document_interaction[ContextT, ValueT](
 
             return Success(InteractionAccepted(parsed.unwrap()))
     finally:
-        with contextlib.suppress(OSError):
-            delete_file(temp_file)
+        delete_result = delete_file(temp_file)
+        if isinstance(delete_result, Failure):
+            logger.warning(
+                "Failed to delete temporary document: %s",
+                delete_result.failure(),
+            )

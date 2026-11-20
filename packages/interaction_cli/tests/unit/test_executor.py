@@ -30,7 +30,16 @@ class StringCodec:
         return Success(raw_input)
 
 
-def create_direct_request() -> InteractionRequest[str, None, str]:
+class PathCodec:
+    def parse(
+        self,
+        document: Path,
+        context: None,
+    ) -> Result[str, ValidationError]:
+        return Success("test")
+
+
+def create_direct_request() -> InteractionRequest[str, Path, None, str]:
     return InteractionDirectRequest(
         instruction="Enter a value",
         context=None,
@@ -46,11 +55,13 @@ class StringDocumentTextProvider:
         return Success("test")
 
 
-def create_document_request() -> InteractionRequest[str, None, str]:
+def create_document_request(
+    codec: PathCodec,
+) -> InteractionRequest[str, Path, None, str]:
     return InteractionDocumentRequest(
         instruction="Enter a value",
         context=None,
-        codec=StringCodec(),
+        codec=codec,
         text_provider=StringDocumentTextProvider(),
     )
 
@@ -90,18 +101,20 @@ class TestCliInteractionExecutor:
             "gyomu_interaction_cli.document.open_document",
             return_value=Success(None),
         )
-        mocker.patch(
-            "gyomu_interaction_cli.document.read_text",
-            return_value=Success("hello"),
-        )
+        # mocker.patch(
+        #     "gyomu_interaction_cli.document.read_text",
+        #     return_value=Success("hello"),
+        # )
 
-        result = executor.execute(create_document_request())
+        result = executor.execute(create_document_request(codec=PathCodec()))
 
-        assert result == Success(InteractionAccepted("hello"))
+        assert result == Success(InteractionAccepted("test"))
         assert input_func.call_count == 1
         assert output.getvalue() == ""
 
-    def test_retries_when_document_input_is_invalid(self, mocker) -> None:
+    def test_retries_when_document_input_is_invalid(
+        self, mocker: MockerFixture
+    ) -> None:
 
         mocker.patch(
             "gyomu_interaction_cli.document.load_gyomu_config_section",
@@ -115,14 +128,12 @@ class TestCliInteractionExecutor:
             "gyomu_interaction_cli.document.open_document",
             return_value=Success(None),
         )
-        mocker.patch(
-            "gyomu_interaction_cli.document.read_text",
-            return_value=Success("hello"),
-        )
-        mocker.patch(
-            "gyomu_interaction_cli.document.read_text",
+        codec = PathCodec()
+        mocker.patch.object(
+            codec,
+            "parse",
             side_effect=[
-                Success("invalid"),
+                Failure(ValidationError("Invalid value.")),
                 Success("hello"),
             ],
         )
@@ -136,7 +147,7 @@ class TestCliInteractionExecutor:
             output=output,
         )
 
-        result = executor.execute(create_document_request())
+        result = executor.execute(create_document_request(codec=codec))
 
         assert result == Success(InteractionAccepted("hello"))
         assert input_func.call_count == 2

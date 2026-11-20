@@ -84,6 +84,6 @@ def analyze_variable(
         type=type,
         value_source=str(variable.value) if variable.value is not None else None,
         identity=context.declaration,
-        # value_expression=value_expression,
+        value_expression=ast_value_expression,
         pydantic=pydantic,
     )

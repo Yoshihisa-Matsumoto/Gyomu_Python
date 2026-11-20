@@ -20,6 +20,14 @@ class ValueCodec[RawInputT, ContextT, ValueT](Protocol):
     ) -> Result[ValueT, ValidationError]: ...
 
 
+class DocumentCodec[DocumentT, ContextT, ValueT](Protocol):
+    def parse(
+        self,
+        document: DocumentT,
+        context: ContextT,
+    ) -> Result[ValueT, ValidationError]: ...
+
+
 class DocumentTextProvider[ContextT](Protocol):
     def create_initial_text(
         self,
@@ -27,8 +35,13 @@ class DocumentTextProvider[ContextT](Protocol):
     ) -> Result[str, GyomuError]: ...
 
 
-class InteractionExecutor[RawInputT](Protocol):
+class InteractionExecutor[DirectRawInputT, DocumentT](Protocol):
     def execute[ContextT, ValueT](
         self,
-        request: InteractionRequest[RawInputT, ContextT, ValueT],
+        request: InteractionRequest[
+            DirectRawInputT,
+            DocumentT,
+            ContextT,
+            ValueT,
+        ],
     ) -> Result[InteractionResult[ValueT], GyomuError]: ...

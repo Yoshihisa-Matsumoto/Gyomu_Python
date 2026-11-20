@@ -55,6 +55,7 @@ def create_symbol(name: str, symbol_id: SymbolId | None = None) -> SymbolAnalysi
         type=None,
         value_source="",
         pydantic=None,
+        value_expression=None,
     )
 
 

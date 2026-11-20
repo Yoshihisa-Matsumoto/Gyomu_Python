@@ -1,10 +1,10 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 
-class MypyTarget(Enum):
+class MypyTarget(StrEnum):
     SOURCE = "src"
     TESTS = "tests"
     TEST_SUPPORT = "test_support"
@@ -13,12 +13,7 @@ class MypyTarget(Enum):
 @dataclass(frozen=True)
 class MypyCheckConfig:
     targets: tuple[Path, ...]
-    config_file: Path | None
-    """Configuration file path.
-
-    Gyomu Context:
-        None means to use the workspace root's pyproject.toml.
-    """
+    config_file: Path
     cache_dir: Path | None
     """Directory for mypy's cache.
 
@@ -42,10 +37,15 @@ class MypyCheckResult:
     name: str
     diagnostics: tuple[str, ...]
     details: Mapping[str, object] | None = None
+    skipped_reason: str | None = None
 
     @property
     def success(self) -> bool:
         return not self.diagnostics
+
+    @property
+    def skipped(self) -> bool:
+        return self.skipped_reason is not None
 
 
 @dataclass(frozen=True)

@@ -49,7 +49,7 @@ schema-gen = "python scripts/schema_gen.py"
 [tool.ruff]
 exclude = [
     "src/gyomu_infra/db/model/generated",
-    "tests/resources"
+    "test_support/resources"
 ]
 
 [tool.gyomu]

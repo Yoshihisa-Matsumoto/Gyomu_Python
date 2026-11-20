@@ -7,3 +7,9 @@ members = [
     "packages/project_a",
     "packages/project_b",
 ]
+
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["returns.contrib.mypy.returns_plugin"]

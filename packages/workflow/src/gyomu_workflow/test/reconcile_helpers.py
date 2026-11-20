@@ -4,7 +4,7 @@ from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_schema.schemas.testing.helper import HelperReconcileResult, HelperUpdate
 
-from gyomu_workflow.test.helpers import _reconcile
+from gyomu_workflow.test.helpers._internal.reconcile import reconcile_package
 
 
 def reconcile_helper_inventories(
@@ -13,7 +13,7 @@ def reconcile_helper_inventories(
     # additional_filename: str | None = None,
 ) -> None:
 
-    reconcile_result, project_context = _reconcile(
+    reconcile_result, project_context = reconcile_package(
         workspace_context=workspace_context,
         workspace_project_context=workspace_project_context,
     ).unwrap()

@@ -405,6 +405,7 @@ class TestCreateTempFile:
         path = result.unwrap()
         try:
             assert path.is_file()
+            assert path.parent == tmp_path
 
             # The file is closed and can be opened normally.
             with path.open("w", encoding="utf-8") as file:
@@ -413,6 +414,43 @@ class TestCreateTempFile:
             assert path.read_text(encoding="utf-8") == "Hello, Gyomu!"
         finally:
             path.unlink(missing_ok=True)
+
+    def test_creates_temp_file_in_specified_directory(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        temporary_directory = tmp_path / "validation-workspace"
+        temporary_directory.mkdir()
+
+        result = create_temp_file(
+            temporary_directory=temporary_directory,
+        )
+
+        assert isinstance(result, Success)
+
+        path = result.unwrap()
+        try:
+            assert path.is_file()
+            assert path.parent == temporary_directory
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_returns_failure_when_temporary_directory_does_not_exist(
+        self,
+        tmp_path: Path,
+    ) -> None:
+        temporary_directory = tmp_path / "nonexistent"
+
+        result = create_temp_file(
+            temporary_directory=temporary_directory,
+        )
+
+        assert isinstance(result, Failure)
+
+        error = result.failure()
+        assert isinstance(error, GyomuIOError)
+        assert error.layer == IOLayer.FILESYSTEM
+        assert error.operation == IOOperation.WRITE
 
     def test_returns_failure_when_temp_file_creation_fails(
         self,

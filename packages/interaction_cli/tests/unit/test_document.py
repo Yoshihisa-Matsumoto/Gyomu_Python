@@ -22,9 +22,11 @@ class TestCreateInitialDocument:
         mocker,
         tmp_path: Path,
     ) -> None:
-        temp_file = tmp_path / "initial.json"
+        temporary_directory = tmp_path / "validation-workspace"
+        temp_file = temporary_directory / "initial.json"
+        initial_text = '{"name": "example"}'
 
-        mocker.patch(
+        create_temp_file = mocker.patch(
             "gyomu_interaction_cli.document.create_temp_file",
             return_value=Success(temp_file),
         )
@@ -34,13 +36,17 @@ class TestCreateInitialDocument:
         )
 
         result = create_initial_document(
-            initial_text='{"name": "example"}',
+            initial_text=initial_text,
+            temporary_directory=temporary_directory,
         )
 
         assert result == Success(temp_file)
+        create_temp_file.assert_called_once_with(
+            temporary_directory=temporary_directory,
+        )
         write_text.assert_called_once_with(
             path=temp_file,
-            content='{"name": "example"}',
+            content=initial_text,
         )
 
     def test_returns_failure_when_temp_file_creation_fails(
@@ -48,7 +54,7 @@ class TestCreateInitialDocument:
         mocker,
     ) -> None:
         error = create_gyomu_io_error()
-        mocker.patch(
+        create_temp_file = mocker.patch(
             "gyomu_interaction_cli.document.create_temp_file",
             return_value=Failure(error),
         )
@@ -56,9 +62,13 @@ class TestCreateInitialDocument:
             "gyomu_interaction_cli.document.write_text",
         )
 
-        result = create_initial_document(initial_text="initial")
+        result = create_initial_document(
+            initial_text="initial",
+            temporary_directory=None,
+        )
 
         assert isinstance(result, Failure)
+        create_temp_file.assert_called_once_with(temporary_directory=None)
         write_text.assert_not_called()
 
     def test_returns_failure_when_initial_text_write_fails(
@@ -81,7 +91,10 @@ class TestCreateInitialDocument:
             return_value=Success(None),
         )
 
-        result = create_initial_document(initial_text="initial")
+        result = create_initial_document(
+            initial_text="initial",
+            temporary_directory=None,
+        )
 
         assert isinstance(result, Failure)
         delete_file.assert_called_once_with(temp_file)
@@ -107,7 +120,10 @@ class TestCreateInitialDocument:
             side_effect=OSError("Failed to delete temporary file."),
         )
 
-        result = create_initial_document(initial_text="initial")
+        result = create_initial_document(
+            initial_text="initial",
+            temporary_directory=None,
+        )
 
         assert isinstance(result, Failure)
         assert isinstance(result.failure(), GyomuError)
@@ -301,7 +317,7 @@ class TestExecuteDocumentInteraction:
             "gyomu_interaction_cli.document.load_gyomu_config_section",
             return_value=Success(VSCODE_SETTING),
         )
-        mocker.patch(
+        create_initial_document = mocker.patch(
             "gyomu_interaction_cli.document.create_initial_document",
             return_value=Success(temp_file),
         )
@@ -313,12 +329,9 @@ class TestExecuteDocumentInteraction:
             "gyomu_interaction_cli.document.confirm_or_cancel",
             return_value=True,
         )
-        mocker.patch(
-            "gyomu_interaction_cli.document.read_text",
-            return_value=Success('{"name": "example"}'),
-        )
         request = mocker.Mock(spec=InteractionDocumentRequest)
         request.context = mocker.sentinel.context
+        request.temporary_directory = Path("temporally-path")
 
         request.text_provider = mocker.Mock()
         request.text_provider.create_initial_text.return_value = Success(
@@ -344,11 +357,16 @@ class TestExecuteDocumentInteraction:
         assert result_value.value == expected_value
         delete_file.assert_called_once_with(temp_file)
 
+        create_initial_document.assert_called_once_with(
+            initial_text='{"name": "example"}',
+            temporary_directory=Path("temporally-path"),
+        )
+
         request.text_provider.create_initial_text.assert_called_once_with(
             context=request.context,
         )
         request.codec.parse.assert_called_once_with(
-            '{"name": "example"}',
+            temp_file,
             request.context,
         )
 
@@ -376,13 +394,6 @@ class TestExecuteDocumentInteraction:
         mocker.patch(
             "gyomu_interaction_cli.document.confirm_or_cancel",
             side_effect=[True, True],
-        )
-        mocker.patch(
-            "gyomu_interaction_cli.document.read_text",
-            side_effect=[
-                Success("invalid input"),
-                Success('{"name": "example"}'),
-            ],
         )
         delete_file = mocker.patch(
             "gyomu_interaction_cli.document.delete_file",
@@ -445,10 +456,6 @@ class TestExecuteDocumentInteraction:
             "gyomu_interaction_cli.document.confirm_or_cancel",
             side_effect=[True, False],
         )
-        mocker.patch(
-            "gyomu_interaction_cli.document.read_text",
-            return_value=Success("invalid input"),
-        )
         delete_file = mocker.patch(
             "gyomu_interaction_cli.document.delete_file",
             return_value=Success(None),
@@ -474,60 +481,6 @@ class TestExecuteDocumentInteraction:
 
         assert f"Invalid input: {validation_error}\n" in output.getvalue()
         assert request.codec.parse.call_count == 1
-        delete_file.assert_called_once_with(temp_file)
-
-    def test_returns_failure_and_deletes_temp_file_when_read_fails(
-        self,
-        mocker,
-    ) -> None:
-        from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
-
-        temp_file = Path("initial.json")
-        io_error = GyomuIOError(
-            "Failed to read file.",
-            layer=IOLayer.FILESYSTEM,
-            operation=IOOperation.READ,
-            target=str(temp_file),
-        )
-
-        mocker.patch(
-            "gyomu_interaction_cli.document.load_gyomu_config_section",
-            return_value=Success(VSCODE_SETTING),
-        )
-        mocker.patch(
-            "gyomu_interaction_cli.document.create_initial_document",
-            return_value=Success(temp_file),
-        )
-        mocker.patch(
-            "gyomu_interaction_cli.document.open_document",
-            return_value=Success(None),
-        )
-        mocker.patch(
-            "gyomu_interaction_cli.document.confirm_or_cancel",
-            return_value=True,
-        )
-        mocker.patch(
-            "gyomu_interaction_cli.document.read_text",
-            return_value=Failure(io_error),
-        )
-        delete_file = mocker.patch(
-            "gyomu_interaction_cli.document.delete_file",
-            return_value=Success(None),
-        )
-
-        request = mocker.Mock(spec=InteractionDocumentRequest)
-        request.context = mocker.sentinel.context
-        request.text_provider = mocker.Mock()
-        request.text_provider.create_initial_text.return_value = Success("initial text")
-
-        result = execute_document_interaction(
-            request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
-        )
-
-        assert isinstance(result, Failure)
-        assert isinstance(result.failure(), GyomuError)
         delete_file.assert_called_once_with(temp_file)
 
     def test_returns_cancelled_when_temp_file_deletion_fails(
@@ -761,9 +714,9 @@ class TestExecuteDocumentInteraction:
     def test_preserves_cancelled_result_when_temp_file_deletion_raises(
         self,
         mocker,
+        tmp_path: Path,
     ) -> None:
-        temp_file = Path("initial.json")
-
+        temp_file = tmp_path / Path("dummy-file.json")
         mocker.patch(
             "gyomu_interaction_cli.document.load_gyomu_config_section",
             return_value=Success(VSCODE_SETTING),
@@ -782,13 +735,16 @@ class TestExecuteDocumentInteraction:
         )
         delete_file = mocker.patch(
             "gyomu_interaction_cli.document.delete_file",
-            side_effect=OSError("Failed to delete temporary file."),
+            return_value=Failure(
+                create_gyomu_io_error(message="Failed to delete temporary file.")
+            ),
         )
 
         request = mocker.Mock(spec=InteractionDocumentRequest)
         request.context = mocker.sentinel.context
         request.text_provider = mocker.Mock()
         request.text_provider.create_initial_text.return_value = Success("initial text")
+        request.temporary_directory = tmp_path
 
         result = execute_document_interaction(
             request,

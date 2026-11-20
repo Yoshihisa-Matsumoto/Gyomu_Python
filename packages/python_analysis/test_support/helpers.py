@@ -24,6 +24,7 @@ from gyomu_python_analysis.analysis.load_module import load_module_analysis
 from gyomu_python_analysis.analysis.workspace import initialize_workspace_context
 from gyomu_python_analysis.error.analysis import AnalysisError, AnalysisPhase
 from gyomu_python_analysis.error.resolve import ResolveError
+from gyomu_python_analysis.error.tools import MypyCheckExecutionError
 from gyomu_python_analysis.project.context import (
     PackageRoot,
     ProjectContext,
@@ -46,6 +47,11 @@ from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_python_analysis.resolve.type_reference import resolve_type_analysis
 from gyomu_python_analysis.snapshot.models import (
     AnalyzeProjectChangesResult,
+)
+from gyomu_python_analysis.tools.mypy.models import (
+    MypyCheckConfig,
+    MypyCheckResult,
+    MypyTarget,
 )
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
@@ -419,6 +425,51 @@ def assert_type_analysis(
         else type_analysis.text.replace("'", '"').replace("Self", class_name)
     )
     assert original == generated
+
+
+def create_mypy_check_config(
+    targets: tuple[Path, ...] = (Path("test.py"),),
+    config_file: Path = Path("./pyproject.toml"),
+    cache_dir: Path | None = None,
+    explicit_package_bases: bool = True,
+    mypy_path: tuple[Path, ...] | None = None,
+    working_directory: Path = Path.cwd(),
+    target: MypyTarget | None = None,
+) -> MypyCheckConfig:
+    return MypyCheckConfig(
+        targets=targets,
+        config_file=config_file,
+        cache_dir=cache_dir,
+        explicit_package_bases=explicit_package_bases,
+        mypy_path=mypy_path,
+        working_directory=working_directory,
+        target=target,
+    )
+
+
+def create_mypy_check_result(
+    name: str = "",
+    diagnostics: tuple[str, ...] = (),
+    details: Mapping[str, object] | None = None,
+    skipped_reason: str | None = None,
+) -> MypyCheckResult:
+    return MypyCheckResult(
+        name=name,
+        diagnostics=diagnostics,
+        details=details,
+        skipped_reason=skipped_reason,
+    )
+
+
+def create_mypy_check_execution_error(
+    message: str = "test",
+    command: list[str] = [],
+    env: dict[str, str] | None = None,
+    details: Mapping[str, object] | None = None,
+) -> MypyCheckExecutionError:
+    return MypyCheckExecutionError(
+        message=message, command=command, env=env, details=details
+    )
 
 
 @dataclass

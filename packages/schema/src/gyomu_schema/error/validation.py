@@ -6,10 +6,12 @@ from gyomu_schema.error.base import BaseError, caller_context
 class ValidationError(BaseError):
     """Validation error."""
 
+    location: tuple[str | int, ...] | None
+    input: object | None
+
     def __init__(
         self,
         message: str,
-        *,
         location: tuple[str | int, ...] | None = None,
         input: object | None = None,
         context: str | None = None,

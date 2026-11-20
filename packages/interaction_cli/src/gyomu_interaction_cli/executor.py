@@ -1,12 +1,14 @@
 import sys
 from collections.abc import Callable
+from pathlib import Path
 from typing import TextIO
 
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.protocols.interaction import InteractionExecutor
 from gyomu_schema.schemas.interaction.request import (
     InputMode,
-    InteractionRequest,
+    InteractionDirectRequest,
+    InteractionDocumentRequest,
 )
 from gyomu_schema.schemas.interaction.result import (
     InteractionResult,
@@ -17,7 +19,7 @@ from gyomu_interaction_cli.direct import execute_direct_interaction
 from gyomu_interaction_cli.document import execute_document_interaction
 
 
-class CliInteractionExecutor(InteractionExecutor[str]):
+class CliInteractionExecutor(InteractionExecutor[str, Path]):
     def __init__(
         self,
         *,
@@ -29,7 +31,8 @@ class CliInteractionExecutor(InteractionExecutor[str]):
 
     def execute[ContextT, ValueT](
         self,
-        request: InteractionRequest[str, ContextT, ValueT],
+        request: InteractionDirectRequest[str, ContextT, ValueT]
+        | InteractionDocumentRequest[Path, ContextT, ValueT],
     ) -> Result[InteractionResult[ValueT], GyomuError]:
         if request.input_mode == InputMode.DIRECT:
             return execute_direct_interaction(

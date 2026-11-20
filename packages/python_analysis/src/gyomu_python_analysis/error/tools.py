@@ -17,9 +17,14 @@ class ToolConfigError(BaseError):
 
 
 class MypyCheckExecutionError(BaseError):
+    command: list[str]
+    env: dict[str, str] | None
+
     def __init__(
         self,
         message: str,
+        command: list[str],
+        env: dict[str, str] | None,
         details: Mapping[str, object] | None = None,
     ) -> None:
         super().__init__(
@@ -27,3 +32,5 @@ class MypyCheckExecutionError(BaseError):
             context=caller_context(),
             details=details,
         )
+        self.command = command
+        self.env = env

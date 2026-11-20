@@ -1,6 +1,7 @@
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
 from gyomu_schema.schemas.python.type.structure import (
+    LiteralValue,
     NameStructureAnalysis,
 )
 from gyomu_schema.schemas.python.type.type_analysis import (
@@ -54,8 +55,8 @@ class TestAnalyzeVariable(AnalysisTestBase):
                 symbol_id=SymbolId("analysis.symbol.variable::VERSION"),
                 declaration_id=DeclarationId("."),
             ),
-            # value_expression=LiteralValue(value=5),
             pydantic=None,
+            value_expression=LiteralValue(value=5),
         )
         assert_variable_type(result)
         result = self._analyze_variable(
