@@ -3,8 +3,13 @@ from pathlib import Path
 
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
-from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
+from gyomu_schema.schemas.python.types import (
+    ProjectRelativePath,
+    SymbolId,
+    WorkspaceRelativePath,
+)
 from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
+from gyomu_schema.schemas.types import FullPath
 from gyomu_test.helper.defaults.requirements import MissingParameterDefault
 from gyomu_workflow.snapshot.checkpoint import (
     Checkpoint,
@@ -33,6 +38,8 @@ from packages.python_analysis.test_support.helpers import (
     create_workspace_context,
 )
 from packages.test.test_support.helpers import create_missing_parameter_default
+
+MONOREPO_FIXTURES_ROOT = FullPath(Path(__file__).parent / "monorepo_fixtures")
 
 
 def create_file_filter(pattern: str = "test") -> FileFilter:
@@ -145,12 +152,14 @@ def create_py_project_structure_validation_errors(
 
 
 def create_default_type_parameter_context(
+    model_symbol_id: SymbolId = SymbolId("test"),
     parameter: MissingParameterDefault = create_missing_parameter_default(),
     workspace_context: WorkspaceContext = create_workspace_context(),
     workspace_root_project_context: ProjectContext = create_project_context(),
     project_context: ProjectContext = create_project_context(),
 ) -> DefaultTypeParameterContext:
     return DefaultTypeParameterContext(
+        model_symbol_id=model_symbol_id,
         parameter=parameter,
         workspace_context=workspace_context,
         workspace_root_project_context=workspace_root_project_context,

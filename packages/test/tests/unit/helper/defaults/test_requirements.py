@@ -15,9 +15,9 @@ from gyomu_test.helper.defaults.requirements import (
     ConfiguredParameterDefault,
     MissingParameterDefault,
     ResolvedParameterDefault,
+    _resolve_function_parameter_defaults,
     get_primitive_type_name,
     is_supported_primitive_parameter_type,
-    resolve_function_parameter_defaults,
 )
 from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
 from pytest_mock import MockerFixture
@@ -111,7 +111,7 @@ class TestResolveFunctionParameterDefaults:
         inventories = result.unwrap()
         inventory = get_inventory(inventories, "StringLiteralModel")
 
-        parameter_result = resolve_function_parameter_defaults(
+        parameter_result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -290,7 +290,7 @@ class TestResolveFunctionParameterDefaults:
         inventories = inventory_result.unwrap()
         inventory = get_inventory(inventories, model_name)
 
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -329,7 +329,7 @@ class TestResolveFunctionParameterDefaults:
                 ),
             ),
         )
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -378,7 +378,7 @@ class TestResolveFunctionParameterDefaults:
                 ),
             ),
         )
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -426,7 +426,7 @@ class TestResolveFunctionParameterDefaults:
             return_value=Failure(expected_error),
         )
 
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -460,7 +460,7 @@ class TestResolveFunctionParameterDefaults:
             return_value=Failure(expected_error),
         )
 
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -496,7 +496,7 @@ class TestResolveFunctionParameterDefaults:
             return_value=Failure(expected_error),
         )
 
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -532,7 +532,7 @@ class TestResolveFunctionParameterDefaults:
             return_value=Failure(expected_error),
         )
 
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,
@@ -568,7 +568,7 @@ class TestResolveFunctionParameterDefaults:
             return_value=Failure(expected_error),
         )
 
-        result = resolve_function_parameter_defaults(
+        result = _resolve_function_parameter_defaults(
             inventory=inventory,
             workspace_context=context.workspace_context,
             project_context=context.project_context,

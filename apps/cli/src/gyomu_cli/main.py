@@ -15,6 +15,7 @@ from gyomu_ai.provider.pydantic_ai.routing import (
 from gyomu_ai_compiler.pipelines.docstring_update import DocstringRouteId
 from gyomu_ai_compiler.pipelines.document import DocumentRouteId
 from gyomu_infra.logger import logger
+from gyomu_interaction_cli.executor import CliInteractionExecutor
 from gyomu_python_analysis.analysis.workspace import find_root
 from gyomu_schema.option.retry import RetryObserver
 from gyomu_schema.schemas.types import FullPath
@@ -26,6 +27,7 @@ from gyomu_workflow.snapshot.models import (
     SnapshotTargetOption,
 )
 from gyomu_workflow.snapshot.project import find_project_by_name
+from gyomu_workflow.test.helpers.update import update_helper_inventories
 from gyomu_workflow.test.migrate_default import migrate_default_from_existing_helpers
 from gyomu_workflow.test.reconcile_helpers import reconcile_helper_inventories
 from returns.result import Failure
@@ -147,7 +149,7 @@ def test(
     package: str,
     migrate_model_defaults: bool = False,
     reconcile_helpers: bool = False,
-    additional_filename: str | None = None,
+    update_helpers: bool = False,
 ) -> None:
     print(
         f"package:{package} migrate_model_defaults:{migrate_model_defaults} "
@@ -178,6 +180,17 @@ def test(
             workspace_context=workspace_context,
             workspace_project_context=workspace_project_context,
         )
+    interaction: CliInteractionExecutor = CliInteractionExecutor()
+    if update_helpers:
+        result = update_helper_inventories(
+            workspace_context=workspace_context,
+            workspace_project_context=workspace_project_context,
+            interaction=interaction,
+        )
+        if isinstance(result, Failure):
+            logger.error(f"{package} Helper Update Fail")
+            logger.error_object(result.failure())
+            return
 
 
 if __name__ == "__main__":

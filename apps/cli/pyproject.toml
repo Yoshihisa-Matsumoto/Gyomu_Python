@@ -11,6 +11,7 @@ dependencies = [
     "gyomu-ai-compiler",
     "returns",
     "gyomu-workflow",
+    "gyomu-interaction_cli",
     "typer>=0.27.2",
 ]
 license = "MIT"
@@ -43,6 +44,7 @@ gyomu-infra = { workspace = true }
 gyomu-ai = { workspace = true }
 gyomu-ai-compiler = { workspace = true }
 gyomu-workflow = { workspace = true }
+gyomu-interaction_cli = { workspace = true }
 
 [tool.hatch.version]
 path = "../../version/__about__.py"

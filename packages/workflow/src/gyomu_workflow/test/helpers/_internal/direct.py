@@ -66,7 +66,12 @@ def _build_direct_interaction_request(
 ]:
     return Success(
         InteractionDirectRequest[str, DefaultTypeParameterContext, Parameter](
-            instruction="Please define your type parameter for ",
+            instruction=(
+                "Please define your type parameter for "
+                f"({parameter_context.model_symbol_id}) \n"
+                f"{parameter_context.parameter.parameter.name}:"
+                f"{parameter_context.parameter.parameter.parameter_type.text}"
+            ),
             context=parameter_context,
             input_mode=InputMode.DIRECT,
             codec=PrimitiveValueCodec(),
@@ -97,6 +102,7 @@ def define_direct_parameter(
                 reason="external_failure",
             )
         )
+
     return Success(
         ResolvedParameterDefault(
             parameter=parameter_context.parameter.parameter, default=result.value

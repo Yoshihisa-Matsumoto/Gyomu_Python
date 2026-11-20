@@ -12,16 +12,17 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
     ParameterDefault,
 )
+from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
+    ParameterInfo,
 )
 from gyomu_test.helper.defaults.requirements import (
     ConfiguredParameterDefault,
-    MissingParameterDefault,
     ResolvedParameterDefault,
     is_supported_primitive_parameter_type,
-    resolve_function_parameter_defaults,
+    resolve_function_parameter_default,
 )
 from gyomu_test.helper.inventory.update_default import update_model_default
 from returns.result import Failure, Result, Success
@@ -62,6 +63,79 @@ def update_helper_inventories(
     return Success(None)
 
 
+def _define_helper_inventory_parameter(
+    inventory: HelperInventoryItem,
+    module_analysis: ModuleAnalysis,
+    parameter_info: ParameterInfo,
+    workspace_context: WorkspaceContext,
+    project_context: ProjectContext,
+    config_manager: ConfigManager,
+    interaction: InteractionExecutor[str, Path],
+) -> Result[ParameterDefault, GyomuError]:
+    parameter_result = resolve_function_parameter_default(
+        inventory=inventory,
+        parameter_info=parameter_info,
+        module_analysis=module_analysis,
+        workspace_context=workspace_context,
+        project_context=project_context,
+        config_manager=config_manager,
+    )
+    if isinstance(parameter_result, Failure):
+        return parameter_result.alt(
+            lambda error: wrap_gyomu_error(
+                error=error, message="fail to resolve function parameters"
+            )
+        )
+    parameter = parameter_result.unwrap()
+    if isinstance(parameter, ConfiguredParameterDefault):
+        return Success(
+            ParameterDefault(
+                name=parameter.parameter.name, value=parameter.parameter.default
+            )
+        )
+    elif isinstance(parameter, ResolvedParameterDefault):
+        return Success(
+            ParameterDefault(name=parameter.parameter.name, value=parameter.default)
+        )
+    else:
+        root_context_result = initialize_project_context(
+            project_root=workspace_context.workspace_root.path,
+            source_root=ProjectRelativePath(Path(".")),
+        )
+        if isinstance(root_context_result, Failure):
+            return root_context_result.alt(
+                lambda error: wrap_gyomu_error(
+                    error=error,
+                    message="fail to initialize workspace root project context",
+                )
+            )
+        parameter_context = DefaultTypeParameterContext(
+            model_symbol_id=inventory.target_identity.symbol_id,
+            parameter=parameter,
+            workspace_context=workspace_context,
+            project_context=project_context,
+            workspace_root_project_context=root_context_result.unwrap(),
+        )
+        if is_supported_primitive_parameter_type(parameter=parameter):
+            define_parameter_result = define_direct_parameter(
+                parameter_context=parameter_context, interaction=interaction
+            )
+
+        else:
+            define_parameter_result = define_document_parameter(
+                parameter_context=parameter_context, interaction=interaction
+            )
+        if isinstance(define_parameter_result, Failure):
+            return define_parameter_result
+        resolved = define_parameter_result.unwrap()
+        return Success(
+            ParameterDefault(
+                name=resolved.parameter.name,
+                value=resolved.default,
+            )
+        )
+
+
 def _create_helper_inventory(
     create: tuple[HelperInventoryItem, ...],
     workspace_context: WorkspaceContext,
@@ -70,70 +144,39 @@ def _create_helper_inventory(
     interaction: InteractionExecutor[str, Path],
 ) -> Result[None, GyomuError]:
     for create_item in create:
-        parameter_result = resolve_function_parameter_defaults(
-            inventory=create_item,
-            workspace_context=workspace_context,
-            project_context=project_context,
-            config_manager=config_manager,
+        cache_result = workspace_context.find_file_analysis_context(
+            target_identity=create_item.target_identity
         )
-        if isinstance(parameter_result, Failure):
-            return parameter_result.alt(
+        if isinstance(cache_result, Failure):
+            return cache_result.alt(
                 lambda error: wrap_gyomu_error(
-                    error=error, message="fail to resolve function parameters"
+                    error=error, message="fail to get file analysis"
                 )
             )
-
-        parameters = parameter_result.unwrap()
+        file_analysis_context = cache_result.unwrap()
+        if file_analysis_context is None:
+            return Failure(
+                GyomuError(
+                    "file analysis is not found",
+                    operation="create helper inventory",
+                    domain="test",
+                    reason="unexpected",
+                )
+            )
         create_parameters: list[ParameterDefault] = []
-        for parameter in parameters:
-            if isinstance(parameter, ConfiguredParameterDefault):
-                create_parameters.append(
-                    ParameterDefault(
-                        name=parameter.parameter.name, value=parameter.parameter.default
-                    )
-                )
-            elif isinstance(parameter, ResolvedParameterDefault):
-                create_parameters.append(
-                    ParameterDefault(
-                        name=parameter.parameter.name, value=parameter.default
-                    )
-                )
-            elif isinstance(parameter, MissingParameterDefault):
-                root_context_result = initialize_project_context(
-                    project_root=workspace_context.workspace_root.path,
-                    source_root=ProjectRelativePath(Path(".")),
-                )
-                if isinstance(root_context_result, Failure):
-                    return root_context_result.alt(
-                        lambda error: wrap_gyomu_error(
-                            error=error,
-                            message="fail to initialize workspace root project context",
-                        )
-                    )
-                parameter_context = DefaultTypeParameterContext(
-                    parameter=parameter,
-                    workspace_context=workspace_context,
-                    project_context=project_context,
-                    workspace_root_project_context=root_context_result.unwrap(),
-                )
-                if is_supported_primitive_parameter_type(parameter=parameter):
-                    define_parameter_result = define_direct_parameter(
-                        parameter_context=parameter_context, interaction=interaction
-                    )
-
-                else:
-                    define_parameter_result = define_document_parameter(
-                        parameter_context=parameter_context, interaction=interaction
-                    )
-                if isinstance(define_parameter_result, Failure):
-                    return define_parameter_result
-                resolved = define_parameter_result.unwrap()
-                create_parameters.append(
-                    ParameterDefault(
-                        name=resolved.parameter.name,
-                        value=resolved.default,
-                    )
-                )
+        for parameter_info in create_item.parameters:
+            parameter_result = _define_helper_inventory_parameter(
+                inventory=create_item,
+                module_analysis=file_analysis_context[0].analysis,
+                parameter_info=parameter_info,
+                workspace_context=workspace_context,
+                project_context=project_context,
+                config_manager=config_manager,
+                interaction=interaction,
+            )
+            if isinstance(parameter_result, Failure):
+                return parameter_result
+            create_parameters.append(parameter_result.unwrap())
         model_default: ModelDefault = ModelDefault(
             symbol_name=create_item.target_identity.get_symbol_name(),
             parameters=tuple(create_parameters),

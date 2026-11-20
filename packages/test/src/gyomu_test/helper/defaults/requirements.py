@@ -141,7 +141,7 @@ def is_supported_primitive_parameter_type(parameter: MissingParameterDefault) ->
 
 class ParameterConfigurationContext:
     parameter: ParameterInfo
-    module: ModuleAnalysis
+    module_analysis: ModuleAnalysis
     workspace_context: WorkspaceContext
     project_context: ProjectContext
     config_manager: ConfigManager
@@ -150,14 +150,14 @@ class ParameterConfigurationContext:
     def __init__(
         self,
         parameter: ParameterInfo,
-        module: ModuleAnalysis,
+        module_analysis: ModuleAnalysis,
         workspace_context: WorkspaceContext,
         project_context: ProjectContext,
         config_manager: ConfigManager,
         class_name: str,
     ) -> None:
         self.parameter = parameter
-        self.module = module
+        self.module_analysis = module_analysis
         self.workspace_context = workspace_context
         self.project_context = project_context
         self.config_manager = config_manager
@@ -272,7 +272,7 @@ def _resolve_parameter_default(
         resolve_type_result = resolve_type_analysis(
             type_analysis=context.parameter.parameter_type,
             parameter_name=context.parameter.name,
-            module=context.module,
+            module=context.module_analysis,
             workspace_context=context.workspace_context,
         )
         if isinstance(resolve_type_result, Failure):
@@ -316,7 +316,7 @@ def _resolve_name_structure(
     name_structure_result = resolve_name_structure(
         structure=expression,
         parameter_name=context.parameter.name,
-        module=context.module,
+        module=context.module_analysis,
         workspace_context=context.workspace_context,
         class_name=context.class_name,
     )
@@ -564,7 +564,47 @@ def _resolve_type_expression(
     )
 
 
-def resolve_function_parameter_defaults(
+def resolve_function_parameter_default(
+    inventory: HelperInventoryItem,
+    parameter_info: ParameterInfo,
+    module_analysis: ModuleAnalysis,
+    workspace_context: WorkspaceContext,
+    project_context: ProjectContext,
+    config_manager: ConfigManager,
+) -> Result[
+    ConfiguredParameterDefault | ResolvedParameterDefault | MissingParameterDefault,
+    GyomuTestError,
+]:
+    if parameter_info.default is not None:
+        return Success(ConfiguredParameterDefault(parameter_info))
+
+    context = ParameterConfigurationContext(
+        parameter=parameter_info,
+        module_analysis=module_analysis,
+        workspace_context=workspace_context,
+        project_context=project_context,
+        config_manager=config_manager,
+        class_name=inventory.target_identity.get_symbol_name(),
+    )
+
+    default_result = _resolve_parameter_default(context=context)
+    if isinstance(default_result, Failure):
+        return default_result
+
+    resolved_default = default_result.unwrap()
+
+    if isinstance(resolved_default, MissingParameterDefault):
+        return Success(resolved_default)
+
+    return Success(
+        ResolvedParameterDefault(
+            parameter=parameter_info,
+            default=resolved_default,
+        )
+    )
+
+
+def _resolve_function_parameter_defaults(
     inventory: HelperInventoryItem,
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
@@ -593,34 +633,17 @@ def resolve_function_parameter_defaults(
         return Failure(GyomuTestError("test"))
 
     for parameter in inventory.parameters:
-        if parameter.default is not None:
-            result.append(ConfiguredParameterDefault(parameter))
-            continue
-
-        context = ParameterConfigurationContext(
-            parameter=parameter,
-            module=file_analysis_context[0].analysis,
+        parameter_result = resolve_function_parameter_default(
+            inventory=inventory,
+            parameter_info=parameter,
+            module_analysis=file_analysis_context[0].analysis,
             workspace_context=workspace_context,
             project_context=project_context,
             config_manager=config_manager,
-            class_name=inventory.target_identity.get_symbol_name(),
         )
-
-        default_result = _resolve_parameter_default(context=context)
-        if isinstance(default_result, Failure):
-            return default_result
-
-        resolved_default = default_result.unwrap()
-
-        if isinstance(resolved_default, MissingParameterDefault):
-            result.append(resolved_default)
-            continue
-
-        result.append(
-            ResolvedParameterDefault(
-                parameter=parameter,
-                default=resolved_default,
-            )
-        )
+        if isinstance(parameter_result, Failure):
+            return parameter_result
+        else:
+            result.append(parameter_result.unwrap())
 
     return Success(tuple(result))
