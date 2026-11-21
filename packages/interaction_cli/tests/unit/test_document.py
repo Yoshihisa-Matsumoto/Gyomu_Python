@@ -1,4 +1,3 @@
-from io import StringIO
 from pathlib import Path
 
 from gyomu_infra.process.error import ProcessError
@@ -247,8 +246,6 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=input_func,
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Failure)
@@ -296,8 +293,6 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Success)
@@ -347,8 +342,6 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Success)
@@ -412,12 +405,8 @@ class TestExecuteDocumentInteraction:
             Success(expected_value),
         ]
 
-        output = mocker.Mock()
-
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=output,
         )
 
         assert isinstance(result, Success)
@@ -467,19 +456,17 @@ class TestExecuteDocumentInteraction:
         request.text_provider.create_initial_text.return_value = Success("initial text")
         request.codec = mocker.Mock()
         request.codec.parse.return_value = Failure(validation_error)
-
-        output = StringIO()
-
+        questionary_print = mocker.patch(
+            "gyomu_interaction_cli.document.questionary_print",
+        )
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=output,
         )
 
         assert isinstance(result, Success)
         assert isinstance(result.unwrap(), InteractionCancelled)
 
-        assert f"Invalid input: {validation_error}\n" in output.getvalue()
+        questionary_print.assert_called_once_with(f"Invalid input: {validation_error}")
         assert request.codec.parse.call_count == 1
         delete_file.assert_called_once_with(temp_file)
 
@@ -524,8 +511,6 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Success)
@@ -567,8 +552,6 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Failure)
@@ -613,18 +596,17 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Failure)
         open_document.assert_not_called()
         delete_file.assert_not_called()
 
-    def test_passes_input_func_to_confirm_or_cancel(
+    def test_calls_confirm_or_cancel_without_arguments(
         self,
         mocker,
     ) -> None:
+        # Arrange
         temp_file = Path("initial.json")
         mocker.patch(
             "gyomu_interaction_cli.document.load_gyomu_config_section",
@@ -652,20 +634,13 @@ class TestExecuteDocumentInteraction:
         request.text_provider = mocker.Mock()
         request.text_provider.create_initial_text.return_value = Success("initial text")
 
-        input_func = mocker.Mock()
+        # Act
+        result = execute_document_interaction(request)
 
-        result = execute_document_interaction(
-            request,
-            input_func=input_func,
-            output=mocker.Mock(),
-        )
-
+        # Assert
         assert isinstance(result, Success)
         assert isinstance(result.unwrap(), InteractionCancelled)
-        confirm_or_cancel.assert_called_once_with(
-            input_func=input_func,
-            output=mocker.ANY,
-        )
+        confirm_or_cancel.assert_called_once_with()
 
     def test_returns_failure_when_editor_config_loading_fails(
         self,
@@ -701,8 +676,6 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Failure)
@@ -748,8 +721,6 @@ class TestExecuteDocumentInteraction:
 
         result = execute_document_interaction(
             request,
-            input_func=mocker.Mock(),
-            output=mocker.Mock(),
         )
 
         assert isinstance(result, Success)

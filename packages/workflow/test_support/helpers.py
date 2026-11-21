@@ -1,6 +1,7 @@
 from collections.abc import Mapping
 from pathlib import Path
 
+from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.schemas.python.types import (
@@ -40,6 +41,30 @@ from packages.python_analysis.test_support.helpers import (
 from packages.test.test_support.helpers import create_missing_parameter_default
 
 MONOREPO_FIXTURES_ROOT = FullPath(Path(__file__).parent / "monorepo_fixtures")
+
+
+def build_test_project_structure(
+    project_root: Path,
+    files: dict[str, str],
+) -> ProjectContext:
+    pyproject = """
+[project]
+name = "test-project"
+version = "0.1.0"
+requires-python = ">=3.13"
+""".strip()
+
+    (project_root / "pyproject.toml").write_text(pyproject)
+
+    for relative_path, content in files.items():
+        file_path = project_root / relative_path
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(content)
+
+    return initialize_project_context(
+        project_root=FullPath(project_root),
+        source_root=ProjectRelativePath(Path("src")),
+    ).unwrap()
 
 
 def create_file_filter(pattern: str = "test") -> FileFilter:

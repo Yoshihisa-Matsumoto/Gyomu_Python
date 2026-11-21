@@ -8,7 +8,10 @@ from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.error.validation import ValidationError
 
 if TYPE_CHECKING:
-    from gyomu_schema.schemas.interaction.request import InteractionRequest
+    from gyomu_schema.schemas.interaction.request import (
+        InteractionRequest,
+        SelectionOption,
+    )
     from gyomu_schema.schemas.interaction.result import InteractionResult
 
 
@@ -33,6 +36,12 @@ class DocumentTextProvider[ContextT](Protocol):
         self,
         context: ContextT,
     ) -> Result[str, GyomuError]: ...
+
+
+class SelectionProvider[ContextT, ValueT](Protocol):
+    def create_selections(
+        self, context: ContextT
+    ) -> Result[tuple[SelectionOption[ValueT], ...], GyomuError]: ...
 
 
 class InteractionExecutor[DirectRawInputT, DocumentT](Protocol):

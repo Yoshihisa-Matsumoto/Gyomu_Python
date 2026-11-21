@@ -1,6 +1,3 @@
-from io import StringIO
-from unittest.mock import Mock
-
 import pytest
 from gyomu_interaction_cli.direct import execute_direct_interaction
 from gyomu_schema.error.validation import ValidationError
@@ -12,6 +9,7 @@ from gyomu_schema.schemas.interaction.result import (
     InteractionAccepted,
     InteractionCancelled,
 )
+from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 
@@ -39,87 +37,115 @@ def create_direct_request(
 
 
 class TestExecuteDirectInteraction:
-    def test_accepts_valid_input_after_confirmation(self) -> None:
-        input_func = Mock(side_effect=["hello", "y"])
-        output = StringIO()
-
-        result = execute_direct_interaction(
-            request=create_direct_request(),
-            input_func=input_func,
-            output=output,
+    def test_accepts_valid_input_after_confirmation(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        text = mocker.patch("gyomu_interaction_cli.direct.text")
+        text.return_value.ask.return_value = "hello"
+        confirm = mocker.patch(
+            "gyomu_interaction_cli.direct.confirm_or_cancel",
+            return_value=True,
         )
 
+        # Act
+        result = execute_direct_interaction(
+            request=create_direct_request(),
+        )
+
+        # Assert
         assert result == Success(InteractionAccepted("hello"))
-        assert input_func.call_count == 2
-        assert output.getvalue() == ""
+        text.assert_called_once_with("Enter a value\n>")
+        text.return_value.ask.assert_called_once()
+        confirm.assert_called_once_with()
 
-    def test_retries_after_validation_error_then_confirms(self) -> None:
-        input_func = Mock(side_effect=["invalid", "hello", "y"])
-        output = StringIO()
+    def test_retries_after_validation_error_then_confirms(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        text = mocker.patch("gyomu_interaction_cli.direct.text")
+        text.return_value.ask.side_effect = ["invalid", "hello"]
+        confirm = mocker.patch(
+            "gyomu_interaction_cli.direct.confirm_or_cancel",
+            return_value=True,
+        )
+        print_mock = mocker.patch("gyomu_interaction_cli.direct.print")
 
+        # Act
         result = execute_direct_interaction(
             request=create_direct_request(),
-            input_func=input_func,
-            output=output,
         )
 
+        # Assert
         assert result == Success(InteractionAccepted("hello"))
-        assert input_func.call_count == 3
-        assert "Invalid input:" in output.getvalue()
-        assert "Invalid value." in output.getvalue()
+        assert text.return_value.ask.call_count == 2
+        confirm.assert_called_once_with()
+        print_mock.assert_called_once()
+        assert "Invalid input:" in print_mock.call_args.args[0]
+        assert "Invalid value." in print_mock.call_args.args[0]
 
-    def test_cancels_after_input(self) -> None:
-        input_func = Mock(side_effect=["hello", "n"])
-        output = StringIO()
-
-        result = execute_direct_interaction(
-            request=create_direct_request(),
-            input_func=input_func,
-            output=output,
+    def test_cancels_when_text_input_is_cancelled(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        text = mocker.patch("gyomu_interaction_cli.direct.text")
+        text.return_value.ask.return_value = None
+        confirm = mocker.patch(
+            "gyomu_interaction_cli.direct.confirm_or_cancel",
         )
 
+        # Act
+        result = execute_direct_interaction(
+            request=create_direct_request(),
+        )
+
+        # Assert
         assert result == Success(InteractionCancelled())
-        assert input_func.call_count == 2
-        assert output.getvalue() == ""
+        confirm.assert_not_called()
+
+    def test_cancels_when_confirmation_is_declined(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        text = mocker.patch("gyomu_interaction_cli.direct.text")
+        text.return_value.ask.return_value = "hello"
+        mocker.patch(
+            "gyomu_interaction_cli.direct.confirm_or_cancel",
+            return_value=False,
+        )
+
+        # Act
+        result = execute_direct_interaction(
+            request=create_direct_request(),
+        )
+
+        # Assert
+        assert result == Success(InteractionCancelled())
 
     @pytest.mark.parametrize(
         "exception",
         [EOFError(), KeyboardInterrupt()],
     )
-    def test_cancels_when_input_is_interrupted(
+    def test_cancels_when_text_input_is_interrupted(
         self,
+        mocker: MockerFixture,
         exception: EOFError | KeyboardInterrupt,
     ) -> None:
-        input_func = Mock(side_effect=exception)
-        output = StringIO()
-
-        result = execute_direct_interaction(
-            request=create_direct_request(),
-            input_func=input_func,
-            output=output,
+        # Arrange
+        text = mocker.patch("gyomu_interaction_cli.direct.text")
+        text.return_value.ask.side_effect = exception
+        confirm = mocker.patch(
+            "gyomu_interaction_cli.direct.confirm_or_cancel",
         )
 
-        assert result == Success(InteractionCancelled())
-        assert input_func.call_count == 1
-        assert output.getvalue() == ""
+        # Act / Assert
+        with pytest.raises(type(exception)):
+            execute_direct_interaction(
+                request=create_direct_request(),
+            )
 
-    @pytest.mark.parametrize(
-        "exception",
-        [EOFError(), KeyboardInterrupt()],
-    )
-    def test_cancels_when_confirmation_is_interrupted(
-        self,
-        exception: EOFError | KeyboardInterrupt,
-    ) -> None:
-        input_func = Mock(side_effect=["hello", exception])
-        output = StringIO()
-
-        result = execute_direct_interaction(
-            request=create_direct_request(),
-            input_func=input_func,
-            output=output,
-        )
-
-        assert result == Success(InteractionCancelled())
-        assert input_func.call_count == 2
-        assert output.getvalue() == ""
+        confirm.assert_not_called()

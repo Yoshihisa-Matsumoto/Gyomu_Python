@@ -6,6 +6,7 @@ from typing import Literal
 from gyomu_schema.protocols.interaction import (
     DocumentCodec,
     DocumentTextProvider,
+    SelectionProvider,
     ValueCodec,
 )
 
@@ -13,6 +14,7 @@ from gyomu_schema.protocols.interaction import (
 class InputMode(StrEnum):
     DIRECT = "direct"
     DOCUMENT = "document"
+    SELECT = "select"
 
 
 @dataclass(frozen=True)
@@ -42,7 +44,21 @@ class InteractionDocumentRequest[DocumentT, ContextT, ValueT](
     temporary_directory: Path | None = None
 
 
+@dataclass(frozen=True)
+class SelectionOption[ValueT]:
+    label: str
+    value: ValueT
+
+
+@dataclass(frozen=True)
+class InteractionSelectRequest[ContextT, ValueT](InteractionBaseRequest[ContextT]):
+    selection_provider: SelectionProvider[ContextT, ValueT]
+    input_mode: Literal[InputMode.SELECT] = InputMode.SELECT
+    initial_value: ValueT | None = None
+
+
 type InteractionRequest[DirectRawInputT, DocumentT, ContextT, ValueT] = (
     InteractionDirectRequest[DirectRawInputT, ContextT, ValueT]
     | InteractionDocumentRequest[DocumentT, ContextT, ValueT]
+    | InteractionSelectRequest[ContextT, ValueT]
 )

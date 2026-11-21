@@ -14,6 +14,7 @@ from gyomu_schema.schemas.interaction.result import (
     InteractionAccepted,
     InteractionCancelled,
 )
+from gyomu_schema.schemas.python.types import SymbolId
 from gyomu_test.helper.defaults.requirements import (
     MissingParameterDefault,
     ResolvedParameterDefault,
@@ -41,9 +42,10 @@ class TestBuildInteractionRequest:
         parameter = create_missing_parameter_default(
             missing_types=(create_primitive_type(primitive_type="str"),)
         )
+        symbol_id = SymbolId("test::Test")
         context = cast(
             DefaultTypeParameterContext,
-            SimpleNamespace(parameter=parameter),
+            SimpleNamespace(parameter=parameter, model_symbol_id=symbol_id),
         )
 
         result = _build_direct_interaction_request(parameter_context=context)
@@ -52,7 +54,10 @@ class TestBuildInteractionRequest:
         request = result.unwrap()
 
         assert isinstance(request, InteractionDirectRequest)
-        assert request.instruction == "Please define your type parameter for "
+        assert (
+            request.instruction
+            == "Please define your type parameter for (test::Test) \narg:str"
+        )
         assert request.input_mode == InputMode.DIRECT
         assert request.context is context
         assert isinstance(request.codec, PrimitiveValueCodec)
@@ -182,7 +187,9 @@ class TestDefineDirectParameter:
         )
         return cast(
             DefaultTypeParameterContext,
-            SimpleNamespace(parameter=parameter),
+            SimpleNamespace(
+                parameter=parameter, model_symbol_id=SymbolId("test::Test")
+            ),
         )
 
     def test_accepted_returns_resolved_parameter_default(self) -> None:

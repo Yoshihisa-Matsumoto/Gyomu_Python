@@ -1,8 +1,6 @@
 import contextlib
 import shlex
-from collections.abc import Callable
 from pathlib import Path
-from typing import TextIO
 
 from gyomu_config.gyomu.load import load_gyomu_config_section
 from gyomu_infra.filesystem.file_io import (
@@ -19,6 +17,7 @@ from gyomu_schema.schemas.interaction.result import (
     InteractionCancelled,
     InteractionResult,
 )
+from questionary import print as questionary_print
 from returns.result import Failure, Result, Success
 
 from gyomu_interaction_cli.confirm import confirm_or_cancel
@@ -100,9 +99,6 @@ def open_document(command: str, file_path: Path) -> Result[None, GyomuError]:
 
 def execute_document_interaction[ContextT, ValueT](
     request: InteractionDocumentRequest[Path, ContextT, ValueT],
-    *,
-    input_func: Callable[[str], str],
-    output: TextIO,
 ) -> Result[InteractionResult[ValueT], GyomuError]:
     config_result = load_gyomu_config_section(
         section_name="test.interaction-cli.text-editor",
@@ -141,25 +137,16 @@ def execute_document_interaction[ContextT, ValueT](
             if isinstance(open_result, Failure):
                 return open_result
 
-            confirmed = confirm_or_cancel(input_func=input_func, output=output)
+            confirmed = confirm_or_cancel()
             if not confirmed:
                 return Success(InteractionCancelled())
-
-            # read_result = read_text(path=temp_file)
-            # if isinstance(read_result, Failure):
-            #     return read_result.alt(
-            #         lambda error: _wrap_gyomu_error(
-            #             error=error,
-            #             message="fail to read temp file",
-            #         )
-            #     )
 
             parsed = request.codec.parse(
                 temp_file,
                 request.context,
             )
             if isinstance(parsed, Failure):
-                print(f"Invalid input: {parsed.failure()}", file=output)
+                questionary_print(f"Invalid input: {parsed.failure()}")
                 continue
 
             return Success(InteractionAccepted(parsed.unwrap()))

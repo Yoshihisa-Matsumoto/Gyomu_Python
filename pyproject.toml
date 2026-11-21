@@ -58,6 +58,7 @@ exclude = [
     "packages/concept/concept_test_support/fixtures",
     "packages/concept/test_support/fixtures",
     "packages/test/test_support/monorepo_fixtures",
+    "packages/worksflow/test_support/monorepo_fixtures",
     "version",
     "docs"
 ]

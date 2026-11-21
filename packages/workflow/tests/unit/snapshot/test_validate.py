@@ -26,7 +26,7 @@ from packages.python_analysis.test_support.helpers import (
     _create_context,
     create_workspace_project,
 )
-from packages.workflow.workflow_test_support.helpers import (
+from packages.workflow.test_support.helpers import (
     build_test_project_structure,
 )
 

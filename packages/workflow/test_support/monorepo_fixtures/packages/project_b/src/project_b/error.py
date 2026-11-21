@@ -4,7 +4,6 @@ from gyomu_schema.error.base import BaseError, caller_context
 
 
 class TestingError(BaseError):
-    
     def __init__(
         self,
         message: str,

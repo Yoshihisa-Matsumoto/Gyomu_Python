@@ -22,16 +22,13 @@ def build_product_base_model(
 
 
 def create_product_summary(
-    product_id: int = 1, 
-    display_name: str = "Example Product"
+    product_id: int = 1, display_name: str = "Example Product"
 ) -> ProductSummary:
-    return ProductSummary(
-        product_id=product_id, 
-        display_name=display_name
-    )
+    return ProductSummary(product_id=product_id, display_name=display_name)
+
 
 def create_composite_product(
     composite_name: str = "Test Composite",
-    products: tuple[ProductBaseModel,...]=tuple([build_product_base_model()])
+    products: tuple[ProductBaseModel, ...] = tuple([build_product_base_model()]),
 ) -> CompositeProduct:
-    return CompositeProduct(composite_name=composite_name,products=products)
+    return CompositeProduct(composite_name=composite_name, products=products)
