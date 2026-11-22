@@ -4,6 +4,7 @@ from pathlib import Path
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
     PrimitiveType,
+    ReferencedType,
     ResolvedType,
     SymbolType,
 )
@@ -77,8 +78,11 @@ def create_missing_parameter_default(
 def create_resolved_parameter_default(
     parameter: ParameterInfo = create_parameter_info(),
     default: Parameter = create_literal_parameter(),
+    referenced_types: tuple[ReferencedType, ...] = (),
 ) -> ResolvedParameterDefault:
-    return ResolvedParameterDefault(parameter=parameter, default=default)
+    return ResolvedParameterDefault(
+        parameter=parameter, default=default, referenced_types=referenced_types
+    )
 
 
 def create_configured_parameter_default(

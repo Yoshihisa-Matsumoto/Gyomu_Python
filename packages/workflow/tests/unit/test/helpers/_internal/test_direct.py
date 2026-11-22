@@ -28,6 +28,7 @@ from gyomu_workflow.test.helpers._internal.direct import (
 from gyomu_workflow.test.helpers._internal.models import (
     DefaultPrimitiveLiteralTypeParameterContext,
 )
+from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
 from packages.python_analysis.test_support.helpers import (
@@ -202,12 +203,19 @@ class TestDefineDirectParameter:
             model_symbol_id=SymbolId("test::Test"),
         )
 
-    def test_accepted_returns_resolved_parameter_default(self) -> None:
+    def test_accepted_returns_resolved_parameter_default(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
         context = self._create_context()
         executor = Mock(spec=InteractionExecutor)
         value = LiteralParameter(value="hello")
         executor.execute.return_value = Success(InteractionAccepted(value=value))
 
+        mocker.patch(
+            "gyomu_workflow.test.helpers._internal.direct.configure_primitive_literal_type_parameter_default",
+            return_value=Success(None),
+        )
         result = define_direct_parameter(
             parameter_context=context,
             interaction=executor,
@@ -219,7 +227,7 @@ class TestDefineDirectParameter:
         assert resolved.parameter is context.parameter.parameter
         assert resolved.default == value
 
-        # executor.execute.assert_called_once()
+        executor.execute.assert_called_once()
         request = executor.execute.call_args.kwargs["request"]
         assert isinstance(request, InteractionDirectRequest)
         assert request.context is context

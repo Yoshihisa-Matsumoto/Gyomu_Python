@@ -54,7 +54,8 @@
           "name": "value",
           "value": {
             "kind": "name",
-            "name": "DEFAULT_NAME"
+            "name": "DEFAULT_NAME",
+            "symbol_id": "packages.parameter.test_support.helpers::DEFAULT_NAME"
           }
         }
       ]
@@ -68,7 +69,8 @@
             "kind": "attr",
             "value": {
               "kind": "name",
-              "name": "Color"
+              "name": "Color",
+              "symbol_id": "parameter.models::Color"
             },
             "attribute": "RED"
           }

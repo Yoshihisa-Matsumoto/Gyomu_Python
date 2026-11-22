@@ -12,7 +12,10 @@ from gyomu_schema.schemas.testing.helper import HelperInventoryItem
 from gyomu_test.helper.defaults.requirements import (
     ResolvedParameterDefault,
 )
-from gyomu_workflow.test.helpers._internal.models import DefaultTypeParameterContext
+from gyomu_workflow.test.helpers._internal.models import (
+    DefaultPrimitiveLiteralTypeParameterContext,
+    DefaultTypeParameterContext,
+)
 from gyomu_workflow.test.helpers.update import (
     _create_helper_inventory,
     _define_helper_inventory_parameter,
@@ -78,9 +81,12 @@ class TestDefineHelperInventoryParameter:
 
         # Assert
         assert isinstance(result, Success)
-        assert result.unwrap() == ParameterDefault(
-            name=parameter.name,
-            value=parameter.default,
+        assert result.unwrap() == (
+            ParameterDefault(
+                name=parameter.name,
+                value=parameter.default,
+            ),
+            (),
         )
 
         resolve.assert_called_once_with(
@@ -104,8 +110,7 @@ class TestDefineHelperInventoryParameter:
         parameter = missing.parameter
         resolved_default = LiteralParameter(value="resolved value")
         resolved = ResolvedParameterDefault(
-            parameter=parameter,
-            default=resolved_default,
+            parameter=parameter, default=resolved_default, referenced_types=()
         )
 
         inventory = Mock(spec=HelperInventoryItem)
@@ -134,9 +139,12 @@ class TestDefineHelperInventoryParameter:
 
         # Assert
         assert isinstance(result, Success)
-        assert result.unwrap() == ParameterDefault(
-            name=parameter.name,
-            value=resolved_default,
+        assert result.unwrap() == (
+            ParameterDefault(
+                name=parameter.name,
+                value=resolved_default,
+            ),
+            (),
         )
 
         resolve.assert_called_once_with(
@@ -154,9 +162,8 @@ class TestDefineHelperInventoryParameter:
         monkeypatch: MonkeyPatch,
     ) -> None:
         # Arrange
-        missing = create_missing_parameter_default(
-            missing_types=(create_primitive_type(primitive_type="str"),)
-        )
+        missing_type = create_primitive_type(primitive_type="str")
+        missing = create_missing_parameter_default(missing_types=(missing_type,))
         parameter = missing.parameter
         inventory = Mock(spec=HelperInventoryItem)
         inventory.target_identity = Mock()
@@ -171,8 +178,7 @@ class TestDefineHelperInventoryParameter:
 
         resolved_default = LiteralParameter(value="new value")
         resolved = ResolvedParameterDefault(
-            parameter=parameter,
-            default=resolved_default,
+            parameter=parameter, default=resolved_default, referenced_types=()
         )
 
         monkeypatch.setattr(
@@ -208,19 +214,23 @@ class TestDefineHelperInventoryParameter:
 
         # Assert
         assert isinstance(result, Success)
-        assert result.unwrap() == ParameterDefault(
-            name=parameter.name,
-            value=resolved_default,
+        assert result.unwrap() == (
+            ParameterDefault(
+                name=parameter.name,
+                value=resolved_default,
+            ),
+            (),
         )
         direct.assert_called_once()
         direct.assert_called_once_with(
-            parameter_context=DefaultTypeParameterContext(
+            parameter_context=DefaultPrimitiveLiteralTypeParameterContext(
                 model_symbol_id=inventory.target_identity.symbol_id,
                 parameter=missing,
                 workspace_context=workspace_context,
                 project_context=project_context,
                 workspace_root_project_context=root_workspace_context,
                 config_manager=config_manager,
+                resolved_type=missing_type,
             ),
             interaction=interaction,
         )
@@ -231,9 +241,8 @@ class TestDefineHelperInventoryParameter:
         monkeypatch: MonkeyPatch,
     ) -> None:
         # Arrange
-        missing = create_missing_parameter_default(
-            missing_types=(create_symbol_type(),)
-        )
+        missing_type = create_symbol_type()
+        missing = create_missing_parameter_default(missing_types=(missing_type,))
         parameter = missing.parameter
         inventory = Mock(spec=HelperInventoryItem)
         inventory.target_identity = Mock()
@@ -248,8 +257,7 @@ class TestDefineHelperInventoryParameter:
 
         resolved_default = LiteralParameter(value="new value")
         resolved = ResolvedParameterDefault(
-            parameter=parameter,
-            default=resolved_default,
+            parameter=parameter, default=resolved_default, referenced_types=()
         )
 
         monkeypatch.setattr(
@@ -286,9 +294,12 @@ class TestDefineHelperInventoryParameter:
 
         # Assert
         assert isinstance(result, Success)
-        assert result.unwrap() == ParameterDefault(
-            name=parameter.name,
-            value=resolved_default,
+        assert result.unwrap() == (
+            ParameterDefault(
+                name=parameter.name,
+                value=resolved_default,
+            ),
+            (),
         )
         direct.assert_not_called()
         document.assert_called_once_with(
@@ -579,7 +590,7 @@ class TestCreateHelperInventory:
             value=LiteralParameter(value="default value"),
         )
 
-        define_parameter = Mock(return_value=Success(parameter_default))
+        define_parameter = Mock(return_value=Success((parameter_default, ())))
         update_default = Mock(return_value=Success(None))
 
         monkeypatch.setattr(
@@ -798,7 +809,7 @@ class TestCreateHelperInventory:
             name=parameter_info.name,
             value=LiteralParameter(value="default value"),
         )
-        define_parameter = Mock(return_value=Success(parameter_default))
+        define_parameter = Mock(return_value=Success((parameter_default, ())))
         update_default = Mock(return_value=Failure(create_gyomu_error()))
 
         monkeypatch.setattr(
@@ -868,8 +879,8 @@ class TestCreateHelperInventory:
         )
         define_parameter = Mock(
             side_effect=[
-                Success(parameter_default_1),
-                Success(parameter_default_2),
+                Success((parameter_default_1, ())),
+                Success((parameter_default_2, ())),
             ]
         )
         update_default = Mock(return_value=Success(None))

@@ -1,5 +1,6 @@
 from gyomu_python_analysis.resolve.reference import (
     resolve_declaration_identity,
+    resolve_reference,
 )
 from gyomu_schema.schemas.config.test.model_defaults import (
     Argument,
@@ -45,7 +46,7 @@ def build_parameter_from_expression(
     if isinstance(expression, NoneExpressionAnalysis):
         return NoneParameter()
     if isinstance(expression, NameExpressionAnalysis):
-        return NameParameter(name=expression.name)
+        return _build_name_parameter(expression, module)
     if isinstance(expression, CallExpressionAnalysis):
         return _build_call_parameter(expression, module)
     if isinstance(expression, ListExpressionAnalysis):
@@ -60,6 +61,18 @@ def build_parameter_from_expression(
         return _build_lambda_parameter(expression, module)
     raise NotImplementedError(
         f"Unsupported parameter type: {type(expression).__name__}"
+    )
+
+
+def _build_name_parameter(
+    expression: NameExpressionAnalysis, module: ModuleAnalysis
+) -> NameParameter:
+    reference = resolve_reference(reference_name=expression.name, module=module)
+    return NameParameter(
+        name=expression.name,
+        symbol_id=reference.symbol_id
+        if reference is not None and reference.symbol_id is not None
+        else None,
     )
 
 

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from gyomu_python_analysis.resolve.models import PackageType, SymbolType
+from gyomu_python_analysis.resolve.models import PackageType, ReferencedType, SymbolType
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.protocols.interaction import InteractionExecutor
@@ -16,6 +16,7 @@ from gyomu_schema.schemas.interaction.result import (
     InteractionCancelled,
 )
 from gyomu_schema.schemas.python.types import DeclarationIdentity
+from gyomu_test.helper.defaults.referenced_types import aggregate_referenced_types
 from gyomu_test.helper.defaults.requirements import (
     ResolvedParameterDefault,
 )
@@ -139,8 +140,28 @@ def define_document_parameter(
                 reason="external_failure",
             )
         )
+
+    referenced_types: list[ReferencedType] = []
+    for missing in parameter_context.parameter.missing_types:
+        if isinstance(missing, SymbolType | PackageType):
+            referenced_types.append(missing)
+
+    aggregate_result = aggregate_referenced_types(
+        parameter=result.value,
+        referenced_types=referenced_types,
+        workspace_context=parameter_context.workspace_context,
+    )
+    if isinstance(aggregate_result, Failure):
+        return aggregate_result.alt(
+            lambda error: wrap_gyomu_error(
+                error=error, message="fail to aggregate referenced type"
+            )
+        )
+
     return Success(
         ResolvedParameterDefault(
-            parameter=parameter_context.parameter.parameter, default=result.value
+            parameter=parameter_context.parameter.parameter,
+            default=result.value,
+            referenced_types=tuple(referenced_types),
         )
     )

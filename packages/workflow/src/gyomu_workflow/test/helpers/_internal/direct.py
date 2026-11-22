@@ -122,6 +122,8 @@ def define_direct_parameter(
 
     return Success(
         ResolvedParameterDefault(
-            parameter=parameter_context.parameter.parameter, default=result.value
+            parameter=parameter_context.parameter.parameter,
+            default=result.value,
+            referenced_types=(),
         )
     )

@@ -90,3 +90,4 @@ class LiteralValueType:
 
 
 type ResolvedType = PrimitiveType | SymbolType | LiteralValueType | PackageType
+type ReferencedType = SymbolType | PackageType

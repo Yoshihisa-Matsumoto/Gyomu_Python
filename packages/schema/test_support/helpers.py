@@ -7,11 +7,14 @@ from gyomu_schema.error.gyomu import GyomuError, GyomuErrorReason
 from gyomu_schema.error.io import GyomuIOError, IOLayer, IOOperation
 from gyomu_schema.error.validation import ValidationError
 from gyomu_schema.schemas.config.test.model_defaults import (
+    Argument,
+    Arguments,
     AttributeParameter,
     CallParameter,
     DictEntry,
     DictParameter,
     KeywordArgument,
+    LambdaParameter,
     ListParameter,
     LiteralParameter,
     ModelDefault,
@@ -750,8 +753,10 @@ def create_none_parameter(
     return NoneParameter(kind=kind)
 
 
-def create_name_parameter(name: str = "parameter1") -> NameParameter:
-    return NameParameter(name=name)
+def create_name_parameter(
+    name: str = "parameter1", symbol_id: SymbolId | None = None
+) -> NameParameter:
+    return NameParameter(name=name, symbol_id=symbol_id)
 
 
 def create_attribute_parameter(
@@ -806,6 +811,40 @@ def create_call_parameter(
     return CallParameter(
         kind=kind, callable_identity=callable_identity, args=args, kwargs=kwargs
     )
+
+
+def create_argument(
+    arg: str = "arg", annotation: Parameter = create_name_parameter()
+) -> Argument:
+    return Argument(arg=arg, annotation=annotation)
+
+
+def create_arguments(
+    posonlyargs: tuple[Argument, ...] = (),
+    args: tuple[Argument, ...] = (),
+    vararg: Argument | None = None,
+    kwonlyargs: tuple[Argument, ...] = (),
+    kw_defaults: tuple[Parameter, ...] = (),
+    kwarg: Argument | None = None,
+    defaults: tuple[Parameter, ...] = (),
+) -> Arguments:
+    return Arguments(
+        posonlyargs=posonlyargs,
+        args=args,
+        vararg=vararg,
+        kwonlyargs=kwonlyargs,
+        kw_defaults=kw_defaults,
+        kwarg=kwarg,
+        defaults=defaults,
+    )
+
+
+def create_lambda_parameter(
+    kind: Literal[ParameterExpressionType.LAMBDA] = ParameterExpressionType.LAMBDA,
+    args: Arguments = create_arguments(),
+    body: Parameter = create_name_parameter(),
+) -> LambdaParameter:
+    return LambdaParameter(kind=kind, args=args, body=body)
 
 
 def create_parameter_default(

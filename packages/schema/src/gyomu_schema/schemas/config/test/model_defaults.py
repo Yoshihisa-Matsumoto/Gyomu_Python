@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
+from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath, SymbolId
 
 
 class ParameterExpressionType(StrEnum):
@@ -32,6 +32,7 @@ class NoneParameter(BaseModel):
 class NameParameter(BaseModel):
     kind: Literal[ParameterExpressionType.NAME] = ParameterExpressionType.NAME
     name: str
+    symbol_id: SymbolId | None
 
 
 class AttributeParameter(BaseModel):

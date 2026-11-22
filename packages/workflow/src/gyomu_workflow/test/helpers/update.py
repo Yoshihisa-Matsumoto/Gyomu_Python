@@ -6,6 +6,7 @@ from gyomu_python_analysis.analysis.initialize import (
 )
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.models import ReferencedType
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.protocols.interaction import InteractionExecutor
 from gyomu_schema.schemas.config.test.model_defaults import (
@@ -18,6 +19,7 @@ from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
     ParameterInfo,
 )
+from gyomu_test.helper.defaults.referenced_types import deduplicate_referenced_types
 from gyomu_test.helper.defaults.requirements import (
     ConfiguredParameterDefault,
     ResolvedParameterDefault,
@@ -73,7 +75,7 @@ def _define_helper_inventory_parameter(
     project_context: ProjectContext,
     config_manager: ConfigManager,
     interaction: InteractionExecutor[str, Path],
-) -> Result[ParameterDefault, GyomuError]:
+) -> Result[tuple[ParameterDefault, tuple[ReferencedType, ...]], GyomuError]:
     parameter_result = resolve_function_parameter_default(
         inventory=inventory,
         parameter_info=parameter_info,
@@ -91,13 +93,21 @@ def _define_helper_inventory_parameter(
     parameter = parameter_result.unwrap()
     if isinstance(parameter, ConfiguredParameterDefault):
         return Success(
-            ParameterDefault(
-                name=parameter.parameter.name, value=parameter.parameter.default
+            (
+                ParameterDefault(
+                    name=parameter.parameter.name, value=parameter.parameter.default
+                ),
+                (),
             )
         )
     elif isinstance(parameter, ResolvedParameterDefault):
         return Success(
-            ParameterDefault(name=parameter.parameter.name, value=parameter.default)
+            (
+                ParameterDefault(
+                    name=parameter.parameter.name, value=parameter.default
+                ),
+                parameter.referenced_types,
+            )
         )
     else:
         root_context_result = initialize_project_context(
@@ -150,9 +160,12 @@ def _define_helper_inventory_parameter(
             return define_parameter_result
         resolved = define_parameter_result.unwrap()
         return Success(
-            ParameterDefault(
-                name=resolved.parameter.name,
-                value=resolved.default,
+            (
+                ParameterDefault(
+                    name=resolved.parameter.name,
+                    value=resolved.default,
+                ),
+                resolved.referenced_types,
             )
         )
 
@@ -185,6 +198,7 @@ def _create_helper_inventory(
                 )
             )
         create_parameters: list[ParameterDefault] = []
+        referenced_types: list[ReferencedType] = []
         for parameter_info in create_item.parameters:
             parameter_result = _define_helper_inventory_parameter(
                 inventory=create_item,
@@ -197,7 +211,9 @@ def _create_helper_inventory(
             )
             if isinstance(parameter_result, Failure):
                 return parameter_result
-            create_parameters.append(parameter_result.unwrap())
+            tuple_value = parameter_result.unwrap()
+            create_parameters.append(tuple_value[0])
+            referenced_types.extend(tuple_value[1])
         model_default: ModelDefault = ModelDefault(
             symbol_name=create_item.target_identity.get_symbol_name(),
             parameters=tuple(create_parameters),
@@ -213,5 +229,6 @@ def _create_helper_inventory(
                     error=error, message="fail to update function parameter"
                 )
             )
+        deduplicate_referenced_types(referenced_types=referenced_types)
 
     return Success(None)

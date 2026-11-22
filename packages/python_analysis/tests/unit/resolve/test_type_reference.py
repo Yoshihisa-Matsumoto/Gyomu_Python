@@ -2,15 +2,18 @@ from typing import get_args
 from unittest.mock import MagicMock
 
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.models import PackageType, SymbolType
 from gyomu_python_analysis.resolve.symbol import (
     resolve_workspace_symbol_analysis as actual_resolve_workspace_symbol_analysis,
 )
 from gyomu_python_analysis.resolve.type_reference import (
     _resolve_structure,
+    resolve_identity,
     resolve_type_analysis,
 )
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.module import ModuleAnalysis
+from gyomu_schema.schemas.python.symbol import SymbolAnalysis
 from gyomu_schema.schemas.python.type.structure import (
     UnknownStructureAnalysis,
 )
@@ -26,8 +29,12 @@ from packages.python_analysis.test_support.helpers import (
     AnalysisTestBase,
     BaseContext,
     create_resolve_error,
+    create_workspace_context,
 )
-from packages.schema.test_support.helpers import STRUCTURE_FACTORIES
+from packages.schema.test_support.helpers import (
+    STRUCTURE_FACTORIES,
+    simple_create_declaration_identity,
+)
 
 
 def test_all_structure_types_have_handlers(mocker) -> None:
@@ -146,3 +153,76 @@ class TestResolveTypeAnalysis(AnalysisTestBase):
 
         assert resolve_result == Failure(expected_error)
         assert resolve_symbol_analysis_mock.call_count == 2
+
+
+class TestResolveIdentity:
+    def test_returns_failure_when_workspace_symbol_resolution_fails(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        identity = simple_create_declaration_identity()
+        workspace_context = create_workspace_context()
+        expected_error = create_resolve_error()
+
+        resolve_workspace_symbol_analysis = mocker.patch(
+            "gyomu_python_analysis.resolve.type_reference.resolve_workspace_symbol_analysis",
+            return_value=Failure(expected_error),
+        )
+
+        result = resolve_identity(
+            identity=identity,
+            workspace_context=workspace_context,
+        )
+
+        assert result == Failure(expected_error)
+        resolve_workspace_symbol_analysis.assert_called_once_with(
+            declaration_identity=identity,
+            workspace_context=workspace_context,
+        )
+
+    def test_returns_package_type_when_workspace_symbol_is_not_found(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        identity = simple_create_declaration_identity()
+        workspace_context = create_workspace_context()
+
+        mocker.patch(
+            "gyomu_python_analysis.resolve.type_reference.resolve_workspace_symbol_analysis",
+            return_value=Success(None),
+        )
+
+        result = resolve_identity(
+            identity=identity,
+            workspace_context=workspace_context,
+        )
+
+        assert result == Success((PackageType(symbol_id=identity.symbol_id),))
+
+    def test_returns_symbol_type_when_workspace_symbol_is_found(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        identity = simple_create_declaration_identity()
+        workspace_context = create_workspace_context()
+        file_analysis_context = mocker.Mock(spec=FileAnalysisContext)
+        symbol = mocker.Mock(spec=SymbolAnalysis)
+
+        mocker.patch(
+            "gyomu_python_analysis.resolve.type_reference.resolve_workspace_symbol_analysis",
+            return_value=Success((file_analysis_context, symbol)),
+        )
+
+        result = resolve_identity(
+            identity=identity,
+            workspace_context=workspace_context,
+        )
+
+        assert result == Success(
+            (
+                SymbolType(
+                    symbol=symbol,
+                    context=file_analysis_context,
+                ),
+            )
+        )

@@ -8,6 +8,7 @@ from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
     PackageType,
     PrimitiveType,
+    ReferencedType,
     ResolvedType,
     SymbolType,
 )
@@ -63,6 +64,7 @@ from gyomu_test.helper.defaults.load import (
     load_primitive_parameter_default_config,
     load_symbol_parameter_default_config,
 )
+from gyomu_test.helper.defaults.referenced_types import deduplicate_referenced_types
 from gyomu_test.helper.defaults.resolution import (
     PrimitiveDefaultConfigContext,
     SymbolDefaultConfigContext,
@@ -93,9 +95,16 @@ class ResolvedPrimitiveDefault:
 
 
 @dataclass(frozen=True)
+class ResolvedParameter:
+    parameter: Parameter
+    referenced_types: list[ReferencedType]
+
+
+@dataclass(frozen=True)
 class ResolvedParameterDefault:
     parameter: ParameterInfo
     default: Parameter
+    referenced_types: tuple[ReferencedType, ...]
 
 
 @dataclass(frozen=True)
@@ -270,10 +279,13 @@ def _create_parameter(
 
 def _resolve_parameter_default(
     context: ParameterConfigurationContext,
-) -> Result[Parameter | MissingParameterDefault, GyomuTestError]:
+) -> Result[ResolvedParameter | MissingParameterDefault, GyomuTestError]:
+    referenced_types: list[ReferencedType] = []
     if context.parameter.parameter_type.structure is not None:
         return _resolve_type_expression(
-            expression=context.parameter.parameter_type.structure, context=context
+            expression=context.parameter.parameter_type.structure,
+            context=context,
+            referenced_types=referenced_types,
         )
     else:
         resolve_type_result = resolve_type_analysis(
@@ -303,7 +315,12 @@ def _resolve_parameter_default(
             return load_result
         default = load_result.unwrap()
         if default is not None and default.parameters[0].value is not None:
-            return Success(default.parameters[0].value)
+            return Success(
+                ResolvedParameter(
+                    parameter=default.parameters[0].value,
+                    referenced_types=referenced_types,
+                )
+            )
 
         return Success(
             MissingParameterDefault(
@@ -315,9 +332,11 @@ def _resolve_parameter_default(
 
 
 def _resolve_name_structure(
-    expression: NameStructureAnalysis, context: ParameterConfigurationContext
+    expression: NameStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
     name_structure_result = resolve_name_structure(
@@ -342,7 +361,13 @@ def _resolve_name_structure(
         return name_parameter_result
     name_parameter = name_parameter_result.unwrap()
     if name_parameter is not None:
-        return Success(name_parameter)
+        if isinstance(name_structure, SymbolType | PackageType):
+            referenced_types.append(name_structure)
+        return Success(
+            ResolvedParameter(
+                parameter=name_parameter, referenced_types=referenced_types
+            )
+        )
     return Success(
         MissingParameterDefault(
             parameter=context.parameter,
@@ -353,16 +378,20 @@ def _resolve_name_structure(
 
 
 def _resolve_union_structure(
-    expression: UnionStructureAnalysis, context: ParameterConfigurationContext
+    expression: UnionStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
     missing_types: list[ResolvedType] = []
     # union_resolved_types: list[ResolvedSymbolDefault | ResolvedPrimitiveDefault] = []
 
     for member in expression.types:
-        member_result = _resolve_type_expression(expression=member, context=context)
+        member_result = _resolve_type_expression(
+            expression=member, context=context, referenced_types=referenced_types
+        )
 
         if isinstance(member_result, Failure):
             return member_result
@@ -385,12 +414,14 @@ def _resolve_union_structure(
 
 
 def _resolve_attribute_structure(
-    expression: AttributeStructureAnalysis, context: ParameterConfigurationContext
+    expression: AttributeStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
-    parameter_value: Parameter | MissingParameterDefault | None = None
+    parameter_value: ResolvedParameter | MissingParameterDefault | None = None
     attributes: list[str] = []
     for index, child in enumerate(expression.values):
         if not isinstance(child, NameStructureAnalysis):
@@ -402,7 +433,7 @@ def _resolve_attribute_structure(
             )
         if index == 0:
             parameter_value_result = _resolve_name_structure(
-                expression=child, context=context
+                expression=child, context=context, referenced_types=referenced_types
             )
             if isinstance(parameter_value_result, Failure):
                 return parameter_value_result
@@ -420,23 +451,34 @@ def _resolve_attribute_structure(
         return Success(parameter_value)
 
     return Success(
-        AttributeParameter(value=parameter_value, attribute=".".join(attributes))
+        ResolvedParameter(
+            parameter=AttributeParameter(
+                value=parameter_value.parameter, attribute=".".join(attributes)
+            ),
+            referenced_types=parameter_value.referenced_types,
+        )
     )
 
 
 def _resolve_literal_structure(
-    expression: LiteralStructureAnalysis, context: ParameterConfigurationContext
+    expression: LiteralStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
-    return _resolve_type_expression(expression.value, context)
+    return _resolve_type_expression(
+        expression.value, context, referenced_types=referenced_types
+    )
 
 
 def _resolve_tuple_structure(
-    expression: TupleStructureAnalysis, context: ParameterConfigurationContext
+    expression: TupleStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
     # is_elipsis_included: bool = False
@@ -449,7 +491,7 @@ def _resolve_tuple_structure(
             break
         else:
             element_result = _resolve_type_expression(
-                expression=element, context=context
+                expression=element, context=context, referenced_types=referenced_types
             )
             if isinstance(element_result, Failure):
                 return element_result
@@ -458,10 +500,15 @@ def _resolve_tuple_structure(
                 missing_types.extend(element_parameter.missing_types)
                 # resolved_types.extend(element_parameter.resolved_types)
             else:
-                tuple_element_parameters.append(element_parameter)
+                tuple_element_parameters.append(element_parameter.parameter)
 
     if len(missing_types) == 0:
-        return Success(TupleParameter(elements=tuple(tuple_element_parameters)))
+        return Success(
+            ResolvedParameter(
+                parameter=TupleParameter(elements=tuple(tuple_element_parameters)),
+                referenced_types=referenced_types,
+            )
+        )
     else:
         return Success(
             MissingParameterDefault(
@@ -473,13 +520,17 @@ def _resolve_tuple_structure(
 
 
 def _resolve_array_structure(
-    expression: ArrayStructureAnalysis, context: ParameterConfigurationContext
+    expression: ArrayStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
     element_result = _resolve_type_expression(
-        expression=expression.element, context=context
+        expression=expression.element,
+        context=context,
+        referenced_types=referenced_types,
     )
     if isinstance(element_result, Failure):
         return element_result
@@ -487,13 +538,20 @@ def _resolve_array_structure(
     if isinstance(element, MissingParameterDefault):
         return Success(element)
 
-    return Success(ListParameter(elements=(element,)))
+    return Success(
+        ResolvedParameter(
+            ListParameter(elements=(element.parameter,)),
+            referenced_types=referenced_types,
+        )
+    )
 
 
 def _resolve_dictionary_structure(
-    expression: DictionaryStructureAnalysis, context: ParameterConfigurationContext
+    expression: DictionaryStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
     if expression.keys is None or expression.values is None:
@@ -505,7 +563,9 @@ def _resolve_dictionary_structure(
         )
     missing_types: list[ResolvedType] = []
     # resolved_types: list[ResolvedSymbolDefault | ResolvedPrimitiveDefault] = []
-    key_result = _resolve_type_expression(expression=expression.keys, context=context)
+    key_result = _resolve_type_expression(
+        expression=expression.keys, context=context, referenced_types=referenced_types
+    )
 
     if isinstance(key_result, Failure):
         return key_result
@@ -515,7 +575,7 @@ def _resolve_dictionary_structure(
         # resolved_types.extend(key.resolved_types)
 
     value_result = _resolve_type_expression(
-        expression=expression.values, context=context
+        expression=expression.values, context=context, referenced_types=referenced_types
     )
     if isinstance(value_result, Failure):
         return value_result
@@ -527,7 +587,14 @@ def _resolve_dictionary_structure(
     if not isinstance(key, MissingParameterDefault) and not isinstance(
         value, MissingParameterDefault
     ):
-        return Success(DictParameter(entries=(DictEntry(key=key, value=value),)))
+        return Success(
+            ResolvedParameter(
+                DictParameter(
+                    entries=(DictEntry(key=key.parameter, value=value.parameter),)
+                ),
+                referenced_types=referenced_types,
+            )
+        )
     else:
         return Success(
             MissingParameterDefault(
@@ -539,31 +606,56 @@ def _resolve_dictionary_structure(
 
 
 def _resolve_type_expression(
-    expression: TypeExpression, context: ParameterConfigurationContext
+    expression: TypeExpression,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
 ) -> Result[
-    Parameter | MissingParameterDefault,
+    ResolvedParameter | MissingParameterDefault,
     GyomuTestError,
 ]:
     if isinstance(expression, LiteralValue):
-        return Success(LiteralParameter(value=expression.value))
+        return Success(
+            ResolvedParameter(
+                parameter=LiteralParameter(value=expression.value),
+                referenced_types=referenced_types,
+            )
+        )
 
     elif isinstance(expression, NoneStructureAnalysis):
-        return Success(NoneParameter())
+        return Success(
+            ResolvedParameter(
+                parameter=NoneParameter(), referenced_types=referenced_types
+            )
+        )
     elif isinstance(expression, NameStructureAnalysis):
-        return _resolve_name_structure(expression=expression, context=context)
+        return _resolve_name_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
 
     elif isinstance(expression, UnionStructureAnalysis):
-        return _resolve_union_structure(expression=expression, context=context)
+        return _resolve_union_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
     elif isinstance(expression, AttributeStructureAnalysis):
-        return _resolve_attribute_structure(expression=expression, context=context)
+        return _resolve_attribute_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
     elif isinstance(expression, TupleStructureAnalysis):
-        return _resolve_tuple_structure(expression=expression, context=context)
+        return _resolve_tuple_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
     elif isinstance(expression, LiteralStructureAnalysis):
-        return _resolve_literal_structure(expression=expression, context=context)
+        return _resolve_literal_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
     elif isinstance(expression, ArrayStructureAnalysis):
-        return _resolve_array_structure(expression=expression, context=context)
+        return _resolve_array_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
     elif isinstance(expression, DictionaryStructureAnalysis):
-        return _resolve_dictionary_structure(expression=expression, context=context)
+        return _resolve_dictionary_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
     return Failure(
         GyomuTestError(
             "Unsupported ", details={"type-of-expression": type(expression).__name__}
@@ -606,7 +698,10 @@ def resolve_function_parameter_default(
     return Success(
         ResolvedParameterDefault(
             parameter=parameter_info,
-            default=resolved_default,
+            default=resolved_default.parameter,
+            referenced_types=deduplicate_referenced_types(
+                resolved_default.referenced_types
+            ),
         )
     )
 

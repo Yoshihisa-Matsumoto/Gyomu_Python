@@ -307,8 +307,7 @@ class TestDefineDocumentParameter:
 
         assert isinstance(result, Success)
         assert result.unwrap() == ResolvedParameterDefault(
-            parameter=parameter,
-            default=expected_value,
+            parameter=parameter, default=expected_value, referenced_types=()
         )
         interaction.execute.assert_called_once_with(request=sentinel.request)
 

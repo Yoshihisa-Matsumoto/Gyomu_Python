@@ -81,6 +81,23 @@ def resolve_name_structure(
         return Success(SymbolType(symbol=symbol, context=file_analysis_context))
 
 
+def resolve_identity(
+    identity: DeclarationIdentity, workspace_context: WorkspaceContext
+) -> Result[tuple[ResolvedType, ...], ResolveError]:
+    symbol_result = resolve_workspace_symbol_analysis(
+        declaration_identity=identity,
+        workspace_context=workspace_context,
+    )
+    if isinstance(symbol_result, Failure):
+        return symbol_result
+    return_value = symbol_result.unwrap()
+    if return_value is None:
+        return Success((PackageType(symbol_id=identity.symbol_id),))
+
+    file_analysis_context, symbol = return_value
+    return Success((SymbolType(symbol=symbol, context=file_analysis_context),))
+
+
 def _resolve_name(
     structure: NameStructureAnalysis,
     parameter_name: str,
@@ -102,20 +119,12 @@ def _resolve_name(
             )
         )
     else:
-        symbol_result = resolve_workspace_symbol_analysis(
-            declaration_identity=DeclarationIdentity.create_from_symbol_id(
+        return resolve_identity(
+            identity=DeclarationIdentity.create_from_symbol_id(
                 resolved_reference.symbol_id
             ),
             workspace_context=workspace_context,
         )
-        if isinstance(symbol_result, Failure):
-            return symbol_result
-        return_value = symbol_result.unwrap()
-        if return_value is None:
-            return Success((PackageType(symbol_id=resolved_reference.symbol_id),))
-
-        file_analysis_context, symbol = return_value
-        return Success((SymbolType(symbol=symbol, context=file_analysis_context),))
 
 
 def _resolve_none(

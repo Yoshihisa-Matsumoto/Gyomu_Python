@@ -107,6 +107,8 @@ class TestResolveFunctionParameterDefaults:
         result = collect_model_helper_inventory(
             context.project_context, context.workspace_context
         )
+        if isinstance(result, Failure):
+            print(format_object(result.failure(), depth=8))
         assert isinstance(result, Success)
         inventories = result.unwrap()
         inventory = get_inventory(inventories, "StringLiteralModel")
@@ -117,7 +119,8 @@ class TestResolveFunctionParameterDefaults:
             project_context=context.project_context,
             config_manager=context.config_manager,
         )
-
+        if isinstance(parameter_result, Failure):
+            print(format_object(parameter_result.failure(), depth=8))
         assert isinstance(parameter_result, Success)
 
         parameters = parameter_result.unwrap()
