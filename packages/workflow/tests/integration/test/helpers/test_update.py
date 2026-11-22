@@ -14,6 +14,8 @@ from packages.workflow.test_support.helpers import MONOREPO_FIXTURES_ROOT
 
 pytestmark = pytest.mark.integration
 
+# uv run pytest -s -m integration ***
+
 
 @pytest.fixture(scope="session")
 def monorepo_path(

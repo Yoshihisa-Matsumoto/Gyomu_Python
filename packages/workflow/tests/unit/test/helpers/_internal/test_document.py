@@ -18,7 +18,7 @@ from gyomu_workflow.test.helpers._internal.document import (
     _build_variable_line,
     define_document_parameter,
 )
-from gyomu_workflow.test.helpers.models import DefaultTypeParameterContext
+from gyomu_workflow.test.helpers._internal.models import DefaultTypeParameterContext
 from returns.result import Failure, Success
 
 from packages.python_analysis.test_support.helpers import (

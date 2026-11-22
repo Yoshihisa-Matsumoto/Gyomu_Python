@@ -26,7 +26,7 @@ from gyomu_test.helper.defaults.validate import (
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.test.helpers._internal.error import wrap_gyomu_error
-from gyomu_workflow.test.helpers.models import (
+from gyomu_workflow.test.helpers._internal.models import (
     DefaultTypeParameterContext,
 )
 

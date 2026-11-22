@@ -23,6 +23,7 @@ from gyomu_test.helper.defaults.requirements import (
     ResolvedParameterDefault,
     is_supported_primitive_parameter_type,
     resolve_function_parameter_default,
+    resolve_primitive_parameter_type,
 )
 from gyomu_test.helper.inventory.update_default import update_model_default
 from returns.result import Failure, Result, Success
@@ -30,10 +31,11 @@ from returns.result import Failure, Result, Success
 from gyomu_workflow.test.helpers._internal.direct import define_direct_parameter
 from gyomu_workflow.test.helpers._internal.document import define_document_parameter
 from gyomu_workflow.test.helpers._internal.error import wrap_gyomu_error
-from gyomu_workflow.test.helpers._internal.reconcile import reconcile_package
-from gyomu_workflow.test.helpers.models import (
+from gyomu_workflow.test.helpers._internal.models import (
+    DefaultPrimitiveLiteralTypeParameterContext,
     DefaultTypeParameterContext,
 )
+from gyomu_workflow.test.helpers._internal.reconcile import reconcile_package
 
 
 def update_helper_inventories(
@@ -109,18 +111,37 @@ def _define_helper_inventory_parameter(
                     message="fail to initialize workspace root project context",
                 )
             )
+        workspace_root_project_context = root_context_result.unwrap()
         parameter_context = DefaultTypeParameterContext(
             model_symbol_id=inventory.target_identity.symbol_id,
             parameter=parameter,
             workspace_context=workspace_context,
             project_context=project_context,
-            workspace_root_project_context=root_context_result.unwrap(),
+            workspace_root_project_context=workspace_root_project_context,
+            config_manager=config_manager,
         )
-        if is_supported_primitive_parameter_type(parameter=parameter):
-            define_parameter_result = define_direct_parameter(
-                parameter_context=parameter_context, interaction=interaction
+        resolve_result = resolve_primitive_parameter_type(parameter=parameter)
+        if resolve_result is not None:
+            parameter_context = DefaultPrimitiveLiteralTypeParameterContext(
+                model_symbol_id=inventory.target_identity.symbol_id,
+                parameter=parameter,
+                workspace_context=workspace_context,
+                project_context=project_context,
+                workspace_root_project_context=workspace_root_project_context,
+                config_manager=config_manager,
+                resolved_type=resolve_result[1],
             )
-
+            if is_supported_primitive_parameter_type(
+                parameter_type_name=resolve_result[0]
+            ):
+                define_parameter_result = define_direct_parameter(
+                    parameter_context=parameter_context,
+                    interaction=interaction,
+                )
+            else:
+                define_parameter_result = define_document_parameter(
+                    parameter_context=parameter_context, interaction=interaction
+                )
         else:
             define_parameter_result = define_document_parameter(
                 parameter_context=parameter_context, interaction=interaction

@@ -110,33 +110,40 @@ class MissingParameterDefault:
     # resolved_types: tuple[ResolvedSymbolDefault | ResolvedPrimitiveDefault, ...]
 
 
-def get_primitive_type_name(
+def resolve_primitive_parameter_type(
     parameter: MissingParameterDefault,
-) -> str | None:
+) -> tuple[str, PrimitiveType | LiteralValueType] | None:
     if len(parameter.missing_types) != 1:
         return None
 
     missing_type = parameter.missing_types[0]
 
     if isinstance(missing_type, PrimitiveType):
-        return missing_type.primitive_type
+        return missing_type.primitive_type, missing_type
 
     if isinstance(missing_type, LiteralValueType):
         value = missing_type.value
         if value is None:
             return None
-        return type(value).__name__
+        return type(value).__name__, missing_type
 
     return None
 
 
-def is_supported_primitive_parameter_type(parameter: MissingParameterDefault) -> bool:
-    return get_primitive_type_name(parameter) in {
+SUPPORTED_DIRECT_PARAMETER_TYPES = frozenset(
+    {
         "str",
         "int",
         "bool",
         "float",
     }
+)
+
+
+def is_supported_primitive_parameter_type(
+    parameter_type_name: str,
+) -> bool:
+    return parameter_type_name in SUPPORTED_DIRECT_PARAMETER_TYPES
 
 
 class ParameterConfigurationContext:

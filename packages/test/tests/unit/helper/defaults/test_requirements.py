@@ -16,8 +16,8 @@ from gyomu_test.helper.defaults.requirements import (
     MissingParameterDefault,
     ResolvedParameterDefault,
     _resolve_function_parameter_defaults,
-    get_primitive_type_name,
     is_supported_primitive_parameter_type,
+    resolve_primitive_parameter_type,
 )
 from gyomu_test.helper.inventory.expected import collect_model_helper_inventory
 from pytest_mock import MockerFixture
@@ -581,7 +581,7 @@ class TestResolveFunctionParameterDefaults:
         assert failure is expected_error
 
 
-class TestGetPrimitiveTypeName:
+class TestResolvePrimitiveType:
     @pytest.mark.parametrize(
         ("primitive_type", "expected"),
         [
@@ -596,16 +596,13 @@ class TestGetPrimitiveTypeName:
     def test_returns_primitive_type_name(
         self, primitive_type: str, expected: str
     ) -> None:
-        parameter = create_missing_parameter_default(
-            missing_types=(
-                create_primitive_type(
-                    primitive_type=primitive_type,
-                    parameter_name="value",
-                ),
-            )
+        resolved_type = create_primitive_type(
+            primitive_type=primitive_type,
+            parameter_name="value",
         )
-
-        assert get_primitive_type_name(parameter) == expected
+        parameter = create_missing_parameter_default(missing_types=(resolved_type,))
+        actual = resolve_primitive_parameter_type(parameter)
+        assert actual is not None and actual == (expected, resolved_type)
 
     @pytest.mark.parametrize(
         ("value", "expected"),
@@ -623,18 +620,15 @@ class TestGetPrimitiveTypeName:
         value: str | int | bool | float | bytes | complex,
         expected: str,
     ) -> None:
-        parameter = create_missing_parameter_default(
-            missing_types=(
-                create_literal_value_type(value=value, parameter_name="value"),
-            )
-        )
+        resolved_type = create_literal_value_type(value=value, parameter_name="value")
+        parameter = create_missing_parameter_default(missing_types=(resolved_type,))
 
-        assert get_primitive_type_name(parameter) == expected
+        assert resolve_primitive_parameter_type(parameter) == (expected, resolved_type)
 
     def test_returns_none_when_no_missing_types(self) -> None:
         parameter = create_missing_parameter_default(missing_types=())
 
-        assert get_primitive_type_name(parameter) is None
+        assert resolve_primitive_parameter_type(parameter) is None
 
     def test_returns_none_when_multiple_missing_types(self) -> None:
         parameter = create_missing_parameter_default(
@@ -644,14 +638,14 @@ class TestGetPrimitiveTypeName:
             )
         )
 
-        assert get_primitive_type_name(parameter) is None
+        assert resolve_primitive_parameter_type(parameter) is None
 
     def test_returns_none_for_unsupported_resolved_type(self) -> None:
         parameter = create_missing_parameter_default(
             missing_types=(create_package_type(),)
         )
 
-        assert get_primitive_type_name(parameter) is None
+        assert resolve_primitive_parameter_type(parameter) is None
 
 
 class TestIsSupportedPrimitiveParameterType:
@@ -659,31 +653,14 @@ class TestIsSupportedPrimitiveParameterType:
     def test_returns_true_for_supported_primitive_types(
         self, primitive_type: str
     ) -> None:
-        parameter = create_missing_parameter_default(
-            missing_types=(
-                create_primitive_type(
-                    primitive_type=primitive_type,
-                    parameter_name="value",
-                ),
-            )
-        )
 
-        assert is_supported_primitive_parameter_type(parameter) is True
+        assert is_supported_primitive_parameter_type(primitive_type) is True
 
     @pytest.mark.parametrize("primitive_type", ["bytes", "complex", "NoneType"])
     def test_returns_false_for_unsupported_primitive_types(
         self, primitive_type: str
     ) -> None:
-        parameter = create_missing_parameter_default(
-            missing_types=(
-                create_primitive_type(
-                    primitive_type=primitive_type,
-                    parameter_name="value",
-                ),
-            )
-        )
-
-        assert is_supported_primitive_parameter_type(parameter) is False
+        assert is_supported_primitive_parameter_type(primitive_type) is False
 
     @pytest.mark.parametrize(
         ("value", "expected"),
@@ -706,20 +683,7 @@ class TestIsSupportedPrimitiveParameterType:
                 create_literal_value_type(value=value, parameter_name="value"),
             )
         )
+        result = resolve_primitive_parameter_type(parameter)
+        assert result is not None
 
-        assert is_supported_primitive_parameter_type(parameter) is expected
-
-    def test_returns_false_when_no_missing_types(self) -> None:
-        parameter = create_missing_parameter_default(missing_types=())
-
-        assert is_supported_primitive_parameter_type(parameter) is False
-
-    def test_returns_false_when_multiple_missing_types(self) -> None:
-        parameter = create_missing_parameter_default(
-            missing_types=(
-                create_primitive_type(primitive_type="int", parameter_name="value"),
-                create_primitive_type(primitive_type="str", parameter_name="value"),
-            )
-        )
-
-        assert is_supported_primitive_parameter_type(parameter) is False
+        assert is_supported_primitive_parameter_type(result[0]) is expected

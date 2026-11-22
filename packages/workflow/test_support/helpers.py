@@ -1,9 +1,11 @@
 from collections.abc import Mapping
 from pathlib import Path
 
+from gyomu_config.manager import ConfigManager
 from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.models import LiteralValueType, PrimitiveType
 from gyomu_schema.schemas.python.types import (
     ProjectRelativePath,
     SymbolId,
@@ -31,9 +33,13 @@ from gyomu_workflow.snapshot.models import (
     SnapshotTarget,
     SnapshotTargetOption,
 )
-from gyomu_workflow.test.helpers.models import DefaultTypeParameterContext
+from gyomu_workflow.test.helpers._internal.models import (
+    DefaultPrimitiveLiteralTypeParameterContext,
+    DefaultTypeParameterContext,
+)
 
 from packages.python_analysis.test_support.helpers import (
+    create_primitive_type,
     create_project_context,
     create_project_snapshot,
     create_workspace_context,
@@ -182,6 +188,7 @@ def create_default_type_parameter_context(
     workspace_context: WorkspaceContext = create_workspace_context(),
     workspace_root_project_context: ProjectContext = create_project_context(),
     project_context: ProjectContext = create_project_context(),
+    config_manager: ConfigManager = ConfigManager(),
 ) -> DefaultTypeParameterContext:
     return DefaultTypeParameterContext(
         model_symbol_id=model_symbol_id,
@@ -189,4 +196,25 @@ def create_default_type_parameter_context(
         workspace_context=workspace_context,
         workspace_root_project_context=workspace_root_project_context,
         project_context=project_context,
+        config_manager=config_manager,
+    )
+
+
+def create_default_primitive_literal_type_parameter_context(
+    model_symbol_id: SymbolId = SymbolId("test"),
+    parameter: MissingParameterDefault = create_missing_parameter_default(),
+    workspace_context: WorkspaceContext = create_workspace_context(),
+    workspace_root_project_context: ProjectContext = create_project_context(),
+    project_context: ProjectContext = create_project_context(),
+    config_manager: ConfigManager = ConfigManager(),
+    resolved_type: PrimitiveType | LiteralValueType = create_primitive_type(),
+) -> DefaultPrimitiveLiteralTypeParameterContext:
+    return DefaultPrimitiveLiteralTypeParameterContext(
+        model_symbol_id=model_symbol_id,
+        parameter=parameter,
+        workspace_context=workspace_context,
+        workspace_root_project_context=workspace_root_project_context,
+        project_context=project_context,
+        config_manager=config_manager,
+        resolved_type=resolved_type,
     )

@@ -12,7 +12,7 @@ from gyomu_schema.schemas.testing.helper import HelperInventoryItem
 from gyomu_test.helper.defaults.requirements import (
     ResolvedParameterDefault,
 )
-from gyomu_workflow.test.helpers.models import DefaultTypeParameterContext
+from gyomu_workflow.test.helpers._internal.models import DefaultTypeParameterContext
 from gyomu_workflow.test.helpers.update import (
     _create_helper_inventory,
     _define_helper_inventory_parameter,
@@ -220,6 +220,7 @@ class TestDefineHelperInventoryParameter:
                 workspace_context=workspace_context,
                 project_context=project_context,
                 workspace_root_project_context=root_workspace_context,
+                config_manager=config_manager,
             ),
             interaction=interaction,
         )
@@ -297,6 +298,7 @@ class TestDefineHelperInventoryParameter:
                 workspace_context=workspace_context,
                 project_context=project_context,
                 workspace_root_project_context=root_workspace_context,
+                config_manager=config_manager,
             ),
             interaction=interaction,
         )

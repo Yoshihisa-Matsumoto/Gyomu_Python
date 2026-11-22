@@ -1,0 +1,18 @@
+{
+  "models_per_module_path": {},
+  "primitives_per_type": {
+    "str": {
+      "defaults_per_variable_name": {
+        "arg": [
+          {
+            "name": "arg",
+            "value": {
+              "kind": "literal",
+              "value": "hello"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -17,18 +17,22 @@ from gyomu_schema.schemas.interaction.result import (
 )
 from gyomu_test.helper.defaults.requirements import (
     ResolvedParameterDefault,
-    get_primitive_type_name,
 )
 from returns.result import Failure, Result, Success
 
-from gyomu_workflow.test.helpers.models import DefaultTypeParameterContext
+from gyomu_workflow.test.helpers._internal.models import (
+    DefaultPrimitiveLiteralTypeParameterContext,
+)
+from gyomu_workflow.test.helpers._internal.type_parameter_config import (
+    configure_primitive_literal_type_parameter_default,
+)
 
 
 class PrimitiveValueCodec:
     def parse(
-        self, raw_input: str, context: DefaultTypeParameterContext
+        self, raw_input: str, context: DefaultPrimitiveLiteralTypeParameterContext
     ) -> Result[LiteralParameter, ValidationError]:
-        parameter_type = get_primitive_type_name(context.parameter)
+        parameter_type = context.parameter_type_name()
         try:
             match parameter_type:
                 case "str":
@@ -60,12 +64,17 @@ class PrimitiveValueCodec:
 
 
 def _build_direct_interaction_request(
-    parameter_context: DefaultTypeParameterContext,
+    parameter_context: DefaultPrimitiveLiteralTypeParameterContext,
 ) -> Result[
-    InteractionRequest[str, Path, DefaultTypeParameterContext, Parameter], GyomuError
+    InteractionRequest[
+        str, Path, DefaultPrimitiveLiteralTypeParameterContext, Parameter
+    ],
+    GyomuError,
 ]:
     return Success(
-        InteractionDirectRequest[str, DefaultTypeParameterContext, Parameter](
+        InteractionDirectRequest[
+            str, DefaultPrimitiveLiteralTypeParameterContext, Parameter
+        ](
             instruction=(
                 "Please define your type parameter for "
                 f"({parameter_context.model_symbol_id}) \n"
@@ -80,7 +89,7 @@ def _build_direct_interaction_request(
 
 
 def define_direct_parameter(
-    parameter_context: DefaultTypeParameterContext,
+    parameter_context: DefaultPrimitiveLiteralTypeParameterContext,
     interaction: InteractionExecutor[str, Path],
 ) -> Result[ResolvedParameterDefault, GyomuError]:
     request_result = _build_direct_interaction_request(
@@ -102,6 +111,14 @@ def define_direct_parameter(
                 reason="external_failure",
             )
         )
+
+    type_parameter_result = configure_primitive_literal_type_parameter_default(
+        parameter_context=parameter_context,
+        interaction=interaction,
+        parameter=result.value,
+    )
+    if isinstance(type_parameter_result, Failure):
+        return type_parameter_result
 
     return Success(
         ResolvedParameterDefault(
