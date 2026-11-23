@@ -53,6 +53,7 @@ from gyomu_python_analysis.tools.mypy.models import (
     MypyCheckResult,
     MypyTarget,
 )
+from gyomu_python_analysis.tools.ruff.models import RuffCheckResult
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.class_analysis import ClassAnalysis
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
@@ -469,6 +470,20 @@ def create_mypy_check_execution_error(
 ) -> MypyCheckExecutionError:
     return MypyCheckExecutionError(
         message=message, command=command, env=env, details=details
+    )
+
+
+def create_ruff_check_result(
+    name: str = "",
+    diagnostics: tuple[str, ...] = (),
+    details: Mapping[str, object] | None = None,
+    skipped_reason: str | None = None,
+) -> RuffCheckResult:
+    return RuffCheckResult(
+        name=name,
+        diagnostics=diagnostics,
+        details=details,
+        skipped_reason=skipped_reason,
     )
 
 

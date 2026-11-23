@@ -1,4 +1,5 @@
 import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -29,6 +30,12 @@ def monorepo_path(
         fixture_path,
         project_path,
         dirs_exist_ok=True,
+    )
+
+    subprocess.run(
+        ["uv", "sync"],
+        cwd=project_path,
+        check=True,
     )
 
     return project_path

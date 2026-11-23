@@ -34,3 +34,20 @@ class MypyCheckExecutionError(BaseError):
         )
         self.command = command
         self.env = env
+
+
+class RuffCheckExecutionError(BaseError):
+    command: list[str]
+
+    def __init__(
+        self,
+        message: str,
+        command: list[str],
+        details: Mapping[str, object] | None = None,
+    ) -> None:
+        super().__init__(
+            message,
+            context=caller_context(),
+            details=details,
+        )
+        self.command = command
