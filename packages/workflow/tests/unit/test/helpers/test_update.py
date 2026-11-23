@@ -7,8 +7,9 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     LiteralParameter,
     ParameterDefault,
 )
-from gyomu_schema.schemas.python.types import SymbolId
+from gyomu_schema.schemas.python.types import ProjectRelativePath, SymbolId
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem
+from gyomu_schema.schemas.types import FullPath
 from gyomu_test.helper.defaults.requirements import (
     ResolvedParameterDefault,
 )
@@ -34,6 +35,7 @@ from packages.python_analysis.test_support.helpers import (
 from packages.schema.test_support.helpers import (
     create_gyomu_error,
     create_model_default,
+    create_module_analysis,
 )
 from packages.schema.test_support.testing_helpers import (
     create_helper_inventory_item,
@@ -58,6 +60,7 @@ class TestDefineHelperInventoryParameter:
         inventory = Mock(spec=HelperInventoryItem)
         module_analysis = Mock()
         workspace_context = Mock()
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -74,6 +77,7 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -116,6 +120,7 @@ class TestDefineHelperInventoryParameter:
         inventory = Mock(spec=HelperInventoryItem)
         module_analysis = Mock()
         workspace_context = Mock()
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -132,6 +137,7 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -172,6 +178,7 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -185,10 +192,9 @@ class TestDefineHelperInventoryParameter:
             "gyomu_workflow.test.helpers.update.resolve_function_parameter_default",
             Mock(return_value=Success(missing)),
         )
-        root_workspace_context = Mock()
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.initialize_project_context",
-            Mock(return_value=Success(root_workspace_context)),
+            Mock(return_value=Success(workspace_root_project_context)),
         )
         direct = Mock(return_value=Success(resolved))
         document = Mock()
@@ -207,6 +213,7 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -228,7 +235,7 @@ class TestDefineHelperInventoryParameter:
                 parameter=missing,
                 workspace_context=workspace_context,
                 project_context=project_context,
-                workspace_root_project_context=root_workspace_context,
+                workspace_root_project_context=workspace_root_project_context,
                 config_manager=config_manager,
                 resolved_type=missing_type,
             ),
@@ -251,6 +258,7 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -264,8 +272,7 @@ class TestDefineHelperInventoryParameter:
             "gyomu_workflow.test.helpers.update.resolve_function_parameter_default",
             Mock(return_value=Success(missing)),
         )
-        root_workspace_context = Mock()
-        initialize = Mock(return_value=Success(root_workspace_context))
+        initialize = Mock(return_value=Success(workspace_root_project_context))
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.initialize_project_context",
             initialize,
@@ -287,6 +294,7 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -308,7 +316,7 @@ class TestDefineHelperInventoryParameter:
                 parameter=missing,
                 workspace_context=workspace_context,
                 project_context=project_context,
-                workspace_root_project_context=root_workspace_context,
+                workspace_root_project_context=workspace_root_project_context,
                 config_manager=config_manager,
             ),
             interaction=interaction,
@@ -323,6 +331,7 @@ class TestDefineHelperInventoryParameter:
         inventory = Mock(spec=HelperInventoryItem)
         module_analysis = Mock()
         workspace_context = Mock()
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -341,6 +350,7 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -357,67 +367,6 @@ class TestDefineHelperInventoryParameter:
             config_manager=config_manager,
         )
         interaction.execute.assert_not_called()
-
-    def test_returns_failure_when_workspace_root_project_context_initialization_fails(
-        self,
-        monkeypatch: MonkeyPatch,
-    ) -> None:
-        # Arrange
-        missing = create_missing_parameter_default(
-            missing_types=(create_primitive_type(primitive_type="str"),)
-        )
-        parameter = missing.parameter
-
-        inventory = Mock(spec=HelperInventoryItem)
-        inventory.target_identity = Mock()
-        inventory.target_identity.symbol_id = "project_a.module.Model"
-
-        module_analysis = Mock()
-        workspace_context = Mock()
-        workspace_context.workspace_root.path = Path("/workspace")
-        project_context = Mock()
-        config_manager = Mock()
-        interaction = Mock()
-
-        error = create_gyomu_error()
-
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.resolve_function_parameter_default",
-            Mock(return_value=Success(missing)),
-        )
-        initialize = Mock(return_value=Failure(error))
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.initialize_project_context",
-            initialize,
-        )
-
-        direct = Mock()
-        document = Mock()
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.define_direct_parameter",
-            direct,
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.define_document_parameter",
-            document,
-        )
-
-        # Act
-        result = _define_helper_inventory_parameter(
-            inventory=inventory,
-            module_analysis=module_analysis,
-            parameter_info=parameter,
-            workspace_context=workspace_context,
-            project_context=project_context,
-            config_manager=config_manager,
-            interaction=interaction,
-        )
-
-        # Assert
-        assert isinstance(result, Failure)
-        initialize.assert_called_once()
-        direct.assert_not_called()
-        document.assert_not_called()
 
     def test_returns_failure_when_direct_interaction_fails(
         self,
@@ -436,6 +385,7 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -469,6 +419,7 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -496,6 +447,7 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -529,6 +481,7 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -544,6 +497,7 @@ class TestCreateHelperInventory:
     def test_empty_create_returns_success(self) -> None:
         # Arrange
         workspace_context = Mock()
+        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -552,6 +506,7 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=(),
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -561,8 +516,7 @@ class TestCreateHelperInventory:
         assert isinstance(result, Success)
 
     def test_creates_model_default_and_updates_it(
-        self,
-        monkeypatch: MonkeyPatch,
+        self, monkeypatch: MonkeyPatch, tmp_path
     ) -> None:
         # Arrange
         target_identity = Mock()
@@ -574,14 +528,18 @@ class TestCreateHelperInventory:
             parameters=(parameter_info,),
         )
 
-        module_analysis = Mock()
+        module_analysis = create_module_analysis()
         file_analysis_context = (Mock(analysis=module_analysis), Mock())
 
         workspace_context = Mock()
         workspace_context.find_file_analysis_context.return_value = Success(
             file_analysis_context
         )
+        workspace_root_project_context = create_project_context(
+            project_root=FullPath(tmp_path), source_root=ProjectRelativePath(Path(""))
+        )
         project_context = Mock()
+        project_context.project_root = FullPath(tmp_path)
         config_manager = Mock()
         interaction = Mock()
 
@@ -606,6 +564,7 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=(inventory,),
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -642,6 +601,7 @@ class TestCreateHelperInventory:
         # Arrange
         inventory = create_helper_inventory_item()
         workspace_context = Mock()
+        workspace_root_project_context = Mock()
         error = create_gyomu_error()
 
         workspace_context.find_file_analysis_context.return_value = Failure(error)
@@ -666,6 +626,7 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=(inventory,),
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -688,6 +649,7 @@ class TestCreateHelperInventory:
         inventory = create_helper_inventory_item()
         workspace_context = Mock()
         workspace_context.find_file_analysis_context.return_value = Success(None)
+        workspace_root_project_context = Mock()
 
         project_context = Mock()
         config_manager = Mock()
@@ -709,6 +671,7 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=(inventory,),
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -739,6 +702,7 @@ class TestCreateHelperInventory:
         workspace_context.find_file_analysis_context.return_value = Success(
             file_analysis_context
         )
+        workspace_root_project_context = Mock()
 
         project_context = Mock()
         config_manager = Mock()
@@ -761,6 +725,7 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=(inventory,),
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -777,6 +742,7 @@ class TestCreateHelperInventory:
             module_analysis=module_analysis,
             parameter_info=inventory.parameters[0],
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -800,6 +766,7 @@ class TestCreateHelperInventory:
         workspace_context.find_file_analysis_context.return_value = Success(
             file_analysis_context
         )
+        workspace_root_project_context = Mock()
 
         project_context = Mock()
         config_manager = Mock()
@@ -825,6 +792,7 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=(inventory,),
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -969,6 +937,7 @@ class TestUpdateHelperInventories:
     ) -> None:
         workspace_context = create_workspace_context()
         workspace_project_context = create_workspace_project()
+        workspace_root_project_context = create_project_context()
         project_context = create_project_context()
         reconcile_result = create_helper_reconcile_result(
             create=(create_helper_inventory_item(),),
@@ -987,6 +956,11 @@ class TestUpdateHelperInventories:
             "_create_helper_inventory",
             return_value=Success(None),
         )
+        mocker.patch.object(
+            helpers_module,
+            "initialize_project_context",
+            return_value=Success(workspace_root_project_context),
+        )
 
         interaction = Mock(spec=InteractionExecutor)
 
@@ -1002,6 +976,7 @@ class TestUpdateHelperInventories:
         create_mock.assert_called_once_with(
             create=reconcile_result.create,
             workspace_context=workspace_context,
+            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,

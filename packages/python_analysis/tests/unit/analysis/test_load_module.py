@@ -117,7 +117,7 @@ class TestLoadModuleAnalysis:
         if isinstance(result, Failure):
             failure = result.failure()
             print(format_object(failure))
-        assert result == Success(expected)
+        assert result.unwrap()[0] == expected
 
         load_mock.assert_called_once_with(context, PythonPath("foo"))
 
@@ -263,7 +263,7 @@ class TestLoadModuleAnalysis:
             docstring=analyzed_docstring,
         )
 
-        assert result == Success(expected)
+        assert result.unwrap()[0] == expected
 
         extract_mock.assert_called_once_with(
             source_file=source_file,

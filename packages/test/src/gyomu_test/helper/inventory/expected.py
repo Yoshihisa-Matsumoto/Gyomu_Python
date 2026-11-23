@@ -306,3 +306,24 @@ def collect_model_helper_inventory(
         )
 
     return Success(tuple(inventories))
+
+
+def reflect_updated_inventory(
+    inventory: HelperInventoryItem, model_default: ModelDefault
+) -> HelperInventoryItem:
+    parameters: list[ParameterInfo] = []
+
+    for parameter in inventory.parameters:
+        parameter_info = ParameterInfo(
+            name=parameter.name,
+            parameter_type=parameter.parameter_type,
+            default=_find_parameter(
+                variable_name=parameter.name, default=model_default
+            ),
+        )
+        parameters.append(parameter_info)
+    return HelperInventoryItem(
+        target_identity=inventory.target_identity,
+        function_name=inventory.function_name,
+        parameters=tuple(parameters),
+    )

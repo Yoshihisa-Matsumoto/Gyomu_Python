@@ -516,8 +516,11 @@ def create_file_analysis_metadata(
 def create_file_analysis_context(
     metadata: FileAnalysisMetadata = create_file_analysis_metadata(),
     analysis: ModuleAnalysis = create_module_analysis(),
+    source_lines: tuple[str, ...] = (),
 ) -> FileAnalysisContext:
-    return FileAnalysisContext(metadata=metadata, analysis=analysis)
+    return FileAnalysisContext(
+        metadata=metadata, analysis=analysis, source_lines=source_lines
+    )
 
 
 def build_file_analysis_context(
@@ -561,6 +564,7 @@ def build_file_analysis_context(
             imports=tuple(),
             symbols=tuple(analysis_symbols),
         ),
+        source_lines=(),
     )
 
 
@@ -736,8 +740,16 @@ def create_import_analysis(
     local_name: str = "BaseModel",
     imported_name: str = "pydantic.BaseModel",
     kind: ImportKind = ImportKind.SYMBOL,
+    start_line: int = 1,
+    end_line: int = 1,
 ) -> ImportAnalysis:
-    return ImportAnalysis(local_name=local_name, imported_name=imported_name, kind=kind)
+    return ImportAnalysis(
+        local_name=local_name,
+        imported_name=imported_name,
+        kind=kind,
+        start_line=start_line,
+        end_line=end_line,
+    )
 
 
 def create_literal_parameter(

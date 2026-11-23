@@ -44,3 +44,4 @@ class FileAnalysisContext:
 
     Module analysis results for the file.
     """
+    source_lines: tuple[str, ...]

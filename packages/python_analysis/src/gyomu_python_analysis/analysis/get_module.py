@@ -35,7 +35,7 @@ def get_module_analysis(
     file_path: ProjectRelativePath,
     file_hash: str | None = None,
     option: AnalysisOption | None = None,
-) -> Result[ModuleAnalysis, AnalysisError]:
+) -> Result[tuple[ModuleAnalysis, tuple[str, ...]], AnalysisError]:
     """Get module analysis for a given file path.
 
     Analyzes a Python module, leveraging cached results when available.

@@ -80,6 +80,7 @@ class TestLoadFileAnalysisContext:
             name="foo",
             docstring=None,
         )
+        source_lines: list[str] = []
         metadata = FileAnalysisMetadata(
             parsed_docstring={},
             symbols={},
@@ -87,7 +88,7 @@ class TestLoadFileAnalysisContext:
 
         get_module_analysis_mock = mocker.patch(
             "gyomu_python_analysis.analysis.load_file_context.get_module_analysis",
-            return_value=Success(module_analysis),
+            return_value=Success((module_analysis, source_lines)),
         )
         create_metadata_mock = mocker.patch(
             "gyomu_python_analysis.analysis.load_file_context"

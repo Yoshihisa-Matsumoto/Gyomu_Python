@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_schema.option.analysis import AnalysisOption
 from gyomu_schema.schemas.python.module import ModuleAnalysis
@@ -19,28 +17,11 @@ from gyomu_python_analysis.path.conversion import source_relative_path_to_full_p
 from gyomu_python_analysis.project.context import ProjectContext
 
 
-def read_source(path: Path) -> str:
-    """Read the source text from a file.
-
-    Read the source text from a file with normalized line endings.
-
-    Args:
-        path (Path): Path to the source file
-
-    Returns:
-        str: Normalized source file content as a string
-    """
-    with path.open("r", encoding="utf-8", newline="") as file:
-        source = file.read()
-
-    return source.replace("\r\n", "\n").replace("\r", "\n")
-
-
 def load_module_analysis(
     context: ProjectContext,
     module_path: PythonPath,
     option: AnalysisOption | None = None,
-) -> Result[ModuleAnalysis, AnalysisError]:
+) -> Result[tuple[ModuleAnalysis, tuple[str, ...]], AnalysisError]:
     """Load and analyze a python module.
 
     Loads and analyzes a python module within the project context.
@@ -61,7 +42,7 @@ def load_module_analysis(
 
     source_file = source_file_result.unwrap()
 
-    def analyze_module() -> ModuleAnalysis:
+    def analyze_module() -> tuple[ModuleAnalysis, tuple[str, ...]]:
         source_full_path = source_relative_path_to_full_path(source_file.path, context)
         read_result = read_source_text(source_full_path)
         if isinstance(read_result, Failure):
@@ -97,7 +78,7 @@ def load_module_analysis(
                 if source_file.module.docstring is not None
                 else None
             ),
-        )
+        ), tuple(source_lines)
 
     return from_sync(
         analyze_module,

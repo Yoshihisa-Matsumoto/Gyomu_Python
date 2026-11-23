@@ -17,7 +17,7 @@ from gyomu_schema.schemas.python.dependency import (
     ImportedSymbolDependency,
     LocalFileDependency,
 )
-from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKind
+from gyomu_schema.schemas.python.import_analysis import ImportKind
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol import SymbolAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
@@ -29,6 +29,8 @@ from gyomu_schema.schemas.python.types import (
 )
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from gyomu_schema.schemas.python.visibility import Visibility
+
+from packages.schema.test_support.helpers import create_import_analysis
 
 
 def create_symbol(name: str, symbol_id: SymbolId | None = None) -> SymbolAnalysis:
@@ -94,7 +96,7 @@ def test_does_not_register_reserved_type_name(name: str) -> None:
 
 def test_finds_imported_name() -> None:
     imported = [
-        ImportAnalysis(
+        create_import_analysis(
             local_name="UserId",
             imported_name="gyomu_schema.schemas.user.UserId",
             kind=ImportKind.SYMBOL,
@@ -108,7 +110,7 @@ def test_finds_imported_name() -> None:
 
 def test_returns_none_when_imported_name_not_found() -> None:
     imported = [
-        ImportAnalysis(
+        create_import_analysis(
             local_name="UserId",
             imported_name="gyomu_schema.schemas.user.UserId",
             kind=ImportKind.SYMBOL,
@@ -143,7 +145,7 @@ def test_retrieves_imported_symbol_id(
     expected: str | None,
 ) -> None:
     result = _retrieve_imported_symbol_id(
-        ImportAnalysis(local_name="A BC", imported_name=name, kind=kind)
+        create_import_analysis(local_name="A BC", imported_name=name, kind=kind)
     )
 
     if expected is not None:
@@ -179,7 +181,7 @@ def test_analyzes_imported_symbol_dependency() -> None:
     )
 
     imported = [
-        ImportAnalysis(
+        create_import_analysis(
             local_name="UserId",
             imported_name="gyomu_schema.schemas.user.UserId",
             kind=ImportKind.SYMBOL,
@@ -252,7 +254,7 @@ def test_returns_none_when_dependency_cannot_be_resolved() -> None:
 
 def test_imported_symbol_id_uses_last_dot_as_symbol_separator() -> None:
     result = _retrieve_imported_symbol_id(
-        ImportAnalysis(
+        create_import_analysis(
             local_name="User", kind=ImportKind.SYMBOL, imported_name="foo.bar.baz.User"
         ),
     )
@@ -292,12 +294,12 @@ def test_resolves_dependencies() -> None:
     ]
 
     imported = [
-        ImportAnalysis(
+        create_import_analysis(
             local_name="UserId",
             imported_name="test.types.UserId",
             kind=ImportKind.SYMBOL,
         ),
-        ImportAnalysis(
+        create_import_analysis(
             local_name="UserName",
             imported_name="test.types.UserName",
             kind=ImportKind.SYMBOL,

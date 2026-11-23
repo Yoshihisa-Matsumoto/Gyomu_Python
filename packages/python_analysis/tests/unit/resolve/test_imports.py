@@ -42,6 +42,7 @@ from packages.python_analysis.test_support.helpers import (
     create_analysis_error,
     create_workspace_root,
 )
+from packages.schema.test_support.helpers import create_import_analysis
 
 
 @pytest.fixture
@@ -81,7 +82,7 @@ def project_b_file_context() -> FileAnalysisContext:
 
 
 def make_user_model_import() -> ImportAnalysis:
-    return ImportAnalysis(
+    return create_import_analysis(
         local_name="UserModel",
         imported_name="project_b.pydantic_models.models.UserModel",
         kind=ImportKind.SYMBOL,
@@ -89,7 +90,7 @@ def make_user_model_import() -> ImportAnalysis:
 
 
 def make_user_model_reference() -> ResolvedReference:
-    target_import = ImportAnalysis(
+    target_import = create_import_analysis(
         local_name="UserModel",
         imported_name="project_b.pydantic_models.models.UserModel",
         kind=ImportKind.SYMBOL,
@@ -177,7 +178,7 @@ class TestResolveReferencedSymbol:
         project_b_file_context: FileAnalysisContext,
     ) -> None:
         reference = ResolvedReference(
-            import_analysis=ImportAnalysis(
+            import_analysis=create_import_analysis(
                 local_name="models",
                 imported_name="project_b.pydantic_models.models",
                 kind=ImportKind.MODULE,
@@ -214,7 +215,7 @@ class TestResolveReferencedSymbol:
         project_b_file_context: FileAnalysisContext,
     ) -> None:
         reference = ResolvedReference(
-            import_analysis=ImportAnalysis(
+            import_analysis=create_import_analysis(
                 local_name="MissingModel",
                 imported_name=("project_b.pydantic_models.models.MissingModel"),
                 kind=ImportKind.SYMBOL,
@@ -249,7 +250,7 @@ class TestResolveReferenceSymbol:
     def test_missing_module_returns_failure(
         self, workspace_context: WorkspaceContext
     ) -> None:
-        target_import = ImportAnalysis(
+        target_import = create_import_analysis(
             local_name="MissingModel",
             imported_name="project_b.nonexistent.models.MissingModel",
             kind=ImportKind.SYMBOL,

@@ -25,44 +25,86 @@ class TestAnalizeImport(AnalysisTestBase):
                 local_name="BaseModel",
                 imported_name="pydantic.BaseModel",
                 kind=ImportKind.SYMBOL,
+                start_line=3,
+                end_line=3,
             ),
             ImportAnalysis(
-                local_name="fld", imported_name="pydantic.Field", kind=ImportKind.SYMBOL
+                local_name="fld",
+                imported_name="pydantic.Field",
+                kind=ImportKind.SYMBOL,
+                start_line=4,
+                end_line=4,
             ),
             ImportAnalysis(
                 local_name="fld2",
                 imported_name="pydantic.Field",
                 kind=ImportKind.SYMBOL,
+                start_line=5,
+                end_line=5,
             ),
             ImportAnalysis(
                 local_name="rel1",
                 imported_name="analysis.import.relative.Field",
                 kind=ImportKind.SYMBOL,
+                start_line=7,
+                end_line=7,
             ),
             ImportAnalysis(
                 local_name="Value",
                 imported_name="analysis.shared.Value",
                 kind=ImportKind.SYMBOL,
+                start_line=8,
+                end_line=8,
             ),
             ImportAnalysis(
                 local_name="VAR1",
                 imported_name="analysis.import.all.VAR1",
                 kind=ImportKind.SYMBOL,
+                start_line=9,
+                end_line=9,
             ),
             ImportAnalysis(
                 local_name="VAR11",
                 imported_name="analysis.import.all2.VAR11",
                 kind=ImportKind.SYMBOL,
+                start_line=10,
+                end_line=10,
             ),
             ImportAnalysis(
                 local_name="VAR21",
                 imported_name="analysis.import.all2.VAR21",
                 kind=ImportKind.SYMBOL,
+                start_line=10,
+                end_line=10,
             ),
             ImportAnalysis(
-                local_name="pathlib", imported_name="pathlib", kind=ImportKind.MODULE
+                local_name="pathlib",
+                imported_name="pathlib",
+                kind=ImportKind.MODULE,
+                start_line=1,
+                end_line=1,
             ),
             ImportAnalysis(
-                local_name="path", imported_name="pathlib", kind=ImportKind.MODULE
+                local_name="path",
+                imported_name="pathlib",
+                kind=ImportKind.MODULE,
+                start_line=2,
+                end_line=2,
             ),
         ]
+
+    def test_analyzes_multiple_import(self) -> None:
+        context = self._read_module_fixture(PythonPath("analysis.import.imports2"))
+        source = context.source.module
+        print("name:", source.name)
+        print("path:", source.path)
+        print("parent:", source.parent)
+        print("package:", source.package)
+        assert isinstance(source.filepath, Path)
+        source_str = source.filepath.read_text(encoding="utf-8")
+        source_lines = source_str.splitlines()
+        result = _extract_imports(source, source_str, source_lines)
+        start_lines = [item.start_line for item in result]
+        end_lines = [item.end_line for item in result]
+        assert start_lines == [2, 2, 2, 2, 2]
+        assert end_lines == [8, 8, 8, 8, 8]

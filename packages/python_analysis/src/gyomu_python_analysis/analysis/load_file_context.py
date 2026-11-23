@@ -32,12 +32,11 @@ def load_file_analysis_context(
     module_analysis_result = get_module_analysis(context, file_path, file_hash, option)
     if isinstance(module_analysis_result, Failure):
         return module_analysis_result
-    module_analysis = module_analysis_result.unwrap()
+    module_analysis, source_lines = module_analysis_result.unwrap()
     metadata = create_file_analysis_metadata(module_analysis)
 
     return Success(
         FileAnalysisContext(
-            metadata=metadata,
-            analysis=module_analysis,
+            metadata=metadata, analysis=module_analysis, source_lines=source_lines
         )
     )

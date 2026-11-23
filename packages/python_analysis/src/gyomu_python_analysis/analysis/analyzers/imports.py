@@ -26,13 +26,21 @@ def analyze_import(
     # print(f"target-path: {alias.target_path}")
     # print(f"canonical_path: {alias.canonical_path}")
     assert attr["lineno"]
+    assert alias.alias_lineno
+    assert alias.alias_endlineno
     target_line = source_lines[int(attr["lineno"]) - 1]
     kind = ImportKind.MODULE
     if target_line.strip().startswith("from"):
         kind = ImportKind.SYMBOL
     if kind == ImportKind.MODULE:
         return None
-    return ImportAnalysis(imported_name=target_path, local_name=name, kind=kind)
+    return ImportAnalysis(
+        imported_name=target_path,
+        local_name=name,
+        kind=kind,
+        start_line=alias.alias_lineno,
+        end_line=alias.alias_endlineno,
+    )
 
 
 def analyze_ast_import(ast: ast.Import) -> list[ImportAnalysis]:
@@ -44,11 +52,14 @@ def analyze_ast_import(ast: ast.Import) -> list[ImportAnalysis]:
             if name_attr.asname is not None
             else imported_name.split(".", maxsplit=1)[0]
         )
+        end_lineno = ast.end_lineno if ast.end_lineno is not None else ast.lineno
         analysis_list.append(
             ImportAnalysis(
                 imported_name=imported_name,
                 local_name=local_name,
                 kind=ImportKind.MODULE,
+                start_line=ast.lineno,
+                end_line=end_lineno,
             )
         )
 

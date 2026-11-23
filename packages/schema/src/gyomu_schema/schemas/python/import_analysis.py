@@ -35,6 +35,9 @@ class ImportAnalysis(BaseModel):
     kind: ImportKind
     """The kind of import (module or symbol)."""
 
+    start_line: int
+    end_line: int
+
     def get_module_path(self) -> PythonPath:
         if self.kind == ImportKind.MODULE:
             return PythonPath(self.imported_name)

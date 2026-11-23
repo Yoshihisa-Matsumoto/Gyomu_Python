@@ -1,5 +1,6 @@
 import json
 
+from gyomu_python_analysis.resolve.models import ReferencedType, SymbolType
 from gyomu_python_analysis.resolve.type_dump import dump_type
 from gyomu_schema.schemas.config.test.model_defaults import (
     Argument,
@@ -16,6 +17,7 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     TupleParameter,
 )
 from gyomu_schema.schemas.python.location import SourceLocation
+from gyomu_schema.schemas.python.types import DeclarationIdentity
 from gyomu_schema.schemas.testing.helper import HelperFileInventory, HelperInventoryItem
 
 from gyomu_test.helper.inventory.naming import _build_class_name_from_helper_name
@@ -182,3 +184,30 @@ def generate_function_code(item: HelperInventoryItem) -> str:
         f"{arguments},\n"
         f"    )\n"
     )
+
+
+def generate_function_code_lines(item: HelperInventoryItem) -> list[str]:
+    return generate_function_code(item).splitlines(keepends=True)
+
+
+def generate_import_code_lines(
+    item: HelperInventoryItem, ref_types: tuple[ReferencedType, ...]
+) -> list[str]:
+    lines: list[str] = []
+    identity = item.target_identity
+    lines.append(
+        f"from {identity.get_module_name()} import {identity.get_symbol_name()}"
+    )
+    for ref_type in ref_types:
+        if isinstance(ref_type, SymbolType):
+            identity = ref_type.symbol.identity
+
+        else:
+            identity = DeclarationIdentity.create_from_symbol_id(ref_type.symbol_id)
+
+        lines.append(
+            f"from {identity.get_module_name()} import {identity.get_symbol_name()}"
+        )
+
+    lines.append("\n")
+    return "\n".join(lines).splitlines(keepends=True)

@@ -403,7 +403,7 @@ class AnalysisTestBase:
         if isinstance(result, Failure):
             raise result.failure()
 
-        return result.unwrap()
+        return result.unwrap()[0]
 
     def _analyze_typealias_bases(
         self, file_name: PythonPath, symbol_name: str, dump_required: bool = False
