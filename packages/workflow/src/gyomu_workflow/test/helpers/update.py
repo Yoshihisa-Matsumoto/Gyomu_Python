@@ -1,11 +1,9 @@
 from pathlib import Path
 
 from gyomu_config.manager import ConfigManager
-from gyomu_infra.filesystem.file_io import write_text
 from gyomu_python_analysis.analysis.initialize import (
     initialize_project_context,
 )
-from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.models import ReferencedType
@@ -20,7 +18,6 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
     ParameterDefault,
 )
-from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
 from gyomu_schema.schemas.python.module import ModuleAnalysis
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.testing.helper import (
@@ -36,12 +33,7 @@ from gyomu_test.helper.defaults.requirements import (
     resolve_function_parameter_default,
     resolve_primitive_parameter_type,
 )
-from gyomu_test.helper.inventory.config import get_helper_file_path
-from gyomu_test.helper.inventory.expected import reflect_updated_inventory
-from gyomu_test.helper.inventory.function import (
-    generate_function_code_lines,
-    generate_import_code_lines,
-)
+from gyomu_test.helper.inventory.update import update_helper_file
 from gyomu_test.helper.inventory.update_default import update_model_default
 from returns.result import Failure, Result, Success
 
@@ -262,89 +254,13 @@ def _resolve_helper_inventory_item(
     return Success((model_default, unique_ref_types))
 
 
-def _update_helper_file(
-    item: HelperInventoryItem,
-    workspace_root_project_context: ProjectContext,
-    project_context: ProjectContext,
-    model_default: ModelDefault,
-    referenced_types: tuple[ReferencedType, ...],
-) -> Result[ProjectRelativePath, GyomuError]:
-    # decide which helpers file to be updated/created
-    helper_file_result = get_helper_file_path(
-        model_identity=item.target_identity, project_context=project_context
-    )
-    if isinstance(helper_file_result, Failure):
-        return helper_file_result.alt(
-            lambda error: wrap_gyomu_error(
-                error=error, message="fail to retrieve helper file"
-            )
-        )
-    helper_file_path = ProjectRelativePath(
-        helper_file_result.unwrap().relative_to(
-            workspace_root_project_context.project_root
-        )
-    )
-    file_result = load_file_analysis_context(
-        workspace_root_project_context, helper_file_path
-    )
-    if isinstance(file_result, Failure):
-        return file_result.alt(
-            lambda error: wrap_gyomu_error(
-                error=error, message="fail to load helper file"
-            )
-        )
-    helper_file_analysis = file_result.unwrap()
-
-    # insert helper function
-    update_file_lines: list[str] = []
-    update_file_lines.extend(helper_file_analysis.source_lines)
-    reflected_item = reflect_updated_inventory(
-        inventory=item, model_default=model_default
-    )
-    function_lines = generate_function_code_lines(reflected_item)
-
-    update_file_lines.append("")
-    update_file_lines.extend(function_lines)
-
-    # insert import statement
-    last_line = get_last_import_line(helper_file_analysis)
-    # print(format_object(unique_ref_types))
-    import_lines = generate_import_code_lines(item, referenced_types)
-    update_file_lines[last_line : last_line + 1] = import_lines
-
-    # save helper file
-    print(helper_file_path)
-    # breakpoint()
-    write_result = write_text(
-        workspace_root_project_context.project_root / helper_file_path,
-        "".join(update_file_lines),
-    )
-    if isinstance(write_result, Failure):
-        return write_result.alt(
-            lambda error: wrap_gyomu_error(error=error, message="fail to write file")
-        )
-    return Success(helper_file_path)
-
-
 def _validate_helper_file(
-    item: HelperInventoryItem,
+    helper_file_path: ProjectRelativePath,
     workspace_context: WorkspaceContext,
     workspace_root_project_context: ProjectContext,
     project_context: ProjectContext,
-    helper_file_path: ProjectRelativePath,
 ) -> Result[None, GyomuError]:
 
-    # run ruff format
-    format_result = format_file(
-        workspace_relative_file_path=helper_file_path,
-        target_project_context=project_context,
-        workspace_root_project_context=workspace_root_project_context,
-        workspace_context=workspace_context,
-    )
-    if isinstance(format_result, Failure):
-        return format_result.alt(
-            lambda error: wrap_gyomu_error(error=error, message="fail to format file")
-        )
     # run mypy validation
     check_mypy_result = check_file(
         workspace_relative_file_path=helper_file_path,
@@ -418,7 +334,7 @@ def _create_helper_inventory_item(
         return resolve_result
     model_default, referenced_types = resolve_result.unwrap()
 
-    update_file_result = _update_helper_file(
+    update_file_result = update_helper_file(
         item=item,
         workspace_root_project_context=workspace_root_project_context,
         project_context=project_context,
@@ -426,15 +342,30 @@ def _create_helper_inventory_item(
         referenced_types=referenced_types,
     )
     if isinstance(update_file_result, Failure):
-        return update_file_result
+        return update_file_result.alt(
+            lambda error: wrap_gyomu_error(
+                error=error, message="fail to update helper file"
+            )
+        )
     helper_file_path = update_file_result.unwrap()
 
+    # run ruff format
+    format_result = format_file(
+        workspace_relative_file_path=helper_file_path,
+        target_project_context=project_context,
+        workspace_root_project_context=workspace_root_project_context,
+        workspace_context=workspace_context,
+    )
+    if isinstance(format_result, Failure):
+        return format_result.alt(
+            lambda error: wrap_gyomu_error(error=error, message="fail to format file")
+        )
+
     return _validate_helper_file(
-        item=item,
+        helper_file_path=helper_file_path,
         workspace_context=workspace_context,
         workspace_root_project_context=workspace_root_project_context,
         project_context=project_context,
-        helper_file_path=helper_file_path,
     )
 
 
@@ -459,21 +390,3 @@ def _create_helper_inventory(
             return item_result
 
     return Success(None)
-
-
-def get_last_import_line(helper_file_analysis: FileAnalysisContext) -> int:
-    min_start_line: int = 9999
-    for symbol in helper_file_analysis.analysis.symbols:
-        start_line = symbol.location.start_line
-        if min_start_line > start_line:
-            min_start_line = start_line
-
-    max_import_line: int = 0
-    for import_symbol in helper_file_analysis.analysis.imports:
-        if (
-            import_symbol.end_line < min_start_line
-            and import_symbol.end_line > max_import_line
-        ):
-            max_import_line = import_symbol.end_line
-    # breakpoint()
-    return max_import_line
