@@ -23,6 +23,14 @@ def retrieve_config[T: BaseModel, C](
     )
 
 
+def retrieve_simple_config[T: BaseModel](
+    config_type: type[T], path: Path
+) -> Result[T | None, ConfigError]:
+    return retrieve_single_config(
+        request=_ResolvedPathRequest[T](config_type=config_type, path=path)
+    )
+
+
 def retrieve_mandatory_config[T: BaseModel](
     config_type: type[T], path: Path
 ) -> Result[T, ConfigError]:

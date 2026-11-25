@@ -27,6 +27,7 @@ from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
     ParameterInfo,
 )
+from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.helper.defaults.referenced_types import deduplicate_referenced_types
 from gyomu_test.helper.defaults.requirements import (
     ConfiguredParameterDefault,
@@ -119,14 +120,17 @@ def _define_helper_inventory_parameter(
                 error=error, message="fail to resolve function parameters"
             )
         )
-    parameter = parameter_result.unwrap()
+    parameter, resolved_types = parameter_result.unwrap()
+    # print(type(parameter).__name__)
+    # print(format_object(parameter, depth=8))
+    print(format_object(resolved_types, depth=8))
     if isinstance(parameter, ConfiguredParameterDefault):
         return Success(
             (
                 ParameterDefault(
                     name=parameter.parameter.name, value=parameter.parameter.default
                 ),
-                (),
+                resolved_types,
             )
         )
     elif isinstance(parameter, ResolvedParameterDefault):
@@ -135,12 +139,12 @@ def _define_helper_inventory_parameter(
                 ParameterDefault(
                     name=parameter.parameter.name, value=parameter.default
                 ),
-                parameter.referenced_types,
+                resolved_types,
             )
         )
     else:
         parameter_context = DefaultTypeParameterContext(
-            model_symbol_id=inventory.target_identity.symbol_id,
+            model_identity=inventory.target_identity,
             parameter=parameter,
             workspace_context=workspace_context,
             project_context=project_context,
@@ -148,9 +152,10 @@ def _define_helper_inventory_parameter(
             config_manager=config_manager,
         )
         resolve_result = resolve_primitive_parameter_type(parameter=parameter)
+        # print(format_object(resolve_result, depth=8))
         if resolve_result is not None:
             parameter_context = DefaultPrimitiveLiteralTypeParameterContext(
-                model_symbol_id=inventory.target_identity.symbol_id,
+                model_identity=inventory.target_identity,
                 parameter=parameter,
                 workspace_context=workspace_context,
                 project_context=project_context,
@@ -159,7 +164,7 @@ def _define_helper_inventory_parameter(
                 resolved_type=resolve_result[1],
             )
             if is_supported_primitive_parameter_type(
-                parameter_type_name=resolve_result[0]
+                parameter_type_name=resolve_result[0],
             ):
                 define_parameter_result = define_direct_parameter(
                     parameter_context=parameter_context,
@@ -182,19 +187,19 @@ def _define_helper_inventory_parameter(
                     name=resolved.parameter.name,
                     value=resolved.default,
                 ),
-                resolved.referenced_types,
+                resolved_types,
             )
         )
 
 
-def _create_helper_inventory_item(
+def _resolve_helper_inventory_item(
     item: HelperInventoryItem,
     workspace_context: WorkspaceContext,
     workspace_root_project_context: ProjectContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
     interaction: InteractionExecutor[str, Path],
-) -> Result[None, GyomuError]:
+) -> Result[tuple[ModelDefault, tuple[ReferencedType, ...]], GyomuError]:
     cache_result = workspace_context.find_file_analysis_context(
         target_identity=item.target_identity
     )
@@ -214,12 +219,15 @@ def _create_helper_inventory_item(
                 reason="unexpected",
             )
         )
+    module_analysis = search_result[0].analysis
+
     create_parameters: list[ParameterDefault] = []
     referenced_types: list[ReferencedType] = []
     for parameter_info in item.parameters:
+        # print(f"{parameter_info.name}: {parameter_info.parameter_type.text}")
         parameter_result = _define_helper_inventory_parameter(
             inventory=item,
-            module_analysis=search_result[0].analysis,
+            module_analysis=module_analysis,
             parameter_info=parameter_info,
             workspace_context=workspace_context,
             workspace_root_project_context=workspace_root_project_context,
@@ -229,10 +237,10 @@ def _create_helper_inventory_item(
         )
         if isinstance(parameter_result, Failure):
             return parameter_result
-        tuple_value = parameter_result.unwrap()
-        create_parameters.append(tuple_value[0])
-        print(tuple_value[1])
-        referenced_types.extend(tuple_value[1])
+        parameter, ref_type = parameter_result.unwrap()
+        create_parameters.append(parameter)
+
+        referenced_types.extend(ref_type)
     model_default: ModelDefault = ModelDefault(
         symbol_name=item.target_identity.get_symbol_name(),
         parameters=tuple(create_parameters),
@@ -248,8 +256,19 @@ def _create_helper_inventory_item(
                 error=error, message="fail to update function parameter"
             )
         )
+    print(format_object(referenced_types, depth=8))
     unique_ref_types = deduplicate_referenced_types(referenced_types=referenced_types)
 
+    return Success((model_default, unique_ref_types))
+
+
+def _update_helper_file(
+    item: HelperInventoryItem,
+    workspace_root_project_context: ProjectContext,
+    project_context: ProjectContext,
+    model_default: ModelDefault,
+    referenced_types: tuple[ReferencedType, ...],
+) -> Result[ProjectRelativePath, GyomuError]:
     # decide which helpers file to be updated/created
     helper_file_result = get_helper_file_path(
         model_identity=item.target_identity, project_context=project_context
@@ -289,7 +308,8 @@ def _create_helper_inventory_item(
 
     # insert import statement
     last_line = get_last_import_line(helper_file_analysis)
-    import_lines = generate_import_code_lines(item, unique_ref_types)
+    # print(format_object(unique_ref_types))
+    import_lines = generate_import_code_lines(item, referenced_types)
     update_file_lines[last_line : last_line + 1] = import_lines
 
     # save helper file
@@ -303,6 +323,17 @@ def _create_helper_inventory_item(
         return write_result.alt(
             lambda error: wrap_gyomu_error(error=error, message="fail to write file")
         )
+    return Success(helper_file_path)
+
+
+def _validate_helper_file(
+    item: HelperInventoryItem,
+    workspace_context: WorkspaceContext,
+    workspace_root_project_context: ProjectContext,
+    project_context: ProjectContext,
+    helper_file_path: ProjectRelativePath,
+) -> Result[None, GyomuError]:
+
     # run ruff format
     format_result = format_file(
         workspace_relative_file_path=helper_file_path,
@@ -365,6 +396,46 @@ def _create_helper_inventory_item(
             )
         )
     return Success(None)
+
+
+def _create_helper_inventory_item(
+    item: HelperInventoryItem,
+    workspace_context: WorkspaceContext,
+    workspace_root_project_context: ProjectContext,
+    project_context: ProjectContext,
+    config_manager: ConfigManager,
+    interaction: InteractionExecutor[str, Path],
+) -> Result[None, GyomuError]:
+    resolve_result = _resolve_helper_inventory_item(
+        item=item,
+        workspace_context=workspace_context,
+        workspace_root_project_context=workspace_root_project_context,
+        project_context=project_context,
+        config_manager=config_manager,
+        interaction=interaction,
+    )
+    if isinstance(resolve_result, Failure):
+        return resolve_result
+    model_default, referenced_types = resolve_result.unwrap()
+
+    update_file_result = _update_helper_file(
+        item=item,
+        workspace_root_project_context=workspace_root_project_context,
+        project_context=project_context,
+        model_default=model_default,
+        referenced_types=referenced_types,
+    )
+    if isinstance(update_file_result, Failure):
+        return update_file_result
+    helper_file_path = update_file_result.unwrap()
+
+    return _validate_helper_file(
+        item=item,
+        workspace_context=workspace_context,
+        workspace_root_project_context=workspace_root_project_context,
+        project_context=project_context,
+        helper_file_path=helper_file_path,
+    )
 
 
 def _create_helper_inventory(

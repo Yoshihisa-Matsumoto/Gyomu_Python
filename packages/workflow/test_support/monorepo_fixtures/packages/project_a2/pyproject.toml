@@ -1,0 +1,13 @@
+[project]
+name = "project-a2"
+version = "0.1.0"
+description = "Project A"
+
+dependencies = [
+    "gyomu_schema"
+]
+
+
+
+[tool.uv.sources]
+gyomu_schema = { workspace = true }

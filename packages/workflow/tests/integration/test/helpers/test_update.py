@@ -41,8 +41,7 @@ def monorepo_path(
     return project_path
 
 
-@pytest.mark.integration
-def test_update_helper_inventory(monorepo_path: Path) -> None:
+def _update(monorepo_path: Path, project_name: str) -> None:
     workspace_result = find_root(FullPath(monorepo_path))
     if isinstance(workspace_result, Failure):
         print(format_object(workspace_result.failure()))
@@ -50,7 +49,7 @@ def test_update_helper_inventory(monorepo_path: Path) -> None:
     assert isinstance(workspace_result, Success)
 
     workspace_context = workspace_result.unwrap()
-    package = "project-a"
+    package = project_name
     package_result = find_project_by_name(workspace_context, package)
     if isinstance(package_result, Failure):
         print(f"{package} Not Found")
@@ -69,3 +68,23 @@ def test_update_helper_inventory(monorepo_path: Path) -> None:
         print(f"{package} Helper Update Fail")
         print(format_object(result.failure(), depth=8))
     assert isinstance(result, Success)
+
+
+@pytest.mark.integration
+def test_project_a(monorepo_path: Path) -> None:
+    _update(monorepo_path=monorepo_path, project_name="project-a")
+
+
+@pytest.mark.integration
+def test_project_a2(monorepo_path: Path) -> None:
+    _update(monorepo_path=monorepo_path, project_name="project-a2")
+
+
+@pytest.mark.integration
+def test_project_a3(monorepo_path: Path) -> None:
+    _update(monorepo_path=monorepo_path, project_name="project-a3")
+
+
+@pytest.mark.integration
+def test_project_b(monorepo_path: Path) -> None:
+    _update(monorepo_path=monorepo_path, project_name="project-b")

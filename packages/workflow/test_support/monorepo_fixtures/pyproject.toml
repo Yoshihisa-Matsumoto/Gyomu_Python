@@ -11,6 +11,8 @@ dev = [
 [tool.uv.workspace]
 members = [
     "packages/project_a",
+    "packages/project_a2",
+    "packages/project_a3",
     "packages/project_b",
     "packages/schema",
 ]

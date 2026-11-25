@@ -17,6 +17,7 @@ from gyomu_schema.schemas.interaction.result import (
     InteractionCancelled,
     InteractionResult,
 )
+from gyomu_schema.utility.fromatting import format_object
 from questionary import print as questionary_print
 from returns.result import Failure, Result, Success
 
@@ -37,11 +38,15 @@ def _wrap_gyomu_error(error: BaseException, message: str) -> GyomuError:
 
 
 def create_initial_document(
-    initial_text: str, temporary_directory: Path | None
+    initial_text: str,
+    temporary_directory: Path | None,
+    temporary_file_extension: str | None,
 ) -> Result[Path, GyomuError]:
     """Create a temporary document and write its initial text."""
 
-    temp_file_result = create_temp_file(temporary_directory=temporary_directory)
+    temp_file_result = create_temp_file(
+        temporary_directory=temporary_directory, extension=temporary_file_extension
+    )
     if isinstance(temp_file_result, Failure):
         return Failure(
             _wrap_gyomu_error(
@@ -122,6 +127,7 @@ def execute_document_interaction[ContextT, ValueT](
     document_result = create_initial_document(
         initial_text=text_result.unwrap(),
         temporary_directory=request.temporary_directory,
+        temporary_file_extension=request.temporary_file_extension,
     )
     if isinstance(document_result, Failure):
         return document_result
@@ -146,7 +152,9 @@ def execute_document_interaction[ContextT, ValueT](
                 request.context,
             )
             if isinstance(parsed, Failure):
-                questionary_print(f"Invalid input: {parsed.failure()}")
+                questionary_print(
+                    f"Invalid input: {format_object(parsed.failure(), depth=8)}"
+                )
                 continue
 
             return Success(InteractionAccepted(parsed.unwrap()))

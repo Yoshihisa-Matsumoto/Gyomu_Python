@@ -124,14 +124,22 @@ class ModelDefaults(BaseModel):
 
 class PrimitiveDefault(BaseModel):
     type_name: str
-    variable_name: str
-    parameters: tuple[ParameterDefault, ...]
+    parameter: Parameter
 
 
-class PrimitiveDefaults(BaseModel):
-    defaults_per_variable_name: dict[str, tuple[ParameterDefault, ...]]
+# class PrimitiveDefaults(BaseModel):
+#     defaults_per_variable_name: dict[str, tuple[ParameterDefault, ...]]
+
+
+class SymbolDefault(BaseModel):
+    symbol_name: str
+    parameter: Parameter
+
+
+class SymbolDefaults(BaseModel):
+    symbols: tuple[SymbolDefault, ...]
 
 
 class PackageModelDefaults(BaseModel):
-    models_per_module_path: dict[PythonPath, ModelDefaults]
-    primitives_per_type: dict[str, PrimitiveDefaults]
+    models_per_module_path: dict[PythonPath, SymbolDefaults]
+    primitives_per_type: dict[str, PrimitiveDefault]

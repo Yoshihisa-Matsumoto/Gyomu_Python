@@ -41,6 +41,7 @@ from gyomu_schema.schemas.python.type.type_analysis import (
     ArrayStructureAnalysis,
     AttributeStructureAnalysis,
     DictionaryStructureAnalysis,
+    GenericsStructureAnalysis,
     LiteralStructureAnalysis,
     TupleStructureAnalysis,
     TypeExpression,
@@ -57,6 +58,7 @@ from gyomu_schema.schemas.testing.helper import (
     ParameterInfo,
     TargetClassKind,
 )
+from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
 from gyomu_test.error.test import GyomuTestError
@@ -125,18 +127,26 @@ def resolve_primitive_parameter_type(
     if len(parameter.missing_types) != 1:
         return None
 
+    parameter_type = parameter.parameter.parameter_type
+
     missing_type = parameter.missing_types[0]
+
+    if not isinstance(missing_type, PrimitiveType | LiteralValueType):
+        return None
+
+    if parameter_type.structure is not None:
+        structure = parameter_type.structure
+        if not isinstance(structure, LiteralStructureAnalysis | NameStructureAnalysis):
+            return None
 
     if isinstance(missing_type, PrimitiveType):
         return missing_type.primitive_type, missing_type
 
-    if isinstance(missing_type, LiteralValueType):
+    else:
         value = missing_type.value
         if value is None:
             return None
         return type(value).__name__, missing_type
-
-    return None
 
 
 SUPPORTED_DIRECT_PARAMETER_TYPES = frozenset(
@@ -149,9 +159,7 @@ SUPPORTED_DIRECT_PARAMETER_TYPES = frozenset(
 )
 
 
-def is_supported_primitive_parameter_type(
-    parameter_type_name: str,
-) -> bool:
+def is_supported_primitive_parameter_type(parameter_type_name: str) -> bool:
     return parameter_type_name in SUPPORTED_DIRECT_PARAMETER_TYPES
 
 
@@ -230,8 +238,8 @@ def _create_parameter(
         if isinstance(load_result, Failure):
             return load_result
         default = load_result.unwrap()
-        if default is not None and default.parameters[0].value is not None:
-            return Success(default.parameters[0].value)
+        if default is not None:
+            return Success(default.parameter)
 
         return Success(None)
     elif isinstance(resolved_type, PackageType):
@@ -269,23 +277,28 @@ def _create_parameter(
             if isinstance(symbol_load_result, Failure):
                 return symbol_load_result
             symbol_default = symbol_load_result.unwrap()
-            if (
-                symbol_default is not None
-                and symbol_default.parameters[0].value is not None
-            ):
-                return Success(symbol_default.parameters[0].value)
+            if symbol_default is not None:
+                return Success(symbol_default.parameter)
             return Success(None)
 
 
 def _resolve_parameter_default(
     context: ParameterConfigurationContext,
-) -> Result[ResolvedParameter | MissingParameterDefault, GyomuTestError]:
+) -> Result[
+    tuple[ResolvedParameter | MissingParameterDefault, tuple[ReferencedType, ...]],
+    GyomuTestError,
+]:
     referenced_types: list[ReferencedType] = []
+    print(f"{context.parameter.name}:{context.parameter.parameter_type.text}")
     if context.parameter.parameter_type.structure is not None:
         return _resolve_type_expression(
             expression=context.parameter.parameter_type.structure,
             context=context,
             referenced_types=referenced_types,
+        ).map(
+            lambda parameter, referenced_types=referenced_types: (
+                (parameter, tuple(referenced_types))
+            )
         )
     else:
         resolve_type_result = resolve_type_analysis(
@@ -314,19 +327,25 @@ def _resolve_parameter_default(
         if isinstance(load_result, Failure):
             return load_result
         default = load_result.unwrap()
-        if default is not None and default.parameters[0].value is not None:
+        if default is not None:
             return Success(
-                ResolvedParameter(
-                    parameter=default.parameters[0].value,
-                    referenced_types=referenced_types,
+                (
+                    ResolvedParameter(
+                        parameter=default.parameter,
+                        referenced_types=referenced_types,
+                    ),
+                    tuple(referenced_types),
                 )
             )
 
         return Success(
-            MissingParameterDefault(
-                parameter=context.parameter,
-                missing_types=(resolved_type,),
-                # resolved_types=(),
+            (
+                MissingParameterDefault(
+                    parameter=context.parameter,
+                    missing_types=(resolved_type,),
+                    # resolved_types=(),
+                ),
+                tuple(referenced_types),
             )
         )
 
@@ -360,9 +379,10 @@ def _resolve_name_structure(
     if isinstance(name_parameter_result, Failure):
         return name_parameter_result
     name_parameter = name_parameter_result.unwrap()
+    print(format_object(name_structure, depth=8))
+    if isinstance(name_structure, SymbolType | PackageType):
+        referenced_types.append(name_structure)
     if name_parameter is not None:
-        if isinstance(name_structure, SymbolType | PackageType):
-            referenced_types.append(name_structure)
         return Success(
             ResolvedParameter(
                 parameter=name_parameter, referenced_types=referenced_types
@@ -605,6 +625,59 @@ def _resolve_dictionary_structure(
         )
 
 
+def _resolve_generics_structure(
+    expression: GenericsStructureAnalysis,
+    context: ParameterConfigurationContext,
+    referenced_types: list[ReferencedType],
+) -> Result[
+    ResolvedParameter | MissingParameterDefault,
+    GyomuTestError,
+]:
+    missing_types: list[ResolvedType] = []
+    generics_element_parameters: list[Parameter] = []
+    key_result = _resolve_type_expression(
+        expression=expression.base, context=context, referenced_types=referenced_types
+    )
+
+    if isinstance(key_result, Failure):
+        return key_result
+    key = key_result.unwrap()
+    if isinstance(key, MissingParameterDefault):
+        missing_types.extend(key.missing_types)
+    else:
+        generics_element_parameters.append(key.parameter)
+
+    for parameter in expression.parameters:
+        element_result = _resolve_type_expression(
+            expression=parameter, context=context, referenced_types=referenced_types
+        )
+        if isinstance(element_result, Failure):
+            return element_result
+        element_parameter = element_result.unwrap()
+        if isinstance(element_parameter, MissingParameterDefault):
+            missing_types.extend(element_parameter.missing_types)
+            # resolved_types.extend(element_parameter.resolved_types)
+        else:
+            generics_element_parameters.append(element_parameter.parameter)
+    print(format_object(referenced_types, depth=8))
+    print("----")
+    if len(missing_types) == 0:
+        return Success(
+            ResolvedParameter(
+                parameter=TupleParameter(elements=tuple(generics_element_parameters)),
+                referenced_types=referenced_types,
+            )
+        )
+    else:
+        return Success(
+            MissingParameterDefault(
+                parameter=context.parameter,
+                missing_types=tuple(missing_types),
+                # resolved_types=tuple(resolved_types),
+            )
+        )
+
+
 def _resolve_type_expression(
     expression: TypeExpression,
     context: ParameterConfigurationContext,
@@ -656,6 +729,10 @@ def _resolve_type_expression(
         return _resolve_dictionary_structure(
             expression=expression, context=context, referenced_types=referenced_types
         )
+    elif isinstance(expression, GenericsStructureAnalysis):
+        return _resolve_generics_structure(
+            expression=expression, context=context, referenced_types=referenced_types
+        )
     return Failure(
         GyomuTestError(
             "Unsupported ", details={"type-of-expression": type(expression).__name__}
@@ -671,11 +748,12 @@ def resolve_function_parameter_default(
     project_context: ProjectContext,
     config_manager: ConfigManager,
 ) -> Result[
-    ConfiguredParameterDefault | ResolvedParameterDefault | MissingParameterDefault,
+    tuple[
+        ConfiguredParameterDefault | ResolvedParameterDefault | MissingParameterDefault,
+        tuple[ReferencedType, ...],
+    ],
     GyomuTestError,
 ]:
-    if parameter_info.default is not None:
-        return Success(ConfiguredParameterDefault(parameter_info))
 
     context = ParameterConfigurationContext(
         parameter=parameter_info,
@@ -690,18 +768,25 @@ def resolve_function_parameter_default(
     if isinstance(default_result, Failure):
         return default_result
 
-    resolved_default = default_result.unwrap()
+    resolved_default, referenced_types = default_result.unwrap()
 
+    if parameter_info.default is not None:
+        return Success(
+            (ConfiguredParameterDefault(parameter_info), tuple(referenced_types))
+        )
     if isinstance(resolved_default, MissingParameterDefault):
-        return Success(resolved_default)
+        return Success((resolved_default, ()))
 
     return Success(
-        ResolvedParameterDefault(
-            parameter=parameter_info,
-            default=resolved_default.parameter,
-            referenced_types=deduplicate_referenced_types(
-                resolved_default.referenced_types
+        (
+            ResolvedParameterDefault(
+                parameter=parameter_info,
+                default=resolved_default.parameter,
+                referenced_types=deduplicate_referenced_types(
+                    resolved_default.referenced_types
+                ),
             ),
+            referenced_types,
         )
     )
 
@@ -746,6 +831,6 @@ def _resolve_function_parameter_defaults(
         if isinstance(parameter_result, Failure):
             return parameter_result
         else:
-            result.append(parameter_result.unwrap())
+            result.append(parameter_result.unwrap()[0])
 
     return Success(tuple(result))

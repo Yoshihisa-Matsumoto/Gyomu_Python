@@ -3,13 +3,17 @@ from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKi
 from gyomu_schema.schemas.python.types import PythonPath, SymbolId
 from gyomu_schema.utility.serialization import _assert_json_round_trip
 
+from packages.schema.test_support.helpers import create_import_analysis
+
 
 class TestImportAnalysis:
     def test(self) -> None:
         _assert_json_round_trip(
             ImportAnalysis,
-            ImportAnalysis(
-                local_name="loc1", imported_name="ABC", kind=ImportKind.SYMBOL
+            create_import_analysis(
+                local_name="loc1",
+                imported_name="ABC",
+                kind=ImportKind.SYMBOL,
             ),
         )
 
@@ -41,7 +45,7 @@ class TestImportAnalysis:
         imported_name: str,
         expected: PythonPath,
     ) -> None:
-        analysis = ImportAnalysis(
+        analysis = create_import_analysis(
             local_name="local",
             imported_name=imported_name,
             kind=kind,
@@ -73,7 +77,7 @@ class TestImportAnalysis:
         imported_name: str,
         expected: SymbolId | None,
     ) -> None:
-        analysis = ImportAnalysis(
+        analysis = create_import_analysis(
             local_name="local",
             imported_name=imported_name,
             kind=kind,

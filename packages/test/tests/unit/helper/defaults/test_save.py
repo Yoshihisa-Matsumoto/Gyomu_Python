@@ -7,11 +7,8 @@ from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProje
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.config import ConfigError
 from gyomu_schema.schemas.config.test.model_defaults import (
-    ModelDefault,
-    ModelDefaults,
     PackageModelDefaults,
-    PrimitiveDefault,
-    PrimitiveDefaults,
+    SymbolDefaults,
 )
 from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.types import FullPath
@@ -29,29 +26,11 @@ from gyomu_test.helper.defaults.save import (
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
-from packages.schema.test_support.helpers import create_parameter_default
-
-
-def create_primitive_default(
-    type_name: str = "int",
-    variable_name: str = "value",
-    parameters: tuple = (),
-) -> PrimitiveDefault:
-    return PrimitiveDefault(
-        type_name=type_name,
-        variable_name=variable_name,
-        parameters=parameters,
-    )
-
-
-def create_model_default(
-    symbol_name: str,
-    parameters: tuple = (),
-) -> ModelDefault:
-    return ModelDefault(
-        symbol_name=symbol_name,
-        parameters=parameters,
-    )
+from packages.schema.test_support.helpers import (
+    create_literal_parameter,
+    create_primitive_default,
+    create_symbol_default,
+)
 
 
 def create_package_model_defaults() -> PackageModelDefaults:
@@ -139,145 +118,120 @@ class TestRetrieveExistingConfig:
 class TestUpdatePrimitive:
     def test_adds_new_type_and_variable(self) -> None:
         existing = create_package_model_defaults()
-        primitive = create_primitive_default("int", "value")
+        primitive = create_primitive_default("int")
 
         result = _update_primitive(existing, primitive)
 
-        assert (
-            result.primitives_per_type["int"].defaults_per_variable_name["value"] == ()
-        )
+        assert result.primitives_per_type["int"] == primitive
         assert result.models_per_module_path == {}
 
-    def test_adds_variable_to_existing_type(self) -> None:
+    def test_replaces_existing_primitive_parameter(self) -> None:
         existing = PackageModelDefaults(
             models_per_module_path={},
             primitives_per_type={
-                "int": PrimitiveDefaults(defaults_per_variable_name={"count": ()})
+                "int": create_primitive_default(
+                    "int", create_literal_parameter(value=3)
+                )
             },
         )
 
         result = _update_primitive(
             existing,
-            create_primitive_default("int", "value"),
+            create_primitive_default("int", create_literal_parameter(value=5)),
         )
 
-        assert result.primitives_per_type["int"].defaults_per_variable_name == {
-            "count": (),
-            "value": (),
-        }
-
-    def test_replaces_existing_variable_parameters(self) -> None:
-        old_parameter = create_parameter_default()
-        new_parameter = create_parameter_default()
-
-        existing = PackageModelDefaults(
-            models_per_module_path={},
-            primitives_per_type={
-                "int": PrimitiveDefaults(
-                    defaults_per_variable_name={
-                        "value": (old_parameter,),
-                        "count": (),
-                    }
-                )
-            },
+        assert result.primitives_per_type["int"].parameter == create_literal_parameter(
+            value=5
         )
-        primitive = create_primitive_default(
-            "int",
-            "value",
-            (new_parameter,),
-        )
-
-        result = _update_primitive(existing, primitive)
-
-        actual = result.primitives_per_type["int"].defaults_per_variable_name
-        assert actual["value"] == (new_parameter,)
-        assert actual["count"] == ()
 
     def test_does_not_mutate_existing_config(self) -> None:
         existing = PackageModelDefaults(
             models_per_module_path={},
             primitives_per_type={
-                "int": PrimitiveDefaults(defaults_per_variable_name={"count": ()})
+                "int": create_primitive_default(
+                    "int", create_literal_parameter(value=3)
+                )
             },
         )
 
         _update_primitive(
-            existing,
-            create_primitive_default("int", "value"),
+            existing, create_primitive_default("int", create_literal_parameter(value=5))
         )
 
-        assert existing.primitives_per_type["int"].defaults_per_variable_name == {
-            "count": ()
-        }
+        assert existing.primitives_per_type["int"] == create_primitive_default(
+            "int", create_literal_parameter(value=3)
+        )
 
 
 class TestUpdateSymbol:
     def test_adds_new_module_and_symbol(self) -> None:
         existing = create_package_model_defaults()
         module_path = cast(PythonPath, "my_package.models")
-        model_default = create_model_default("Product")
+        symbol_default = create_symbol_default("Product")
 
-        result = _update_symbol(existing, module_path, model_default)
+        result = _update_symbol(existing, module_path, symbol_default)
 
-        assert result.models_per_module_path[module_path].models == (model_default,)
+        assert result.models_per_module_path[module_path].symbols == (symbol_default,)
 
     def test_adds_symbol_to_existing_module(self) -> None:
         module_path = cast(PythonPath, "my_package.models")
-        existing_model = create_model_default("Customer")
+        existing_symbol = create_symbol_default("Customer")
         existing = PackageModelDefaults(
             models_per_module_path={
-                module_path: ModelDefaults(models=(existing_model,))
+                module_path: SymbolDefaults(symbols=(existing_symbol,))
             },
             primitives_per_type={},
         )
-        new_model = create_model_default("Product")
+        new_model = create_symbol_default("Product")
 
         result = _update_symbol(existing, module_path, new_model)
 
-        assert result.models_per_module_path[module_path].models == (
-            existing_model,
+        assert result.models_per_module_path[module_path].symbols == (
+            existing_symbol,
             new_model,
         )
 
     def test_replaces_existing_symbol(self) -> None:
         module_path = cast(PythonPath, "my_package.models")
-        old_model = create_model_default("Product")
-        new_model = create_model_default("Product")
-        other_model = create_model_default("Customer")
+        old_model = create_symbol_default("Product")
+        new_model = create_symbol_default("Product")
+        other_model = create_symbol_default("Customer")
         existing = PackageModelDefaults(
             models_per_module_path={
-                module_path: ModelDefaults(models=(old_model, other_model))
+                module_path: SymbolDefaults(symbols=(old_model, other_model))
             },
             primitives_per_type={},
         )
 
         result = _update_symbol(existing, module_path, new_model)
 
-        assert result.models_per_module_path[module_path].models == (
+        assert result.models_per_module_path[module_path].symbols == (
             new_model,
             other_model,
         )
 
     def test_removes_duplicate_symbol_entries(self) -> None:
         module_path = cast(PythonPath, "my_package.models")
-        first = create_model_default("Product")
-        second = create_model_default("Product")
-        replacement = create_model_default("Product")
+        first = create_symbol_default("Product")
+        second = create_symbol_default("Product")
+        replacement = create_symbol_default("Product")
         existing = PackageModelDefaults(
-            models_per_module_path={module_path: ModelDefaults(models=(first, second))},
+            models_per_module_path={
+                module_path: SymbolDefaults(symbols=(first, second))
+            },
             primitives_per_type={},
         )
 
         result = _update_symbol(existing, module_path, replacement)
 
-        assert result.models_per_module_path[module_path].models == (replacement,)
+        assert result.models_per_module_path[module_path].symbols == (replacement,)
 
     def test_does_not_mutate_existing_config(self) -> None:
         module_path = cast(PythonPath, "my_package.models")
-        existing_model = create_model_default("Customer")
+        existing_model = create_symbol_default("Customer")
         existing = PackageModelDefaults(
             models_per_module_path={
-                module_path: ModelDefaults(models=(existing_model,))
+                module_path: SymbolDefaults(symbols=(existing_model,))
             },
             primitives_per_type={},
         )
@@ -285,10 +239,10 @@ class TestUpdateSymbol:
         _update_symbol(
             existing,
             module_path,
-            create_model_default("Product"),
+            create_symbol_default("Product"),
         )
 
-        assert existing.models_per_module_path[module_path].models == (existing_model,)
+        assert existing.models_per_module_path[module_path].symbols == (existing_model,)
 
 
 class TestSaveConfig:
@@ -449,7 +403,7 @@ class TestSaveSymbolParameterDefaultConfig:
         workspace_context = cast(WorkspaceContext, Mock())
         workspace_project = cast(WorkspaceProject, Mock())
         module_path = cast(PythonPath, "my_package.models")
-        model_default = create_model_default("Product")
+        symbol_default = create_symbol_default("Product")
         config_path = cast(FullPath, Path("/project/.gyomu/config.json"))
         existing = create_package_model_defaults()
         updated = create_package_model_defaults()
@@ -475,7 +429,7 @@ class TestSaveSymbolParameterDefaultConfig:
             workspace_context,
             workspace_project,
             module_path,
-            model_default,
+            symbol_default,
         )
 
         assert isinstance(result, Success)
@@ -487,7 +441,7 @@ class TestSaveSymbolParameterDefaultConfig:
         update_mock.assert_called_once_with(
             existing_config=existing,
             module_path=module_path,
-            model_default=model_default,
+            symbol_default=symbol_default,
         )
         save_mock.assert_called_once_with(
             config_path=config_path,
@@ -500,7 +454,7 @@ class TestSaveSymbolParameterDefaultConfig:
     ) -> None:
         workspace_context = cast(WorkspaceContext, Mock())
         module_path = cast(PythonPath, "my_package.models")
-        model_default = create_model_default("Product")
+        model_default = create_symbol_default("Product")
         config_path = cast(FullPath, Path("/workspace/.gyomu/config.json"))
 
         mocker.patch(
@@ -537,7 +491,7 @@ class TestSaveSymbolParameterDefaultConfig:
     ) -> None:
         workspace_context = cast(WorkspaceContext, Mock())
         module_path = cast(PythonPath, "my_package.models")
-        model_default = create_model_default("Product")
+        model_default = create_symbol_default("Product")
         error = cast(GyomuTestError, Exception("read failed"))
 
         mocker.patch(

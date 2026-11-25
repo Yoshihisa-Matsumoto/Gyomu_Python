@@ -16,7 +16,7 @@ from gyomu_python_analysis.resolve.models import (
 from gyomu_schema.schemas.config.test.model_defaults import (
     PackageModelDefaults,
 )
-from gyomu_schema.schemas.python.types import DeclarationIdentity
+from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath
 from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
     ParameterInfo,
@@ -29,14 +29,20 @@ from gyomu_test.helper.defaults.resolution import (
     PrimitiveDefaultResolver,
     SymbolDefaultConfigContext,
     SymbolDefaultResolver,
+    WorkspacePrimitiveDefaultResolver,
+    WorkspaceSymbolDefaultResolver,
     find_missing_function_parameter_defaults,
 )
 from returns.result import Failure, Success
 
 from packages.schema.test_support.helpers import (
     create_config_error,
-    create_parameter_default,
+    create_literal_parameter,
+    create_package_model_defaults,
     create_primitive_default,
+    create_symbol_default,
+    create_symbol_defaults,
+    simple_create_declaration_identity,
 )
 
 
@@ -191,7 +197,9 @@ class TestDefaultResolvers:
 
         symbol = Mock()
         symbol.name = symbol_name
-        symbol.identity = f"{module_name}.{symbol_name}"
+        symbol.identity = simple_create_declaration_identity(
+            f"{module_name}::{symbol_name}"
+        )
 
         return SymbolType(symbol=symbol, context=context)
 
@@ -268,6 +276,32 @@ class TestDefaultResolvers:
                 (
                     FullPath(
                         project_path / ".gyomu/config/$Package.default.json",
+                    ),
+                )
+            )
+
+    class TestWorkspacePrimitiveDefaultResolver:
+        def test_workspace_returns_workspace_paths(self):
+            workspace_path = Path("/workspace")
+            project_path = workspace_path / "packages" / "my_package"
+
+            context = TestDefaultResolvers._create_primitive_context(
+                type_default=TestDefaultResolvers._create_primitive_type(),
+                workspace_context=TestDefaultResolvers._create_workspace_context(
+                    workspace_path,
+                    WorkspaceRootKind.UV_WORKSPACE,
+                ),
+                project_context=TestDefaultResolvers._create_project_context(
+                    project_path,
+                ),
+            )
+
+            result = WorkspacePrimitiveDefaultResolver().get_paths(context)
+
+            assert result == Success(
+                (
+                    FullPath(
+                        workspace_path / ".gyomu/config/$Workspace.default.json",
                     ),
                 )
             )
@@ -439,30 +473,51 @@ class TestDefaultResolvers:
 
             assert isinstance(result, Failure)
 
+    class TestWorkspaceSymbolDefaultResolver:
+        def test_path(
+            self,
+            monkeypatch: pytest.MonkeyPatch,
+        ):
+
+            workspace_project = Mock()
+            workspace_project.path = Path("packages/other_package")
+
+            workspace_path = Path("/workspace")
+            project_path = workspace_path / "packages/my_package"
+
+            context = TestDefaultResolvers._create_symbol_context(
+                type_default=TestDefaultResolvers._create_symbol_type(),
+                workspace_context=TestDefaultResolvers._create_workspace_context(
+                    workspace_path,
+                    WorkspaceRootKind.UV_WORKSPACE,
+                ),
+                project_context=TestDefaultResolvers._create_project_context(
+                    project_path,
+                ),
+            )
+
+            result = WorkspaceSymbolDefaultResolver().get_paths(context)
+
+            assert result == Success(
+                (
+                    FullPath(
+                        workspace_path / ".gyomu/config/$Workspace.default.json",
+                    ),
+                )
+            )
+
     class TestPrimitiveDefaultResolverExtract:
         def test_extracts_matching_primitive_default(self):
             # expected = cast(PrimitiveDefault, Mock())
-            other = create_primitive_default(
-                type_name="str",
-                variable_name="other",
-                parameters=(create_parameter_default(),),
-            )
-            other.variable_name = "other"
-            other.type_name = "str"
 
             matching = create_primitive_default(
                 type_name="str",
-                variable_name="value",
-                parameters=(create_parameter_default(),),
+                parameter=create_literal_parameter(),
             )
 
-            primitives = Mock()
-            primitives.defaults_per_variable_name = {
-                "other": other.parameters,
-                "value": matching.parameters,
-            }
-            config = Mock()
-            config.primitives_per_type = {"str": primitives}
+            config = create_package_model_defaults(
+                primitives_per_type={"str": matching}
+            )
 
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_primitive_type(
@@ -480,7 +535,7 @@ class TestDefaultResolvers:
 
             # 設定エントリ自体を期待値として使う
             result = PrimitiveDefaultResolver().extract(
-                cast(PackageModelDefaults, config),
+                config,
                 context,
             )
 
@@ -511,15 +566,12 @@ class TestDefaultResolvers:
         def test_extracts_literal_default_using_value_type_name(self):
             matching = create_primitive_default(
                 type_name="str",
-                variable_name="value",
-                parameters=(create_parameter_default(),),
+                parameter=create_literal_parameter(),
             )
 
-            primitives = Mock()
-            primitives.defaults_per_variable_name = {"value": matching.parameters}
-            config = Mock()
-            config.primitives_per_type = {"str": primitives}
-
+            config = create_package_model_defaults(
+                primitives_per_type={"str": matching}
+            )
             context = TestDefaultResolvers._create_primitive_context(
                 type_default=TestDefaultResolvers._create_literal_type(
                     parameter_name="value",
@@ -535,7 +587,7 @@ class TestDefaultResolvers:
             )
 
             result = PrimitiveDefaultResolver().extract(
-                cast(PackageModelDefaults, config),
+                config,
                 context,
             )
 
@@ -545,19 +597,17 @@ class TestDefaultResolvers:
         def test_extracts_matching_model_default(self):
             # expected = cast(ModelDefault, Mock())
 
-            matching = Mock()
-            matching.symbol_name = "SampleModel"
+            matching = create_symbol_default(symbol_name="SampleModel")
 
-            other = Mock()
-            other.symbol_name = "OtherModel"
+            other = create_symbol_default(symbol_name="OtherModel")
 
-            module_defaults = Mock()
-            module_defaults.models = [other, matching]
+            symbol_defaults = create_symbol_defaults(symbols=(other, matching))
 
-            config = Mock()
-            config.models_per_module_path = {
-                "other_package.models": module_defaults,
-            }
+            config = create_package_model_defaults(
+                models_per_module_path={
+                    PythonPath("other_package.models"): symbol_defaults,
+                }
+            )
 
             context = TestDefaultResolvers._create_symbol_context(
                 type_default=TestDefaultResolvers._create_symbol_type(
@@ -604,7 +654,7 @@ class TestDefaultResolvers:
 
         def test_returns_none_when_symbol_is_missing(self):
             module_defaults = Mock()
-            module_defaults.models = []
+            module_defaults.symbols = []
 
             config = Mock()
             config.models_per_module_path = {

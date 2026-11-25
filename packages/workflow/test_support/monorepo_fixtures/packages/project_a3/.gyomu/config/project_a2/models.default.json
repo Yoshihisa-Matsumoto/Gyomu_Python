@@ -1,0 +1,49 @@
+{
+  "models": [
+    {
+      "symbol_name": "UserSummary",
+      "parameters": [
+        {
+          "name": "user_id",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "display_name",
+          "value": {
+            "kind": "literal",
+            "value": "dfa"
+          }
+        }
+      ]
+    },
+    {
+      "symbol_name": "AdvancedUserSummary",
+      "parameters": [
+        {
+          "name": "user_id",
+          "value": {
+            "kind": "literal",
+            "value": 1
+          }
+        },
+        {
+          "name": "display_name",
+          "value": {
+            "kind": "literal",
+            "value": "dfa"
+          }
+        },
+        {
+          "name": "email",
+          "value": {
+            "kind": "literal",
+            "value": "adfa"
+          }
+        }
+      ]
+    }
+  ]
+}

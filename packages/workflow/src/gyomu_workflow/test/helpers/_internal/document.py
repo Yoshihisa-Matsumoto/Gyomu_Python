@@ -30,6 +30,9 @@ from gyomu_workflow.test.helpers._internal.error import wrap_gyomu_error
 from gyomu_workflow.test.helpers._internal.models import (
     DefaultTypeParameterContext,
 )
+from gyomu_workflow.test.helpers._internal.type_parameter_config import (
+    save_symbol_type_parameter_default_in_workspace,
+)
 
 
 def _build_necessary_import_lines(
@@ -113,6 +116,7 @@ def _build_document_interaction_request(
             codec=complex_provider,
             text_provider=complex_provider,
             temporary_directory=temporary_directory,
+            temporary_file_extension="py",
         )
     )
 
@@ -157,6 +161,12 @@ def define_document_parameter(
                 error=error, message="fail to aggregate referenced type"
             )
         )
+
+    save_symbol_type_parameter_default_in_workspace(
+        parameter_context=parameter_context,
+        parameter=result.value,
+        resolved_type=PackageType(parameter_context.model_identity.symbol_id),
+    )
 
     return Success(
         ResolvedParameterDefault(

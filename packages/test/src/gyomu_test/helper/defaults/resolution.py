@@ -6,6 +6,7 @@ from gyomu_python_analysis.project.workspace import (
 from gyomu_python_analysis.resolve.models import (
     LiteralValueType,
     PrimitiveType,
+    ReferencedType,
     SymbolType,
 )
 from gyomu_python_analysis.resolve.project_membership import (
@@ -14,10 +15,11 @@ from gyomu_python_analysis.resolve.project_membership import (
 )
 from gyomu_schema.error.config import ConfigError
 from gyomu_schema.schemas.config.test.model_defaults import (
-    ModelDefault,
     PackageModelDefaults,
     PrimitiveDefault,
+    SymbolDefault,
 )
+from gyomu_schema.schemas.python.types import DeclarationIdentity
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
@@ -86,13 +88,13 @@ class PrimitiveDefaultConfigContext:
 
 
 class SymbolDefaultConfigContext:
-    type_default: SymbolType
+    type_default: ReferencedType
     workspace_context: WorkspaceContext
     project_context: ProjectContext
 
     def __init__(
         self,
-        type_default: SymbolType,
+        type_default: ReferencedType,
         workspace_context: WorkspaceContext,
         project_context: ProjectContext,
     ):
@@ -162,25 +164,41 @@ class SymbolDefaultResolver:
 
     def extract(
         self, config: PackageModelDefaults, context: SymbolDefaultConfigContext
-    ) -> Result[ModelDefault | None, ConfigError]:
+    ) -> Result[SymbolDefault | None, ConfigError]:
         type_default = context.type_default
-        symbol = type_default.symbol
-        model_defaults = config.models_per_module_path.get(
-            type_default.context.analysis.module_name
+        identity = (
+            type_default.symbol.identity
+            if isinstance(type_default, SymbolType)
+            else DeclarationIdentity.create_from_symbol_id(type_default.symbol_id)
         )
+        model_defaults = config.models_per_module_path.get(identity.get_module_name())
+
         if model_defaults is None:
             return Success(None)
 
         return Success(
             next(
                 (
-                    model
-                    for model in model_defaults.models
-                    if model.symbol_name == symbol.name
+                    symbol
+                    for symbol in model_defaults.symbols
+                    if symbol.symbol_name == identity.get_symbol_name()
                 ),
                 None,
             )
         )
+
+
+class WorkspaceSymbolDefaultResolver(SymbolDefaultResolver):
+    def get_paths(
+        self,
+        context: SymbolDefaultConfigContext,
+    ) -> Result[tuple[FullPath, ...], ConfigError]:
+        paths: list[FullPath] = []
+        workspace_context = context.workspace_context
+
+        paths.append(_get_workspace_config_path(workspace_context=workspace_context))
+
+        return Success(tuple(paths))
 
 
 class PrimitiveDefaultResolver:
@@ -202,7 +220,7 @@ class PrimitiveDefaultResolver:
         self, config: PackageModelDefaults, context: PrimitiveDefaultConfigContext
     ) -> Result[PrimitiveDefault | None, ConfigError]:
         type_default = context.type_default
-        parameter_name = type_default.parameter_name
+        # parameter_name = type_default.parameter_name
         type_name = (
             type_default.primitive_type
             if isinstance(type_default, PrimitiveType)
@@ -211,11 +229,19 @@ class PrimitiveDefaultResolver:
         primitives = config.primitives_per_type.get(type_name)
         if primitives is None:
             return Success(None)
-        defaults = primitives.defaults_per_variable_name.get(parameter_name)
-        if defaults is None:
-            return Success(None)
-        return Success(
-            PrimitiveDefault(
-                type_name=type_name, variable_name=parameter_name, parameters=defaults
-            )
+
+        return Success(primitives)
+
+
+class WorkspacePrimitiveDefaultResolver(PrimitiveDefaultResolver):
+    def get_paths(
+        self,
+        context: PrimitiveDefaultConfigContext,
+    ) -> Result[tuple[FullPath, ...], ConfigError]:
+        paths: list[FullPath] = []
+
+        paths.append(
+            _get_workspace_config_path(workspace_context=context.workspace_context)
         )
+
+        return Success(tuple(paths))

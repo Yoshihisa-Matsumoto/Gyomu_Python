@@ -1,22 +1,5 @@
 from dataclasses import dataclass
 
-from pydantic import BaseModel, Field
-
-
-class UserModel(BaseModel):
-    """Represent a user."""
-
-    user_id: int
-    name: str
-    email: str | None = None
-
-
-class UserCreateModel(BaseModel):
-    """Represent user creation input."""
-
-    name: str = Field(min_length=1)
-    email: str
-
 
 @dataclass(frozen=True)
 class UserSummary:
@@ -24,6 +7,11 @@ class UserSummary:
 
     user_id: int
     display_name: str
+
+
+@dataclass(frozen=True)
+class AdvancedUserSummary(UserSummary):
+    email: str
 
 
 class User:

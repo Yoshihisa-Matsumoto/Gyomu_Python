@@ -9,7 +9,7 @@ from gyomu_python_analysis.resolve.models import (
     PrimitiveType,
     SymbolType,
 )
-from gyomu_schema.schemas.python.types import SymbolId
+from gyomu_schema.schemas.python.types import DeclarationIdentity
 from gyomu_schema.schemas.testing.helper import ParameterInfo
 from gyomu_test.helper.defaults.requirements import (
     MissingParameterDefault,
@@ -18,7 +18,7 @@ from gyomu_test.helper.defaults.requirements import (
 
 @dataclass(frozen=True)
 class DefaultTypeParameterContext:
-    model_symbol_id: SymbolId
+    model_identity: DeclarationIdentity
     parameter: MissingParameterDefault
     workspace_context: WorkspaceContext
     workspace_root_project_context: ProjectContext

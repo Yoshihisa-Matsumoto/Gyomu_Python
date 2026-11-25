@@ -2,17 +2,11 @@
   "models_per_module_path": {},
   "primitives_per_type": {
     "int": {
-      "defaults_per_variable_name": {
-        "value": [
-          {
-            "name": "value",
-            "value": {
-              "kind": "literal",
-              "value": 9
-            }
-          }
-        ]
-      }
+      "type_name":"int",
+      "parameter": {
+        "kind": "literal",
+        "value": 9
+      }         
     }
   }
 }

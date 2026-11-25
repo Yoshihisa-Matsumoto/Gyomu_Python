@@ -26,7 +26,8 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ParameterDefault,
     ParameterExpressionType,
     PrimitiveDefault,
-    PrimitiveDefaults,
+    SymbolDefault,
+    SymbolDefaults,
     TupleParameter,
 )
 from gyomu_schema.schemas.python.class_analysis import (
@@ -881,28 +882,29 @@ def create_model_defaults(
 
 def create_primitive_default(
     type_name: str = "str",
-    variable_name: str = "parameter",
-    parameters: tuple[ParameterDefault, ...] = (create_parameter_default(),),
+    parameter: Parameter = create_literal_parameter(),
 ) -> PrimitiveDefault:
-    return PrimitiveDefault(
-        type_name=type_name, variable_name=variable_name, parameters=parameters
-    )
+    return PrimitiveDefault(type_name=type_name, parameter=parameter)
 
 
-def create_primitive_defaults(
-    defaults_per_variable_name: dict[str, tuple[ParameterDefault, ...]] = {
-        "var": (create_parameter_default(),),
-    },
-) -> PrimitiveDefaults:
-    return PrimitiveDefaults(defaults_per_variable_name=defaults_per_variable_name)
+def create_symbol_default(
+    symbol_name: str = "test", parameter: Parameter = create_call_parameter()
+) -> SymbolDefault:
+    return SymbolDefault(symbol_name=symbol_name, parameter=parameter)
+
+
+def create_symbol_defaults(
+    symbols: tuple[SymbolDefault, ...] = (create_symbol_default(),),
+) -> SymbolDefaults:
+    return SymbolDefaults(symbols=symbols)
 
 
 def create_package_model_defaults(
-    models_per_module_path: dict[PythonPath, ModelDefaults] = {
-        PythonPath("test"): create_model_defaults()
+    models_per_module_path: dict[PythonPath, SymbolDefaults] = {
+        PythonPath("test"): create_symbol_defaults()
     },
-    primitives_per_type: dict[str, PrimitiveDefaults] = {
-        "str": create_primitive_defaults()
+    primitives_per_type: dict[str, PrimitiveDefault] = {
+        "str": create_primitive_default()
     },
 ) -> PackageModelDefaults:
     return PackageModelDefaults(

@@ -7,8 +7,8 @@ from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.models import LiteralValueType, PrimitiveType
 from gyomu_schema.schemas.python.types import (
+    DeclarationIdentity,
     ProjectRelativePath,
-    SymbolId,
     WorkspaceRelativePath,
 )
 from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
@@ -44,6 +44,7 @@ from packages.python_analysis.test_support.helpers import (
     create_project_snapshot,
     create_workspace_context,
 )
+from packages.schema.test_support.helpers import simple_create_declaration_identity
 from packages.test.test_support.helpers import create_missing_parameter_default
 
 MONOREPO_FIXTURES_ROOT = FullPath(Path(__file__).parent / "monorepo_fixtures")
@@ -183,7 +184,7 @@ def create_py_project_structure_validation_errors(
 
 
 def create_default_type_parameter_context(
-    model_symbol_id: SymbolId = SymbolId("test"),
+    model_identity: DeclarationIdentity = simple_create_declaration_identity("test"),
     parameter: MissingParameterDefault = create_missing_parameter_default(),
     workspace_context: WorkspaceContext = create_workspace_context(),
     workspace_root_project_context: ProjectContext = create_project_context(),
@@ -191,7 +192,7 @@ def create_default_type_parameter_context(
     config_manager: ConfigManager = ConfigManager(),
 ) -> DefaultTypeParameterContext:
     return DefaultTypeParameterContext(
-        model_symbol_id=model_symbol_id,
+        model_identity=model_identity,
         parameter=parameter,
         workspace_context=workspace_context,
         workspace_root_project_context=workspace_root_project_context,
@@ -201,7 +202,7 @@ def create_default_type_parameter_context(
 
 
 def create_default_primitive_literal_type_parameter_context(
-    model_symbol_id: SymbolId = SymbolId("test"),
+    model_identity: DeclarationIdentity = simple_create_declaration_identity("test"),
     parameter: MissingParameterDefault = create_missing_parameter_default(),
     workspace_context: WorkspaceContext = create_workspace_context(),
     workspace_root_project_context: ProjectContext = create_project_context(),
@@ -210,7 +211,7 @@ def create_default_primitive_literal_type_parameter_context(
     resolved_type: PrimitiveType | LiteralValueType = create_primitive_type(),
 ) -> DefaultPrimitiveLiteralTypeParameterContext:
     return DefaultPrimitiveLiteralTypeParameterContext(
-        model_symbol_id=model_symbol_id,
+        model_identity=model_identity,
         parameter=parameter,
         workspace_context=workspace_context,
         workspace_root_project_context=workspace_root_project_context,

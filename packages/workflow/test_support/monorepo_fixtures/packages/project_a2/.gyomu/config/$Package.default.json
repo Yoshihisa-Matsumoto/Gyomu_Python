@@ -1,0 +1,21 @@
+{
+  "models_per_module_path": {},
+  "primitives_per_type": {
+    "int": {
+      "type_name": "int",
+      "parameter": {
+            "kind": "literal",
+            "value": 1
+        }
+    },
+    
+    "str": {
+      "type_name": "str",
+      "parameter": {
+              "kind": "literal",
+              "value": "test"
+            }
+
+    }
+  }
+}

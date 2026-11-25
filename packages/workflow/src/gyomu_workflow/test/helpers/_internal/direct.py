@@ -24,7 +24,7 @@ from gyomu_workflow.test.helpers._internal.models import (
     DefaultPrimitiveLiteralTypeParameterContext,
 )
 from gyomu_workflow.test.helpers._internal.type_parameter_config import (
-    configure_primitive_literal_type_parameter_default,
+    save_primitive_literal_type_parameter_default_in_workspace,
 )
 
 
@@ -77,7 +77,7 @@ def _build_direct_interaction_request(
         ](
             instruction=(
                 "Please define your type parameter for "
-                f"({parameter_context.model_symbol_id}) \n"
+                f"({parameter_context.model_identity.symbol_id}) \n"
                 f"{parameter_context.parameter.parameter.name}:"
                 f"{parameter_context.parameter.parameter.parameter_type.text}"
             ),
@@ -112,9 +112,8 @@ def define_direct_parameter(
             )
         )
 
-    type_parameter_result = configure_primitive_literal_type_parameter_default(
+    type_parameter_result = save_primitive_literal_type_parameter_default_in_workspace(
         parameter_context=parameter_context,
-        interaction=interaction,
         parameter=result.value,
     )
     if isinstance(type_parameter_result, Failure):

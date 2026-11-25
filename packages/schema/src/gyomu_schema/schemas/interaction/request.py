@@ -42,6 +42,7 @@ class InteractionDocumentRequest[DocumentT, ContextT, ValueT](
     input_mode: Literal[InputMode.DOCUMENT] = InputMode.DOCUMENT
     initial_value: ValueT | None = None
     temporary_directory: Path | None = None
+    temporary_file_extension: str | None = None
 
 
 @dataclass(frozen=True)

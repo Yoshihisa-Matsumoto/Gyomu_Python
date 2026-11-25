@@ -237,7 +237,7 @@ def delete_file(path: Path) -> Result[None, GyomuIOError]:
 
 
 def create_temp_file(
-    temporary_directory: Path | None = None,
+    temporary_directory: Path | None = None, extension: str | None = None
 ) -> Result[Path, GyomuIOError]:
     """Create an empty temporary file and return its path.
 
@@ -245,8 +245,16 @@ def create_temp_file(
         The file is closed before the path is returned and is not deleted
         automatically.
     """
+    suffix: str | None = None
+    if extension is not None:
+        if "." not in extension:
+            suffix = "." + extension
+        else:
+            suffix = extension
     try:
-        with tempfile.NamedTemporaryFile(delete=False, dir=temporary_directory) as file:
+        with tempfile.NamedTemporaryFile(
+            delete=False, dir=temporary_directory, suffix=suffix
+        ) as file:
             path = Path(file.name)
 
         return Success(path)

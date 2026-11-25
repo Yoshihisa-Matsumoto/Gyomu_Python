@@ -1,5 +1,3 @@
-from types import SimpleNamespace
-from typing import cast
 from unittest.mock import Mock
 
 import pytest
@@ -14,7 +12,6 @@ from gyomu_schema.schemas.interaction.result import (
     InteractionAccepted,
     InteractionCancelled,
 )
-from gyomu_schema.schemas.python.types import SymbolId
 from gyomu_test.helper.defaults.requirements import (
     MissingParameterDefault,
     ResolvedParameterDefault,
@@ -34,6 +31,7 @@ from returns.result import Failure, Success
 from packages.python_analysis.test_support.helpers import (
     create_primitive_type,
 )
+from packages.schema.test_support.helpers import simple_create_declaration_identity
 from packages.test.test_support.helpers import (
     create_missing_parameter_default,
 )
@@ -47,11 +45,14 @@ class TestBuildInteractionRequest:
         parameter = create_missing_parameter_default(
             missing_types=(create_primitive_type(primitive_type="str"),)
         )
-        symbol_id = SymbolId("test::Test")
-        context = cast(
-            DefaultPrimitiveLiteralTypeParameterContext,
-            SimpleNamespace(parameter=parameter, model_symbol_id=symbol_id),
+        # symbol_id = SymbolId("test::Test")
+        context = create_default_primitive_literal_type_parameter_context(
+            model_identity=simple_create_declaration_identity("test::Test")
         )
+        # cast(
+        #     DefaultPrimitiveLiteralTypeParameterContext,
+        #     SimpleNamespace(parameter=parameter, model_symbol_id=symbol_id),
+        # )
 
         result = _build_direct_interaction_request(parameter_context=context)
 
@@ -200,7 +201,7 @@ class TestDefineDirectParameter:
         return create_default_primitive_literal_type_parameter_context(
             parameter=parameter,
             resolved_type=resolve_result[1],
-            model_symbol_id=SymbolId("test::Test"),
+            model_identity=simple_create_declaration_identity("test::Test"),
         )
 
     def test_accepted_returns_resolved_parameter_default(
@@ -213,7 +214,7 @@ class TestDefineDirectParameter:
         executor.execute.return_value = Success(InteractionAccepted(value=value))
 
         mocker.patch(
-            "gyomu_workflow.test.helpers._internal.direct.configure_primitive_literal_type_parameter_default",
+            "gyomu_workflow.test.helpers._internal.direct.save_primitive_literal_type_parameter_default_in_workspace",
             return_value=Success(None),
         )
         result = define_direct_parameter(

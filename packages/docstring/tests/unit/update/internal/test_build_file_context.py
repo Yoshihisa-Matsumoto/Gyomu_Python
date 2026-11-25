@@ -37,7 +37,7 @@ from gyomu_schema.schemas.python.docstring import (
     DocstringSection,
     DocstringStyle,
 )
-from gyomu_schema.schemas.python.import_analysis import ImportAnalysis, ImportKind
+from gyomu_schema.schemas.python.import_analysis import ImportKind
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.symbol import MemberAnalysis
 from gyomu_schema.schemas.python.symbol_base import DeclarationKind
@@ -51,6 +51,7 @@ from packages.schema.test_support.helpers import (
     create_class_variable_analysis,
     create_docstring,
     create_function_analysis,
+    create_import_analysis,
     create_inner_class_analysis,
     create_method_analysis,
     create_module_analysis,
@@ -352,7 +353,7 @@ module = create_module_analysis(
     symbols=tuple(),
     docstring=None,
     imports=(
-        ImportAnalysis(
+        create_import_analysis(
             local_name="BaseModel",
             imported_name="pydantic.BaseModel",
             kind=ImportKind.SYMBOL,

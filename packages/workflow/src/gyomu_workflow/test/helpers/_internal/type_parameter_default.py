@@ -2,22 +2,23 @@ from pathlib import Path
 
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
+from gyomu_python_analysis.resolve.models import ReferencedType
 from gyomu_schema.error.gyomu import GyomuError
 from gyomu_schema.protocols.interaction import InteractionExecutor
-from gyomu_schema.schemas.config.test.model_defaults import (
-    Parameter,
-    ParameterDefault,
-    PrimitiveDefault,
-)
 from gyomu_schema.schemas.interaction.request import (
     InteractionRequest,
     InteractionSelectRequest,
     SelectionOption,
 )
 from gyomu_schema.schemas.interaction.result import InteractionCancelled
-from gyomu_test.helper.defaults.load import load_primitive_parameter_default_config
-from gyomu_test.helper.defaults.requirements import MissingParameterDefault
-from gyomu_test.helper.defaults.resolution import PrimitiveDefaultConfigContext
+from gyomu_test.helper.defaults.load import (
+    load_workspace_primitive_parameter_default_config,
+    load_workspace_symbol_parameter_default_config,
+)
+from gyomu_test.helper.defaults.resolution import (
+    PrimitiveDefaultConfigContext,
+    SymbolDefaultConfigContext,
+)
 from returns.result import Failure, Result, Success
 
 from gyomu_workflow.test.helpers._internal.error import wrap_gyomu_error
@@ -25,6 +26,7 @@ from gyomu_workflow.test.helpers._internal.models import (
     DefaultPrimitiveLiteralTypeConfigPlaceContext,
     DefaultPrimitiveLiteralTypeParameterContext,
     DefaultTypeConfigPlaceContext,
+    DefaultTypeParameterContext,
 )
 
 
@@ -98,7 +100,7 @@ def select_config_place_to_save(
     return Success((context.workspace_context, project_context))
 
 
-def has_primitive_type_parameter_default_config(
+def has_workspace_primitive_type_parameter_default_config(
     parameter_context: DefaultPrimitiveLiteralTypeParameterContext,
 ) -> Result[bool, GyomuError]:
 
@@ -108,7 +110,7 @@ def has_primitive_type_parameter_default_config(
         workspace_context=parameter_context.workspace_context,
         project_context=parameter_context.project_context,
     )
-    load_result = load_primitive_parameter_default_config(
+    load_result = load_workspace_primitive_parameter_default_config(
         context=primitive_context, config_manager=parameter_context.config_manager
     )
     if isinstance(load_result, Failure):
@@ -120,12 +122,22 @@ def has_primitive_type_parameter_default_config(
     return Success(load_result.unwrap() is not None)
 
 
-def build_primitive_default(
-    parameter_type_name: str, missing: MissingParameterDefault, parameter: Parameter
-) -> PrimitiveDefault:
+def has_workspace_symbol_type_parameter_default_config(
+    parameter_context: DefaultTypeParameterContext, resolved_type: ReferencedType
+) -> Result[bool, GyomuError]:
 
-    return PrimitiveDefault(
-        type_name=parameter_type_name,
-        variable_name=missing.parameter.name,
-        parameters=(ParameterDefault(name=missing.parameter.name, value=parameter),),
+    symbol_context: SymbolDefaultConfigContext = SymbolDefaultConfigContext(
+        type_default=resolved_type,
+        workspace_context=parameter_context.workspace_context,
+        project_context=parameter_context.project_context,
     )
+    load_result = load_workspace_symbol_parameter_default_config(
+        context=symbol_context, config_manager=parameter_context.config_manager
+    )
+    if isinstance(load_result, Failure):
+        return load_result.alt(
+            lambda error: wrap_gyomu_error(
+                error=error, message="fail to load type parameter"
+            )
+        )
+    return Success(load_result.unwrap() is not None)

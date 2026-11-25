@@ -295,6 +295,10 @@ class TestDefineDocumentParameter:
             "gyomu_workflow.test.helpers._internal.document._build_document_interaction_request",
             return_value=Success(sentinel.request),
         )
+        mocker.patch(
+            "gyomu_workflow.test.helpers._internal.document.save_symbol_type_parameter_default_in_workspace",
+            return_value=Success(None),
+        )
         interaction = Mock()
         interaction.execute.return_value = Success(
             InteractionAccepted(value=expected_value)

@@ -125,6 +125,7 @@ class TestApplyMerge:
                 imports=tuple(),
                 symbols=tuple(),
             ),
+            source_lines=tuple(),
         )
 
     _preserve_action = MergePreserveAction()
@@ -825,6 +826,7 @@ class TestApplyMerge:
                 imports=tuple(),
                 symbols=tuple(),
             ),
+            source_lines=tuple(),
         )
 
         plans = (

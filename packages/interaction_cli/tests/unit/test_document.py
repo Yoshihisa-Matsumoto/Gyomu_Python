@@ -37,6 +37,7 @@ class TestCreateInitialDocument:
         result = create_initial_document(
             initial_text=initial_text,
             temporary_directory=temporary_directory,
+            temporary_file_extension=None,
         )
 
         assert result == Success(temp_file)
@@ -64,6 +65,7 @@ class TestCreateInitialDocument:
         result = create_initial_document(
             initial_text="initial",
             temporary_directory=None,
+            temporary_file_extension=None,
         )
 
         assert isinstance(result, Failure)
@@ -93,6 +95,7 @@ class TestCreateInitialDocument:
         result = create_initial_document(
             initial_text="initial",
             temporary_directory=None,
+            temporary_file_extension=None,
         )
 
         assert isinstance(result, Failure)
@@ -122,6 +125,7 @@ class TestCreateInitialDocument:
         result = create_initial_document(
             initial_text="initial",
             temporary_directory=None,
+            temporary_file_extension=None,
         )
 
         assert isinstance(result, Failure)
