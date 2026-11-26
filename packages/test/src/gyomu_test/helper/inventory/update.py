@@ -1,12 +1,13 @@
 from gyomu_infra.filesystem.file_io import write_text
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.models import ReferencedType
 from gyomu_python_analysis.source_code import get_import_insertion_line
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
 )
@@ -23,11 +24,11 @@ from gyomu_test.helper.inventory.function import (
 
 def update_helper_file(
     item: HelperInventoryItem,
-    workspace_root_project_context: ProjectContext,
+    workspace_context: WorkspaceContext,
     project_context: ProjectContext,
     model_default: ModelDefault,
     referenced_types: tuple[ReferencedType, ...],
-) -> Result[ProjectRelativePath, GyomuTestError]:
+) -> Result[WorkspaceRelativePath, GyomuTestError]:
     # decide which helpers file to be updated/created
     helper_file_result = get_helper_file_path(
         model_identity=item.target_identity, project_context=project_context
@@ -36,11 +37,11 @@ def update_helper_file(
         return helper_file_result
     helper_file_path = ProjectRelativePath(
         helper_file_result.unwrap().relative_to(
-            workspace_root_project_context.project_root
+            workspace_context.root_project_context.project_root
         )
     )
     file_result = load_file_analysis_context(
-        workspace_root_project_context, helper_file_path
+        workspace_context.root_project_context, helper_file_path
     )
     if isinstance(file_result, Failure):
         return file_result.alt(
@@ -71,11 +72,11 @@ def update_helper_file(
     # print(helper_file_path)
     # breakpoint()
     write_result = write_text(
-        workspace_root_project_context.project_root / helper_file_path,
+        workspace_context.root_project_context.project_root / helper_file_path,
         "".join(update_file_lines),
     )
     if isinstance(write_result, Failure):
         return write_result.alt(
             lambda error: GyomuTestError(message="fail to write file").chain(error)
         )
-    return Success(helper_file_path)
+    return Success(WorkspaceRelativePath(helper_file_path))

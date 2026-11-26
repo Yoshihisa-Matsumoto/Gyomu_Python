@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from gyomu_schema.schemas.types import FullPath
 
 from gyomu_python_analysis.project.context import ProjectContext
@@ -9,9 +9,8 @@ from gyomu_python_analysis.tools.mypy.models import MypyCheckConfig, MypyTarget
 
 
 def for_file(
-    workspace_relative_file_path: ProjectRelativePath,
+    workspace_relative_file_path: WorkspaceRelativePath,
     target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
     workspace_context: WorkspaceContext,
 ) -> MypyCheckConfig:
     return MypyCheckConfig(
@@ -19,7 +18,7 @@ def for_file(
         config_file=_get_workspace_pyproject_toml(workspace_context=workspace_context),
         cache_dir=None,
         explicit_package_bases=True,
-        working_directory=workspace_root_project_context.project_root,
+        working_directory=workspace_context.root_project_context.project_root,
         mypy_path=_gather_workspace_projects_src_path(
             target_project_context=target_project_context,
             workspace_context=workspace_context,
@@ -30,7 +29,6 @@ def for_file(
 def for_project(
     target: MypyTarget,
     target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
     workspace_context: WorkspaceContext,
 ) -> MypyCheckConfig:
     cache_dir = target_project_context.project_root / ".mypy_cache" / str(target)
@@ -45,7 +43,7 @@ def for_project(
                 ),
                 cache_dir=cache_dir,
                 explicit_package_bases=False,
-                working_directory=workspace_root_project_context.project_root,
+                working_directory=workspace_context.root_project_context.project_root,
                 mypy_path=None,
             )
         case MypyTarget.TEST_SUPPORT:
@@ -58,7 +56,7 @@ def for_project(
                 ),
                 cache_dir=cache_dir,
                 explicit_package_bases=True,
-                working_directory=workspace_root_project_context.project_root,
+                working_directory=workspace_context.root_project_context.project_root,
                 mypy_path=_gather_workspace_projects_src_path(
                     target_project_context=target_project_context,
                     workspace_context=workspace_context,
@@ -74,7 +72,7 @@ def for_project(
                 ),
                 cache_dir=cache_dir,
                 explicit_package_bases=True,
-                working_directory=workspace_root_project_context.project_root,
+                working_directory=workspace_context.root_project_context.project_root,
                 mypy_path=_gather_workspace_projects_src_path(
                     target_project_context=target_project_context,
                     workspace_context=workspace_context,

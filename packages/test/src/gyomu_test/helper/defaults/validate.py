@@ -6,7 +6,7 @@ from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.tools.mypy.check import check_file
 from gyomu_schema.schemas.config.test.model_defaults import Parameter
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
 from gyomu_schema.schemas.python.variable import VariableAnalysis
 from returns.result import Failure, Result, Success
 
@@ -37,7 +37,6 @@ def prepare_directory(project_context: ProjectContext) -> Result[Path, GyomuTest
 
 def validate_file_parameter(
     file_path: Path,
-    root_project_context: ProjectContext,
     project_context: ProjectContext,
     workspace_context: WorkspaceContext,
     parameter_name: str,
@@ -47,11 +46,10 @@ def validate_file_parameter(
         return prepare_result
 
     check_result = check_file(
-        workspace_relative_file_path=ProjectRelativePath(
-            file_path.relative_to(root_project_context.project_root)
+        workspace_relative_file_path=WorkspaceRelativePath(
+            file_path.relative_to(workspace_context.root_project_context.project_root)
         ),
         target_project_context=project_context,
-        workspace_root_project_context=root_project_context,
         workspace_context=workspace_context,
     )
     if isinstance(check_result, Failure):
@@ -68,10 +66,12 @@ def validate_file_parameter(
             )
         )
 
-    project_relative_path = file_path.relative_to(root_project_context.project_root)
+    project_relative_path = file_path.relative_to(
+        workspace_context.root_project_context.project_root
+    )
 
     file_result = load_file_analysis_context(
-        context=root_project_context,
+        context=workspace_context.root_project_context,
         file_path=ProjectRelativePath(project_relative_path),
     )
     if isinstance(file_result, Failure):

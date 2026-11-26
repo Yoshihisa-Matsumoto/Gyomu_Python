@@ -5,7 +5,6 @@ from unittest.mock import call
 
 import pytest
 from gyomu_infra.process.model import ProcessResult
-from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.workspace import find_root
 from gyomu_python_analysis.error.tools import MypyCheckExecutionError
 from gyomu_python_analysis.project.context import ProjectContext
@@ -25,7 +24,7 @@ from gyomu_python_analysis.tools.mypy.models import (
     MypyCheckResults,
     MypyTarget,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
@@ -43,16 +42,6 @@ def workspace_context() -> WorkspaceContext:
     result = find_root(MONOREPO_FIXTURES_ROOT)
     assert isinstance(result, Success)
     return result.unwrap()
-
-
-@pytest.fixture
-def root_project_context(workspace_context: WorkspaceContext) -> ProjectContext:
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    assert isinstance(root_context_result, Success)
-    return root_context_result.unwrap()
 
 
 @pytest.fixture
@@ -194,7 +183,6 @@ class TestCheckProjectTarget:
     def test_returns_execute_result(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -206,7 +194,7 @@ class TestCheckProjectTarget:
             config_file=Path("pyproject.toml"),
             cache_dir=None,
             explicit_package_bases=False,
-            working_directory=root_project_context.project_root,
+            working_directory=workspace_context.root_project_context.project_root,
             mypy_path=None,
         )
         check_result = MypyCheckResult(
@@ -226,7 +214,6 @@ class TestCheckProjectTarget:
         actual = check_project_target(
             target=target,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -234,7 +221,6 @@ class TestCheckProjectTarget:
         for_project_mock.assert_called_once_with(
             target=target,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
         execute_mock.assert_called_once_with(config=config)
@@ -242,7 +228,6 @@ class TestCheckProjectTarget:
     def test_returns_execute_failure(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -253,7 +238,7 @@ class TestCheckProjectTarget:
             config_file=Path("pyproject.toml"),
             cache_dir=None,
             explicit_package_bases=False,
-            working_directory=root_project_context.project_root,
+            working_directory=workspace_context.root_project_context.project_root,
             mypy_path=None,
         )
         error = create_mypy_check_execution_error(message="mypy failed")
@@ -270,7 +255,6 @@ class TestCheckProjectTarget:
         actual = check_project_target(
             target=MypyTarget.SOURCE,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -283,10 +267,9 @@ class TestCheckFile:
         self,
         mocker: MockerFixture,
         target_project_context: ProjectContext,
-        root_project_context: ProjectContext,
         workspace_context: WorkspaceContext,
     ) -> None:
-        workspace_relative_file_path = ProjectRelativePath(
+        workspace_relative_file_path = WorkspaceRelativePath(
             Path("packages/project-a/src/example.py")
         )
         config = create_mypy_check_config()
@@ -304,7 +287,6 @@ class TestCheckFile:
         result = check_file(
             workspace_relative_file_path=workspace_relative_file_path,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -312,7 +294,6 @@ class TestCheckFile:
         mock_for_file.assert_called_once_with(
             workspace_relative_file_path=workspace_relative_file_path,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
         mock_execute_mypy.assert_called_once_with(config=config)
@@ -321,10 +302,9 @@ class TestCheckFile:
         self,
         mocker: MockerFixture,
         target_project_context: ProjectContext,
-        root_project_context: ProjectContext,
         workspace_context: WorkspaceContext,
     ) -> None:
-        workspace_relative_file_path = ProjectRelativePath(
+        workspace_relative_file_path = WorkspaceRelativePath(
             Path("packages/project-a/src/example.py")
         )
         config = create_mypy_check_config()
@@ -345,7 +325,6 @@ class TestCheckFile:
         result = check_file(
             workspace_relative_file_path=workspace_relative_file_path,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -359,7 +338,6 @@ class TestCheckProject:
     def test_returns_report_with_all_results(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -389,7 +367,6 @@ class TestCheckProject:
 
         actual = check_project(
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -408,19 +385,16 @@ class TestCheckProject:
             call(
                 target=MypyTarget.SOURCE,
                 target_project_context=target_project_context,
-                workspace_root_project_context=root_project_context,
                 workspace_context=workspace_context,
             ),
             call(
                 target=MypyTarget.TEST_SUPPORT,
                 target_project_context=target_project_context,
-                workspace_root_project_context=root_project_context,
                 workspace_context=workspace_context,
             ),
             call(
                 target=MypyTarget.TESTS,
                 target_project_context=target_project_context,
-                workspace_root_project_context=root_project_context,
                 workspace_context=workspace_context,
             ),
         ]
@@ -428,7 +402,6 @@ class TestCheckProject:
     def test_returns_source_failure_without_checking_remaining_targets(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -442,7 +415,6 @@ class TestCheckProject:
 
         actual = check_project(
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -450,14 +422,12 @@ class TestCheckProject:
         check_target_mock.assert_called_once_with(
             target=MypyTarget.SOURCE,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
     def test_returns_test_support_failure(
         self,
         mocker: MockerFixture,
-        root_project_context: ProjectContext,
         workspace_context: WorkspaceContext,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-a")
@@ -477,7 +447,6 @@ class TestCheckProject:
 
         result = check_project(
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -494,7 +463,6 @@ class TestCheckProject:
     def test_returns_tests_failure(
         self,
         mocker: MockerFixture,
-        root_project_context: ProjectContext,
         workspace_context: WorkspaceContext,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-a")
@@ -516,7 +484,6 @@ class TestCheckProject:
 
         result = check_project(
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 

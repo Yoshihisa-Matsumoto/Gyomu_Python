@@ -1,10 +1,5 @@
-from pathlib import Path
-
 from gyomu_infra.filesystem.file_io import write_json
 from gyomu_infra.logger import logger
-from gyomu_python_analysis.analysis.initialize import (
-    initialize_project_context,
-)
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.cls import resolve_class_analysis
@@ -13,7 +8,7 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefaults,
     ParameterDefault,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
+from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.testing.helper import HelperFileInventory
 from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Success
@@ -76,14 +71,8 @@ def migrate(
     project_context: ProjectContext,
 ) -> None:
 
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    assert isinstance(root_context_result, Success)
-
     existing_result = collect_existing_helper_inventory(
-        root=root_context_result.unwrap(),
+        workspace_context=workspace_context,
         target_project=project_context,
     )
     if isinstance(existing_result, Failure):

@@ -38,14 +38,9 @@ from packages.test.tests.unit.helper.inventory.helpers import (
 class TestCollectExistingHelperInventory:
     def test_build_from_fixture(self, workspace_context: WorkspaceContext) -> None:
         project_context = get_project_context(workspace_context, "project-b")
-        root_context_result = initialize_project_context(
-            project_root=workspace_context.workspace_root.path,
-            source_root=ProjectRelativePath(Path(".")),
-        )
-        assert isinstance(root_context_result, Success)
 
         result = collect_existing_helper_inventory(
-            root=root_context_result.unwrap(), target_project=project_context
+            workspace_context=workspace_context, target_project=project_context
         )
         assert isinstance(result, Success)
         files = result.unwrap()
@@ -149,7 +144,7 @@ class TestCollectExistingHelperInventory:
             return_value=Success((file, file2)),
         )
         result = collect_existing_helper_inventory(
-            root=root_context_result.unwrap(),
+            workspace_context=workspace_context,
             target_project=project_context,
         )
         assert isinstance(result, Failure)
@@ -236,7 +231,7 @@ class TestCollectExistingHelperInventory:
         )
 
         result = collect_existing_helper_inventory(
-            root=root_context_result.unwrap(),
+            workspace_context=workspace_context,
             target_project=project_context,
         )
 
@@ -268,7 +263,7 @@ class TestCollectExistingHelperInventory:
         )
 
         result = collect_existing_helper_inventory(
-            root=root_context_result.unwrap(),
+            workspace_context=workspace_context,
             target_project=project_context,
         )
 

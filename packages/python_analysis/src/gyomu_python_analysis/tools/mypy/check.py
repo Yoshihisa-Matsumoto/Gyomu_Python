@@ -3,7 +3,7 @@ import sys
 
 from gyomu_infra.logger import logger
 from gyomu_infra.process.executor import execute
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.tools import MypyCheckExecutionError
@@ -22,14 +22,12 @@ from gyomu_python_analysis.tools.mypy.models import (
 def check_project_target(
     target: MypyTarget,
     target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
     workspace_context: WorkspaceContext,
 ) -> Result[MypyCheckResult, MypyCheckExecutionError]:
 
     target_config = for_project(
         target=target,
         target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     return _execute_mypy(config=target_config)
@@ -37,14 +35,12 @@ def check_project_target(
 
 def check_project(
     target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
     workspace_context: WorkspaceContext,
 ) -> Result[MypyCheckReport, MypyCheckExecutionError]:
 
     source_result = check_project_target(
         target=MypyTarget.SOURCE,
         target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     if isinstance(source_result, Failure):
@@ -53,7 +49,6 @@ def check_project(
     test_support_result = check_project_target(
         target=MypyTarget.TEST_SUPPORT,
         target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     if isinstance(test_support_result, Failure):
@@ -62,7 +57,6 @@ def check_project(
     tests_result = check_project_target(
         target=MypyTarget.TESTS,
         target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     if isinstance(tests_result, Failure):
@@ -128,15 +122,13 @@ def check_workspace(
 
 
 def check_file(
-    workspace_relative_file_path: ProjectRelativePath,
+    workspace_relative_file_path: WorkspaceRelativePath,
     target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
     workspace_context: WorkspaceContext,
 ) -> Result[MypyCheckResult, MypyCheckExecutionError]:
     config = for_file(
         workspace_relative_file_path=workspace_relative_file_path,
         target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     return _execute_mypy(config=config)

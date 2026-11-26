@@ -80,7 +80,6 @@ class ComplexValueProvider:
 
         return validate_file_parameter(
             file_path=document,
-            root_project_context=context.workspace_root_project_context,
             project_context=context.project_context,
             workspace_context=context.workspace_context,
             parameter_name=context.parameter.parameter.name,

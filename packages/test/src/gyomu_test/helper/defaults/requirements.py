@@ -291,15 +291,20 @@ def _resolve_parameter_default(
     referenced_types: list[ReferencedType] = []
     print(f"{context.parameter.name}:{context.parameter.parameter_type.text}")
     if context.parameter.parameter_type.structure is not None:
+
+        def to_result(
+            parameter: ResolvedParameter | MissingParameterDefault,
+        ) -> tuple[
+            ResolvedParameter | MissingParameterDefault,
+            tuple[ReferencedType, ...],
+        ]:
+            return parameter, tuple(referenced_types)
+
         return _resolve_type_expression(
             expression=context.parameter.parameter_type.structure,
             context=context,
             referenced_types=referenced_types,
-        ).map(
-            lambda parameter, referenced_types=referenced_types: (
-                (parameter, tuple(referenced_types))
-            )
-        )
+        ).map(to_result)
     else:
         resolve_type_result = resolve_type_analysis(
             type_analysis=context.parameter.parameter_type,

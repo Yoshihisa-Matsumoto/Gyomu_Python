@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from gyomu_infra.filesystem.file_io import read_source_text
 from gyomu_python_analysis.analysis.load_file_context import load_file_analysis_context
 from gyomu_python_analysis.project.context import ProjectContext
+from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.reference import (
     resolve_declaration_identity,
 )
@@ -168,7 +169,7 @@ def _add_inventory_summary(
 
 
 def collect_existing_helper_inventory(
-    root: ProjectContext,
+    workspace_context: WorkspaceContext,
     target_project: ProjectContext,
 ) -> Result[
     tuple[HelperFileInventory, ...],
@@ -189,7 +190,9 @@ def collect_existing_helper_inventory(
         missing_annotations: list[MissingTypeAnnotation] = []
         reference_errors: list[InvalidReference] = []
         file_path = ProjectRelativePath(target_project.config.path / file)
-        file_result = load_file_analysis_context(root, file_path)
+        file_result = load_file_analysis_context(
+            workspace_context.root_project_context, file_path
+        )
         if isinstance(file_result, Failure):
             return file_result.alt(
                 lambda error: GyomuTestError(message="fail to analyze file").chain(

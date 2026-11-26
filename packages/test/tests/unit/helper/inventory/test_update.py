@@ -32,8 +32,9 @@ class TestUpdateHelperFile:
         helper_file_absolute_path = project_root / "src/helpers.py"
         helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
 
-        workspace_root_project_context = Mock()
-        workspace_root_project_context.project_root = project_root
+        workspace_context = Mock()
+        workspace_context.root_project_context = Mock()
+        workspace_context.root_project_context.project_root = project_root
         project_context = Mock()
 
         helper_file_analysis = Mock(source_lines=["from typing import Any\n", "\n"])
@@ -79,7 +80,7 @@ class TestUpdateHelperFile:
         # Act
         result = update_helper_file(
             item=item,
-            workspace_root_project_context=workspace_root_project_context,
+            workspace_context=workspace_context,
             project_context=project_context,
             model_default=model_default,
             referenced_types=referenced_types,
@@ -93,7 +94,7 @@ class TestUpdateHelperFile:
             project_context=project_context,
         )
         load_file.assert_called_once_with(
-            workspace_root_project_context,
+            workspace_context.root_project_context,
             helper_file_path,
         )
         reflect_inventory.assert_called_once_with(
@@ -117,7 +118,8 @@ class TestUpdateHelperFile:
     ) -> None:
         # Arrange
         item = create_helper_inventory_item()
-        workspace_root_project_context = Mock()
+        workspace_context = Mock()
+        workspace_context.root_project_context = Mock()
         project_context = Mock()
         model_default = create_model_default()
         error = create_gyomu_test_error()
@@ -142,7 +144,7 @@ class TestUpdateHelperFile:
         # Act
         result = update_helper_file(
             item=item,
-            workspace_root_project_context=workspace_root_project_context,
+            workspace_context=workspace_context,
             project_context=project_context,
             model_default=model_default,
             referenced_types=(),
@@ -167,8 +169,9 @@ class TestUpdateHelperFile:
         project_root = Path("/workspace")
         helper_file_absolute_path = project_root / "src/helpers.py"
         helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
-        workspace_root_project_context = Mock()
-        workspace_root_project_context.project_root = project_root
+        workspace_context = Mock()
+        workspace_context.root_project_context = Mock()
+        workspace_context.root_project_context.project_root = project_root
         project_context = Mock()
         get_helper_path = Mock(return_value=Success(helper_file_absolute_path))
         error = create_analysis_error()
@@ -192,7 +195,7 @@ class TestUpdateHelperFile:
         # Act
         result = update_helper_file(
             item=item,
-            workspace_root_project_context=workspace_root_project_context,
+            workspace_context=workspace_context,
             project_context=project_context,
             model_default=create_model_default(),
             referenced_types=(),
@@ -205,7 +208,7 @@ class TestUpdateHelperFile:
             project_context=project_context,
         )
         load_file.assert_called_once_with(
-            workspace_root_project_context,
+            workspace_context.root_project_context,
             helper_file_path,
         )
         write_file.assert_not_called()
@@ -219,9 +222,10 @@ class TestUpdateHelperFile:
         item = create_helper_inventory_item()
         project_root = Path("/workspace")
         helper_file_absolute_path = project_root / "src/helpers.py"
-        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
-        workspace_root_project_context = Mock()
-        workspace_root_project_context.project_root = project_root
+        # helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+        workspace_context = Mock()
+        workspace_context.root_project_context = Mock()
+        workspace_context.root_project_context.project_root = project_root
         project_context = Mock()
         helper_file_analysis = Mock(source_lines=["from typing import Any\n", "\n"])
 
@@ -268,7 +272,7 @@ class TestUpdateHelperFile:
         # Act
         result = update_helper_file(
             item=item,
-            workspace_root_project_context=workspace_root_project_context,
+            workspace_context=workspace_context,
             project_context=project_context,
             model_default=create_model_default(),
             referenced_types=(),

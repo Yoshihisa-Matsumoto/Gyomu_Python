@@ -1,9 +1,7 @@
 from pathlib import Path
 
 import pytest
-from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.workspace import find_root
-from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.tools.mypy.config import (
     _gather_workspace_projects_src_path,
@@ -17,7 +15,7 @@ from gyomu_python_analysis.tools.mypy.models import (
     MypyCheckConfig,
     MypyTarget,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from pytest_mock import MockerFixture
 from returns.result import Success
 
@@ -29,16 +27,6 @@ def workspace_context() -> WorkspaceContext:
     result = find_root(MONOREPO_FIXTURES_ROOT)
     assert isinstance(result, Success)
     return result.unwrap()
-
-
-@pytest.fixture
-def root_project_context(workspace_context: WorkspaceContext) -> ProjectContext:
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    assert isinstance(root_context_result, Success)
-    return root_context_result.unwrap()
 
 
 class Test_GatherWorkspaceProjectsSrcPath:
@@ -87,13 +75,12 @@ class TestForFile:
     def test_returns_expected_config(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
         assert target_project_context is not None
 
-        workspace_relative_file_path = ProjectRelativePath(
+        workspace_relative_file_path = WorkspaceRelativePath(
             Path("packages/project_b/test_support/example.py")
         )
         expected_mypy_path = (
@@ -108,7 +95,6 @@ class TestForFile:
         actual = for_file(
             workspace_relative_file_path=workspace_relative_file_path,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
         gather_mock.assert_called_once_with(
@@ -123,7 +109,7 @@ class TestForFile:
             ),
             cache_dir=None,
             explicit_package_bases=True,
-            working_directory=root_project_context.project_root,
+            working_directory=workspace_context.root_project_context.project_root,
             mypy_path=expected_mypy_path,
         )
 
@@ -138,7 +124,6 @@ class TestForProject:
     def test_source_returns_expected_config(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -152,7 +137,6 @@ class TestForProject:
         actual = for_project(
             target=MypyTarget.SOURCE,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -170,7 +154,7 @@ class TestForProject:
                 / str(MypyTarget.SOURCE)
             ),
             explicit_package_bases=False,
-            working_directory=root_project_context.project_root,
+            working_directory=workspace_context.root_project_context.project_root,
             mypy_path=None,
         )
 
@@ -180,7 +164,6 @@ class TestForProject:
     def test_test_support_returns_expected_config(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -198,7 +181,6 @@ class TestForProject:
         actual = for_project(
             target=MypyTarget.TEST_SUPPORT,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -215,7 +197,7 @@ class TestForProject:
                 / str(MypyTarget.TEST_SUPPORT)
             ),
             explicit_package_bases=True,
-            working_directory=root_project_context.project_root,
+            working_directory=workspace_context.root_project_context.project_root,
             mypy_path=expected_mypy_path,
         )
 
@@ -228,7 +210,6 @@ class TestForProject:
     def test_tests_returns_expected_config(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -246,7 +227,6 @@ class TestForProject:
         actual = for_project(
             target=MypyTarget.TESTS,
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -261,7 +241,7 @@ class TestForProject:
                 / str(MypyTarget.TESTS)
             ),
             explicit_package_bases=True,
-            working_directory=root_project_context.project_root,
+            working_directory=workspace_context.root_project_context.project_root,
             mypy_path=expected_mypy_path,
         )
 

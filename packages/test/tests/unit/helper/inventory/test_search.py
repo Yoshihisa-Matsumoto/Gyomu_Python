@@ -273,33 +273,6 @@ class TestGetGeneratedHelperCandidates:
         assert isinstance(error, GyomuTestError)
         assert error is expected_error
 
-    def test_initialize_project_context_failure(
-        self,
-        mocker: MockerFixture,
-    ) -> None:
-        target_path = FullPath(MONOREPO_FIXTURES_ROOT)
-        workspace_context = get_workspace_context(target_path)
-
-        project_context = get_project_context(workspace_context, "project-b")
-
-        expected_error = create_analysis_error()
-        mocker.patch(
-            "gyomu_test.helper.inventory.search.initialize_project_context",
-            return_value=Failure(expected_error),
-        )
-
-        result = get_generated_helper_candidates(
-            model_identity=simple_create_declaration_identity(
-                id="project_b.models::ProductBaseModel"
-            ),
-            test_project_context=project_context,
-            workspace_context=workspace_context,
-        )
-        assert isinstance(result, Failure)
-        error = result.failure()
-        assert isinstance(error, GyomuTestError)
-        assert error.__cause__ is expected_error
-
     def test_load_file_analysis_context_failure(
         self,
         mocker: MockerFixture,

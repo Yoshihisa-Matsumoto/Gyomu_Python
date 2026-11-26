@@ -1,12 +1,10 @@
 from dataclasses import dataclass, replace
-from pathlib import Path
 
 import pytest
 from gyomu_config.manager import ConfigManager
-from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
-from gyomu_schema.schemas.python.types import ProjectRelativePath, PythonPath
+from gyomu_schema.schemas.python.types import PythonPath
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem
 from gyomu_schema.schemas.types import FullPath
 from gyomu_schema.utility.fromatting import format_object
@@ -72,12 +70,6 @@ def helper_inventory_test_context() -> HelperInventoryTestContext:
     project_context = get_project_context(workspace_context, "parameter")
 
     config_manager = ConfigManager()
-
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    assert isinstance(root_context_result, Success)
 
     return HelperInventoryTestContext(
         workspace_context=workspace_context,

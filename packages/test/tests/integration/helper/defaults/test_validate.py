@@ -1,11 +1,8 @@
 from dataclasses import dataclass
-from pathlib import Path
 
 import pytest
-from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
-from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
 from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.helper.defaults.validate import (
@@ -25,7 +22,6 @@ from packages.test.tests.unit.helper.helpers import (
 class ValidationTestContext:
     workspace_context: WorkspaceContext
     project_context: ProjectContext
-    root_project_context: ProjectContext
 
 
 @pytest.fixture
@@ -35,16 +31,9 @@ def validation_test_context() -> ValidationTestContext:
 
     project_context = get_project_context(workspace_context, "parameter")
 
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    assert isinstance(root_context_result, Success)
-
     return ValidationTestContext(
         workspace_context=workspace_context,
         project_context=project_context,
-        root_project_context=root_context_result.unwrap(),
     )
 
 
@@ -72,7 +61,6 @@ value: Literal[Color.BLUE] = Color.BLUE
     result = validate_file_parameter(
         file_path,
         project_context=validation_test_context.project_context,
-        root_project_context=validation_test_context.root_project_context,
         workspace_context=validation_test_context.workspace_context,
         parameter_name="value",
     )

@@ -187,7 +187,6 @@ def create_default_type_parameter_context(
     model_identity: DeclarationIdentity = simple_create_declaration_identity("test"),
     parameter: MissingParameterDefault = create_missing_parameter_default(),
     workspace_context: WorkspaceContext = create_workspace_context(),
-    workspace_root_project_context: ProjectContext = create_project_context(),
     project_context: ProjectContext = create_project_context(),
     config_manager: ConfigManager = ConfigManager(),
 ) -> DefaultTypeParameterContext:
@@ -195,7 +194,6 @@ def create_default_type_parameter_context(
         model_identity=model_identity,
         parameter=parameter,
         workspace_context=workspace_context,
-        workspace_root_project_context=workspace_root_project_context,
         project_context=project_context,
         config_manager=config_manager,
     )
@@ -205,7 +203,6 @@ def create_default_primitive_literal_type_parameter_context(
     model_identity: DeclarationIdentity = simple_create_declaration_identity("test"),
     parameter: MissingParameterDefault = create_missing_parameter_default(),
     workspace_context: WorkspaceContext = create_workspace_context(),
-    workspace_root_project_context: ProjectContext = create_project_context(),
     project_context: ProjectContext = create_project_context(),
     config_manager: ConfigManager = ConfigManager(),
     resolved_type: PrimitiveType | LiteralValueType = create_primitive_type(),
@@ -214,7 +211,6 @@ def create_default_primitive_literal_type_parameter_context(
         model_identity=model_identity,
         parameter=parameter,
         workspace_context=workspace_context,
-        workspace_root_project_context=workspace_root_project_context,
         project_context=project_context,
         config_manager=config_manager,
         resolved_type=resolved_type,

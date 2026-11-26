@@ -1,9 +1,7 @@
 from pathlib import Path
 
 from gyomu_config.manager import ConfigManager
-from gyomu_python_analysis.analysis.initialize import (
-    initialize_project_context,
-)
+from gyomu_infra.logger import logger
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.resolve.models import ReferencedType
@@ -19,7 +17,7 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     ParameterDefault,
 )
 from gyomu_schema.schemas.python.module import ModuleAnalysis
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
     ParameterInfo,
@@ -60,30 +58,25 @@ def update_helper_inventories(
         return result
     reconcile_result, project_context = result.unwrap()
     config_manager: ConfigManager = ConfigManager()
-
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    if isinstance(root_context_result, Failure):
-        return root_context_result.alt(
-            lambda error: wrap_gyomu_error(
-                error=error,
-                message="fail to initialize workspace root project context",
-            )
-        )
-    workspace_root_project_context = root_context_result.unwrap()
     if reconcile_result.create:
         create_result = _create_helper_inventory(
             create=reconcile_result.create,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
         )
         if isinstance(create_result, Failure):
             return create_result
+
+    if reconcile_result.delete_candidates:
+        for item in reconcile_result.delete_candidates:
+            logger.warning(
+                message=(
+                    f"{item.function_name} for {item.target_identity.symbol_id} "
+                    "is not appropriate candiate. Please check"
+                )
+            )
 
     return Success(None)
 
@@ -93,7 +86,6 @@ def _define_helper_inventory_parameter(
     module_analysis: ModuleAnalysis,
     parameter_info: ParameterInfo,
     workspace_context: WorkspaceContext,
-    workspace_root_project_context: ProjectContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
     interaction: InteractionExecutor[str, Path],
@@ -140,7 +132,6 @@ def _define_helper_inventory_parameter(
             parameter=parameter,
             workspace_context=workspace_context,
             project_context=project_context,
-            workspace_root_project_context=workspace_root_project_context,
             config_manager=config_manager,
         )
         resolve_result = resolve_primitive_parameter_type(parameter=parameter)
@@ -151,7 +142,6 @@ def _define_helper_inventory_parameter(
                 parameter=parameter,
                 workspace_context=workspace_context,
                 project_context=project_context,
-                workspace_root_project_context=workspace_root_project_context,
                 config_manager=config_manager,
                 resolved_type=resolve_result[1],
             )
@@ -187,7 +177,6 @@ def _define_helper_inventory_parameter(
 def _resolve_helper_inventory_item(
     item: HelperInventoryItem,
     workspace_context: WorkspaceContext,
-    workspace_root_project_context: ProjectContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
     interaction: InteractionExecutor[str, Path],
@@ -222,7 +211,6 @@ def _resolve_helper_inventory_item(
             module_analysis=module_analysis,
             parameter_info=parameter_info,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -255,9 +243,8 @@ def _resolve_helper_inventory_item(
 
 
 def _validate_helper_file(
-    helper_file_path: ProjectRelativePath,
+    helper_file_path: WorkspaceRelativePath,
     workspace_context: WorkspaceContext,
-    workspace_root_project_context: ProjectContext,
     project_context: ProjectContext,
 ) -> Result[None, GyomuError]:
 
@@ -265,7 +252,6 @@ def _validate_helper_file(
     check_mypy_result = check_file(
         workspace_relative_file_path=helper_file_path,
         target_project_context=project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     if isinstance(check_mypy_result, Failure):
@@ -290,8 +276,6 @@ def _validate_helper_file(
 
     check_ruff_lint_result = check_file_lint(
         workspace_relative_file_path=helper_file_path,
-        target_project_context=project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     if isinstance(check_ruff_lint_result, Failure):
@@ -317,7 +301,6 @@ def _validate_helper_file(
 def _create_helper_inventory_item(
     item: HelperInventoryItem,
     workspace_context: WorkspaceContext,
-    workspace_root_project_context: ProjectContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
     interaction: InteractionExecutor[str, Path],
@@ -325,7 +308,6 @@ def _create_helper_inventory_item(
     resolve_result = _resolve_helper_inventory_item(
         item=item,
         workspace_context=workspace_context,
-        workspace_root_project_context=workspace_root_project_context,
         project_context=project_context,
         config_manager=config_manager,
         interaction=interaction,
@@ -336,7 +318,7 @@ def _create_helper_inventory_item(
 
     update_file_result = update_helper_file(
         item=item,
-        workspace_root_project_context=workspace_root_project_context,
+        workspace_context=workspace_context,
         project_context=project_context,
         model_default=model_default,
         referenced_types=referenced_types,
@@ -352,8 +334,6 @@ def _create_helper_inventory_item(
     # run ruff format
     format_result = format_file(
         workspace_relative_file_path=helper_file_path,
-        target_project_context=project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     if isinstance(format_result, Failure):
@@ -364,7 +344,6 @@ def _create_helper_inventory_item(
     return _validate_helper_file(
         helper_file_path=helper_file_path,
         workspace_context=workspace_context,
-        workspace_root_project_context=workspace_root_project_context,
         project_context=project_context,
     )
 
@@ -372,7 +351,6 @@ def _create_helper_inventory_item(
 def _create_helper_inventory(
     create: tuple[HelperInventoryItem, ...],
     workspace_context: WorkspaceContext,
-    workspace_root_project_context: ProjectContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
     interaction: InteractionExecutor[str, Path],
@@ -381,7 +359,6 @@ def _create_helper_inventory(
         item_result = _create_helper_inventory_item(
             item=create_item,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,

@@ -7,7 +7,11 @@ from gyomu_schema.schemas.config.test.model_defaults import (
     LiteralParameter,
     ParameterDefault,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath, SymbolId
+from gyomu_schema.schemas.python.types import (
+    ProjectRelativePath,
+    SymbolId,
+    WorkspaceRelativePath,
+)
 from gyomu_schema.schemas.testing.helper import HelperInventoryItem
 from gyomu_schema.schemas.types import FullPath
 from gyomu_test.helper.defaults.requirements import (
@@ -64,7 +68,6 @@ class TestDefineHelperInventoryParameter:
         inventory = Mock(spec=HelperInventoryItem)
         module_analysis = Mock()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -81,7 +84,6 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -124,7 +126,6 @@ class TestDefineHelperInventoryParameter:
         inventory = Mock(spec=HelperInventoryItem)
         module_analysis = Mock()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -141,7 +142,6 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -182,7 +182,6 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -195,10 +194,6 @@ class TestDefineHelperInventoryParameter:
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.resolve_function_parameter_default",
             Mock(return_value=Success((missing, ()))),
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.initialize_project_context",
-            Mock(return_value=Success(workspace_root_project_context)),
         )
         direct = Mock(return_value=Success(resolved))
         document = Mock()
@@ -217,7 +212,6 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -239,7 +233,6 @@ class TestDefineHelperInventoryParameter:
                 parameter=missing,
                 workspace_context=workspace_context,
                 project_context=project_context,
-                workspace_root_project_context=workspace_root_project_context,
                 config_manager=config_manager,
                 resolved_type=missing_type,
             ),
@@ -262,7 +255,6 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -275,11 +267,6 @@ class TestDefineHelperInventoryParameter:
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.resolve_function_parameter_default",
             Mock(return_value=Success((missing, ()))),
-        )
-        initialize = Mock(return_value=Success(workspace_root_project_context))
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.initialize_project_context",
-            initialize,
         )
         direct = Mock(return_value=Success(resolved))
         document = Mock(return_value=Success(resolved))
@@ -298,7 +285,6 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -320,7 +306,6 @@ class TestDefineHelperInventoryParameter:
                 parameter=missing,
                 workspace_context=workspace_context,
                 project_context=project_context,
-                workspace_root_project_context=workspace_root_project_context,
                 config_manager=config_manager,
             ),
             interaction=interaction,
@@ -335,7 +320,6 @@ class TestDefineHelperInventoryParameter:
         inventory = Mock(spec=HelperInventoryItem)
         module_analysis = Mock()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -354,7 +338,6 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -389,7 +372,6 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -399,10 +381,6 @@ class TestDefineHelperInventoryParameter:
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.resolve_function_parameter_default",
             Mock(return_value=Success((missing, ()))),
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.initialize_project_context",
-            Mock(return_value=Success(Mock())),
         )
 
         direct = Mock(return_value=Failure(error))
@@ -423,7 +401,6 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -451,7 +428,6 @@ class TestDefineHelperInventoryParameter:
         module_analysis = Mock()
         workspace_context = Mock()
         workspace_context.workspace_root.path = Path("/workspace")
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -461,10 +437,6 @@ class TestDefineHelperInventoryParameter:
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.resolve_function_parameter_default",
             Mock(return_value=Success((missing, ()))),
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.initialize_project_context",
-            Mock(return_value=Success(Mock())),
         )
 
         direct = Mock(return_value=Failure(error))
@@ -485,7 +457,6 @@ class TestDefineHelperInventoryParameter:
             module_analysis=module_analysis,
             parameter_info=parameter,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -518,9 +489,6 @@ class TestResolveHelperInventoryItem:
         workspace_context.find_file_analysis_context.return_value = Success(
             file_analysis_context
         )
-        workspace_root_project_context = create_project_context(
-            project_root=FullPath(tmp_path), source_root=ProjectRelativePath(Path(""))
-        )
         project_context = Mock()
         project_context.project_root = FullPath(tmp_path)
         config_manager = Mock()
@@ -547,7 +515,6 @@ class TestResolveHelperInventoryItem:
         result = _resolve_helper_inventory_item(
             item=inventory,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -564,7 +531,6 @@ class TestResolveHelperInventoryItem:
             module_analysis=module_analysis,
             parameter_info=parameter_info,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -585,7 +551,6 @@ class TestResolveHelperInventoryItem:
         # Arrange
         inventory = create_helper_inventory_item()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         error = create_gyomu_error()
 
         workspace_context.find_file_analysis_context.return_value = Failure(error)
@@ -610,7 +575,6 @@ class TestResolveHelperInventoryItem:
         result = _resolve_helper_inventory_item(
             item=inventory,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -633,7 +597,6 @@ class TestResolveHelperInventoryItem:
         inventory = create_helper_inventory_item()
         workspace_context = Mock()
         workspace_context.find_file_analysis_context.return_value = Success(None)
-        workspace_root_project_context = Mock()
 
         project_context = Mock()
         config_manager = Mock()
@@ -655,7 +618,6 @@ class TestResolveHelperInventoryItem:
         result = _resolve_helper_inventory_item(
             item=inventory,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -686,7 +648,6 @@ class TestResolveHelperInventoryItem:
         workspace_context.find_file_analysis_context.return_value = Success(
             file_analysis_context
         )
-        workspace_root_project_context = Mock()
 
         project_context = Mock()
         config_manager = Mock()
@@ -709,7 +670,6 @@ class TestResolveHelperInventoryItem:
         result = _resolve_helper_inventory_item(
             item=inventory,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -726,7 +686,6 @@ class TestResolveHelperInventoryItem:
             module_analysis=module_analysis,
             parameter_info=inventory.parameters[0],
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -750,7 +709,6 @@ class TestResolveHelperInventoryItem:
         workspace_context.find_file_analysis_context.return_value = Success(
             file_analysis_context
         )
-        workspace_root_project_context = Mock()
 
         project_context = Mock()
         config_manager = Mock()
@@ -776,7 +734,6 @@ class TestResolveHelperInventoryItem:
         result = _resolve_helper_inventory_item(
             item=inventory,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -802,9 +759,8 @@ class TestValidateHelperFile:
         monkeypatch: MonkeyPatch,
     ) -> None:
         # Arrange
-        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+        helper_file_path = WorkspaceRelativePath(Path("src/helpers.py"))
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
 
         check_mypy = Mock(return_value=Success(Mock(success=True, diagnostics=())))
@@ -823,7 +779,6 @@ class TestValidateHelperFile:
         result = _validate_helper_file(
             helper_file_path=helper_file_path,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
         )
 
@@ -833,13 +788,10 @@ class TestValidateHelperFile:
         check_mypy.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
             target_project_context=project_context,
-            workspace_root_project_context=workspace_root_project_context,
             workspace_context=workspace_context,
         )
         check_ruff_lint.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
-            target_project_context=project_context,
-            workspace_root_project_context=workspace_root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -848,9 +800,8 @@ class TestValidateHelperFile:
         monkeypatch: MonkeyPatch,
     ) -> None:
         # Arrange
-        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+        helper_file_path = WorkspaceRelativePath(Path("src/helpers.py"))
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
 
         error = create_gyomu_error()
@@ -870,7 +821,6 @@ class TestValidateHelperFile:
         result = _validate_helper_file(
             helper_file_path=helper_file_path,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
         )
 
@@ -879,7 +829,6 @@ class TestValidateHelperFile:
         check_mypy.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
             target_project_context=project_context,
-            workspace_root_project_context=workspace_root_project_context,
             workspace_context=workspace_context,
         )
         check_ruff_lint.assert_not_called()
@@ -889,9 +838,8 @@ class TestValidateHelperFile:
         monkeypatch: MonkeyPatch,
     ) -> None:
         # Arrange
-        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+        helper_file_path = WorkspaceRelativePath(Path("src/helpers.py"))
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
 
         diagnostics = ("mypy validation error",)
@@ -913,7 +861,6 @@ class TestValidateHelperFile:
         result = _validate_helper_file(
             helper_file_path=helper_file_path,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
         )
 
@@ -927,9 +874,8 @@ class TestValidateHelperFile:
         monkeypatch: MonkeyPatch,
     ) -> None:
         # Arrange
-        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+        helper_file_path = WorkspaceRelativePath(Path("src/helpers.py"))
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
 
         check_mypy = Mock(return_value=Success(Mock(success=True, diagnostics=())))
@@ -949,7 +895,6 @@ class TestValidateHelperFile:
         result = _validate_helper_file(
             helper_file_path=helper_file_path,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
         )
 
@@ -958,8 +903,6 @@ class TestValidateHelperFile:
         check_mypy.assert_called_once()
         check_ruff_lint.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
-            target_project_context=project_context,
-            workspace_root_project_context=workspace_root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -968,9 +911,8 @@ class TestValidateHelperFile:
         monkeypatch: MonkeyPatch,
     ) -> None:
         # Arrange
-        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+        helper_file_path = WorkspaceRelativePath(Path("src/helpers.py"))
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
 
         check_mypy = Mock(return_value=Success(Mock(success=True, diagnostics=())))
@@ -992,7 +934,6 @@ class TestValidateHelperFile:
         result = _validate_helper_file(
             helper_file_path=helper_file_path,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
         )
 
@@ -1001,8 +942,6 @@ class TestValidateHelperFile:
         check_mypy.assert_called_once()
         check_ruff_lint.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
-            target_project_context=project_context,
-            workspace_root_project_context=workspace_root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -1015,7 +954,6 @@ class TestCreateHelperInventoryItem:
         # Arrange
         item = create_helper_inventory_item()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1050,7 +988,6 @@ class TestCreateHelperInventoryItem:
         result = _create_helper_inventory_item(
             item=item,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1062,28 +999,24 @@ class TestCreateHelperInventoryItem:
         resolve_item.assert_called_once_with(
             item=item,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
         )
         update_file.assert_called_once_with(
             item=item,
-            workspace_root_project_context=workspace_root_project_context,
+            workspace_context=workspace_context,
             project_context=project_context,
             model_default=model_default,
             referenced_types=referenced_types,
         )
         format_file_mock.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
-            target_project_context=project_context,
-            workspace_root_project_context=workspace_root_project_context,
             workspace_context=workspace_context,
         )
         validate_file.assert_called_once_with(
             helper_file_path=helper_file_path,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
         )
 
@@ -1094,7 +1027,6 @@ class TestCreateHelperInventoryItem:
         # Arrange
         item = create_helper_inventory_item()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1126,7 +1058,6 @@ class TestCreateHelperInventoryItem:
         result = _create_helper_inventory_item(
             item=item,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1146,7 +1077,6 @@ class TestCreateHelperInventoryItem:
         # Arrange
         item = create_helper_inventory_item()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1181,7 +1111,6 @@ class TestCreateHelperInventoryItem:
         result = _create_helper_inventory_item(
             item=item,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1193,7 +1122,7 @@ class TestCreateHelperInventoryItem:
         resolve_item.assert_called_once()
         update_file.assert_called_once_with(
             item=item,
-            workspace_root_project_context=workspace_root_project_context,
+            workspace_context=workspace_context,
             project_context=project_context,
             model_default=model_default,
             referenced_types=referenced_types,
@@ -1208,7 +1137,6 @@ class TestCreateHelperInventoryItem:
         # Arrange
         item = create_helper_inventory_item()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1250,7 +1178,6 @@ class TestCreateHelperInventoryItem:
         result = _create_helper_inventory_item(
             item=item,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1271,7 +1198,6 @@ class TestCreateHelperInventoryItem:
         # Arrange
         item = create_helper_inventory_item()
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1307,7 +1233,6 @@ class TestCreateHelperInventoryItem:
         result = _create_helper_inventory_item(
             item=item,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1318,7 +1243,6 @@ class TestCreateHelperInventoryItem:
         validate_file.assert_called_once_with(
             helper_file_path=helper_file_path,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
         )
 
@@ -1327,7 +1251,6 @@ class TestCreateHelperInventory:
     def test_empty_create_returns_success(self) -> None:
         # Arrange
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1336,7 +1259,6 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=(),
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1355,7 +1277,6 @@ class TestCreateHelperInventory:
             create_helper_inventory_item(),
         )
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1370,7 +1291,6 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=items,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1382,7 +1302,6 @@ class TestCreateHelperInventory:
         create_item.assert_any_call(
             item=items[0],
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1390,7 +1309,6 @@ class TestCreateHelperInventory:
         create_item.assert_any_call(
             item=items[1],
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1407,7 +1325,6 @@ class TestCreateHelperInventory:
             create_helper_inventory_item(),
         )
         workspace_context = Mock()
-        workspace_root_project_context = Mock()
         project_context = Mock()
         config_manager = Mock()
         interaction = Mock()
@@ -1428,7 +1345,6 @@ class TestCreateHelperInventory:
         result = _create_helper_inventory(
             create=items,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1440,7 +1356,6 @@ class TestCreateHelperInventory:
         create_item.assert_any_call(
             item=items[0],
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1448,7 +1363,6 @@ class TestCreateHelperInventory:
         create_item.assert_any_call(
             item=items[1],
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,
@@ -1496,7 +1410,6 @@ class TestUpdateHelperInventories:
     ) -> None:
         workspace_context = create_workspace_context()
         workspace_project_context = create_workspace_project()
-        workspace_root_project_context = create_project_context()
         project_context = create_project_context()
         reconcile_result = create_helper_reconcile_result(
             create=(create_helper_inventory_item(),),
@@ -1515,11 +1428,6 @@ class TestUpdateHelperInventories:
             "_create_helper_inventory",
             return_value=Success(None),
         )
-        mocker.patch.object(
-            helpers_module,
-            "initialize_project_context",
-            return_value=Success(workspace_root_project_context),
-        )
 
         interaction = Mock(spec=InteractionExecutor)
 
@@ -1535,7 +1443,6 @@ class TestUpdateHelperInventories:
         create_mock.assert_called_once_with(
             create=reconcile_result.create,
             workspace_context=workspace_context,
-            workspace_root_project_context=workspace_root_project_context,
             project_context=project_context,
             config_manager=config_manager,
             interaction=interaction,

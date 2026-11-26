@@ -3,9 +3,7 @@ from pathlib import Path
 
 import pytest
 from gyomu_infra.process.model import ProcessResult
-from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.analysis.workspace import find_root
-from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_python_analysis.tools.ruff.check import (
     _check_format,
@@ -21,7 +19,7 @@ from gyomu_python_analysis.tools.ruff.check import (
 )
 from gyomu_python_analysis.tools.ruff.config import for_project
 from gyomu_python_analysis.tools.ruff.models import RuffCheckConfig, RuffCheckResult
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from pytest_mock import MockerFixture
 from returns.result import Failure, Success
 
@@ -33,16 +31,6 @@ def workspace_context() -> WorkspaceContext:
     result = find_root(MONOREPO_FIXTURES_ROOT)
     assert isinstance(result, Success)
     return result.unwrap()
-
-
-@pytest.fixture
-def root_project_context(workspace_context: WorkspaceContext) -> ProjectContext:
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    assert isinstance(root_context_result, Success)
-    return root_context_result.unwrap()
 
 
 class TestCheckFormat:
@@ -293,7 +281,6 @@ class TestCheckProjectFormat:
     def test_delegates_to_check_format(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
@@ -312,7 +299,6 @@ class TestCheckProjectFormat:
 
         actual = check_project_format(
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
@@ -320,7 +306,6 @@ class TestCheckProjectFormat:
         mock_check_format.assert_called_once_with(
             config=for_project(
                 target_project_context=target_project_context,
-                workspace_root_project_context=root_project_context,
                 workspace_context=workspace_context,
             )
         )
@@ -330,13 +315,12 @@ class TestCheckFileFormat:
     def test_delegates_to_check_format(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
         assert target_project_context is not None
 
-        workspace_relative_file_path = ProjectRelativePath(
+        workspace_relative_file_path = WorkspaceRelativePath(
             Path("packages/project-a/src/example.py")
         )
         expected = Success(
@@ -359,16 +343,12 @@ class TestCheckFileFormat:
 
         actual = check_file_format(
             workspace_relative_file_path=workspace_relative_file_path,
-            target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
         assert actual == expected
         mock_for_file.assert_called_once_with(
             workspace_relative_file_path=workspace_relative_file_path,
-            target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
         mock_check_format.assert_called_once_with(
@@ -383,13 +363,12 @@ class TestFormatFile:
     def test_delegates_to_format(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
         assert target_project_context is not None
 
-        workspace_relative_file_path = ProjectRelativePath(
+        workspace_relative_file_path = WorkspaceRelativePath(
             Path("packages/project-a/src/example.py")
         )
         config = RuffCheckConfig(
@@ -413,16 +392,12 @@ class TestFormatFile:
 
         actual = format_file(
             workspace_relative_file_path=workspace_relative_file_path,
-            target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
         assert actual == expected
         mock_for_file.assert_called_once_with(
             workspace_relative_file_path=workspace_relative_file_path,
-            target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
         mock_format.assert_called_once_with(config=config)
@@ -468,18 +443,18 @@ class TestCheckFileLint:
     def test_delegates_to_check_lint(
         self,
         workspace_context: WorkspaceContext,
-        root_project_context: ProjectContext,
         mocker: MockerFixture,
     ) -> None:
         target_project_context = workspace_context.get_project_context("project-b")
         assert target_project_context is not None
 
-        workspace_relative_file_path = ProjectRelativePath(
+        workspace_relative_file_path = WorkspaceRelativePath(
             Path("packages/project-a/src/example.py")
         )
         config = RuffCheckConfig(
-            target=root_project_context.project_root / workspace_relative_file_path,
-            working_directory=root_project_context.project_root,
+            target=workspace_context.root_project_context.project_root
+            / workspace_relative_file_path,
+            working_directory=workspace_context.root_project_context.project_root,
         )
         expected = Success(RuffCheckResult(name=str(config.target), diagnostics=()))
 
@@ -494,16 +469,12 @@ class TestCheckFileLint:
 
         actual = check_file_lint(
             workspace_relative_file_path=workspace_relative_file_path,
-            target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
         assert actual == expected
         mock_for_file.assert_called_once_with(
             workspace_relative_file_path=workspace_relative_file_path,
-            target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
         mock_check_lint.assert_called_once_with(config=config)
@@ -512,7 +483,6 @@ class TestCheckFileLint:
 class TestCheckProjectLint:
     def test_delegates_to_check_lint(
         self,
-        root_project_context: ProjectContext,
         workspace_context: WorkspaceContext,
         mocker: MockerFixture,
     ) -> None:
@@ -520,7 +490,7 @@ class TestCheckProjectLint:
         assert target_project_context is not None
         config = RuffCheckConfig(
             target=target_project_context.project_root,
-            working_directory=root_project_context.project_root,
+            working_directory=workspace_context.root_project_context.project_root,
         )
         expected = Success(RuffCheckResult(name=str(config.target), diagnostics=()))
 
@@ -535,14 +505,12 @@ class TestCheckProjectLint:
 
         actual = check_project_lint(
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
 
         assert actual == expected
         mock_for_project.assert_called_once_with(
             target_project_context=target_project_context,
-            workspace_root_project_context=root_project_context,
             workspace_context=workspace_context,
         )
         mock_check_lint.assert_called_once_with(config=config)

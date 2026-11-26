@@ -1,7 +1,7 @@
 import sys
 
 from gyomu_infra.process.executor import execute
-from gyomu_schema.schemas.python.types import ProjectRelativePath
+from gyomu_schema.schemas.python.types import WorkspaceRelativePath
 from returns.result import Failure, Result, Success
 
 from gyomu_python_analysis.error.tools import RuffCheckExecutionError
@@ -112,30 +112,22 @@ def _check_lint(
 
 
 def format_file(
-    workspace_relative_file_path: ProjectRelativePath,
-    target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
+    workspace_relative_file_path: WorkspaceRelativePath,
     workspace_context: WorkspaceContext,
 ) -> Result[RuffCheckResult, RuffCheckExecutionError]:
     config = for_file(
         workspace_relative_file_path=workspace_relative_file_path,
-        target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     return _format(config=config)
 
 
 def check_file_format(
-    workspace_relative_file_path: ProjectRelativePath,
-    target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
+    workspace_relative_file_path: WorkspaceRelativePath,
     workspace_context: WorkspaceContext,
 ) -> Result[RuffCheckResult, RuffCheckExecutionError]:
     config = for_file(
         workspace_relative_file_path=workspace_relative_file_path,
-        target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     return _check_format(config=config)
@@ -143,12 +135,10 @@ def check_file_format(
 
 def check_project_format(
     target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
     workspace_context: WorkspaceContext,
 ) -> Result[RuffCheckResult, RuffCheckExecutionError]:
     config = for_project(
         target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     return _check_format(config=config)
@@ -164,15 +154,11 @@ def check_workspace_format(
 
 
 def check_file_lint(
-    workspace_relative_file_path: ProjectRelativePath,
-    target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
+    workspace_relative_file_path: WorkspaceRelativePath,
     workspace_context: WorkspaceContext,
 ) -> Result[RuffCheckResult, RuffCheckExecutionError]:
     config = for_file(
         workspace_relative_file_path=workspace_relative_file_path,
-        target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     return _check_lint(config=config)
@@ -180,12 +166,10 @@ def check_file_lint(
 
 def check_project_lint(
     target_project_context: ProjectContext,
-    workspace_root_project_context: ProjectContext,
     workspace_context: WorkspaceContext,
 ) -> Result[RuffCheckResult, RuffCheckExecutionError]:
     config = for_project(
         target_project_context=target_project_context,
-        workspace_root_project_context=workspace_root_project_context,
         workspace_context=workspace_context,
     )
     return _check_lint(config=config)

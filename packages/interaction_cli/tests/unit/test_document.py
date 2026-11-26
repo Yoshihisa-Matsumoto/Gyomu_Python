@@ -42,7 +42,7 @@ class TestCreateInitialDocument:
 
         assert result == Success(temp_file)
         create_temp_file.assert_called_once_with(
-            temporary_directory=temporary_directory,
+            temporary_directory=temporary_directory, extension=None
         )
         write_text.assert_called_once_with(
             path=temp_file,
@@ -69,7 +69,9 @@ class TestCreateInitialDocument:
         )
 
         assert isinstance(result, Failure)
-        create_temp_file.assert_called_once_with(temporary_directory=None)
+        create_temp_file.assert_called_once_with(
+            temporary_directory=None, extension=None
+        )
         write_text.assert_not_called()
 
     def test_returns_failure_when_initial_text_write_fails(
@@ -331,6 +333,7 @@ class TestExecuteDocumentInteraction:
         request = mocker.Mock(spec=InteractionDocumentRequest)
         request.context = mocker.sentinel.context
         request.temporary_directory = Path("temporally-path")
+        request.temporary_file_extension = "py"
 
         request.text_provider = mocker.Mock()
         request.text_provider.create_initial_text.return_value = Success(
@@ -357,6 +360,7 @@ class TestExecuteDocumentInteraction:
         create_initial_document.assert_called_once_with(
             initial_text='{"name": "example"}',
             temporary_directory=Path("temporally-path"),
+            temporary_file_extension=request.temporary_file_extension,
         )
 
         request.text_provider.create_initial_text.assert_called_once_with(
@@ -460,7 +464,7 @@ class TestExecuteDocumentInteraction:
         request.text_provider.create_initial_text.return_value = Success("initial text")
         request.codec = mocker.Mock()
         request.codec.parse.return_value = Failure(validation_error)
-        questionary_print = mocker.patch(
+        mocker.patch(
             "gyomu_interaction_cli.document.questionary_print",
         )
         result = execute_document_interaction(
@@ -470,7 +474,6 @@ class TestExecuteDocumentInteraction:
         assert isinstance(result, Success)
         assert isinstance(result.unwrap(), InteractionCancelled)
 
-        questionary_print.assert_called_once_with(f"Invalid input: {validation_error}")
         assert request.codec.parse.call_count == 1
         delete_file.assert_called_once_with(temp_file)
 

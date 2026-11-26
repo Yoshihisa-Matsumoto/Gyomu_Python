@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from gyomu_python_analysis.analysis.initialize import initialize_project_context
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.types import ProjectRelativePath
@@ -109,11 +108,6 @@ class TestCodeGenerationIntegration:
         self, workspace_context: WorkspaceContext, mocker: MockerFixture
     ) -> None:
         project_context = get_project_context(workspace_context, "project-b")
-        root_context_result = initialize_project_context(
-            project_root=workspace_context.workspace_root.path,
-            source_root=ProjectRelativePath(Path(".")),
-        )
-        assert isinstance(root_context_result, Success)
 
         file = ProjectRelativePath(Path("test_support/helpers.py"))
         file2 = ProjectRelativePath(Path("test_support/another_helpers.py"))
@@ -122,7 +116,7 @@ class TestCodeGenerationIntegration:
             return_value=Success((file, file2)),
         )
         existing_result = collect_existing_helper_inventory(
-            root=root_context_result.unwrap(),
+            workspace_context=workspace_context,
             target_project=project_context,
         )
         assert isinstance(existing_result, Success)
@@ -144,11 +138,6 @@ class TestCodeGenerationIntegration:
         self, workspace_context: WorkspaceContext, mocker: MockerFixture
     ) -> None:
         project_context = get_project_context(workspace_context, "parameter")
-        root_context_result = initialize_project_context(
-            project_root=workspace_context.workspace_root.path,
-            source_root=ProjectRelativePath(Path(".")),
-        )
-        assert isinstance(root_context_result, Success)
 
         file = ProjectRelativePath(Path("test_support/helpers.py"))
         mocker.patch(
@@ -156,7 +145,7 @@ class TestCodeGenerationIntegration:
             return_value=Success((file,)),
         )
         existing_result = collect_existing_helper_inventory(
-            root=root_context_result.unwrap(),
+            workspace_context=workspace_context,
             target_project=project_context,
         )
         assert isinstance(existing_result, Success)

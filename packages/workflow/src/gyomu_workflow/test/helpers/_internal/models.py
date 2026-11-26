@@ -21,7 +21,6 @@ class DefaultTypeParameterContext:
     model_identity: DeclarationIdentity
     parameter: MissingParameterDefault
     workspace_context: WorkspaceContext
-    workspace_root_project_context: ProjectContext
     project_context: ProjectContext
     config_manager: ConfigManager
 

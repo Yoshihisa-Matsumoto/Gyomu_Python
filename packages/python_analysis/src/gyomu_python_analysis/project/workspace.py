@@ -1,8 +1,14 @@
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 from gyomu_schema.schemas.python.file_analysis import FileAnalysisContext
-from gyomu_schema.schemas.python.types import DeclarationIdentity, PythonPath, SymbolId
+from gyomu_schema.schemas.python.types import (
+    DeclarationIdentity,
+    ProjectRelativePath,
+    PythonPath,
+    SymbolId,
+)
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
@@ -81,6 +87,8 @@ class WorkspaceContext:
     projects.
     """
 
+    root_project_context: ProjectContext
+
     def __init__(
         self,
         workspace_root: WorkspaceRoot,
@@ -93,6 +101,11 @@ class WorkspaceContext:
         self._project_indexes: dict[str, ProjectContext] = {}
         self._project_contexts: dict[str, ProjectContext] = {}
         self._file_analysis_cache = _FileAnalysisCache()
+        self.root_project_context = ProjectContext(
+            project_root=workspace_root.path,
+            source_root=ProjectRelativePath(Path(".")),
+            config=config,
+        )
 
     def _initialize_project_indexes(self) -> None:
         for project in self.projects:

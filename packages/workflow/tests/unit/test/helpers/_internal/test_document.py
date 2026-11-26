@@ -164,7 +164,6 @@ class TestComplexValueProvider:
             assert result.unwrap() is expected_parameter
             validate_mock.assert_called_once_with(
                 file_path=tmp_path / "parameter.py",
-                root_project_context=context.workspace_root_project_context,
                 project_context=context.project_context,
                 workspace_context=context.workspace_context,
                 parameter_name=context.parameter.parameter.name,

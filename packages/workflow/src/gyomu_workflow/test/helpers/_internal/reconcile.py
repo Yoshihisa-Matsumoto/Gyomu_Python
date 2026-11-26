@@ -1,13 +1,9 @@
-from pathlib import Path
-
 from gyomu_python_analysis.analysis.initialize import (
-    initialize_project_context,
     initialize_project_from_workspace,
 )
 from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.gyomu import GyomuError
-from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.testing.helper import (
     HelperReconcileResult,
 )
@@ -37,19 +33,8 @@ def reconcile_package(
         )
     expected = expected_result.unwrap()
 
-    root_context_result = initialize_project_context(
-        project_root=workspace_context.workspace_root.path,
-        source_root=ProjectRelativePath(Path(".")),
-    )
-    if isinstance(root_context_result, Failure):
-        return root_context_result.alt(
-            lambda error: wrap_gyomu_error(
-                error=error, message="fail to initialize project"
-            )
-        )
-
     existing_result = collect_existing_helper_inventory(
-        root=root_context_result.unwrap(),
+        workspace_context=workspace_context,
         target_project=project_context,
     )
 
