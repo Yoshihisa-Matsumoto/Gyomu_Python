@@ -13,7 +13,7 @@ from packages.schema.test_support.concept_helpers import (
     create_file_summary,
     create_package_analysis,
     create_public_declaration_summary,
-    create_pyproject_analysis,
+    create_py_project_analysis,
 )
 
 
@@ -22,7 +22,7 @@ class TestPackageAnalysis:
         _assert_json_round_trip(
             PackageAnalysis,
             create_package_analysis(
-                package=create_pyproject_analysis(),
+                package=create_py_project_analysis(),
                 dependencies=tuple([create_dependency_analysis()]),
                 directories=tuple(
                     [

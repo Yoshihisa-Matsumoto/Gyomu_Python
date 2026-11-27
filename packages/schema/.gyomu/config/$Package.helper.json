@@ -1,0 +1,9 @@
+{
+    "helper_directory":"test_support",
+    "file_allocation":[
+		{"path":"gyomu_schema.schemas.concept", "helper_filename":"concept_helpers.py"},
+		{"path":"gyomu_schema.schemas.document", "helper_filename":"concept_helpers.py"},
+		{"path":"gyomu_schema.schemas.knowledge", "helper_filename":"concept_helpers.py"},
+		{"path":"gyomu_schema.schemas.testing", "helper_filename":"testing_helpers.py"}
+	]
+}

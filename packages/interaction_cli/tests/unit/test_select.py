@@ -85,10 +85,10 @@ class TestExecuteSelectionInteraction:
         selection_provider = mocker.Mock()
         selection_provider.create_selections.return_value = Success((selection,))
 
-        rawselect = mocker.patch(
-            "gyomu_interaction_cli.select.rawselect",
+        select = mocker.patch(
+            "gyomu_interaction_cli.select.select",
         )
-        rawselect.return_value.ask.return_value = "workspace"
+        select.return_value.ask.return_value = "workspace"
 
         request = InteractionSelectRequest[None, None](
             instruction="Select a scope",
@@ -106,7 +106,7 @@ class TestExecuteSelectionInteraction:
         interaction_result = result.unwrap()
         assert isinstance(interaction_result, InteractionAccepted)
         assert interaction_result.value == "workspace"
-        rawselect.assert_called_once()
+        select.assert_called_once()
 
     def test_returns_failure_when_selection_creation_fails(
         self,
@@ -163,10 +163,10 @@ class TestExecuteSelectionInteraction:
         selection_provider = mocker.Mock()
         selection_provider.create_selections.return_value = Success((selection,))
 
-        rawselect = mocker.patch(
-            "gyomu_interaction_cli.select.rawselect",
+        select = mocker.patch(
+            "gyomu_interaction_cli.select.select",
         )
-        rawselect.return_value.ask.return_value = None
+        select.return_value.ask.return_value = None
 
         request = InteractionSelectRequest(
             instruction="Select a scope",
@@ -180,7 +180,7 @@ class TestExecuteSelectionInteraction:
         # Assert
         assert isinstance(result, Success)
         assert isinstance(result.unwrap(), InteractionCancelled)
-        rawselect.return_value.ask.assert_called_once()
+        select.return_value.ask.assert_called_once()
 
     def test_returns_cancelled_when_keyboard_interrupt_occurs(
         self,
@@ -194,10 +194,10 @@ class TestExecuteSelectionInteraction:
         selection_provider = mocker.Mock()
         selection_provider.create_selections.return_value = Success((selection,))
 
-        rawselect = mocker.patch(
-            "gyomu_interaction_cli.select.rawselect",
+        select = mocker.patch(
+            "gyomu_interaction_cli.select.select",
         )
-        rawselect.return_value.ask.side_effect = KeyboardInterrupt
+        select.return_value.ask.side_effect = KeyboardInterrupt
 
         request = InteractionSelectRequest(
             instruction="Select a scope",
@@ -211,7 +211,7 @@ class TestExecuteSelectionInteraction:
         # Assert
         assert isinstance(result, Success)
         assert isinstance(result.unwrap(), InteractionCancelled)
-        rawselect.return_value.ask.assert_called_once()
+        select.return_value.ask.assert_called_once()
 
     def test_returns_cancelled_when_eof_error_occurs(
         self,
@@ -225,10 +225,10 @@ class TestExecuteSelectionInteraction:
         selection_provider = mocker.Mock()
         selection_provider.create_selections.return_value = Success((selection,))
 
-        rawselect = mocker.patch(
-            "gyomu_interaction_cli.select.rawselect",
+        select = mocker.patch(
+            "gyomu_interaction_cli.select.select",
         )
-        rawselect.return_value.ask.side_effect = EOFError
+        select.return_value.ask.side_effect = EOFError
 
         request = InteractionSelectRequest(
             instruction="Select a scope",
@@ -242,9 +242,9 @@ class TestExecuteSelectionInteraction:
         # Assert
         assert isinstance(result, Success)
         assert isinstance(result.unwrap(), InteractionCancelled)
-        rawselect.return_value.ask.assert_called_once()
+        select.return_value.ask.assert_called_once()
 
-    def test_passes_instruction_and_choices_to_rawselect(
+    def test_passes_instruction_and_choices_to_select(
         self,
         mocker: MockerFixture,
     ) -> None:
@@ -256,10 +256,10 @@ class TestExecuteSelectionInteraction:
         selection_provider = mocker.Mock()
         selection_provider.create_selections.return_value = Success(selections)
 
-        rawselect = mocker.patch(
-            "gyomu_interaction_cli.select.rawselect",
+        select = mocker.patch(
+            "gyomu_interaction_cli.select.select",
         )
-        rawselect.return_value.ask.return_value = "workspace"
+        select.return_value.ask.return_value = "workspace"
 
         request = InteractionSelectRequest(
             instruction="Select a scope",
@@ -273,8 +273,8 @@ class TestExecuteSelectionInteraction:
 
         # Assert
         assert isinstance(result, Success)
-        rawselect.assert_called_once()
-        kwargs = rawselect.call_args.kwargs
+        select.assert_called_once()
+        kwargs = select.call_args.kwargs
         assert kwargs["message"] == "Select a scope"
         choices = kwargs["choices"]
         assert [choice.title for choice in choices] == ["Workspace", "Project"]

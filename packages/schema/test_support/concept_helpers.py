@@ -139,11 +139,22 @@ def create_dependency_summary(
     return DependencySummary(target=target, external=external)
 
 
+def create_py_project_analysis(
+    name: str = "test",
+    description: str | None = None,
+    version: str = "1.0.0",
+    license: str = "MIT",
+) -> PyProjectAnalysis:
+    return PyProjectAnalysis(
+        name=name, description=description, version=version, license=license
+    )
+
+
 def create_package_analysis(
-    package: PyProjectAnalysis,
-    dependencies: tuple[PackageDependencyAnalysis, ...],
-    directories: tuple[DirectoryAnalysis, ...],
-    public_files: tuple[FileSummary, ...],
+    package: PyProjectAnalysis = create_py_project_analysis(),
+    dependencies: tuple[PackageDependencyAnalysis, ...] = (),
+    directories: tuple[DirectoryAnalysis, ...] = (),
+    public_files: tuple[FileSummary, ...] = (),
 ) -> PackageAnalysis:
     return PackageAnalysis(
         package=package,
@@ -155,7 +166,7 @@ def create_package_analysis(
 
 def create_package_analysis__default() -> PackageAnalysis:
     return create_package_analysis(
-        package=create_pyproject_analysis(),
+        package=create_py_project_analysis(),
         dependencies=(
             create_dependency_analysis(
                 package_name="pydantic",
@@ -189,17 +200,6 @@ def create_package_analysis__default() -> PackageAnalysis:
                 dependencies=(),
             ),
         ),
-    )
-
-
-def create_pyproject_analysis(
-    name: str = "test",
-    description: str | None = None,
-    version: str = "1.0.0",
-    license: str = "MIT",
-) -> PyProjectAnalysis:
-    return PyProjectAnalysis(
-        name=name, description=description, version=version, license=license
     )
 
 

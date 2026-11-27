@@ -24,7 +24,7 @@ from packages.schema.test_support.concept_helpers import (
     create_package_analysis,
     create_package_concept,
     create_public_declaration_summary,
-    create_pyproject_analysis,
+    create_py_project_analysis,
 )
 
 
@@ -36,7 +36,7 @@ class TestBuildPackageConcept:
     @pytest.fixture
     def analysis(self) -> PackageAnalysis:
         return create_package_analysis(
-            package=create_pyproject_analysis(),
+            package=create_py_project_analysis(),
             dependencies=(
                 create_dependency_analysis(
                     package_name="pydantic",

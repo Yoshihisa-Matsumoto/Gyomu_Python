@@ -1,0 +1,104 @@
+{
+  "models": [
+    {
+      "symbol_name": "TopScoreDirectorySelection",
+      "parameters": [
+        {
+          "name": "limit",
+          "value": {
+            "kind": "none"
+          }
+        },
+        {
+          "name": "strategy",
+          "value": {
+            "kind": "literal",
+            "value": "top-score"
+          }
+        }
+      ]
+    },
+    {
+      "symbol_name": "ImportanceDirectorySelection",
+      "parameters": [
+        {
+          "name": "limits",
+          "value": {
+            "kind": "dict",
+            "entries": [
+              {
+                "key": {
+                  "kind": "attr",
+                  "value": {
+                    "kind": "name",
+                    "name": "DirectoryImportance",
+                    "symbol_id": "gyomu_schema.schemas.concept.directory.concept::DirectoryImportance"
+                  },
+                  "attribute": "CORE"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 2
+                }
+              },
+              {
+                "key": {
+                  "kind": "attr",
+                  "value": {
+                    "kind": "name",
+                    "name": "DirectoryImportance",
+                    "symbol_id": "gyomu_schema.schemas.concept.directory.concept::DirectoryImportance"
+                  },
+                  "attribute": "UTILITY"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 1
+                }
+              },
+              {
+                "key": {
+                  "kind": "attr",
+                  "value": {
+                    "kind": "name",
+                    "name": "DirectoryImportance",
+                    "symbol_id": "gyomu_schema.schemas.concept.directory.concept::DirectoryImportance"
+                  },
+                  "attribute": "SUPPORTING"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "strategy",
+          "value": {
+            "kind": "literal",
+            "value": "importance"
+          }
+        }
+      ]
+    },
+    {
+      "symbol_name": "PackageFacts",
+      "parameters": [
+        {
+          "name": "analysis",
+          "value": {
+            "kind": "call",
+            "callable_identity": {
+              "symbol_id": "packages.schema.test_support.concept_helpers::create_package_analysis",
+              "declaration_id": "."
+            },
+            "args": [],
+            "kwargs": []
+          }
+        }
+      ]
+    }
+  ]
+}

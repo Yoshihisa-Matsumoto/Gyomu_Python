@@ -70,6 +70,7 @@ from gyomu_test.helper.defaults.resolution import (
     PrimitiveDefaultConfigContext,
     SymbolDefaultConfigContext,
 )
+from gyomu_test.helper.inventory.config import get_helper_file_path
 from gyomu_test.helper.inventory.expected import _get_model_kind
 from gyomu_test.helper.inventory.naming import _build_helper_name_from_class_name
 
@@ -204,7 +205,25 @@ def _find_helper_function_declaration_identity(
         )
     workspace_project = workspace_project_result.unwrap()
 
-    file_path = workspace_project.path / "test_support" / "helpers.py"
+    project_context = workspace_context.get_project_context(
+        workspace_project.config.name
+    )
+    if project_context is None:
+        return Failure(
+            GyomuTestError(
+                message=f"package not found: {workspace_project.config.name}"
+            )
+        )
+    helper_file_result = get_helper_file_path(
+        model_identity=resolved_symbol.symbol.identity, project_context=project_context
+    )
+    if isinstance(helper_file_result, Failure):
+        return helper_file_result
+
+    file_path = helper_file_result.unwrap().relative_to(
+        workspace_context.workspace_root.path
+    )
+
     module_path = source_relative_path_to_python_path(
         path=SourceRelativePath(file_path)
     )
@@ -224,6 +243,7 @@ def _create_parameter(
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
     config_manager: ConfigManager,
+    referenced_types: list[ReferencedType],
 ) -> Result[Parameter | None, GyomuTestError]:
     if isinstance(resolved_type, PrimitiveType | LiteralValueType):
         context = PrimitiveDefaultConfigContext(
@@ -261,9 +281,10 @@ def _create_parameter(
             )
             if isinstance(helper_identity_result, Failure):
                 return helper_identity_result
-            return Success(
-                CallParameter(callable_identity=helper_identity_result.unwrap())
-            )
+            helper_identity = helper_identity_result.unwrap()
+            # print(format_object(helper_identity))
+            referenced_types.append(PackageType(symbol_id=helper_identity.symbol_id))
+            return Success(CallParameter(callable_identity=helper_identity))
         else:
             symbol_context = SymbolDefaultConfigContext(
                 type_default=resolved_type,
@@ -299,6 +320,9 @@ def _resolve_parameter_default(
         ]:
             return parameter, tuple(referenced_types)
 
+        # print(
+        #     f"{context.parameter.name}: {format_object(context.parameter.parameter_type.structure)}"
+        # )
         return _resolve_type_expression(
             expression=context.parameter.parameter_type.structure,
             context=context,
@@ -379,6 +403,7 @@ def _resolve_name_structure(
         workspace_context=context.workspace_context,
         project_context=context.project_context,
         config_manager=context.config_manager,
+        referenced_types=referenced_types,
     )
     if isinstance(name_parameter_result, Failure):
         return name_parameter_result
@@ -691,6 +716,7 @@ def _resolve_type_expression(
     GyomuTestError,
 ]:
     if isinstance(expression, LiteralValue):
+        referenced_types.append(PackageType(symbol_id=SymbolId("typing::Literal")))
         return Success(
             ResolvedParameter(
                 parameter=LiteralParameter(value=expression.value),

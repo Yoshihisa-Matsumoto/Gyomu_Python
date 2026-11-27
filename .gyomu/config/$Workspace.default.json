@@ -1,0 +1,62 @@
+{
+  "models_per_module_path": {
+    "gyomu_facts.package.analysis": {
+      "symbols": [
+        {
+          "symbol_name": "ImportanceDirectorySelection",
+          "parameter": {
+            "kind": "dict",
+            "entries": [
+              {
+                "key": {
+                  "kind": "attr",
+                  "value": {
+                    "kind": "name",
+                    "name": "DirectoryImportance",
+                    "symbol_id": "gyomu_schema.schemas.concept.directory.concept::DirectoryImportance"
+                  },
+                  "attribute": "CORE"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 5
+                }
+              },
+              {
+                "key": {
+                  "kind": "attr",
+                  "value": {
+                    "kind": "name",
+                    "name": "DirectoryImportance",
+                    "symbol_id": "gyomu_schema.schemas.concept.directory.concept::DirectoryImportance"
+                  },
+                  "attribute": "SUPPORTING"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 3
+                }
+              },
+              {
+                "key": {
+                  "kind": "attr",
+                  "value": {
+                    "kind": "name",
+                    "name": "DirectoryImportance",
+                    "symbol_id": "gyomu_schema.schemas.concept.directory.concept::DirectoryImportance"
+                  },
+                  "attribute": "UTILITY"
+                },
+                "value": {
+                  "kind": "literal",
+                  "value": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "primitives_per_type": {}
+}

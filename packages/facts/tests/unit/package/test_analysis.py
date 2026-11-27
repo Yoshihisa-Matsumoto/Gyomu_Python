@@ -22,7 +22,7 @@ from packages.schema.test_support.concept_helpers import (
     create_file_summary,
     create_package_analysis,
     create_public_declaration_summary,
-    create_pyproject_analysis,
+    create_py_project_analysis,
 )
 
 
@@ -62,7 +62,7 @@ class TestPackageFacts:
     @pytest.fixture
     def analysis(self, directories) -> PackageAnalysis:
         return create_package_analysis(
-            package=create_pyproject_analysis(),
+            package=create_py_project_analysis(),
             dependencies=(
                 create_dependency_analysis(
                     package_name="pydantic",
@@ -187,7 +187,7 @@ class TestPackageFacts:
         )
 
         analysis = create_package_analysis(
-            package=create_pyproject_analysis(),
+            package=create_py_project_analysis(),
             dependencies=(
                 create_dependency_analysis(
                     package_name="pydantic",
@@ -256,7 +256,7 @@ class TestPackageFacts:
 
     def test_returns_empty_for_empty_directories(self) -> None:
         analysis = create_package_analysis(
-            package=create_pyproject_analysis(),
+            package=create_py_project_analysis(),
             dependencies=(
                 create_dependency_analysis(
                     package_name="pydantic",
