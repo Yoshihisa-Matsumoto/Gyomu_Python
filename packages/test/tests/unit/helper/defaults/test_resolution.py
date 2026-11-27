@@ -27,6 +27,8 @@ from gyomu_test.helper.defaults import resolution as resolver_module
 from gyomu_test.helper.defaults.resolution import (
     PrimitiveDefaultConfigContext,
     PrimitiveDefaultResolver,
+    ProjectPrimitiveDefaultResolver,
+    ProjectSymbolDefaultResolver,
     SymbolDefaultConfigContext,
     SymbolDefaultResolver,
     WorkspacePrimitiveDefaultResolver,
@@ -306,6 +308,32 @@ class TestDefaultResolvers:
                 )
             )
 
+    class TestProjectPrimitiveDefaultResolver:
+        def test_project_returns_project_paths(self):
+            workspace_path = Path("/workspace")
+            project_path = workspace_path / "packages" / "my_package"
+
+            context = TestDefaultResolvers._create_primitive_context(
+                type_default=TestDefaultResolvers._create_primitive_type(),
+                workspace_context=TestDefaultResolvers._create_workspace_context(
+                    workspace_path,
+                    WorkspaceRootKind.UV_WORKSPACE,
+                ),
+                project_context=TestDefaultResolvers._create_project_context(
+                    project_path,
+                ),
+            )
+
+            result = ProjectPrimitiveDefaultResolver().get_paths(context)
+
+            assert result == Success(
+                (
+                    FullPath(
+                        project_path / ".gyomu/config/$Package.default.json",
+                    ),
+                )
+            )
+
     class TestSymbolDefaultResolver:
         def test_target_helper_function_returns_empty_paths(
             self,
@@ -502,6 +530,39 @@ class TestDefaultResolvers:
                 (
                     FullPath(
                         workspace_path / ".gyomu/config/$Workspace.default.json",
+                    ),
+                )
+            )
+
+    class TestProjectSymbolDefaultResolver:
+        def test_path(
+            self,
+            monkeypatch: pytest.MonkeyPatch,
+        ):
+
+            workspace_project = Mock()
+            workspace_project.path = Path("packages/other_package")
+
+            workspace_path = Path("/workspace")
+            project_path = workspace_path / "packages/my_package"
+
+            context = TestDefaultResolvers._create_symbol_context(
+                type_default=TestDefaultResolvers._create_symbol_type(),
+                workspace_context=TestDefaultResolvers._create_workspace_context(
+                    workspace_path,
+                    WorkspaceRootKind.UV_WORKSPACE,
+                ),
+                project_context=TestDefaultResolvers._create_project_context(
+                    project_path,
+                ),
+            )
+
+            result = ProjectSymbolDefaultResolver().get_paths(context)
+
+            assert result == Success(
+                (
+                    FullPath(
+                        project_path / ".gyomu/config/$Package.default.json",
                     ),
                 )
             )

@@ -1,4 +1,5 @@
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
@@ -54,6 +55,8 @@ class ListLiteralModel(BaseModel):
 class DictLiteralModel(BaseModel):
     value: dict[str, int]
 
+class GenericsLiteralModel(BaseModel):
+    value: Mapping[str, int]
 
 class BasicModel(BaseModel):
     value: str

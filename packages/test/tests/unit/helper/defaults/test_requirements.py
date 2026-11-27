@@ -263,6 +263,19 @@ class TestResolveFunctionParameterDefaults:
                     ),
                 ),
             ),
+            (
+                "GenericsLiteralModel",
+                (
+                    create_missing_parameter_default(
+                        parameter=create_parameter_info(name="value"),
+                        missing_types=(
+                            create_primitive_type(
+                                parameter_name="value", primitive_type="str"
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         ],
     )
     def test_parameter(

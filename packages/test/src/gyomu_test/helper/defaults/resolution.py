@@ -201,6 +201,18 @@ class WorkspaceSymbolDefaultResolver(SymbolDefaultResolver):
         return Success(tuple(paths))
 
 
+class ProjectSymbolDefaultResolver(SymbolDefaultResolver):
+    def get_paths(
+        self,
+        context: SymbolDefaultConfigContext,
+    ) -> Result[tuple[FullPath, ...], ConfigError]:
+        paths: list[FullPath] = []
+
+        paths.append(_get_project_config_path(context.project_context))
+
+        return Success(tuple(paths))
+
+
 class PrimitiveDefaultResolver:
     def get_paths(
         self,
@@ -243,5 +255,17 @@ class WorkspacePrimitiveDefaultResolver(PrimitiveDefaultResolver):
         paths.append(
             _get_workspace_config_path(workspace_context=context.workspace_context)
         )
+
+        return Success(tuple(paths))
+
+
+class ProjectPrimitiveDefaultResolver(PrimitiveDefaultResolver):
+    def get_paths(
+        self,
+        context: PrimitiveDefaultConfigContext,
+    ) -> Result[tuple[FullPath, ...], ConfigError]:
+        paths: list[FullPath] = []
+
+        paths.append(_get_project_config_path(context.project_context))
 
         return Success(tuple(paths))

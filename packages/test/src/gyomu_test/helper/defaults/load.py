@@ -15,6 +15,8 @@ from gyomu_test.error.test import GyomuTestError
 from gyomu_test.helper.defaults.resolution import (
     PrimitiveDefaultConfigContext,
     PrimitiveDefaultResolver,
+    ProjectPrimitiveDefaultResolver,
+    ProjectSymbolDefaultResolver,
     SymbolDefaultConfigContext,
     SymbolDefaultResolver,
     WorkspacePrimitiveDefaultResolver,
@@ -59,6 +61,19 @@ def load_workspace_primitive_parameter_default_config(
 
     request = _build_primitive_config_request(
         context=context, resolver=WorkspacePrimitiveDefaultResolver()
+    )
+    return _internal_load_primitive_parameter_default_config(
+        config_manager=config_manager, request=request
+    )
+
+
+def load_project_primitive_parameter_default_config(
+    context: PrimitiveDefaultConfigContext,
+    config_manager: ConfigManager,
+) -> Result[PrimitiveDefault | None, GyomuTestError]:
+
+    request = _build_primitive_config_request(
+        context=context, resolver=ProjectPrimitiveDefaultResolver()
     )
     return _internal_load_primitive_parameter_default_config(
         config_manager=config_manager, request=request
@@ -116,6 +131,19 @@ def load_workspace_symbol_parameter_default_config(
 
     request = _build_symbol_config_request(
         context=context, resolver=WorkspaceSymbolDefaultResolver()
+    )
+    return _internal_load_symbol_parameter_default_config(
+        config_manager=config_manager, request=request
+    )
+
+
+def load_test_project_symbol_parameter_default_config(
+    context: SymbolDefaultConfigContext,
+    config_manager: ConfigManager,
+) -> Result[SymbolDefault | None, GyomuTestError]:
+
+    request = _build_symbol_config_request(
+        context=context, resolver=ProjectSymbolDefaultResolver()
     )
     return _internal_load_symbol_parameter_default_config(
         config_manager=config_manager, request=request

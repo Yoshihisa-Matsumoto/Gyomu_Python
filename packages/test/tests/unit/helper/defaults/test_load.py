@@ -10,7 +10,9 @@ from gyomu_schema.schemas.config.test.model_defaults import (
 from gyomu_test.error.test import GyomuTestError
 from gyomu_test.helper.defaults.load import (
     load_primitive_parameter_default_config,
+    load_project_primitive_parameter_default_config,
     load_symbol_parameter_default_config,
+    load_test_project_symbol_parameter_default_config,
     load_workspace_primitive_parameter_default_config,
     load_workspace_symbol_parameter_default_config,
 )
@@ -119,6 +121,38 @@ class TestLoadWorkspacePrimitiveParameterDefaultConfig:
         assert request.paths_resolver is request.extractor
 
 
+class TestLoadProjectPrimitiveParameterDefaultConfig:
+    @pytest.fixture
+    def context(self) -> PrimitiveDefaultConfigContext:
+        return MagicMock(spec=PrimitiveDefaultConfigContext)
+
+    @pytest.fixture
+    def config_manager(self) -> MagicMock:
+        return MagicMock(spec=ConfigManager)
+
+    def test_returns_loaded_config(
+        self,
+        context: PrimitiveDefaultConfigContext,
+        config_manager: MagicMock,
+    ) -> None:
+        expected = MagicMock(spec=Parameter)
+        config_manager.retrieve_extracted_config.return_value = Success(expected)
+
+        result = load_project_primitive_parameter_default_config(
+            context=context,
+            config_manager=config_manager,
+        )
+
+        assert result == Success(expected)
+        config_manager.retrieve_extracted_config.assert_called_once()
+
+        request = config_manager.retrieve_extracted_config.call_args.args[0]
+        assert request.config_type is PackageModelDefaults
+        assert request.context is context
+        assert request.default_value is None
+        assert request.paths_resolver is request.extractor
+
+
 class TestLoadSymbolParameterDefaultConfig:
     @pytest.fixture
     def context(self) -> SymbolDefaultConfigContext:
@@ -201,6 +235,38 @@ class TestLoadWorkspaceSymbolParameterDefaultConfig:
         config_manager.retrieve_extracted_config.return_value = Success(expected)
 
         result = load_workspace_symbol_parameter_default_config(
+            context=context,
+            config_manager=config_manager,
+        )
+
+        assert result == Success(expected)
+        config_manager.retrieve_extracted_config.assert_called_once()
+
+        request = config_manager.retrieve_extracted_config.call_args.args[0]
+        assert request.config_type is PackageModelDefaults
+        assert request.context is context
+        assert request.default_value is None
+        assert request.paths_resolver is request.extractor
+
+
+class TestLoadTestProjectSymbolParameterDefaultConfig:
+    @pytest.fixture
+    def context(self) -> SymbolDefaultConfigContext:
+        return MagicMock(spec=SymbolDefaultConfigContext)
+
+    @pytest.fixture
+    def config_manager(self) -> MagicMock:
+        return MagicMock(spec=ConfigManager)
+
+    def test_returns_loaded_config(
+        self,
+        context: SymbolDefaultConfigContext,
+        config_manager: MagicMock,
+    ) -> None:
+        expected = MagicMock(spec=ModelDefault)
+        config_manager.retrieve_extracted_config.return_value = Success(expected)
+
+        result = load_test_project_symbol_parameter_default_config(
             context=context,
             config_manager=config_manager,
         )

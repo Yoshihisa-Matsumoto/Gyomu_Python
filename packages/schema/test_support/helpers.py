@@ -126,7 +126,14 @@ def build_declaration_identity(
     )
 
 
-def simple_create_declaration_identity(id: str = "test") -> DeclarationIdentity:
+def create_declaration_identity(
+    symbol_id: SymbolId = SymbolId("test::Test"),
+    declaration_id: DeclarationId = DeclarationId("."),
+) -> DeclarationIdentity:
+    return DeclarationIdentity(symbol_id=symbol_id, declaration_id=declaration_id)
+
+
+def simple_create_declaration_identity(id: str = "test::Test") -> DeclarationIdentity:
     return DeclarationIdentity(
         symbol_id=SymbolId(id),
         declaration_id=DeclarationId("."),

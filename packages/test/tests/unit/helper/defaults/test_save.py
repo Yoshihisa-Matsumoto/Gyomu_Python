@@ -3,7 +3,7 @@ from typing import cast
 from unittest.mock import Mock
 
 from gyomu_config.request import ConfigRequest
-from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
+from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.config import ConfigError
 from gyomu_schema.schemas.config.test.model_defaults import (
@@ -401,7 +401,7 @@ class TestSaveSymbolParameterDefaultConfig:
         mocker: MockerFixture,
     ) -> None:
         workspace_context = cast(WorkspaceContext, Mock())
-        workspace_project = cast(WorkspaceProject, Mock())
+        project_context = cast(ProjectContext, Mock())
         module_path = cast(PythonPath, "my_package.models")
         symbol_default = create_symbol_default("Product")
         config_path = cast(FullPath, Path("/project/.gyomu/config.json"))
@@ -409,7 +409,7 @@ class TestSaveSymbolParameterDefaultConfig:
         updated = create_package_model_defaults()
 
         path_mock = mocker.patch(
-            "gyomu_test.helper.defaults.save._get_project_config_path_from_workspace",
+            "gyomu_test.helper.defaults.save._get_project_config_path",
             return_value=config_path,
         )
         retrieve_mock = mocker.patch(
@@ -427,15 +427,14 @@ class TestSaveSymbolParameterDefaultConfig:
 
         result = save_symbol_parameter_default_config(
             workspace_context,
-            workspace_project,
+            project_context,
             module_path,
             symbol_default,
         )
 
         assert isinstance(result, Success)
         path_mock.assert_called_once_with(
-            workspace_context=workspace_context,
-            workspace_project=workspace_project,
+            project_context=project_context,
         )
         retrieve_mock.assert_called_once_with(config_path=config_path)
         update_mock.assert_called_once_with(

@@ -7,7 +7,12 @@ from gyomu_python_analysis.source_code import get_import_insertion_line
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
 )
-from gyomu_schema.schemas.python.types import ProjectRelativePath, WorkspaceRelativePath
+from gyomu_schema.schemas.python.types import (
+    DeclarationIdentity,
+    ProjectRelativePath,
+    SymbolId,
+    WorkspaceRelativePath,
+)
 from gyomu_schema.schemas.testing.helper import (
     HelperInventoryItem,
 )
@@ -23,15 +28,16 @@ from gyomu_test.helper.inventory.function import (
 
 
 def update_helper_file(
-    item: HelperInventoryItem,
+    expected_item: HelperInventoryItem,
     workspace_context: WorkspaceContext,
     project_context: ProjectContext,
     model_default: ModelDefault,
     referenced_types: tuple[ReferencedType, ...],
+    existing_item: HelperInventoryItem | None,
 ) -> Result[WorkspaceRelativePath, GyomuTestError]:
     # decide which helpers file to be updated/created
     helper_file_result = get_helper_file_path(
-        model_identity=item.target_identity, project_context=project_context
+        model_identity=expected_item.target_identity, project_context=project_context
     )
     if isinstance(helper_file_result, Failure):
         return helper_file_result
@@ -51,21 +57,47 @@ def update_helper_file(
         )
     helper_file_analysis = file_result.unwrap()
 
+    existing_function_symbol = (
+        helper_file_analysis.metadata.symbols.get(
+            DeclarationIdentity.create_from_symbol_id(
+                symbol_id=SymbolId(
+                    f"{helper_file_analysis.analysis.module_name}::{existing_item.function_name}"
+                )
+            )
+        )
+        if existing_item is not None
+        else None
+    )
+    existing_function_location = (
+        existing_function_symbol.location
+        if existing_function_symbol is not None
+        else None
+    )
+
+    if existing_item is not None and existing_function_location is None:
+        return Failure(GyomuTestError(message="existing helper function not found"))
+
     # insert helper function
     update_file_lines: list[str] = []
     update_file_lines.extend(helper_file_analysis.source_lines)
     reflected_item = reflect_updated_inventory(
-        inventory=item, model_default=model_default
+        inventory=expected_item, model_default=model_default
     )
     function_lines = generate_function_code_lines(reflected_item)
-
-    update_file_lines.append("")
-    update_file_lines.extend(function_lines)
+    if existing_item is None:
+        update_file_lines.append("")
+        update_file_lines.extend(function_lines)
+    else:
+        assert existing_function_location is not None
+        update_file_lines[
+            existing_function_location.start_line
+            - 1 : existing_function_location.end_line
+        ] = function_lines
 
     # insert import statement
     last_line = get_import_insertion_line(helper_file_analysis)
     # print(format_object(unique_ref_types))
-    import_lines = generate_import_code_lines(item, referenced_types)
+    import_lines = generate_import_code_lines(expected_item, referenced_types)
     update_file_lines[last_line : last_line + 1] = import_lines
 
     # save helper file

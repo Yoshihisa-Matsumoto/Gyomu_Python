@@ -3,7 +3,7 @@ from pathlib import Path
 from gyomu_config.file.retrieve import retrieve_config
 from gyomu_config.file.save import save_config
 from gyomu_config.request import ConfigRequest
-from gyomu_python_analysis.project.context import ProjectContext, WorkspaceProject
+from gyomu_python_analysis.project.context import ProjectContext
 from gyomu_python_analysis.project.workspace import WorkspaceContext
 from gyomu_schema.error.config import ConfigError
 from gyomu_schema.schemas.config.test.model_defaults import (
@@ -19,7 +19,6 @@ from returns.result import Failure, Result, Success
 from gyomu_test.error.test import GyomuTestError
 from gyomu_test.helper.defaults.resolution import (
     _get_project_config_path,
-    _get_project_config_path_from_workspace,
     _get_workspace_config_path,
 )
 
@@ -132,15 +131,13 @@ def save_primitive_parameter_default_config(
 
 def save_symbol_parameter_default_config(
     workspace_context: WorkspaceContext,
-    workspace_project: WorkspaceProject | None,
+    project_context: ProjectContext | None,
     module_path: PythonPath,
     symbol_default: SymbolDefault,
 ) -> Result[None, GyomuTestError]:
     config_path = (
-        _get_project_config_path_from_workspace(
-            workspace_context=workspace_context, workspace_project=workspace_project
-        )
-        if workspace_project is not None
+        _get_project_config_path(project_context=project_context)
+        if project_context is not None
         else _get_workspace_config_path(workspace_context=workspace_context)
     )
     config_result = _retrieve_existing_config(config_path=config_path)
