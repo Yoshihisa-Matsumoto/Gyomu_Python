@@ -41,6 +41,7 @@ from packages.python_analysis.test_support.helpers import (
     create_symbol_type,
     create_workspace_context,
     create_workspace_project,
+    create_workspace_root,
 )
 from packages.schema.test_support.helpers import (
     create_gyomu_error,
@@ -1589,7 +1590,6 @@ class TestCreateHelperInventoryItem:
         resolve_item = Mock(return_value=Success((model_default, referenced_types)))
         update_file = Mock(return_value=Success(helper_file_path))
         format_file_mock = Mock(return_value=Success(None))
-        validate_file = Mock(return_value=Success(None))
 
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update._resolve_helper_inventory_item",
@@ -1602,10 +1602,6 @@ class TestCreateHelperInventoryItem:
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.format_file",
             format_file_mock,
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update._validate_helper_file",
-            validate_file,
         )
 
         # Act
@@ -1639,11 +1635,6 @@ class TestCreateHelperInventoryItem:
         format_file_mock.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
             workspace_context=workspace_context,
-        )
-        validate_file.assert_called_once_with(
-            helper_file_path=helper_file_path,
-            workspace_context=workspace_context,
-            project_context=project_context,
         )
 
     def test_returns_failure_when_resolving_inventory_item_fails(
@@ -1818,61 +1809,6 @@ class TestCreateHelperInventoryItem:
         )
         validate_file.assert_not_called()
 
-    def test_returns_failure_when_validation_fails(
-        self,
-        monkeypatch: MonkeyPatch,
-    ) -> None:
-        # Arrange
-        item = create_helper_inventory_item()
-        workspace_context = Mock()
-        project_context = Mock()
-        config_manager = Mock()
-        interaction = Mock()
-
-        model_default = create_model_default()
-        referenced_types = (Mock(),)
-        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
-        error = create_gyomu_error()
-
-        resolve_item = Mock(return_value=Success((model_default, referenced_types)))
-        update_file = Mock(return_value=Success(helper_file_path))
-        format_file_mock = Mock(return_value=Success(None))
-        validate_file = Mock(return_value=Failure(error))
-
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update._resolve_helper_inventory_item",
-            resolve_item,
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.update_helper_file",
-            update_file,
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update.format_file",
-            format_file_mock,
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update._validate_helper_file",
-            validate_file,
-        )
-
-        # Act
-        result = _create_helper_inventory_item(
-            expected_item=item,
-            workspace_context=workspace_context,
-            project_context=project_context,
-            config_manager=config_manager,
-            interaction=interaction,
-        )
-
-        # Assert
-        assert result == Failure(error)
-        validate_file.assert_called_once_with(
-            helper_file_path=helper_file_path,
-            workspace_context=workspace_context,
-            project_context=project_context,
-        )
-
 
 class TestCreateHelperInventory:
     def test_empty_create_returns_success(self) -> None:
@@ -1997,7 +1933,7 @@ class TestCreateHelperInventory:
 
 
 class TestUpdateHelperInventories:
-    def test_create_is_empty(
+    def test_result_is_empty(
         self,
         mocker: MockerFixture,
     ) -> None:
@@ -2018,6 +1954,12 @@ class TestUpdateHelperInventories:
             helpers_module,
             "ConfigManager",
         )
+        get_paths_mock = mocker.patch(
+            "gyomu_workflow.test.helpers.update.get_helper_file_paths",
+        )
+        validate_mock = mocker.patch(
+            "gyomu_workflow.test.helpers.update._validate_helper_file",
+        )
 
         interaction = Mock(spec=InteractionExecutor)
 
@@ -2030,6 +1972,8 @@ class TestUpdateHelperInventories:
         assert result == Success(None)
         create_mock.assert_not_called()
         config_manager_mock.assert_called_once_with()
+        get_paths_mock.assert_not_called()
+        validate_mock.assert_not_called()
 
     def test_create_success(
         self,
@@ -2053,6 +1997,14 @@ class TestUpdateHelperInventories:
         create_mock = mocker.patch.object(
             helpers_module,
             "_create_helper_inventory",
+            return_value=Success(None),
+        )
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update.get_helper_file_paths",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update._validate_helper_file",
             return_value=Success(None),
         )
 
@@ -2225,6 +2177,14 @@ class TestUpdateHelperInventories:
             "_update_helper_inventory",
             return_value=Success(None),
         )
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update.get_helper_file_paths",
+            return_value=Success(()),
+        )
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update._validate_helper_file",
+            return_value=Success(None),
+        )
 
         interaction = Mock(spec=InteractionExecutor)
 
@@ -2286,6 +2246,162 @@ class TestUpdateHelperInventories:
         # Assert
         assert result is failure
         update_mock.assert_called_once()
+
+    def test_validates_all_helper_files_after_create(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        workspace_context = create_workspace_context(
+            workspace_root=create_workspace_root(path=FullPath(Path("/tmp")))
+        )
+        workspace_project_context = create_workspace_project()
+        project_context = create_project_context()
+        reconcile_result = create_helper_reconcile_result(
+            create=(create_helper_inventory_item(),),
+        )
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update.reconcile_package",
+            return_value=Success((reconcile_result, project_context)),
+        )
+        mocker.patch.object(helpers_module, "ConfigManager")
+        mocker.patch.object(
+            helpers_module,
+            "_create_helper_inventory",
+            return_value=Success(None),
+        )
+
+        helper_file_paths = (
+            ProjectRelativePath(Path("test_support/helpers.py")),
+            ProjectRelativePath(Path("test_support/other_helpers.py")),
+        )
+        get_paths_mock = mocker.patch(
+            "gyomu_workflow.test.helpers.update.get_helper_file_paths",
+            return_value=Success(helper_file_paths),
+        )
+        validate_mock = mocker.patch(
+            "gyomu_workflow.test.helpers.update._validate_helper_file",
+            return_value=Success(None),
+        )
+
+        interaction = Mock(spec=InteractionExecutor)
+
+        # Act
+        result = helpers_module.update_helper_inventories(
+            workspace_context=workspace_context,
+            workspace_project_context=workspace_project_context,
+            interaction=interaction,
+        )
+
+        # Assert
+        assert result == Success(None)
+        get_paths_mock.assert_called_once_with(project_context=project_context)
+        assert validate_mock.call_count == len(helper_file_paths)
+
+    def test_returns_failure_when_enumerating_helper_file_paths_fails(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        workspace_context = create_workspace_context(
+            workspace_root=create_workspace_root(path=FullPath(Path("/tmp")))
+        )
+        workspace_project_context = create_workspace_project()
+        project_context = create_project_context()
+        reconcile_result = create_helper_reconcile_result(
+            create=(create_helper_inventory_item(),),
+        )
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update.reconcile_package",
+            return_value=Success((reconcile_result, project_context)),
+        )
+        mocker.patch.object(
+            helpers_module,
+            "ConfigManager",
+        )
+        mocker.patch.object(
+            helpers_module,
+            "_create_helper_inventory",
+            return_value=Success(None),
+        )
+
+        error = create_gyomu_error("enumeration failed")
+        get_paths_mock = mocker.patch(
+            "gyomu_workflow.test.helpers.update.get_helper_file_paths",
+            return_value=Failure(error),
+        )
+        validate_mock = mocker.patch(
+            "gyomu_workflow.test.helpers.update._validate_helper_file",
+        )
+
+        interaction = Mock(spec=InteractionExecutor)
+
+        # Act
+        result = helpers_module.update_helper_inventories(
+            workspace_context=workspace_context,
+            workspace_project_context=workspace_project_context,
+            interaction=interaction,
+        )
+
+        # Assert
+        assert isinstance(result, Failure)
+        assert result.failure().message == "fail to enumerate helper file path list"
+        get_paths_mock.assert_called_once_with(project_context=project_context)
+        validate_mock.assert_not_called()
+
+    def test_returns_failure_when_validating_helper_file_fails(
+        self,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        workspace_context = create_workspace_context(
+            workspace_root=create_workspace_root(path=FullPath(Path("/tmp")))
+        )
+        workspace_project_context = create_workspace_project()
+        project_context = create_project_context()
+        reconcile_result = create_helper_reconcile_result(
+            create=(create_helper_inventory_item(),),
+        )
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update.reconcile_package",
+            return_value=Success((reconcile_result, project_context)),
+        )
+        mocker.patch.object(helpers_module, "ConfigManager")
+        mocker.patch.object(
+            helpers_module,
+            "_create_helper_inventory",
+            return_value=Success(None),
+        )
+
+        helper_file_path = ProjectRelativePath(Path("test_support/helpers.py"))
+        mocker.patch(
+            "gyomu_workflow.test.helpers.update.get_helper_file_paths",
+            return_value=Success((helper_file_path,)),
+        )
+
+        error = create_gyomu_error("validation failed")
+        validate_mock = mocker.patch(
+            "gyomu_workflow.test.helpers.update._validate_helper_file",
+            return_value=Failure(error),
+        )
+
+        interaction = Mock(spec=InteractionExecutor)
+
+        # Act
+        result = helpers_module.update_helper_inventories(
+            workspace_context=workspace_context,
+            workspace_project_context=workspace_project_context,
+            interaction=interaction,
+        )
+
+        # Assert
+        assert isinstance(result, Failure)
+        assert result.failure() == error
+        validate_mock.assert_called_once_with(
+            helper_file_path=WorkspaceRelativePath(Path("test_support/helpers.py")),
+            workspace_context=workspace_context,
+            project_context=project_context,
+        )
 
 
 class TestShouldSaveExistingParameterAsTypeDefault:
@@ -2532,7 +2648,6 @@ class TestUpdateHelperInventoryItem:
         resolve_item = Mock(return_value=Success((model_default, referenced_types)))
         update_file = Mock(return_value=Success(helper_file_path))
         format_file_mock = Mock(return_value=Success(None))
-        validate_file = Mock(return_value=Success(None))
 
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update._resolve_helper_inventory_item",
@@ -2545,10 +2660,6 @@ class TestUpdateHelperInventoryItem:
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.format_file",
             format_file_mock,
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update._validate_helper_file",
-            validate_file,
         )
 
         # Act
@@ -2583,11 +2694,6 @@ class TestUpdateHelperInventoryItem:
             workspace_relative_file_path=helper_file_path,
             workspace_context=workspace_context,
         )
-        validate_file.assert_called_once_with(
-            helper_file_path=helper_file_path,
-            workspace_context=workspace_context,
-            project_context=project_context,
-        )
 
     def test_returns_success_when_update_with_different_function_name_succeeds(
         self,
@@ -2609,7 +2715,6 @@ class TestUpdateHelperInventoryItem:
         resolve_item = Mock(return_value=Success((model_default, referenced_types)))
         update_file = Mock(return_value=Success(helper_file_path))
         format_file_mock = Mock(return_value=Success(None))
-        validate_file = Mock(return_value=Success(None))
 
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update._resolve_helper_inventory_item",
@@ -2622,10 +2727,6 @@ class TestUpdateHelperInventoryItem:
         monkeypatch.setattr(
             "gyomu_workflow.test.helpers.update.format_file",
             format_file_mock,
-        )
-        monkeypatch.setattr(
-            "gyomu_workflow.test.helpers.update._validate_helper_file",
-            validate_file,
         )
 
         # Act
@@ -2659,61 +2760,6 @@ class TestUpdateHelperInventoryItem:
         format_file_mock.assert_called_once_with(
             workspace_relative_file_path=helper_file_path,
             workspace_context=workspace_context,
-        )
-        validate_file.assert_called_once_with(
-            helper_file_path=helper_file_path,
-            workspace_context=workspace_context,
-            project_context=project_context,
-        )
-
-    def test_returns_failure_when_validating_helper_file_fails(
-        self,
-        mocker: MockerFixture,
-    ) -> None:
-        # Arrange
-        item = create_helper_update()
-        workspace_context = create_workspace_context()
-        project_context = create_project_context()
-        config_manager = Mock()
-        interaction = Mock()
-        model_default = create_model_default()
-        referenced_types = ()
-        helper_file_path = WorkspaceRelativePath(Path("test_support/helpers.py"))
-        error = create_gyomu_error()
-
-        mocker.patch(
-            "gyomu_workflow.test.helpers.update._resolve_helper_inventory_item",
-            return_value=Success((model_default, referenced_types)),
-        )
-        mocker.patch(
-            "gyomu_workflow.test.helpers.update.update_helper_file",
-            return_value=Success(helper_file_path),
-        )
-        mocker.patch(
-            "gyomu_workflow.test.helpers.update.format_file",
-            return_value=Success(None),
-        )
-        validate_mock = mocker.patch(
-            "gyomu_workflow.test.helpers.update._validate_helper_file",
-            return_value=Failure(error),
-        )
-
-        # Act
-        result = _update_helper_inventory_item(
-            item=item,
-            workspace_context=workspace_context,
-            project_context=project_context,
-            config_manager=config_manager,
-            interaction=interaction,
-        )
-
-        # Assert
-        assert isinstance(result, Failure)
-        assert result.failure() == error
-        validate_mock.assert_called_once_with(
-            helper_file_path=helper_file_path,
-            workspace_context=workspace_context,
-            project_context=project_context,
         )
 
 

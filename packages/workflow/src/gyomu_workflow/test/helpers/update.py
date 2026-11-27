@@ -24,7 +24,6 @@ from gyomu_schema.schemas.testing.helper import (
     HelperUpdate,
     ParameterInfo,
 )
-from gyomu_schema.utility.fromatting import format_object
 from gyomu_test.helper.defaults.referenced_types import deduplicate_referenced_types
 from gyomu_test.helper.defaults.requirements import (
     ConfiguredParameterDefault,
@@ -64,7 +63,7 @@ def update_helper_inventories(
     if isinstance(result, Failure):
         return result
     reconcile_result, project_context = result.unwrap()
-    print(format_object(reconcile_result, depth=8))
+    # print(format_object(reconcile_result, depth=8))
     config_manager: ConfigManager = ConfigManager()
     if reconcile_result.create:
         create_result = _create_helper_inventory(
@@ -164,7 +163,7 @@ def _define_helper_inventory_parameter(
     parameter, resolved_types = parameter_result.unwrap()
     # print(type(parameter).__name__)
     # print(format_object(parameter, depth=8))
-    # print(format_object(resolved_types, depth=8))
+    # print(f"resolve_function_parameter_default resolved_types: {len(resolved_types)}")
 
     existing_parameter_default = (
         existing_parameter_info.default if existing_parameter_info is not None else None
@@ -300,6 +299,15 @@ def _resolve_helper_inventory_item(
 
     create_parameters: list[ParameterDefault] = []
     referenced_types: list[ReferencedType] = []
+    # target_symbol = search_result[0].metadata.symbols.get(expected_item.target_identity)
+    # if target_symbol is not None and isinstance(
+    #     target_symbol,
+    #     ClassAnalysis | VariableAnalysis | FunctionAnalysis | TypeAliasAnalysis,
+    # ):
+    #     print(target_symbol.identity)
+    #     referenced_types.append(
+    #         SymbolType(symbol=target_symbol, context=search_result[0])
+    #     )
     for parameter_info in expected_item.parameters:
         existing_parameter_info = (
             next(
@@ -329,7 +337,13 @@ def _resolve_helper_inventory_item(
             return parameter_result
         parameter, ref_type = parameter_result.unwrap()
         create_parameters.append(parameter)
-
+        # print(f"ref_type count: {len(ref_type)}")
+        # for ref in ref_type:
+        #     print(
+        #         ref.symbol.identity.symbol_id
+        #         if isinstance(ref, SymbolType)
+        #         else ref.symbol_id
+        #     )
         referenced_types.extend(ref_type)
     model_default: ModelDefault = ModelDefault(
         symbol_name=expected_item.target_identity.get_symbol_name(),
@@ -428,7 +442,7 @@ def _resolve_and_update_helper_inventory_item(
     if isinstance(resolve_result, Failure):
         return resolve_result
     model_default, referenced_types = resolve_result.unwrap()
-
+    # print(format_object(referenced_types, depth=5))
     update_file_result = update_helper_file(
         expected_item=expected_item,
         workspace_context=workspace_context,

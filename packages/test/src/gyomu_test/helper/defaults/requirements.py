@@ -288,7 +288,7 @@ def _resolve_parameter_default(
     GyomuTestError,
 ]:
     referenced_types: list[ReferencedType] = []
-    print(f"{context.parameter.name}:{context.parameter.parameter_type.text}")
+    # print(f"{context.parameter.name}:{context.parameter.parameter_type.text}")
     if context.parameter.parameter_type.structure is not None:
 
         def to_result(
@@ -767,19 +767,17 @@ def resolve_function_parameter_default(
         config_manager=config_manager,
         class_name=inventory.target_identity.get_symbol_name(),
     )
-
+    # print(format_object(parameter_info))
     default_result = _resolve_parameter_default(context=context)
     if isinstance(default_result, Failure):
         return default_result
-
     resolved_default, referenced_types = default_result.unwrap()
 
+    # print(f"referenced_types: {len(referenced_types)}")
     if parameter_info.default is not None:
-        return Success(
-            (ConfiguredParameterDefault(parameter_info), tuple(referenced_types))
-        )
+        return Success((ConfiguredParameterDefault(parameter_info), referenced_types))
     if isinstance(resolved_default, MissingParameterDefault):
-        return Success((resolved_default, ()))
+        return Success((resolved_default, referenced_types))
 
     return Success(
         (
