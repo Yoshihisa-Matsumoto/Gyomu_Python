@@ -8,7 +8,7 @@ from gyomu_schema.schemas.interaction.result import (
     InteractionCancelled,
     InteractionResult,
 )
-from questionary import Choice, rawselect
+from questionary import Choice, select
 from returns.result import Failure, Result, Success
 
 
@@ -46,7 +46,7 @@ def execute_selection_interaction[ContextT, ValueT](
             _selection_to_choice(selection, initial_value=request.initial_value)
         )
     try:
-        selected = rawselect(message=request.instruction, choices=choices).ask()
+        selected = select(message=request.instruction, choices=choices).ask()
         if selected is None:
             return Success(InteractionCancelled())
 
