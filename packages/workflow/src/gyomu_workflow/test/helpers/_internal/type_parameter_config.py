@@ -169,8 +169,12 @@ def configure_type_parameter_default(
                 parameter=expected_parameter_info, missing_types=resolved_types
             )
         )
-        if resolve_result is not None:
-            parameter_type_name = resolve_result[0]
+        if resolve_result is not None or len(resolved_types) == 0:
+            parameter_type_name = (
+                resolve_result[0]
+                if resolve_result is not None
+                else expected_parameter_info.parameter_type.text
+            )
 
             return save_primitive_parameter_default_config(
                 workspace_context=workspace_context,

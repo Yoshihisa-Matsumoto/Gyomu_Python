@@ -66,7 +66,7 @@ def _update(monorepo_path: Path, project_name: str) -> None:
     )
     if isinstance(result, Failure):
         print(f"{package} Helper Update Fail")
-        print(format_object(result.failure(), depth=8))
+        print(format_object(result.failure(), depth=3))
     assert isinstance(result, Success)
 
 

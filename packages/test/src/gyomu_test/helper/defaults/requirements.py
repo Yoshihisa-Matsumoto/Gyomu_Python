@@ -58,7 +58,6 @@ from gyomu_schema.schemas.testing.helper import (
     ParameterInfo,
     TargetClassKind,
 )
-from gyomu_schema.utility.fromatting import format_object
 from returns.result import Failure, Result, Success
 
 from gyomu_test.error.test import GyomuTestError
@@ -384,7 +383,7 @@ def _resolve_name_structure(
     if isinstance(name_parameter_result, Failure):
         return name_parameter_result
     name_parameter = name_parameter_result.unwrap()
-    print(format_object(name_structure, depth=8))
+    # print(format_object(name_structure, depth=8))
     if isinstance(name_structure, SymbolType | PackageType):
         referenced_types.append(name_structure)
     if name_parameter is not None:
@@ -664,8 +663,8 @@ def _resolve_generics_structure(
             # resolved_types.extend(element_parameter.resolved_types)
         else:
             generics_element_parameters.append(element_parameter.parameter)
-    print(format_object(referenced_types, depth=8))
-    print("----")
+    # print(format_object(referenced_types, depth=8))
+    # print("----")
     if len(missing_types) == 0:
         return Success(
             ResolvedParameter(

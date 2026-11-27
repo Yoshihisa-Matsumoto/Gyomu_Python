@@ -34,6 +34,7 @@ from gyomu_test.helper.defaults.requirements import (
     resolve_function_parameter_default,
     resolve_primitive_parameter_type,
 )
+from gyomu_test.helper.inventory.config import get_helper_file_paths
 from gyomu_test.helper.inventory.update import update_helper_file
 from gyomu_test.helper.inventory.update_default import update_model_default
 from returns.result import Failure, Result, Success
@@ -63,6 +64,7 @@ def update_helper_inventories(
     if isinstance(result, Failure):
         return result
     reconcile_result, project_context = result.unwrap()
+    print(format_object(reconcile_result, depth=8))
     config_manager: ConfigManager = ConfigManager()
     if reconcile_result.create:
         create_result = _create_helper_inventory(
@@ -93,6 +95,29 @@ def update_helper_inventories(
         )
         if isinstance(update_result, Failure):
             return update_result
+
+    if reconcile_result.create or reconcile_result.update:
+        helper_file_path_result = get_helper_file_paths(project_context=project_context)
+        if isinstance(helper_file_path_result, Failure):
+            return helper_file_path_result.alt(
+                lambda error: wrap_gyomu_error(
+                    error=error, message="fail to enumerate helper file path list"
+                )
+            )
+        for helper_file_path in helper_file_path_result.unwrap():
+            helper_file_workspace_relative_path = WorkspaceRelativePath(
+                (project_context.project_root / helper_file_path).relative_to(
+                    workspace_context.workspace_root.path
+                )
+            )
+            validate_result = _validate_helper_file(
+                helper_file_path=helper_file_workspace_relative_path,
+                workspace_context=workspace_context,
+                project_context=project_context,
+            )
+            if isinstance(validate_result, Failure):
+                return validate_result
+
     return Success(None)
 
 
@@ -139,7 +164,7 @@ def _define_helper_inventory_parameter(
     parameter, resolved_types = parameter_result.unwrap()
     # print(type(parameter).__name__)
     # print(format_object(parameter, depth=8))
-    print(format_object(resolved_types, depth=8))
+    # print(format_object(resolved_types, depth=8))
 
     existing_parameter_default = (
         existing_parameter_info.default if existing_parameter_info is not None else None
@@ -321,7 +346,7 @@ def _resolve_helper_inventory_item(
                 error=error, message="fail to update function parameter"
             )
         )
-    print(format_object(referenced_types, depth=8))
+    # print(format_object(referenced_types, depth=8))
     unique_ref_types = deduplicate_referenced_types(referenced_types=referenced_types)
 
     return Success((model_default, unique_ref_types))
@@ -428,12 +453,12 @@ def _resolve_and_update_helper_inventory_item(
         return format_result.alt(
             lambda error: wrap_gyomu_error(error=error, message="fail to format file")
         )
-
-    return _validate_helper_file(
-        helper_file_path=helper_file_path,
-        workspace_context=workspace_context,
-        project_context=project_context,
-    )
+    return Success(None)
+    # return _validate_helper_file(
+    #     helper_file_path=helper_file_path,
+    #     workspace_context=workspace_context,
+    #     project_context=project_context,
+    # )
 
 
 def _create_helper_inventory_item(
@@ -507,6 +532,7 @@ def _update_helper_inventory(
     interaction: InteractionExecutor[str, Path],
 ) -> Result[None, GyomuError]:
     for update_item in update:
+        print(f"--Update: {update_item.existing.function_name}")
         item_result = _update_helper_inventory_item(
             item=update_item,
             workspace_context=workspace_context,
