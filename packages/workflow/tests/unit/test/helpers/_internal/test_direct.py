@@ -42,9 +42,9 @@ from packages.workflow.test_support.helpers import (
 
 class TestBuildInteractionRequest:
     def test_supported_primitive_type_returns_interaction_request(self) -> None:
-        parameter = create_missing_parameter_default(
-            missing_types=(create_primitive_type(primitive_type="str"),)
-        )
+        # parameter = create_missing_parameter_default(
+        #     missing_types=(create_primitive_type(primitive_type="str"),)
+        # )
         # symbol_id = SymbolId("test::Test")
         context = create_default_primitive_literal_type_parameter_context(
             model_identity=simple_create_declaration_identity("test::Test")

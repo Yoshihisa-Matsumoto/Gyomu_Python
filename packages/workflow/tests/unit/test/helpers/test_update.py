@@ -2295,7 +2295,9 @@ class TestUpdateHelperInventories:
 
         # Assert
         assert result == Success(None)
-        get_paths_mock.assert_called_once_with(project_context=project_context)
+        get_paths_mock.assert_called_once_with(
+            project_context=project_context, existing_only=True
+        )
         assert validate_mock.call_count == len(helper_file_paths)
 
     def test_returns_failure_when_enumerating_helper_file_paths_fails(
@@ -2346,7 +2348,9 @@ class TestUpdateHelperInventories:
         # Assert
         assert isinstance(result, Failure)
         assert result.failure().message == "fail to enumerate helper file path list"
-        get_paths_mock.assert_called_once_with(project_context=project_context)
+        get_paths_mock.assert_called_once_with(
+            project_context=project_context, existing_only=True
+        )
         validate_mock.assert_not_called()
 
     def test_returns_failure_when_validating_helper_file_fails(

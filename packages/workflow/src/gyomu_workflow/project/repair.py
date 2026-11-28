@@ -4,7 +4,7 @@ from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
-from gyomu_workflow.snapshot.error import (
+from gyomu_workflow.project.error import (
     PyProjectStructureErrorKind,
     PyProjectStructureValidationError,
 )

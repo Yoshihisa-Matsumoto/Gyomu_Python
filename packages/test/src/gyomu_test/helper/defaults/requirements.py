@@ -321,7 +321,8 @@ def _resolve_parameter_default(
             return parameter, tuple(referenced_types)
 
         # print(
-        #     f"{context.parameter.name}: {format_object(context.parameter.parameter_type.structure)}"
+        #     f"{context.parameter.name}: "
+        #     f"{format_object(context.parameter.parameter_type.structure)}"
         # )
         return _resolve_type_expression(
             expression=context.parameter.parameter_type.structure,

@@ -26,19 +26,23 @@ class TestUpdateHelperFile:
     def test_returns_helper_file_path_when_update_succeeds(
         self,
         monkeypatch: MonkeyPatch,
+        tmp_path: Path,
     ) -> None:
         # Arrange
         item = create_helper_inventory_item()
         model_default = create_model_default()
         referenced_types: tuple[ReferencedType, ...] = ()
 
-        project_root = Path("/workspace")
+        project_root = tmp_path
         helper_file_absolute_path = project_root / "src/helpers.py"
+        helper_file_absolute_path.parent.mkdir(parents=True, exist_ok=True)
+        helper_file_absolute_path.touch()
         helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
 
         workspace_context = Mock()
         workspace_context.root_project_context = Mock()
         workspace_context.root_project_context.project_root = project_root
+
         project_context = Mock()
 
         helper_file_analysis = Mock(source_lines=["from typing import Any\n", "\n"])
@@ -171,13 +175,14 @@ class TestUpdateHelperFile:
         assert result.failure() is error
 
     def test_returns_failure_when_loading_helper_file_fails(
-        self,
-        monkeypatch: MonkeyPatch,
+        self, monkeypatch: MonkeyPatch, tmp_path: Path
     ) -> None:
         # Arrange
         item = create_helper_inventory_item()
-        project_root = Path("/workspace")
+        project_root = tmp_path
         helper_file_absolute_path = project_root / "src/helpers.py"
+        helper_file_absolute_path.parent.mkdir(parents=True, exist_ok=True)
+        helper_file_absolute_path.touch()
         helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
         workspace_context = Mock()
         workspace_context.root_project_context = Mock()
@@ -298,8 +303,7 @@ class TestUpdateHelperFile:
         assert result.failure().__cause__ is error
 
     def test_replaces_existing_function_when_update_succeeds(
-        self,
-        monkeypatch: MonkeyPatch,
+        self, monkeypatch: MonkeyPatch, tmp_path: Path
     ) -> None:
         # Arrange
         item = create_helper_inventory_item()
@@ -307,8 +311,10 @@ class TestUpdateHelperFile:
         model_default = create_model_default()
         referenced_types: tuple[ReferencedType, ...] = ()
 
-        project_root = Path("/workspace")
+        project_root = tmp_path
         helper_file_absolute_path = project_root / "src/helpers.py"
+        helper_file_absolute_path.parent.mkdir(parents=True, exist_ok=True)
+        helper_file_absolute_path.touch()
         helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
 
         workspace_context = Mock()
@@ -415,15 +421,16 @@ class TestUpdateHelperFile:
         )
 
     def test_returns_failure_when_existing_function_is_not_found(
-        self,
-        monkeypatch: MonkeyPatch,
+        self, monkeypatch: MonkeyPatch, tmp_path: Path
     ) -> None:
         # Arrange
         item = create_helper_inventory_item()
         existing_item = create_helper_inventory_item()
 
-        project_root = Path("/workspace")
+        project_root = tmp_path
         helper_file_absolute_path = project_root / "src/helpers.py"
+        helper_file_absolute_path.parent.mkdir(parents=True, exist_ok=True)
+        helper_file_absolute_path.touch()
         helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
 
         workspace_context = Mock()
@@ -491,6 +498,167 @@ class TestUpdateHelperFile:
             workspace_context.root_project_context,
             helper_file_path,
         )
+        reflect_inventory.assert_not_called()
+        generate_function.assert_not_called()
+        generate_import.assert_not_called()
+        write_file.assert_not_called()
+
+    def test_creates_helper_file_when_file_does_not_exist(
+        self,
+        monkeypatch: MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        # Arrange
+        item = create_helper_inventory_item()
+        model_default = create_model_default()
+        referenced_types: tuple[ReferencedType, ...] = ()
+
+        project_root = tmp_path
+        helper_file_absolute_path = project_root / "src/helpers.py"
+        helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+
+        workspace_context = Mock()
+        workspace_context.root_project_context = Mock()
+        workspace_context.root_project_context.project_root = project_root
+        workspace_context.root_project_context.config = Mock()
+        workspace_context.root_project_context.config.path = project_root
+
+        project_context = Mock()
+
+        get_helper_path = Mock(return_value=Success(helper_file_absolute_path))
+        load_file = Mock()
+        reflect_inventory = Mock(return_value=item)
+        function_lines = [
+            f"def {item.function_name}() -> Any:\n",
+            "    ...\n",
+        ]
+        generate_function = Mock(return_value=function_lines)
+        generate_import = Mock(return_value=["from example import Example\n"])
+        write_file = Mock(return_value=Success(None))
+
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.get_helper_file_path",
+            get_helper_path,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.load_file_analysis_context",
+            load_file,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.reflect_updated_inventory",
+            reflect_inventory,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.generate_function_code_lines",
+            generate_function,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.generate_import_code_lines",
+            generate_import,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.write_text",
+            write_file,
+        )
+
+        # Act
+        result = update_helper_file(
+            expected_item=item,
+            workspace_context=workspace_context,
+            project_context=project_context,
+            model_default=model_default,
+            referenced_types=referenced_types,
+            existing_item=None,
+        )
+
+        # Assert
+        assert result == Success(helper_file_path)
+
+        load_file.assert_not_called()
+        reflect_inventory.assert_called_once_with(
+            inventory=item,
+            model_default=model_default,
+        )
+        generate_function.assert_called_once_with(item)
+        generate_import.assert_called_once_with(item, referenced_types)
+        write_file.assert_called_once_with(
+            project_root / helper_file_path,
+            "".join(
+                [
+                    *generate_import.return_value,
+                    "",
+                    *function_lines,
+                ]
+            ),
+        )
+
+    def test_returns_failure_when_helper_file_does_not_exist_for_update(
+        self,
+        monkeypatch: MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        # Arrange
+        item = create_helper_inventory_item()
+        existing_item = create_helper_inventory_item()
+
+        project_root = tmp_path
+        helper_file_absolute_path = project_root / "src/helpers.py"
+        # helper_file_path = ProjectRelativePath(Path("src/helpers.py"))
+
+        workspace_context = Mock()
+        workspace_context.root_project_context = Mock()
+        workspace_context.root_project_context.project_root = project_root
+        workspace_context.root_project_context.config = Mock()
+        workspace_context.root_project_context.config.path = project_root
+
+        project_context = Mock()
+        get_helper_path = Mock(return_value=Success(helper_file_absolute_path))
+        load_file = Mock()
+        reflect_inventory = Mock()
+        generate_function = Mock()
+        generate_import = Mock()
+        write_file = Mock()
+
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.get_helper_file_path",
+            get_helper_path,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.load_file_analysis_context",
+            load_file,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.reflect_updated_inventory",
+            reflect_inventory,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.generate_function_code_lines",
+            generate_function,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.generate_import_code_lines",
+            generate_import,
+        )
+        monkeypatch.setattr(
+            "gyomu_test.helper.inventory.update.write_text",
+            write_file,
+        )
+
+        # Act
+        result = update_helper_file(
+            expected_item=item,
+            workspace_context=workspace_context,
+            project_context=project_context,
+            model_default=create_model_default(),
+            referenced_types=(),
+            existing_item=existing_item,
+        )
+
+        # Assert
+        assert isinstance(result, Failure)
+        assert result.failure().message == "existing helper function not found"
+
+        load_file.assert_not_called()
         reflect_inventory.assert_not_called()
         generate_function.assert_not_called()
         generate_import.assert_not_called()

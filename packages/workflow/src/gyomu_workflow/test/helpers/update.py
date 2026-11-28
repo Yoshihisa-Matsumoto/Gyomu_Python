@@ -96,7 +96,9 @@ def update_helper_inventories(
             return update_result
 
     if reconcile_result.create or reconcile_result.update:
-        helper_file_path_result = get_helper_file_paths(project_context=project_context)
+        helper_file_path_result = get_helper_file_paths(
+            project_context=project_context, existing_only=True
+        )
         if isinstance(helper_file_path_result, Failure):
             return helper_file_path_result.alt(
                 lambda error: wrap_gyomu_error(
@@ -299,15 +301,7 @@ def _resolve_helper_inventory_item(
 
     create_parameters: list[ParameterDefault] = []
     referenced_types: list[ReferencedType] = []
-    # target_symbol = search_result[0].metadata.symbols.get(expected_item.target_identity)
-    # if target_symbol is not None and isinstance(
-    #     target_symbol,
-    #     ClassAnalysis | VariableAnalysis | FunctionAnalysis | TypeAliasAnalysis,
-    # ):
-    #     print(target_symbol.identity)
-    #     referenced_types.append(
-    #         SymbolType(symbol=target_symbol, context=search_result[0])
-    #     )
+
     for parameter_info in expected_item.parameters:
         existing_parameter_info = (
             next(

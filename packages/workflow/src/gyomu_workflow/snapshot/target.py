@@ -7,9 +7,9 @@ from gyomu_schema.schemas.snapshot.types import FileDeleted
 from gyomu_schema.schemas.types import FullPath
 from returns.result import Failure, Result, Success
 
+from gyomu_workflow.project.repair import repair_python_package_structure
+from gyomu_workflow.project.validate import validate_python_package_structure
 from gyomu_workflow.snapshot.models import SnapshotTarget, SnapshotTargetOption
-from gyomu_workflow.snapshot.repair import repair_python_package_structure
-from gyomu_workflow.snapshot.validate import validate_python_package_structure
 
 
 def resolve_snapshot_target(

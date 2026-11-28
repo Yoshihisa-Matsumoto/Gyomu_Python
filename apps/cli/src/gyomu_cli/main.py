@@ -19,6 +19,9 @@ from gyomu_interaction_cli.executor import CliInteractionExecutor
 from gyomu_python_analysis.analysis.workspace import find_root
 from gyomu_schema.option.retry import RetryObserver
 from gyomu_schema.schemas.types import FullPath
+from gyomu_workflow.project.validate import (
+    validate_and_fix_python_package_structure,
+)
 from gyomu_workflow.snapshot.models import (
     DocstringExecutionOption,
     FileFilter,
@@ -182,6 +185,17 @@ def test(
         )
     interaction: CliInteractionExecutor = CliInteractionExecutor()
     if update_helpers:
+        project_context = workspace_context.get_project_context(
+            workspace_project_context.config.name
+        )
+        assert project_context
+        validation_result = validate_and_fix_python_package_structure(
+            project_context=project_context
+        )
+        if isinstance(validation_result, Failure):
+            logger.error(f"{package} Project Validation Fail")
+            logger.error_object(validation_result.failure(), depth=8)
+            return
         result = update_helper_inventories(
             workspace_context=workspace_context,
             workspace_project_context=workspace_project_context,
@@ -189,7 +203,7 @@ def test(
         )
         if isinstance(result, Failure):
             logger.error(f"{package} Helper Update Fail")
-            logger.error_object(result.failure())
+            logger.error_object(result.failure(), depth=8)
             return
 
 

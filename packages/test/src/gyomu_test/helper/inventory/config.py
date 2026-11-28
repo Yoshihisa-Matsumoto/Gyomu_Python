@@ -56,13 +56,15 @@ class HelperConfigPathResolver:
 
 
 def get_helper_file_paths(
-    project_context: ProjectContext,
+    project_context: ProjectContext, existing_only: bool
 ) -> Result[tuple[ProjectRelativePath, ...], GyomuTestError]:
-    return _get_helper_file_paths_from_project_context(project_context=project_context)
+    return _get_helper_file_paths_from_project_context(
+        project_context=project_context, existing_only=existing_only
+    )
 
 
 def _get_helper_file_paths_from_project_context(
-    project_context: ProjectContext,
+    project_context: ProjectContext, existing_only: bool
 ) -> Result[tuple[ProjectRelativePath, ...], GyomuTestError]:
     config_result = _load_helper_config_with_default(project_context=project_context)
     if isinstance(config_result, Failure):
@@ -72,13 +74,15 @@ def _get_helper_file_paths_from_project_context(
     helper_path = Path(config.helper_directory)
 
     paths = dict.fromkeys(
-        (
+        path
+        for path in (
             ProjectRelativePath(helper_path / "helpers.py"),
             *(
                 ProjectRelativePath(helper_path / allocation.helper_filename)
                 for allocation in config.file_allocation
             ),
         )
+        if not existing_only or (project_context.project_root / path).exists()
     )
 
     return Success(tuple(paths))

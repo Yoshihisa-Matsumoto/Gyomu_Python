@@ -26,6 +26,7 @@ from gyomu_python_analysis.error.analysis import AnalysisError, AnalysisPhase
 from gyomu_python_analysis.error.resolve import ResolveError
 from gyomu_python_analysis.error.tools import MypyCheckExecutionError
 from gyomu_python_analysis.project.context import (
+    DEFAULT_TEST_PATH,
     PackageRoot,
     ProjectContext,
     PyProjectConfig,
@@ -129,6 +130,7 @@ def create_project_context(
     config: PyProjectConfig = create_py_project_config(),
     included_files: frozenset[ProjectRelativePath] = frozenset(),
     package_roots: tuple[PackageRoot, ...] = tuple(),
+    test_root: ProjectRelativePath = DEFAULT_TEST_PATH,
 ) -> ProjectContext:
     return ProjectContext(
         project_root=project_root,
@@ -136,6 +138,7 @@ def create_project_context(
         config=config,
         included_files=included_files,
         package_roots=package_roots,
+        test_root=test_root,
     )
 
 

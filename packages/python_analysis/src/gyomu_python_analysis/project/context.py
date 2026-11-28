@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from griffe import GriffeLoader
@@ -106,6 +107,9 @@ class PackageRoot:
     module_name: str
 
 
+DEFAULT_TEST_PATH = ProjectRelativePath(Path("tests"))
+
+
 class ProjectContext:
     """Encapsulates project context including roots, configuration, and loader.
 
@@ -120,6 +124,7 @@ class ProjectContext:
         config: PyProjectConfig,
         included_files: frozenset[ProjectRelativePath] = frozenset(),
         package_roots: tuple[PackageRoot, ...] = tuple(),
+        test_root: ProjectRelativePath = DEFAULT_TEST_PATH,
     ) -> None:
         self.project_root = project_root
         self.source_root = source_root
@@ -130,6 +135,7 @@ class ProjectContext:
         self.config = config
         self.included_files = included_files
         self.package_roots = package_roots
+        self.test_root = test_root
 
     def includes(self, module_path: PythonPath) -> bool:
         root_module_name = module_path.split(".")[0]

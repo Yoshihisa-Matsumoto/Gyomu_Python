@@ -7,6 +7,7 @@ from gyomu_python_analysis.source_code import get_import_insertion_line
 from gyomu_schema.schemas.config.test.model_defaults import (
     ModelDefault,
 )
+from gyomu_schema.schemas.python.location import SourceLocation
 from gyomu_schema.schemas.python.types import (
     DeclarationIdentity,
     ProjectRelativePath,
@@ -46,40 +47,50 @@ def update_helper_file(
             workspace_context.root_project_context.project_root
         )
     )
-    file_result = load_file_analysis_context(
-        workspace_context.root_project_context, helper_file_path
-    )
-    if isinstance(file_result, Failure):
-        return file_result.alt(
-            lambda error: GyomuTestError(message="fail to load helper file").chain(
-                error
-            )
-        )
-    helper_file_analysis = file_result.unwrap()
 
-    existing_function_symbol = (
-        helper_file_analysis.metadata.symbols.get(
-            DeclarationIdentity.create_from_symbol_id(
-                symbol_id=SymbolId(
-                    f"{helper_file_analysis.analysis.module_name}::{existing_item.function_name}"
+    update_file_lines: list[str] = []
+    last_line = 0
+    existing_function_location: SourceLocation | None = None
+    if (
+        workspace_context.root_project_context.project_root / helper_file_path
+    ).exists():
+        file_result = load_file_analysis_context(
+            workspace_context.root_project_context, helper_file_path
+        )
+        if isinstance(file_result, Failure):
+            return file_result.alt(
+                lambda error: GyomuTestError(message="fail to load helper file").chain(
+                    error
                 )
             )
+        helper_file_analysis = file_result.unwrap()
+
+        existing_function_symbol = (
+            helper_file_analysis.metadata.symbols.get(
+                DeclarationIdentity.create_from_symbol_id(
+                    symbol_id=SymbolId(
+                        f"{helper_file_analysis.analysis.module_name}::{existing_item.function_name}"
+                    )
+                )
+            )
+            if existing_item is not None
+            else None
         )
-        if existing_item is not None
-        else None
-    )
-    existing_function_location = (
-        existing_function_symbol.location
-        if existing_function_symbol is not None
-        else None
-    )
+        existing_function_location = (
+            existing_function_symbol.location
+            if existing_function_symbol is not None
+            else None
+        )
+
+        if existing_item is not None and existing_function_location is None:
+            return Failure(GyomuTestError(message="existing helper function not found"))
+
+        update_file_lines.extend(helper_file_analysis.source_lines)
+        last_line = get_import_insertion_line(helper_file_analysis)
 
     if existing_item is not None and existing_function_location is None:
         return Failure(GyomuTestError(message="existing helper function not found"))
-
     # insert helper function
-    update_file_lines: list[str] = []
-    update_file_lines.extend(helper_file_analysis.source_lines)
     reflected_item = reflect_updated_inventory(
         inventory=expected_item, model_default=model_default
     )
@@ -95,7 +106,7 @@ def update_helper_file(
         ] = function_lines
 
     # insert import statement
-    last_line = get_import_insertion_line(helper_file_analysis)
+
     # print(format_object(unique_ref_types))
     import_lines = generate_import_code_lines(expected_item, referenced_types)
     update_file_lines[last_line : last_line + 1] = import_lines

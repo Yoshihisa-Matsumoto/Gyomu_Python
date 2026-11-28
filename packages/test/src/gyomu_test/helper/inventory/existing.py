@@ -180,7 +180,9 @@ def collect_existing_helper_inventory(
     file_inventories: list[HelperFileInventory] = []
     inventory_summaries: dict[DeclarationIdentity, list[FunctionInformation]] = {}
 
-    helper_file_paths_result = get_helper_file_paths(project_context=target_project)
+    helper_file_paths_result = get_helper_file_paths(
+        project_context=target_project, existing_only=True
+    )
     if isinstance(helper_file_paths_result, Failure):
         return helper_file_paths_result
     files = helper_file_paths_result.unwrap()

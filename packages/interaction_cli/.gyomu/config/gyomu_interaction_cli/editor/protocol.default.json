@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "symbol_name": "TextEditorConfig",
+      "parameters": [
+        {
+          "name": "name",
+          "value": {
+            "kind": "literal",
+            "value": "test"
+          }
+        },
+        {
+          "name": "command",
+          "value": {
+            "kind": "literal",
+            "value": "test"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 from gyomu_schema.error.io import GyomuIOError
 from gyomu_schema.schemas.python.types import ProjectRelativePath
 from gyomu_schema.schemas.types import FullPath
-from gyomu_workflow.snapshot.error import (
+from gyomu_workflow.project.error import (
     PyProjectStructureErrorKind,
     PyProjectStructureValidationError,
 )
-from gyomu_workflow.snapshot.repair import (
+from gyomu_workflow.project.repair import (
     create_file_if_not_exist,
     repair_python_package_structure,
 )
@@ -38,7 +38,7 @@ class TestCreateFileIfNotExist:
         path.write_text("existing content")
 
         write_text_mock = mocker.patch(
-            "gyomu_workflow.snapshot.repair.write_text",
+            "gyomu_workflow.project.repair.write_text",
         )
 
         result = create_file_if_not_exist(path)
@@ -56,7 +56,7 @@ class TestCreateFileIfNotExist:
         io_error = MagicMock(spec=GyomuIOError)
 
         mocker.patch(
-            "gyomu_workflow.snapshot.repair.write_text",
+            "gyomu_workflow.project.repair.write_text",
             return_value=Failure(io_error),
         )
 
@@ -152,7 +152,7 @@ class TestRepairPythonPackageStructure:
         io_error = MagicMock(spec=GyomuIOError)
 
         mocker.patch(
-            "gyomu_workflow.snapshot.repair.write_text",
+            "gyomu_workflow.project.repair.write_text",
             return_value=Failure(io_error),
         )
 

@@ -35,7 +35,7 @@ class TestLoadHelperConfigWithDefault:
         expected_config = HelperConfig(
             helper_directory="test_support",
         )
-        retrieve_mock = mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.config.retrieve_config",
             return_value=Success(expected_config),
         )
@@ -54,7 +54,7 @@ class TestLoadHelperConfigWithDefault:
         mocker: MockerFixture,
     ) -> None:
         project_root = FullPath(tmp_path)
-        expected_config = HelperConfig(
+        HelperConfig(
             helper_directory="test_support",
         )
         mocker.patch(
@@ -99,7 +99,7 @@ class TestLoadHelperConfigWithDefault:
         project_root = FullPath(tmp_path)
 
         expected_error = create_config_error()
-        retrieve_mock = mocker.patch(
+        mocker.patch(
             "gyomu_test.helper.inventory.config.retrieve_config",
             return_value=Failure(expected_error),
         )
@@ -116,7 +116,7 @@ class TestLoadHelperConfigWithDefault:
         # )
 
 
-class Test_GetHelperFilePaths:
+class Test_GetHelperFilePathsFromProjectContext:
     def test_without_allocation(
         self,
         tmp_path: Path,
@@ -129,7 +129,7 @@ class Test_GetHelperFilePaths:
         )
         project_context = create_project_context(project_root=project_root)
         result = _get_helper_file_paths_from_project_context(
-            project_context=project_context
+            project_context=project_context, existing_only=False
         )
 
         assert result == Success(
@@ -166,7 +166,7 @@ class Test_GetHelperFilePaths:
         )
         project_context = create_project_context(project_root=project_root)
         result = _get_helper_file_paths_from_project_context(
-            project_context=project_context
+            project_context=project_context, existing_only=False
         )
         assert result == Success(
             (
@@ -189,12 +189,131 @@ class Test_GetHelperFilePaths:
 
         project_context = create_project_context(project_root=project_root)
         result = _get_helper_file_paths_from_project_context(
-            project_context=project_context
+            project_context=project_context, existing_only=False
         )
 
         assert isinstance(result, Failure)
         failure = result.failure()
         assert failure is expected_error
+
+    def test_existing_only(
+        self,
+        tmp_path: Path,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        project_root = FullPath(tmp_path)
+        helper_directory = tmp_path / "test_support"
+        helper_directory.mkdir()
+        (helper_directory / "helpers.py").touch()
+        (helper_directory / "concept_helpers.py").touch()
+
+        mocker.patch(
+            "gyomu_test.helper.inventory.config._load_helper_config_with_default",
+            return_value=Success(
+                HelperConfig(
+                    helper_directory="test_support",
+                    file_allocation=(
+                        HelperFileAllocation(
+                            path=PythonPath(""),
+                            helper_filename="helpers.py",
+                        ),
+                        HelperFileAllocation(
+                            path=PythonPath("gyomu_schema.schemas.concept"),
+                            helper_filename="concept_helpers.py",
+                        ),
+                        HelperFileAllocation(
+                            path=PythonPath("gyomu_schema.schemas.request"),
+                            helper_filename="request_helpers.py",
+                        ),
+                    ),
+                )
+            ),
+        )
+        project_context = create_project_context(project_root=project_root)
+
+        # Act
+        result = _get_helper_file_paths_from_project_context(
+            project_context=project_context,
+            existing_only=True,
+        )
+
+        # Assert
+        assert result == Success(
+            (
+                ProjectRelativePath(Path("test_support/helpers.py")),
+                ProjectRelativePath(Path("test_support/concept_helpers.py")),
+            )
+        )
+
+    def test_existing_only_without_existing_files(
+        self,
+        tmp_path: Path,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        project_root = FullPath(tmp_path)
+        mocker.patch(
+            "gyomu_test.helper.inventory.config._load_helper_config_with_default",
+            return_value=Success(
+                HelperConfig(
+                    helper_directory="test_support",
+                    file_allocation=(
+                        HelperFileAllocation(
+                            path=PythonPath("gyomu_schema.schemas.concept"),
+                            helper_filename="concept_helpers.py",
+                        ),
+                    ),
+                )
+            ),
+        )
+        project_context = create_project_context(project_root=project_root)
+
+        # Act
+        result = _get_helper_file_paths_from_project_context(
+            project_context=project_context,
+            existing_only=True,
+        )
+
+        # Assert
+        assert result == Success(())
+
+    def test_includes_nonexistent_files_when_existing_only_is_false(
+        self,
+        tmp_path: Path,
+        mocker: MockerFixture,
+    ) -> None:
+        # Arrange
+        project_root = FullPath(tmp_path)
+        mocker.patch(
+            "gyomu_test.helper.inventory.config._load_helper_config_with_default",
+            return_value=Success(
+                HelperConfig(
+                    helper_directory="test_support",
+                    file_allocation=(
+                        HelperFileAllocation(
+                            path=PythonPath("gyomu_schema.schemas.concept"),
+                            helper_filename="concept_helpers.py",
+                        ),
+                    ),
+                )
+            ),
+        )
+        project_context = create_project_context(project_root=project_root)
+
+        # Act
+        result = _get_helper_file_paths_from_project_context(
+            project_context=project_context,
+            existing_only=False,
+        )
+
+        # Assert
+        assert result == Success(
+            (
+                ProjectRelativePath(Path("test_support/helpers.py")),
+                ProjectRelativePath(Path("test_support/concept_helpers.py")),
+            )
+        )
 
 
 # class TestGetHelperFilePathsFromWorkspaceProject:
@@ -236,12 +355,14 @@ class TestGetHelperFilePaths:
             "gyomu_test.helper.inventory.config._get_helper_file_paths_from_project_context",
             return_value=Success(expected_paths),
         )
-
-        result = get_helper_file_paths(project_context=project_context)
+        existing_only = False
+        result = get_helper_file_paths(
+            project_context=project_context, existing_only=existing_only
+        )
 
         assert result == Success(expected_paths)
         get_paths_mock.assert_called_once_with(
-            project_context=project_context,
+            project_context=project_context, existing_only=existing_only
         )
 
 

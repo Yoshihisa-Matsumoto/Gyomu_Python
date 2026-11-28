@@ -58,5 +58,13 @@
       ]
     }
   },
-  "primitives_per_type": {}
+  "primitives_per_type": {
+    "str": {
+      "type_name": "str",
+      "parameter": {
+        "kind": "literal",
+        "value": "test"
+      }
+    }
+  }
 }

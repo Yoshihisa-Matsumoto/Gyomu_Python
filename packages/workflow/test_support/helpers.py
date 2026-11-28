@@ -20,16 +20,16 @@ from gyomu_schema.schemas.snapshot.types import ProjectSnapshot
 from gyomu_schema.schemas.testing.helper import ParameterInfo
 from gyomu_schema.schemas.types import FullPath
 from gyomu_test.helper.defaults.requirements import MissingParameterDefault
+from gyomu_workflow.project.error import (
+    PyProjectStructureErrorKind,
+    PyProjectStructureValidationError,
+    PyProjectStructureValidationErrors,
+)
 from gyomu_workflow.snapshot.checkpoint import (
     Checkpoint,
     Fingerprints,
     InputFingerprint,
     PipelineStep,
-)
-from gyomu_workflow.snapshot.error import (
-    PyProjectStructureErrorKind,
-    PyProjectStructureValidationError,
-    PyProjectStructureValidationErrors,
 )
 from gyomu_workflow.snapshot.models import (
     DocstringExecutionOption,

@@ -30,7 +30,9 @@ def _get_helper_file_paths(
     result: list[tuple[ProjectContext, ProjectRelativePath]] = []
 
     if not is_generated_only:
-        test_file_result = get_helper_file_paths(project_context=test_project_context)
+        test_file_result = get_helper_file_paths(
+            project_context=test_project_context, existing_only=False
+        )
         if isinstance(test_file_result, Failure):
             return test_file_result
         for test_path in test_file_result.unwrap():
@@ -57,7 +59,9 @@ def _get_helper_file_paths(
         is_generated_only
         or test_project_context.project_root != model_project_context.project_root
     ):
-        model_file_result = get_helper_file_paths(project_context=model_project_context)
+        model_file_result = get_helper_file_paths(
+            project_context=model_project_context, existing_only=False
+        )
         if isinstance(model_file_result, Failure):
             return model_file_result
         for test_path in model_file_result.unwrap():
